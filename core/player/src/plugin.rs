@@ -73,7 +73,7 @@ impl Plugin for PlayerPlugin {
                 (
                     client_receive_pawnid,
                     spawn_debug_camera,
-                    grab_mouse_on_board.before(CursorSet::Process),
+                    grab_mouse_on_board.before(CursorSet::Perform),
                 )
                     .in_set(MainSet::Update),
             )

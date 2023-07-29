@@ -1,5 +1,5 @@
+use crate::build::MainMenuPlayButton;
 use crate::build::{MainMenuExitButton, MainMenuSettingsButton};
-use crate::build::{MainMenuPlayButton, MainMenuState};
 use bevy::prelude::{info, warn, EventReader, Res};
 use bevy::prelude::{Changed, Color};
 use bevy::ui::{Display, Style};
@@ -11,6 +11,7 @@ use bevy::{
 use bevy::prelude::EventWriter;
 use escape_menu::events::ToggleEscapeMenu;
 use resources::hud::EscapeMenuState;
+use resources::ui::MainMenuState;
 use token::parse::Token;
 use ui::cursor::ReleaseCursor;
 

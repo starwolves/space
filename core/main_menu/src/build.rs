@@ -8,6 +8,7 @@ use bevy::{
     ui::{AlignItems, FlexDirection, FlexWrap, JustifyContent, Style, UiRect, Val},
 };
 use resources::core::ClientInformation;
+use resources::ui::MainMenuState;
 use token::parse::Token;
 use ui::fonts::{Fonts, ARIZONE_FONT, EMPIRE_FONT, FONT_AWESOME, NESATHOBERYL_FONT};
 
@@ -15,15 +16,6 @@ use ui::fonts::{Fonts, ARIZONE_FONT, EMPIRE_FONT, FONT_AWESOME, NESATHOBERYL_FON
 #[derive(Event)]
 pub struct EnableMainMenu {
     pub enable: bool,
-}
-
-/// Resource containing the main menu state.
-#[derive(Default, Resource)]
-
-pub struct MainMenuState {
-    pub enabled: bool,
-    pub root: Option<Entity>,
-    pub camera: Option<Entity>,
 }
 
 /// Labels for system ordering.

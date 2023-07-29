@@ -78,7 +78,7 @@ pub(crate) fn text_input(
 }
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
 pub(crate) enum CommunicationToggleSet {
-    Process,
+    Toggle,
 }
 #[derive(Event)]
 pub(crate) struct ToggleCommunication;

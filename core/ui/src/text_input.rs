@@ -1,4 +1,4 @@
-use bevy::prelude::{Color, Component, Entity, Event, SystemSet};
+use bevy::prelude::{Color, Component, Entity, Event, MouseButton, SystemSet};
 use bevy::window::{PrimaryWindow, Window};
 use bevy::{
     prelude::{Changed, Query},
@@ -61,7 +61,7 @@ use bevy::ui::BackgroundColor;
 
 /// UI event visuals.
 
-pub(crate) fn ui_events(
+pub fn ui_events(
     mut interaction_query: Query<
         (Entity, &Interaction, &TextInputNode, &mut BackgroundColor),
         Changed<Interaction>,
@@ -102,6 +102,17 @@ pub(crate) fn ui_events(
                     *color = text_input_node.bg_color.into();
                 }
             }
+        } else {
+            match *interaction {
+                Interaction::Pressed => {
+                    if !primary.cursor.visible {
+                        continue;
+                    }
+                    *color = text_input_node.bg_color.into();
+                    focus.send(FocusTextInput { entity });
+                }
+                _ => (),
+            }
         }
     }
 }
@@ -117,6 +128,11 @@ use bevy::{prelude::EventReader, window::ReceivedCharacter};
 
 pub struct UnfocusTextInput {
     pub entity_option: Option<Entity>,
+}
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
+pub enum FocusTextSet {
+    Focus,
+    Unfocus,
 }
 
 /// Event to focus a new text input.
@@ -197,6 +213,7 @@ pub(crate) fn focus_events(
             }
             None => {}
         }
+        text_input.old_focus = text_input.focused_input.clone();
         text_input.focused_input = None;
     }
     for focus in focus_events.iter() {
@@ -224,7 +241,7 @@ pub(crate) fn focus_events(
                 warn!("Couldnt find node of new text input focus. 0");
             }
         }
-
+        text_input.old_focus = text_input.focused_input.clone();
         text_input.focused_input = Some(focus.entity);
     }
 }
@@ -575,4 +592,52 @@ pub struct TextTreeInputSelection {
     /// The selection on the menu.
     pub entry: String,
     pub entity: Entity,
+}
+
+/// Manages focus of text input.
+
+pub(crate) fn input_mouse_press_unfocus(
+    buttons: Res<Input<MouseButton>>,
+    text_input: Res<TextInput>,
+    mut unfocus: EventWriter<UnfocusTextInput>,
+    mut focus: EventReader<FocusTextInput>,
+) {
+    if buttons.just_pressed(MouseButton::Left) {
+        let mut new_focus = None;
+        for f in focus.iter() {
+            new_focus = Some(f.entity);
+        }
+        let focus;
+
+        match text_input.old_focus {
+            Some(e) => {
+                focus = Some(e);
+            }
+            None => {
+                focus = text_input.focused_input;
+            }
+        }
+
+        match focus {
+            Some(e) => match new_focus {
+                Some(x) => {
+                    if e != x {
+                        unfocus.send(UnfocusTextInput {
+                            entity_option: Some(e),
+                        });
+                    }
+                }
+                None => {
+                    unfocus.send(UnfocusTextInput {
+                        entity_option: Some(e),
+                    });
+                }
+            },
+            None => {}
+        }
+    }
+}
+
+pub(crate) fn clear_old_focus(mut text_input: ResMut<TextInput>) {
+    text_input.old_focus = None;
 }

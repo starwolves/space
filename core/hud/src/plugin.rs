@@ -4,7 +4,10 @@ use bevy::prelude::{
 use bevy_renet::renet::RenetClient;
 use console_commands::net::ClientSideConsoleInput;
 use resources::{is_server::is_server, sets::MainSet};
-use ui::{cursor::CursorSet, text_input::TextInputLabel};
+use ui::{
+    cursor::CursorSet,
+    text_input::{FocusTextSet, TextInputLabel},
+};
 
 use crate::{
     build::{create_hud, show_hud, ExpandedLeftContentHud},
@@ -43,7 +46,7 @@ use crate::{
         },
         slots::{scale_slots, update_inventory_hud_slot, HudAddInventorySlot, InventoryHudSet},
     },
-    mouse::{grab_mouse_hud_expand, input_mouse_press_unfocus, window_unfocus_event},
+    mouse::{grab_mouse_hud_expand, mouse_press_hud_unfocus, window_unfocus_event},
     server_stats::{build_server_stats, update_server_stats, ServerStatsState},
     style::button::{button_style_events, changed_focus},
 };
@@ -82,12 +85,12 @@ impl Plugin for HudPlugin {
                         (
                             text_input.in_set(ConsoleCommandsClientSet::Submit),
                             receive_chat_message,
-                            tab_communication_input_toggle.before(CommunicationToggleSet::Process),
+                            tab_communication_input_toggle.before(CommunicationToggleSet::Toggle),
                             open_inventory_hud.after(OpenHudSet::Process),
                             toggle_console_button
                                 .before(OpenHudSet::Process)
                                 .before(TextInputLabel::MousePressUnfocus)
-                                .before(OpenHudSet::Process),
+                                .in_set(FocusTextSet::Focus),
                             console_input
                                 .after(ConsoleCommandsClientSet::Submit)
                                 .before(ConsoleCommandsClientSet::Display),
@@ -100,7 +103,7 @@ impl Plugin for HudPlugin {
                             update_server_stats.run_if(resource_exists::<RenetClient>()),
                             window_unfocus_event
                                 .before(TextInputLabel::MousePressUnfocus)
-                                .before(CursorSet::Process),
+                                .before(CursorSet::Perform),
                         )
                             .in_set(MainSet::Update),
                     ),
@@ -117,19 +120,21 @@ impl Plugin for HudPlugin {
                 .add_systems(
                     Update,
                     (
-                        input_mouse_press_unfocus
+                        mouse_press_hud_unfocus
                             .before(TextInputLabel::MousePressUnfocus)
-                            .before(CursorSet::Process)
-                            .before(CommunicationToggleSet::Process),
+                            .before(CursorSet::Perform)
+                            .in_set(CommunicationToggleSet::Toggle)
+                            .in_set(FocusTextSet::Unfocus),
                         open_hud.in_set(OpenHudSet::Process),
                         hide_actions.in_set(OpenHudSet::Process),
                         grab_mouse_hud_expand
                             .in_set(OpenHudSet::Process)
-                            .before(CursorSet::Process),
+                            .before(CursorSet::Perform),
                         communication_input_toggle
                             .before(TextInputLabel::MousePressUnfocus)
                             .before(OpenHudSet::Process)
-                            .in_set(CommunicationToggleSet::Process),
+                            .in_set(CommunicationToggleSet::Toggle)
+                            .in_set(FocusTextSet::Focus),
                     ),
                 )
                 .add_event::<OpenHud>()

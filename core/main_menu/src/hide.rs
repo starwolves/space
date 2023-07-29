@@ -2,8 +2,9 @@ use bevy::prelude::EventWriter;
 use bevy::prelude::{Commands, EventReader};
 use bevy::prelude::{DespawnRecursiveExt, ResMut};
 use networking::client::IncomingReliableServerMessage;
+use resources::ui::MainMenuState;
 
-use crate::build::{EnableMainMenu, MainMenuState};
+use crate::build::EnableMainMenu;
 
 /// System that toggles the visiblity of the main menu based on an event.
 

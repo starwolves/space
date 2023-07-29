@@ -11,7 +11,7 @@ pub struct FocusState {
 /// System label for systems ordering.
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
 pub enum CursorSet {
-    Process,
+    Perform,
 }
 
 #[derive(Event)]

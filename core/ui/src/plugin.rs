@@ -1,4 +1,6 @@
-use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, Startup, Update};
+use bevy::prelude::{
+    App, FixedUpdate, IntoSystemConfigs, IntoSystemSetConfigs, Plugin, PostUpdate, Startup, Update,
+};
 use networking::messaging::{register_reliable_message, MessageSender};
 
 use crate::{
@@ -14,9 +16,10 @@ use crate::{
     net::{UiClientMessage, UiServerMessage},
     scrolling::{mouse_scroll, mouse_scroll_inverted},
     text_input::{
-        focus_events, incoming_messages, input_characters, register_input,
-        set_text_input_node_text, ui_events, FocusTextInput, SetText, TextInputLabel,
-        TextTreeInputSelection, UnfocusTextInput,
+        clear_old_focus, focus_events, incoming_messages, input_characters,
+        input_mouse_press_unfocus, register_input, set_text_input_node_text, ui_events,
+        FocusTextInput, FocusTextSet, SetText, TextInputLabel, TextTreeInputSelection,
+        UnfocusTextInput,
     },
 };
 use resources::{is_server::is_server, sets::MainSet, ui::TextInput};
@@ -27,20 +30,30 @@ impl Plugin for UiPlugin {
             app.add_systems(FixedUpdate, incoming_messages.in_set(MainSet::PreUpdate))
                 .add_event::<TextTreeInputSelection>();
         } else {
+            app.configure_sets(Update, (FocusTextSet::Focus, FocusTextSet::Unfocus).chain());
             app.init_resource::<WindowFocusBuffer>()
                 .init_resource::<FreezeBuffer>()
+                .add_systems(PostUpdate, clear_old_focus)
                 .add_systems(
                     Update,
                     (
                         input_characters,
-                        focus_events.in_set(TextInputLabel::MousePressUnfocus),
+                        focus_events
+                            .in_set(TextInputLabel::MousePressUnfocus)
+                            .after(FocusTextSet::Focus),
+                        input_mouse_press_unfocus
+                            .before(TextInputLabel::MousePressUnfocus)
+                            .before(CursorSet::Perform)
+                            .in_set(FocusTextSet::Unfocus),
+                        ui_events
+                            .before(TextInputLabel::MousePressUnfocus)
+                            .in_set(FocusTextSet::Focus),
                     ),
                 )
                 .add_systems(FixedUpdate, clear_freeze_buffer.in_set(MainSet::PreUpdate))
                 .add_systems(
                     FixedUpdate,
                     (
-                        ui_events.before(TextInputLabel::MousePressUnfocus),
                         button_hover_visuals,
                         set_text_input_node_text,
                         mouse_scroll_inverted,
@@ -62,8 +75,8 @@ impl Plugin for UiPlugin {
                     Update,
                     (
                         window_focus_buffer.after(TextInputLabel::MousePressUnfocus),
-                        release_cursor.in_set(CursorSet::Process).after(grab_cursor),
-                        grab_cursor.in_set(CursorSet::Process).after(focus_state),
+                        release_cursor.in_set(CursorSet::Perform).after(grab_cursor),
+                        grab_cursor.in_set(CursorSet::Perform).after(focus_state),
                     ),
                 )
                 .add_systems(

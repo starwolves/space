@@ -7,7 +7,7 @@ use crate::{
     build::{
         auto_fill_connect_menu, on_submenu_connect_creation, show_main_menu, show_play_menu,
         startup_show_menu, AutoFillConnectSubMenu, EnableMainMenu, EnablePlayMenu, MainMenuLabel,
-        MainMenuState, PlayMenuState,
+        PlayMenuState,
     },
     events::{
         button_presses, connect_to_server_button, space_frontiers_link, starwolves_link,
@@ -45,7 +45,6 @@ impl Plugin for MainMenuPlugin {
                     .in_set(MainSet::Update),
             )
             .add_event::<EnableMainMenu>()
-            .init_resource::<MainMenuState>()
             .add_systems(
                 FixedUpdate,
                 startup_show_menu
