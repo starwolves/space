@@ -255,26 +255,49 @@ pub(crate) fn appply_resolution(
                 let x = x_input.get_single().unwrap();
                 let y = y_input.get_single().unwrap();
                 let xz;
-                match x.input.parse::<u32>() {
-                    Ok(s) => {
-                        xz = s;
+                if !x.input.is_empty() {
+                    match x.input.parse::<u32>() {
+                        Ok(s) => {
+                            xz = s;
+                        }
+                        Err(_) => {
+                            warn!("Failed to parse resx: {}", x.input);
+                            continue;
+                        }
                     }
-                    Err(_) => {
-                        warn!("Failed to parse resx: {}", x.input);
-                        continue;
+                } else {
+                    match x.placeholder_text_option.clone().unwrap().parse::<u32>() {
+                        Ok(s) => {
+                            xz = s;
+                        }
+                        Err(_) => {
+                            warn!("Failed to parse resx2: {}", x.input);
+                            continue;
+                        }
                     }
                 }
                 let yz;
-                match y.input.parse::<u32>() {
-                    Ok(s) => {
-                        yz = s;
+                if !y.input.is_empty() {
+                    match y.input.parse::<u32>() {
+                        Ok(s) => {
+                            yz = s;
+                        }
+                        Err(_) => {
+                            warn!("Failed to parse resy: {}", x.input);
+                            continue;
+                        }
                     }
-                    Err(_) => {
-                        warn!("Failed to parse resy: {}", x.input);
-                        continue;
+                } else {
+                    match y.placeholder_text_option.clone().unwrap().parse::<u32>() {
+                        Ok(s) => {
+                            yz = s;
+                        }
+                        Err(_) => {
+                            warn!("Failed to parse resy2: {}", x.input);
+                            continue;
+                        }
                     }
                 }
-
                 events.send(SetResolution {
                     resolution: (xz, yz),
                 });
