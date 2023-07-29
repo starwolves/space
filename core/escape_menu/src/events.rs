@@ -13,6 +13,7 @@ use resources::{
     binds::{KeyBind, KeyBinds},
     hud::{EscapeMenuState, HudState},
     input::InputBuffer,
+    ui::MainMenuState,
 };
 use ui::{button::SFButton, hlist::HList, text_input::TextInputNode};
 
@@ -44,8 +45,12 @@ pub(crate) fn esc_button_menu(
     mut events: EventWriter<ToggleEscapeMenu>,
     state: Res<EscapeMenuState>,
     keys2: Res<InputBuffer>,
+    mn_state: Res<MainMenuState>,
 ) {
     if keys2.just_pressed(ESC_MENU_BIND) {
+        if mn_state.enabled {
+            return;
+        }
         events.send(ToggleEscapeMenu {
             enabled: !state.visible,
         });
