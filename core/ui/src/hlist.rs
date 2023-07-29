@@ -104,29 +104,34 @@ pub(crate) fn hlist_input(
     for (entity, interaction, parent, hlist_sub) in interaction_query.iter() {
         match interaction {
             Interaction::Pressed => match hlist_query.get(**parent) {
-                Ok(hlist) => {
-                    freeze.send(FreezeButton {
-                        entity,
-                        frozen: true,
-                        id: hlist_sub.selection,
-                        first_time_freeze: false,
-                    });
-                    match hlist.selected {
-                        Some(e) => {
-                            let ent = hlist.selections_entities[e as usize];
-                            if entity == ent {
-                                continue;
-                            }
-                            freeze.send(FreezeButton {
-                                entity: ent,
-                                frozen: false,
-                                id: hlist_sub.selection,
-                                first_time_freeze: false,
-                            });
+                Ok(hlist) => match hlist.selected {
+                    Some(e) => {
+                        let ent = hlist.selections_entities[e as usize];
+                        if entity == ent {
+                            continue;
                         }
-                        None => {}
+                        freeze.send(FreezeButton {
+                            entity,
+                            frozen: true,
+                            id: hlist_sub.selection,
+                            first_time_freeze: false,
+                        });
+                        freeze.send(FreezeButton {
+                            entity: ent,
+                            frozen: false,
+                            id: hlist_sub.selection,
+                            first_time_freeze: false,
+                        });
                     }
-                }
+                    None => {
+                        freeze.send(FreezeButton {
+                            entity,
+                            frozen: true,
+                            id: hlist_sub.selection,
+                            first_time_freeze: false,
+                        });
+                    }
+                },
                 Err(_) => {}
             },
             _ => (),
