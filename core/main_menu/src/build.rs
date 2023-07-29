@@ -338,44 +338,42 @@ pub(crate) fn show_main_menu(
                                                         );
                                                     });
                                             });
-                                        parent
-                                            .spawn(())
-                                            .insert(NodeBundle {
-                                                style: Style {
-                                                    width: Val::Percent(100.0),
-                                                    height: Val::Auto,
-                                                    align_items: AlignItems::Center,
-                                                    flex_wrap: FlexWrap::Wrap,
-                                                    flex_direction: FlexDirection::ColumnReverse,
-                                                    ..Default::default()
-                                                },
-                                                background_color: SIDEBAR_COLOR.into(),
+                                        parent.spawn(()).insert(NodeBundle {
+                                            style: Style {
+                                                width: Val::Percent(100.0),
+                                                height: Val::Auto,
+                                                align_items: AlignItems::Center,
+                                                flex_wrap: FlexWrap::Wrap,
+                                                flex_direction: FlexDirection::ColumnReverse,
                                                 ..Default::default()
-                                            })
-                                            .with_children(|parent| {
-                                                parent
-                                                    .spawn(())
-                                                    .insert(ButtonBundle {
-                                                        background_color: SIDEBAR_COLOR.into(),
-                                                        ..Default::default()
-                                                    })
-                                                    .insert((
-                                                        MainMenuSettingsButton,
-                                                        SFButton::default(),
-                                                    ))
-                                                    .with_children(|parent| {
-                                                        parent.spawn(()).insert(
-                                                            TextBundle::from_section(
-                                                                "Settings",
-                                                                TextStyle {
-                                                                    font: arizone_font.clone(),
-                                                                    font_size: 20.0,
-                                                                    color: TEXT_COLOR,
-                                                                },
-                                                            ),
-                                                        );
-                                                    });
-                                            });
+                                            },
+                                            background_color: SIDEBAR_COLOR.into(),
+                                            ..Default::default()
+                                        });
+                                        /*.with_children(|parent| {
+                                            parent
+                                                .spawn(())
+                                                .insert(ButtonBundle {
+                                                    background_color: SIDEBAR_COLOR.into(),
+                                                    ..Default::default()
+                                                })
+                                                .insert((
+                                                    MainMenuSettingsButton,
+                                                    SFButton::default(),
+                                                ))
+                                                .with_children(|parent| {
+                                                    parent.spawn(()).insert(
+                                                        TextBundle::from_section(
+                                                            "Settings",
+                                                            TextStyle {
+                                                                font: arizone_font.clone(),
+                                                                font_size: 20.0,
+                                                                color: TEXT_COLOR,
+                                                            },
+                                                        ),
+                                                    );
+                                                });
+                                        }); */
                                         parent
                                             .spawn(())
                                             .insert(NodeBundle {
