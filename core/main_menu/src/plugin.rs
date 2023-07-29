@@ -1,7 +1,7 @@
 use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, SystemSet};
-use hud::mouse::{grab_cursor, release_cursor};
 use networking::client::token_assign_server;
 use resources::{is_server::is_server, sets::MainSet};
+use ui::cursor::{grab_cursor, release_cursor};
 
 use crate::{
     build::{

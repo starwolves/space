@@ -9,6 +9,7 @@ pub mod text_input;
 /// Button UI node.
 pub mod button;
 
+pub mod cursor;
 pub mod fonts;
 /// Horizontal list.
 pub mod hlist;

@@ -10,9 +10,9 @@ use bevy::{
 
 use bevy::prelude::EventWriter;
 use escape_menu::events::ToggleEscapeMenu;
-use hud::mouse::ReleaseCursor;
 use resources::hud::EscapeMenuState;
 use token::parse::Token;
+use ui::cursor::ReleaseCursor;
 
 use crate::build::EnablePlayMenu;
 use crate::build::MainMenuStarWolvesLink;

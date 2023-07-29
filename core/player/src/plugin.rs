@@ -1,4 +1,4 @@
-use crate::boarding::{player_boarded, PlayerBoarded, SpawnPoints};
+use crate::boarding::{grab_mouse_on_board, player_boarded, PlayerBoarded, SpawnPoints};
 use crate::configuration::{
     client_receive_pawnid, finished_configuration, server_new_client_configuration, Boarded,
 };
@@ -21,6 +21,7 @@ use networking::{
 };
 use resources::is_server::is_server;
 use resources::sets::MainSet;
+use ui::cursor::CursorSet;
 
 /// Atmospherics systems ordering label.
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
@@ -69,7 +70,12 @@ impl Plugin for PlayerPlugin {
         } else {
             app.add_systems(
                 FixedUpdate,
-                (client_receive_pawnid, spawn_debug_camera).in_set(MainSet::Update),
+                (
+                    client_receive_pawnid,
+                    spawn_debug_camera,
+                    grab_mouse_on_board.before(CursorSet::Process),
+                )
+                    .in_set(MainSet::Update),
             )
             .add_plugins(LookTransformPlugin)
             .add_plugins(FpsCameraPlugin::default())

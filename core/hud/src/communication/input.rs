@@ -1,5 +1,5 @@
 use bevy::{
-    prelude::{warn, Children, EventWriter, Query, Res, ResMut, SystemSet},
+    prelude::{warn, Children, Event, EventReader, EventWriter, Query, Res, ResMut, SystemSet},
     text::Text,
     ui::{Display, Style},
 };
@@ -15,7 +15,7 @@ use ui::text_input::{FocusTextInput, TextInputNode, UnfocusTextInput};
 
 use crate::{
     input::binds::{SUBMIT_CONSOLE_BIND, TOGGLE_CHAT},
-    inventory::build::OpenHud,
+    inventory::build::{InventoryHudState, OpenHud},
 };
 
 /// Label for systems ordering.
@@ -76,9 +76,24 @@ pub(crate) fn text_input(
         None => {}
     }
 }
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
+pub(crate) enum CommunicationToggleSet {
+    Process,
+}
+#[derive(Event)]
+pub(crate) struct ToggleCommunication;
 
 pub(crate) fn tab_communication_input_toggle(
     keys: Res<InputBuffer>,
+    mut event: EventWriter<ToggleCommunication>,
+) {
+    if keys.just_pressed(TOGGLE_CHAT) {
+        event.send(ToggleCommunication);
+    }
+}
+
+pub(crate) fn communication_input_toggle(
+    mut events: EventReader<ToggleCommunication>,
     mut state: ResMut<HudCommunicationState>,
     mut open_hud: EventWriter<OpenHud>,
     mut style_query: Query<&mut Style>,
@@ -88,11 +103,12 @@ pub(crate) fn tab_communication_input_toggle(
     hud_state: Res<HudState>,
     text_input: Res<TextInput>,
     esc_state: Res<EscapeMenuState>,
+    inv_state: Res<InventoryHudState>,
 ) {
-    if esc_state.visible {
+    if esc_state.visible || inv_state.open {
         return;
     }
-    if keys.just_pressed(TOGGLE_CHAT) {
+    for _ in events.iter() {
         let is_focused = hud_state.expanded;
 
         if is_focused {

@@ -3839,6 +3839,7 @@ dependencies = [
  "serde",
  "serde_json",
  "typename",
+ "ui",
 ]
 
 [[package]]

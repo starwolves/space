@@ -4,7 +4,7 @@ use bevy::prelude::{
 use bevy_renet::renet::RenetClient;
 use console_commands::net::ClientSideConsoleInput;
 use resources::{is_server::is_server, sets::MainSet};
-use ui::text_input::TextInputLabel;
+use ui::{cursor::CursorSet, text_input::TextInputLabel};
 
 use crate::{
     build::{create_hud, show_hud, ExpandedLeftContentHud},
@@ -14,7 +14,10 @@ use crate::{
         console::{
             console_input, display_console_message, receive_console_message, DisplayConsoleMessage,
         },
-        input::{tab_communication_input_toggle, text_input, ConsoleCommandsClientSet},
+        input::{
+            communication_input_toggle, tab_communication_input_toggle, text_input,
+            CommunicationToggleSet, ConsoleCommandsClientSet, ToggleCommunication,
+        },
     },
     expand::{expand_inventory_hud, ExpandInventoryHud},
     input::{
@@ -28,7 +31,7 @@ use crate::{
         actions::{hide_actions, item_actions_button_events, slot_item_actions},
         build::{
             create_inventory_hud, inventory_hud_key_press, open_hud, open_inventory_hud,
-            InventoryHudState, OpenHud, OpenInventoryHud,
+            InventoryHudState, OpenHud, OpenHudSet, OpenInventoryHud,
         },
         items::{
             change_active_item, requeue_hud_add_item_to_slot, right_mouse_click_item,
@@ -40,11 +43,7 @@ use crate::{
         },
         slots::{scale_slots, update_inventory_hud_slot, HudAddInventorySlot, InventoryHudSet},
     },
-    mouse::{
-        clear_window_focus_buffer, focus_state, grab_cursor, grab_mouse_hud_expand,
-        grab_mouse_on_board, release_cursor, window_focus_buffer, window_unfocus_event, FocusState,
-        GrabCursor, ReleaseCursor, WindowFocusBuffer,
-    },
+    mouse::{grab_mouse_hud_expand, input_mouse_press_unfocus, window_unfocus_event},
     server_stats::{build_server_stats, update_server_stats, ServerStatsState},
     style::button::{button_style_events, changed_focus},
 };
@@ -54,13 +53,12 @@ pub struct HudPlugin;
 impl Plugin for HudPlugin {
     fn build(&self, app: &mut App) {
         if !is_server() {
-            app.add_event::<ExpandInventoryHud>()
-                .init_resource::<WindowFocusBuffer>()
+            app.add_event::<ToggleCommunication>()
+                .add_event::<ExpandInventoryHud>()
                 .add_systems(
                     FixedUpdate,
                     (
                         (
-                            open_hud.after(tab_communication_input_toggle),
                             expand_inventory_hud,
                             inventory_hud_key_press,
                             inventory_net_updates,
@@ -72,7 +70,6 @@ impl Plugin for HudPlugin {
                             right_mouse_click_item,
                             slot_item_actions,
                             show_hud,
-                            hide_actions,
                             item_actions_button_events,
                             create_text_tree_selection,
                             button_style_events,
@@ -83,50 +80,30 @@ impl Plugin for HudPlugin {
                         )
                             .in_set(MainSet::Update),
                         (
-                            grab_mouse_on_board
-                                .before(grab_cursor)
-                                .before(release_cursor),
-                            grab_mouse_hud_expand
-                                .before(grab_cursor)
-                                .before(release_cursor),
-                            window_unfocus_event
-                                .before(TextInputLabel::MousePressUnfocus)
-                                .before(grab_cursor)
-                                .before(release_cursor),
-                            release_cursor.after(grab_cursor),
-                            grab_cursor.after(focus_state),
                             text_input.in_set(ConsoleCommandsClientSet::Submit),
                             receive_chat_message,
-                            tab_communication_input_toggle
-                                .before(TextInputLabel::MousePressUnfocus)
-                                .before(grab_mouse_hud_expand),
-                            open_inventory_hud.after(open_hud),
+                            tab_communication_input_toggle.before(CommunicationToggleSet::Process),
+                            open_inventory_hud.after(OpenHudSet::Process),
                             toggle_console_button
+                                .before(OpenHudSet::Process)
                                 .before(TextInputLabel::MousePressUnfocus)
-                                .before(grab_mouse_hud_expand)
-                                .before(open_hud),
+                                .before(OpenHudSet::Process),
                             console_input
                                 .after(ConsoleCommandsClientSet::Submit)
                                 .before(ConsoleCommandsClientSet::Display),
                             receive_console_message.before(ConsoleCommandsClientSet::Display),
                             display_console_message.in_set(ConsoleCommandsClientSet::Display),
-                            focus_state,
                             display_chat_message.after(receive_chat_message),
                             queue_inventory_updates
                                 .run_if(not(resource_exists::<InventoryHudState>())),
                             console_welcome_message.before(ConsoleCommandsClientSet::Display),
                             update_server_stats.run_if(resource_exists::<RenetClient>()),
+                            window_unfocus_event
+                                .before(TextInputLabel::MousePressUnfocus)
+                                .before(CursorSet::Process),
                         )
                             .in_set(MainSet::Update),
                     ),
-                )
-                .add_systems(
-                    Update,
-                    window_focus_buffer.after(TextInputLabel::MousePressUnfocus),
-                )
-                .add_systems(
-                    FixedUpdate,
-                    clear_window_focus_buffer.in_set(MainSet::PostUpdate),
                 )
                 .add_systems(Startup, (create_hud, register_input))
                 .add_systems(
@@ -135,6 +112,24 @@ impl Plugin for HudPlugin {
                         create_inventory_hud,
                         build_server_stats,
                         build_communication_ui,
+                    ),
+                )
+                .add_systems(
+                    Update,
+                    (
+                        input_mouse_press_unfocus
+                            .before(TextInputLabel::MousePressUnfocus)
+                            .before(CursorSet::Process)
+                            .before(CommunicationToggleSet::Process),
+                        open_hud.in_set(OpenHudSet::Process),
+                        hide_actions.in_set(OpenHudSet::Process),
+                        grab_mouse_hud_expand
+                            .in_set(OpenHudSet::Process)
+                            .before(CursorSet::Process),
+                        communication_input_toggle
+                            .before(TextInputLabel::MousePressUnfocus)
+                            .before(OpenHudSet::Process)
+                            .in_set(CommunicationToggleSet::Process),
                     ),
                 )
                 .add_event::<OpenHud>()
@@ -146,12 +141,9 @@ impl Plugin for HudPlugin {
                 .init_resource::<TextTreeInputSelectionState>()
                 .init_resource::<TextTreeSelectionState>()
                 .add_event::<ExpandedLeftContentHud>()
-                .add_event::<GrabCursor>()
-                .add_event::<ReleaseCursor>()
                 .add_event::<OpenInventoryHud>()
                 .add_event::<ClientSideConsoleInput>()
                 .add_event::<DisplayConsoleMessage>()
-                .init_resource::<FocusState>()
                 .add_event::<DisplayChatMessage>()
                 .init_resource::<ServerStatsState>();
         }

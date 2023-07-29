@@ -35,6 +35,7 @@ pub(crate) fn tick_asana_boarding_announcements(
                 if !player.connected {
                     continue;
                 }
+
                 net.send(OutgoingReliableServerMessage {
                     handle: player.handle,
                     message: ChatServerMessage::ChatMessage(ChatMessage {

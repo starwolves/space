@@ -31,3 +31,4 @@ graphics = { path = "../graphics" }
 pawn = { path = "../pawn" }
 cameras = { path = "../cameras" }
 entity = { path = "../entity" }
+ui = { path = "../ui" }

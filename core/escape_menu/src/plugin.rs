@@ -1,6 +1,6 @@
 use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, PostStartup, Startup, Update};
 use graphics::settings::SettingsSet;
-use hud::{inventory::build::open_hud, mouse::grab_mouse_hud_expand};
+use hud::{inventory::build::OpenHudSet, mouse::grab_mouse_hud_expand};
 use resources::{is_server::is_server, sets::MainSet};
 use ui::fonts::init_fonts;
 
@@ -51,8 +51,8 @@ impl Plugin for EscapeMenuPlugin {
                 FixedUpdate,
                 (
                     toggle_escape_menu
+                        .before(OpenHudSet::Process)
                         .before(grab_mouse_hud_expand)
-                        .before(open_hud)
                         .before(toggle_general_menu_section)
                         .before(toggle_graphics_menu_section)
                         .before(toggle_controls_menu_section),

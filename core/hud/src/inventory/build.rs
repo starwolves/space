@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use bevy::{
     prelude::{
         warn, BuildChildren, Color, Commands, Component, Entity, Event, EventReader, EventWriter,
-        NodeBundle, Query, Res, ResMut, Resource, TextBundle, Visibility, With,
+        NodeBundle, Query, Res, ResMut, Resource, SystemSet, TextBundle, Visibility, With,
     },
     text::{Text, TextStyle},
     ui::{AlignItems, FlexDirection, JustifyContent, Style, UiRect, Val},
@@ -169,6 +169,13 @@ pub(crate) fn open_inventory_hud(
     }
 }
 
+/// Label for systems ordering.
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
+
+pub enum OpenHudSet {
+    Process,
+}
+
 pub fn open_hud(
     boarded: Res<Boarded>,
     mut events: EventReader<OpenHud>,
@@ -193,6 +200,7 @@ pub(crate) fn inventory_hud_key_press(
         event2.send(OpenInventoryHud { open: !state.open });
     }
 }
+
 #[derive(Event)]
 pub struct OpenHud {
     pub open: bool,

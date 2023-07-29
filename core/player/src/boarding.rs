@@ -3,6 +3,8 @@ use bevy::{
     prelude::{Commands, Component, Entity, EventReader, ResMut, Resource},
     time::Timer,
 };
+use networking::client::IncomingReliableServerMessage;
+use ui::cursor::GrabCursor;
 
 /// Component with boarding data.
 #[derive(Event)]
@@ -176,4 +178,18 @@ use serde::Deserialize;
 pub struct SpawnPointRaw {
     pub point_type: String,
     pub transform: String,
+}
+
+pub(crate) fn grab_mouse_on_board(
+    mut net: EventReader<IncomingReliableServerMessage<PlayerServerMessage>>,
+    mut grab: EventWriter<GrabCursor>,
+) {
+    for message in net.iter() {
+        match &message.message {
+            PlayerServerMessage::Boarded => {
+                grab.send(GrabCursor);
+            }
+            _ => (),
+        }
+    }
 }

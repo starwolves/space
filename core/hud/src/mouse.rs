@@ -1,83 +1,12 @@
-use bevy::{
-    prelude::{Event, EventReader, EventWriter, Query, Res, ResMut, Resource, With},
-    window::{CursorGrabMode, PrimaryWindow, Window, WindowFocused},
+use bevy::prelude::{EventReader, EventWriter, Input, MouseButton, Res};
+use player::configuration::Boarded;
+use resources::{hud::HudState, ui::TextInput};
+use ui::{
+    cursor::{GrabCursor, ReleaseCursor, WindowFocusBuffer},
+    text_input::UnfocusTextInput,
 };
-use networking::client::IncomingReliableServerMessage;
-use player::{configuration::Boarded, net::PlayerServerMessage};
-use resources::hud::HudState;
 
-use crate::inventory::build::OpenHud;
-
-pub(crate) fn grab_mouse_on_board(
-    mut net: EventReader<IncomingReliableServerMessage<PlayerServerMessage>>,
-    mut grab: EventWriter<GrabCursor>,
-) {
-    for message in net.iter() {
-        match &message.message {
-            PlayerServerMessage::Boarded => {
-                grab.send(GrabCursor);
-            }
-            _ => (),
-        }
-    }
-}
-#[derive(Event)]
-pub struct GrabCursor;
-
-pub fn grab_cursor(
-    mut events: EventReader<GrabCursor>,
-    mut primary_query: Query<&mut Window, With<PrimaryWindow>>,
-
-    state: Res<FocusState>,
-) {
-    if !state.focused {
-        return;
-    }
-    for _ in events.iter() {
-        let mut primary = primary_query.get_single_mut().unwrap();
-        primary.cursor.grab_mode = CursorGrabMode::Locked;
-        primary.cursor.visible = false;
-    }
-}
-#[derive(Event)]
-pub struct ReleaseCursor;
-
-pub fn release_cursor(
-    mut events: EventReader<ReleaseCursor>,
-    mut primary_query: Query<&mut Window, With<PrimaryWindow>>,
-) {
-    for _ in events.iter() {
-        let mut primary = primary_query.get_single_mut().unwrap();
-        primary.cursor.grab_mode = CursorGrabMode::None;
-        primary.cursor.visible = true;
-    }
-}
-#[derive(Resource, Default)]
-pub struct FocusState {
-    pub focused: bool,
-}
-
-pub(crate) fn focus_state(mut state: ResMut<FocusState>, events: Res<WindowFocusBuffer>) {
-    for event in events.buffer.iter() {
-        state.focused = event.focused;
-    }
-}
-#[derive(Resource, Default)]
-pub struct WindowFocusBuffer {
-    pub buffer: Vec<WindowFocused>,
-}
-
-pub(crate) fn window_focus_buffer(
-    mut events: EventReader<WindowFocused>,
-    mut res: ResMut<WindowFocusBuffer>,
-) {
-    for e in events.iter() {
-        res.buffer.push(e.clone());
-    }
-}
-pub(crate) fn clear_window_focus_buffer(mut res: ResMut<WindowFocusBuffer>) {
-    res.buffer.clear();
-}
+use crate::{communication::input::ToggleCommunication, inventory::build::OpenHud};
 
 pub(crate) fn window_unfocus_event(
     events: Res<WindowFocusBuffer>,
@@ -112,6 +41,27 @@ pub fn grab_mouse_hud_expand(
             release.send(ReleaseCursor);
         } else {
             grab.send(GrabCursor);
+        }
+    }
+}
+
+/// Manages focus of text input.
+
+pub(crate) fn input_mouse_press_unfocus(
+    buttons: Res<Input<MouseButton>>,
+    text_input: Res<TextInput>,
+    mut unfocus: EventWriter<UnfocusTextInput>,
+    mut event: EventWriter<ToggleCommunication>,
+) {
+    if buttons.just_pressed(MouseButton::Left) {
+        match text_input.focused_input {
+            Some(e) => {
+                unfocus.send(UnfocusTextInput {
+                    entity_option: Some(e),
+                });
+                event.send(ToggleCommunication);
+            }
+            None => {}
         }
     }
 }

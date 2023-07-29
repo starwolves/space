@@ -107,7 +107,6 @@ pub(crate) fn ui_events(
 }
 use bevy::prelude::warn;
 use bevy::prelude::Children;
-use bevy::prelude::MouseButton;
 use bevy::prelude::Res;
 use bevy::prelude::{Input, KeyCode};
 use bevy::text::Text;
@@ -232,24 +231,6 @@ pub(crate) fn focus_events(
 
 use bevy::prelude::EventWriter;
 
-/// Manages focus of text input.
-
-pub(crate) fn input_mouse_press_unfocus(
-    buttons: Res<Input<MouseButton>>,
-    text_input: Res<TextInput>,
-    mut unfocus: EventWriter<UnfocusTextInput>,
-) {
-    if buttons.just_pressed(MouseButton::Left) {
-        match text_input.focused_input {
-            Some(e) => {
-                unfocus.send(UnfocusTextInput {
-                    entity_option: Some(e),
-                });
-            }
-            None => {}
-        }
-    }
-}
 use bevy::time::Time;
 use bevy::time::TimerMode;
 use bevy::{prelude::Local, time::Timer};
