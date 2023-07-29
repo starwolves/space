@@ -1,5 +1,8 @@
 use bevy::{
-    prelude::{warn, Children, Event, EventReader, EventWriter, Query, Res, ResMut, SystemSet},
+    prelude::{
+        warn, Children, Event, EventReader, EventWriter, Input, KeyCode, Query, Res, ResMut,
+        SystemSet,
+    },
     text::Text,
     ui::{Display, Style},
 };
@@ -7,9 +10,10 @@ use chat::net::ChatClientMessage;
 use console_commands::net::ClientSideConsoleInput;
 use networking::client::OutgoingReliableClientMessage;
 use resources::{
+    binds::KeyBinds,
     hud::{EscapeMenuState, HudState},
     input::InputBuffer,
-    ui::TextInput,
+    ui::{MainMenuState, TextInput},
 };
 use ui::text_input::{FocusTextInput, TextInputNode, UnfocusTextInput};
 
@@ -84,10 +88,11 @@ pub(crate) enum CommunicationToggleSet {
 pub(crate) struct ToggleCommunication;
 
 pub(crate) fn tab_communication_input_toggle(
-    keys: Res<InputBuffer>,
+    keys: Res<Input<KeyCode>>,
+    binds: Res<KeyBinds>,
     mut event: EventWriter<ToggleCommunication>,
 ) {
-    if keys.just_pressed(TOGGLE_CHAT) {
+    if keys.just_pressed(binds.bind(TOGGLE_CHAT)) {
         event.send(ToggleCommunication);
     }
 }
@@ -104,8 +109,9 @@ pub(crate) fn communication_input_toggle(
     text_input: Res<TextInput>,
     esc_state: Res<EscapeMenuState>,
     inv_state: Res<InventoryHudState>,
+    main_mnu_state: Res<MainMenuState>,
 ) {
-    if esc_state.visible || inv_state.open {
+    if esc_state.visible || inv_state.open || main_mnu_state.enabled {
         return;
     }
     for _ in events.iter() {

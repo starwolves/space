@@ -85,7 +85,6 @@ impl Plugin for HudPlugin {
                         (
                             text_input.in_set(ConsoleCommandsClientSet::Submit),
                             receive_chat_message,
-                            tab_communication_input_toggle.before(CommunicationToggleSet::Toggle),
                             open_inventory_hud.after(OpenHudSet::Process),
                             toggle_console_button
                                 .before(OpenHudSet::Process)
@@ -135,6 +134,7 @@ impl Plugin for HudPlugin {
                             .before(OpenHudSet::Process)
                             .in_set(CommunicationToggleSet::Toggle)
                             .in_set(FocusTextSet::Focus),
+                        tab_communication_input_toggle.before(CommunicationToggleSet::Toggle),
                     ),
                 )
                 .add_event::<OpenHud>()
