@@ -46,6 +46,15 @@ There is community sovereignty, integrity, values and strong personalities toget
 
 **Space Frontiers and the community are age rated 18+ 🔞. Minors may not be present without parental approval and parental supervision.**
 
+### Revenue sharing
+The codebase is open-source. Artists and programmers are invited to become part of the development of this game.
+Fifty percent of the subscription-based revenue will be registered in a treasury which will be exclusively used to pay those skilled people.
+A treasury page will be created in the future.
+
+See [financial rewards.](https://starwolves.io/thread-8.html)
+
+See [pricing.](https://store.starwolves.io)
+
 Brought to you by
 
 <a href="https://starwolves.io">
