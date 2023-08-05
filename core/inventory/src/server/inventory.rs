@@ -30,7 +30,7 @@ pub struct Slot {
     pub size: Vec2Int,
 }
 /// Event that adds an inventory item entity to an inventory slot.
-#[derive(Event)]
+#[derive(Event, Clone)]
 pub struct AddItemToSlot {
     pub slot_id: u8,
     pub inventory_entity: Entity,
@@ -39,7 +39,7 @@ pub struct AddItemToSlot {
 }
 
 /// Adds a slot to an inventory.
-#[derive(Event)]
+#[derive(Clone, Event)]
 pub struct AddSlot {
     pub inventory_entity: Entity,
     pub slot: Slot,

@@ -39,6 +39,7 @@ pub(crate) fn client_item_added_to_slot(
 
 pub enum ClientBuildInventoryLabel {
     AddSlot,
+    Net,
 }
 
 /// Event that fires when an item becomes acive selected and displayed in front of first person camera.

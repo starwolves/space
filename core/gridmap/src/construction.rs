@@ -438,7 +438,7 @@ pub(crate) fn update_ghost_cell(
                 }
                 let m = state.ghost_material.clone();
                 match state.ghost_items.get_mut(&Vec3Int { x: 0, y: 0, z: 0 }) {
-                    Some(mut g) => match gridmap.tile_properties.get(&g.tile_type) {
+                    Some(g) => match gridmap.tile_properties.get(&g.tile_type) {
                         Some(properties) => {
                             if !changed.only_selection_changed {
                                 g.ghost_face = properties.cell_type.default_face();

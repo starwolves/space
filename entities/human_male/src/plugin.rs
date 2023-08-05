@@ -15,7 +15,11 @@ use crate::{
     boarding::spawn_boarding_player,
     hands_attack_handler::hands_attack_handler,
     setup_ui_showcase::human_male_setup_ui,
-    spawn::{build_base_human_males, build_human_males, spawn_held_item, HumanMaleType},
+    spawn::{
+        build_base_human_males, build_human_males, process_add_item_slot_buffer,
+        process_add_slot_buffer, spawn_held_item, AddItemToSlotBuffer, AddSlotBuffer,
+        HumanMaleType,
+    },
 };
 pub struct HumanMalePlugin;
 
@@ -53,9 +57,17 @@ impl Plugin for HumanMalePlugin {
                     .in_set(BuildingSet::NormalBuild),
                 (build_base_human_males::<HumanMaleType>).after(BuildingSet::TriggerBuild),
                 (build_rigid_bodies::<HumanMaleType>).after(BuildingSet::TriggerBuild),
-                spawn_held_item::<ConstructionToolType>.in_set(SpawnItemLabel::SpawnHeldItem),
+                spawn_held_item::<ConstructionToolType>
+                    .in_set(SpawnItemLabel::SpawnHeldItem)
+                    .before(BuildingSet::TriggerBuild),
             )
                 .in_set(MainSet::Update),
-        );
+        )
+        .add_systems(
+            FixedUpdate,
+            (process_add_item_slot_buffer, process_add_slot_buffer).in_set(MainSet::PreUpdate),
+        )
+        .init_resource::<AddItemToSlotBuffer>()
+        .init_resource::<AddSlotBuffer>();
     }
 }

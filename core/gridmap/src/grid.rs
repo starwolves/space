@@ -1024,7 +1024,7 @@ pub(crate) fn add_tile(mut events: EventReader<AddTile>, mut gridmap_main: ResMu
                             }
                         }
 
-                        let mut grid_items = x.as_mut().unwrap();
+                        let grid_items = x.as_mut().unwrap();
 
                         let mut health_flags = HashMap::new();
 

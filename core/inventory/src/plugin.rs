@@ -1,6 +1,9 @@
 use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, Startup};
 use console_commands::commands::{ConsoleCommand, ConsoleCommandsSet};
-use networking::messaging::{register_reliable_message, MessageSender};
+use networking::{
+    messaging::{register_reliable_message, MessageSender},
+    server::ServerMessageSet,
+};
 use resources::{
     is_server::is_server,
     sets::{MainSet, PostUpdateSet},
@@ -18,7 +21,7 @@ use crate::{
         entity_update_item::inventory_item_update,
         inventory::{
             add_item_to_slot, add_slot_to_inventory, added_item_to_slot, AddItemToSlot, AddSlot,
-            Inventory, InventorySlotLabel, ItemAddedToSlot, SpawnItemLabel,
+            Inventory, InventorySlotLabel, ItemAddedToSlot,
         },
         set_active_item::process_request_set_active_item,
     },
@@ -39,13 +42,13 @@ impl Plugin for InventoryPlugin {
             .add_systems(
                 FixedUpdate,
                 (
-                    add_item_to_slot
-                        .before(SpawnItemLabel::SpawnHeldItem)
-                        .after(InventorySlotLabel::AddSlotToInventory),
-                    added_item_to_slot,
-                    add_slot_to_inventory.in_set(InventorySlotLabel::AddSlotToInventory),
                     process_request_set_active_item,
                     spawn_entity_for_client,
+                    add_slot_to_inventory
+                        .in_set(InventorySlotLabel::AddSlotToInventory)
+                        .before(ServerMessageSet::Send),
+                    add_item_to_slot.after(InventorySlotLabel::AddSlotToInventory),
+                    added_item_to_slot.after(add_item_to_slot),
                 )
                     .in_set(MainSet::Update),
             )

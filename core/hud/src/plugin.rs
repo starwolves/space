@@ -3,6 +3,7 @@ use bevy::prelude::{
 };
 use bevy_renet::renet::RenetClient;
 use console_commands::net::ClientSideConsoleInput;
+use inventory::client::items::ClientBuildInventoryLabel;
 use resources::{is_server::is_server, sets::MainSet};
 use ui::{
     cursor::CursorSet,
@@ -64,8 +65,12 @@ impl Plugin for HudPlugin {
                         (
                             expand_inventory_hud,
                             inventory_hud_key_press,
-                            inventory_net_updates,
-                            update_inventory_hud_slot.in_set(InventoryHudSet::UpdateSlot),
+                            inventory_net_updates
+                                .in_set(ClientBuildInventoryLabel::Net)
+                                .after(ClientBuildInventoryLabel::AddSlot),
+                            update_inventory_hud_slot
+                                .after(ClientBuildInventoryLabel::Net)
+                                .in_set(InventoryHudSet::UpdateSlot),
                             requeue_hud_add_item_to_slot.after(InventoryHudSet::QueueUpdate),
                             slot_item_button_events,
                             scale_slots,
@@ -97,6 +102,7 @@ impl Plugin for HudPlugin {
                             display_console_message.in_set(ConsoleCommandsClientSet::Display),
                             display_chat_message.after(receive_chat_message),
                             queue_inventory_updates
+                                .after(ClientBuildInventoryLabel::AddSlot)
                                 .run_if(not(resource_exists::<InventoryHudState>())),
                             console_welcome_message.before(ConsoleCommandsClientSet::Display),
                             update_server_stats.run_if(resource_exists::<RenetClient>()),

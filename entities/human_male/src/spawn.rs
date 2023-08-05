@@ -1,6 +1,8 @@
 use std::collections::{BTreeMap, HashMap};
 
-use bevy::prelude::{info, warn, Commands, EventReader, EventWriter, ResMut, Transform, Vec3};
+use bevy::prelude::{
+    info, warn, Commands, EventReader, EventWriter, ResMut, Resource, Transform, Vec3,
+};
 use bevy_xpbd_3d::prelude::{CoefficientCombine, Collider, Friction, LockedAxes};
 use entity::{
     entity_data::{WorldMode, WorldModes},
@@ -171,6 +173,20 @@ impl PawnBuilder for HumanMaleType {
 }
 
 use controller::controller::ControllerInput;
+#[derive(Resource, Default)]
+pub struct AddSlotBuffer {
+    pub buffer: Vec<AddSlot>,
+}
+
+pub(crate) fn process_add_slot_buffer(
+    mut add_slot: ResMut<AddSlotBuffer>,
+    mut event: EventWriter<AddSlot>,
+) {
+    for i in &add_slot.buffer {
+        event.send(i.clone());
+    }
+    add_slot.buffer.clear();
+}
 
 /// human-male specific spawn components and bundles.
 
@@ -178,6 +194,7 @@ pub fn build_human_males(
     mut commands: Commands,
     mut spawn_events: EventReader<SpawnEntity<HumanMaleType>>,
     mut pawn_id: ResMut<PawnId>,
+    mut add_slot: ResMut<AddSlotBuffer>,
 ) {
     for spawn_event in spawn_events.iter() {
         match pawn_id.server {
@@ -276,15 +293,37 @@ pub fn build_human_males(
                 .lock_rotation_z()
                 .lock_rotation_y(),
         );
+
+        let mut test_slot = Slot::default();
+        test_slot.name = "Backpack".to_string();
+        test_slot.size = Vec2Int { x: 16, y: 8 };
+        add_slot.buffer.push(AddSlot {
+            inventory_entity: spawn_event.spawn_data.entity,
+            slot: test_slot,
+        });
+        spawner.insert(Inventory::default());
     }
+}
+#[derive(Resource, Default)]
+pub struct AddItemToSlotBuffer {
+    pub buffer: Vec<AddItemToSlot>,
+}
+
+pub fn process_add_item_slot_buffer(
+    mut add_slot_item: ResMut<AddItemToSlotBuffer>,
+    mut event: EventWriter<AddItemToSlot>,
+) {
+    for i in &add_slot_item.buffer {
+        event.send(i.clone());
+    }
+    add_slot_item.buffer.clear();
 }
 
 pub fn spawn_held_item<T: Send + Sync + Default + 'static>(
     mut commands: Commands,
     mut default_spawner: EventWriter<SpawnEntity<T>>,
     mut spawn_events: EventReader<SpawnEntity<HumanMaleType>>,
-    mut add_slot_item: EventWriter<AddItemToSlot>,
-    mut add_slot: EventWriter<AddSlot>,
+    mut add_slot_item: ResMut<AddItemToSlotBuffer>,
     types: Res<EntityTypes>,
 ) {
     for spawn_event in spawn_events.iter() {
@@ -311,19 +350,6 @@ pub fn spawn_held_item<T: Send + Sync + Default + 'static>(
             slot_entities.push((return_entity, item_name.get_identity()));
         }
 
-        let mut spawner = commands.entity(spawn_event.spawn_data.entity);
-
-        let mut test_slot = Slot::default();
-        test_slot.name = "Backpack".to_string();
-        test_slot.size = Vec2Int { x: 16, y: 8 };
-
-        add_slot.send(AddSlot {
-            inventory_entity: spawn_event.spawn_data.entity,
-            slot: test_slot,
-        });
-
-        spawner.insert(Inventory::default());
-
         for (item, identity) in slot_entities {
             let net_type;
             match types.netcode_types.get(&identity) {
@@ -335,7 +361,7 @@ pub fn spawn_held_item<T: Send + Sync + Default + 'static>(
                     continue;
                 }
             }
-            add_slot_item.send(AddItemToSlot {
+            add_slot_item.buffer.push(AddItemToSlot {
                 slot_id: 0,
                 inventory_entity: spawn_event.spawn_data.entity,
                 item_entity: item,

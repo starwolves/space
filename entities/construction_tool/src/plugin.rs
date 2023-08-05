@@ -14,7 +14,7 @@ use gridmap::construction::{GridmapConstructionState, ShowYLevelPlane};
 use gridmap::grid::AddTileSet;
 use hud::inventory::items::update_inventory_hud_add_item_to_slot;
 use hud::inventory::slots::InventoryHudSet;
-use inventory::client::items::active_item_display_camera;
+use inventory::client::items::{active_item_display_camera, ClientBuildInventoryLabel};
 use inventory::server::inventory::SpawnItemLabel;
 use inventory::spawn_item::build_inventory_items;
 use physics::spawn::build_rigid_bodies;
@@ -83,7 +83,8 @@ impl Plugin for ConstructionToolAdminPlugin {
                 (
                     update_inventory_hud_add_item_to_slot::<ConstructionToolType>
                         .after(InventoryHudSet::UpdateSlot)
-                        .in_set(InventoryHudSet::QueueUpdate),
+                        .in_set(InventoryHudSet::QueueUpdate)
+                        .after(ClientBuildInventoryLabel::Net),
                     load_entity::<ConstructionToolType>,
                     link_base_mesh::<ConstructionToolType>,
                     active_item_display_camera::<ConstructionToolType>,

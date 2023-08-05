@@ -34,7 +34,7 @@ impl ClientSideConsoleInput {
     pub fn from_string(str: String) -> Self {
         let mut split: Vec<&str> = str.split(" ").collect();
 
-        let base = split.first().unwrap().clone();
+        let base = split.first().unwrap().to_string();
 
         split.remove(0);
 

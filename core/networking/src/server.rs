@@ -1,6 +1,6 @@
 use bevy::{
     math::{Vec2, Vec3},
-    prelude::{info, Component, Entity, Event, Quat, Resource},
+    prelude::{info, Component, Entity, Event, Quat, Resource, SystemSet},
 };
 use resources::core::TickRate;
 use serde::{Deserialize, Serialize};
@@ -229,12 +229,16 @@ pub(crate) fn send_outgoing_unreliable_server_messages<T: TypeName + Send + Sync
         }
     }
 }
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
+pub enum ServerMessageSet {
+    Send,
+}
 
 use bevy::prelude::{Res, ResMut};
 
 use crate::messaging::Typenames;
 /// Serializes and sends the outgoing reliable server messages.
-pub(crate) fn send_outgoing_reliable_server_messages<T: TypeName + Send + Sync + Serialize>(
+pub fn send_outgoing_reliable_server_messages<T: TypeName + Send + Sync + Serialize>(
     mut events: EventReader<OutgoingReliableServerMessage<T>>,
     mut server: ResMut<RenetServer>,
     typenames: Res<Typenames>,

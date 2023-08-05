@@ -92,7 +92,7 @@ pub(crate) fn display_console_message(
 ) {
     for event in events.iter() {
         let mut sections = event.sections.clone();
-        let mut first = sections.first_mut().unwrap();
+        let first = sections.first_mut().unwrap();
         first.value = "> ".to_string() + &first.value;
 
         let text_section = commands
