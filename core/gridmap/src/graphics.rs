@@ -5,7 +5,6 @@ use bevy::prelude::Assets;
 use bevy::prelude::Commands;
 use bevy::prelude::EventReader;
 
-use bevy::prelude::info;
 use bevy::prelude::warn;
 use bevy::prelude::PbrBundle;
 use bevy::prelude::Res;
@@ -56,17 +55,6 @@ pub(crate) fn set_cell_graphics(
                         face: set_cell.face.clone(),
                     },
                     set_cell.orientation,
-                );
-
-                // Debug for rare tile transform bug.
-                info!(
-                    "Targetcell: {:?}, orientation: {}, transform: {:?}",
-                    TargetCell {
-                        id: set_cell.id,
-                        face: set_cell.face.clone(),
-                    },
-                    set_cell.orientation,
-                    transform
                 );
 
                 let mat;

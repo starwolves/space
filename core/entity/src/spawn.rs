@@ -6,7 +6,9 @@ use crate::{
     net::LoadEntity,
     showcase::{Showcase, ShowcaseData},
 };
-use bevy::prelude::{Commands, Entity, Event, EventReader, EventWriter, Resource, Transform};
+use bevy::prelude::{
+    Commands, Entity, Event, EventReader, EventWriter, Resource, SystemSet, Transform,
+};
 use serde::Deserialize;
 
 use crate::{
@@ -120,6 +122,12 @@ pub trait BaseEntityBuilder<Y>: Send + Sync {
 use crate::init::RawEntityRon;
 use networking::server::OutgoingReliableServerMessage;
 
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
+
+pub enum SpawnItemSet {
+    SpawnHeldItem,
+    AddingComponent,
+}
 use bevy::prelude::Res;
 
 use crate::entity_types::EntityTypes;

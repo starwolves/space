@@ -1,6 +1,6 @@
 use bevy::prelude::{
-    warn, BuildChildren, Commands, Entity, Event, EventReader, EventWriter, Query, Res, ResMut,
-    SystemSet, Transform, Vec3, Visibility,
+    info, warn, BuildChildren, Commands, Entity, Event, EventReader, EventWriter, Query, Res,
+    ResMut, SystemSet, Transform, Vec3, Visibility,
 };
 use cameras::controllers::fps::ActiveCamera;
 use entity::{entity_data::EntityData, entity_types::EntityType, spawn::ClientEntityServerEntity};
@@ -84,6 +84,8 @@ pub fn set_active_item(
     for event in net.iter() {
         match event.message {
             InventoryServerMessage::SetActiveItem(entity) => {
+                info!("Receive SetActiveItem 2");
+
                 match inventory.active_item {
                     Some(old_active) => match map.map.get(&old_active) {
                         Some(ent) => match visible_query.get_mut(*ent) {

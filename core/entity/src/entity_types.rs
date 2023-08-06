@@ -54,7 +54,7 @@ pub trait EntityType: Send + Sync + DynClone {
 dyn_clone::clone_trait_object!(EntityType);
 
 pub type BoxedEntityType = Box<dyn EntityType>;
-use crate::spawn::SpawnEntity;
+use crate::spawn::{SpawnEntity, SpawnItemSet};
 use bevy::prelude::App;
 use resources::sets::BuildingSet;
 
@@ -66,7 +66,9 @@ pub fn register_entity_type<T: EntityType + Clone + Default + 'static>(app: &mut
     .add_event::<SpawnEntity<T>>()
     .add_systems(
         FixedUpdate,
-        (build_raw_entities::<T>).after(BuildingSet::TriggerBuild),
+        (build_raw_entities::<T>)
+            .after(BuildingSet::TriggerBuild)
+            .before(SpawnItemSet::SpawnHeldItem),
     );
 }
 

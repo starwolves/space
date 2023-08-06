@@ -6,14 +6,14 @@ use crate::{client::IncomingReliableServerMessage, server::NetworkingServerMessa
 #[derive(Resource, Default, Serialize, Deserialize, Debug, Clone)]
 pub struct TickRateStamp {
     pub stamp: u8,
-    pub interation: u32,
+    pub iteration: u32,
 }
 
 impl TickRateStamp {
     pub fn step(&mut self) {
         if self.stamp == u8::MAX {
             self.stamp = 0;
-            self.interation += 1;
+            self.iteration += 1;
         } else {
             self.stamp += 1;
         }
@@ -35,6 +35,6 @@ pub(crate) fn setup_client_tickrate_stamp(
     }
 }
 
-pub(crate) fn step_tickrate_stamp(mut stamp: ResMut<TickRateStamp>) {
+pub fn step_tickrate_stamp(mut stamp: ResMut<TickRateStamp>) {
     stamp.step();
 }

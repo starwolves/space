@@ -1,9 +1,12 @@
 use basic_console_commands::register::register_basic_console_commands_for_type;
 use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin};
 use construction_tool::spawn::ConstructionToolType;
-use entity::{base_mesh::link_base_mesh, entity_types::register_entity_type, loading::load_entity};
+use entity::{
+    base_mesh::link_base_mesh, entity_types::register_entity_type, loading::load_entity,
+    spawn::SpawnItemSet,
+};
 
-use inventory::server::inventory::SpawnItemLabel;
+use networking::sync::step_tickrate_stamp;
 use physics::spawn::build_rigid_bodies;
 use player::boarding::player_boarded;
 use resources::{
@@ -42,7 +45,7 @@ impl Plugin for HumanMalePlugin {
                 FixedUpdate,
                 (
                     link_base_mesh::<HumanMaleType>,
-                    load_entity::<HumanMaleType>,
+                    load_entity::<HumanMaleType>.before(SpawnItemSet::SpawnHeldItem),
                 )
                     .in_set(MainSet::Update),
             );
@@ -58,14 +61,18 @@ impl Plugin for HumanMalePlugin {
                 (build_base_human_males::<HumanMaleType>).after(BuildingSet::TriggerBuild),
                 (build_rigid_bodies::<HumanMaleType>).after(BuildingSet::TriggerBuild),
                 spawn_held_item::<ConstructionToolType>
-                    .in_set(SpawnItemLabel::SpawnHeldItem)
+                    .before(SpawnItemSet::SpawnHeldItem)
                     .before(BuildingSet::TriggerBuild),
             )
                 .in_set(MainSet::Update),
         )
         .add_systems(
             FixedUpdate,
-            (process_add_item_slot_buffer, process_add_slot_buffer).in_set(MainSet::PreUpdate),
+            (
+                process_add_item_slot_buffer.after(step_tickrate_stamp),
+                process_add_slot_buffer,
+            )
+                .in_set(MainSet::PreUpdate),
         )
         .init_resource::<AddItemToSlotBuffer>()
         .init_resource::<AddSlotBuffer>();

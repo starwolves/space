@@ -59,13 +59,6 @@ pub struct Inventory {
     pub active_item: Option<Entity>,
 }
 
-#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
-
-pub enum SpawnItemLabel {
-    SpawnHeldItem,
-    AddingComponent,
-}
-
 /// Event that fires when an item was successfully added to an inventory slot.
 #[derive(Serialize, Deserialize, Debug, Clone, Event)]
 pub struct ItemAddedToSlot {

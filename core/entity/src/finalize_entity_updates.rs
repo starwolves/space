@@ -1,4 +1,4 @@
-use bevy::prelude::{Changed, Entity, Query, Res};
+/*use bevy::prelude::{Changed, Entity, Query, Res};
 
 use crate::showcase::Showcase;
 
@@ -13,8 +13,8 @@ use crate::entity_data::EntityWorldType;
 use networking::server::OutgoingReliableServerMessage;
 
 use crate::net::EntityServerMessage;
-/// Finalize entity updates of this frame and send them to Godot clients.
 
+/// Finalize entity updates of this frame and send them to Godot clients.
 pub(crate) fn finalize_entity_updates(
     mut updated_entity_updates: Query<
         (
@@ -121,3 +121,4 @@ pub(crate) fn finalize_entity_updates(
         }
     }
 }
+*/

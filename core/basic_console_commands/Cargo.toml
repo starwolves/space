@@ -22,7 +22,6 @@ gridmap = { path = "../gridmap"}
 player = { path = "../player"}
 pawn = { path = "../pawn"}
 networking = { path = "../networking"}
-
 entity = { path = "../entity"}
 resources = { path = "../resources" }
 ui = { path = "../ui" }

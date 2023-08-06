@@ -35,7 +35,12 @@ impl Plugin for InventoryPlugin {
         if is_server() {
             app.add_systems(
                 FixedUpdate,
-                inventory_item_update
+                (
+                    inventory_item_update,
+                    spawn_entity_for_client
+                        .after(PostUpdateSet::VisibleChecker)
+                        .before(ServerMessageSet::Send),
+                )
                     .in_set(PostUpdateSet::EntityUpdate)
                     .in_set(MainSet::PostUpdate),
             )
@@ -43,7 +48,6 @@ impl Plugin for InventoryPlugin {
                 FixedUpdate,
                 (
                     process_request_set_active_item,
-                    spawn_entity_for_client,
                     add_slot_to_inventory
                         .in_set(InventorySlotLabel::AddSlotToInventory)
                         .before(ServerMessageSet::Send),

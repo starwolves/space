@@ -12,7 +12,6 @@ use crate::examine::{
     examine_entity, examine_entity_health, finalize_entity_examine_input, finalize_examine_entity,
     incoming_messages, ExamineEntityMessages, InputExamineEntity,
 };
-use crate::finalize_entity_updates::finalize_entity_updates;
 use crate::init::load_ron_entities;
 use crate::net::{EntityClientMessage, EntityServerMessage};
 use crate::spawn::{ClientEntityServerEntity, PawnId};
@@ -58,13 +57,13 @@ impl Plugin for EntityPlugin {
                 (finalize_entity_examine_input, incoming_messages).in_set(MainSet::PreUpdate),
             )
             .add_event::<InputExamineEntity>()
-            .add_systems(
+            /*.add_systems(
                 FixedUpdate,
                 finalize_entity_updates
                     .after(PostUpdateSet::EntityUpdate)
                     .in_set(PostUpdateSet::SendEntityUpdates)
                     .in_set(MainSet::PostUpdate),
-            )
+            )*/
             .add_event::<DespawnClientEntity>()
             .add_event::<SpawnClientEntity>();
         } else {

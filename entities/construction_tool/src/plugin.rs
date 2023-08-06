@@ -8,14 +8,13 @@ use combat::sfx::{attack_sfx, health_combat_hit_result_sfx};
 use entity::base_mesh::link_base_mesh;
 use entity::entity_types::register_entity_type;
 use entity::loading::load_entity;
-use entity::spawn::build_base_entities;
+use entity::spawn::{build_base_entities, SpawnItemSet};
 
 use gridmap::construction::{GridmapConstructionState, ShowYLevelPlane};
 use gridmap::grid::AddTileSet;
 use hud::inventory::items::update_inventory_hud_add_item_to_slot;
 use hud::inventory::slots::InventoryHudSet;
 use inventory::client::items::{active_item_display_camera, ClientBuildInventoryLabel};
-use inventory::server::inventory::SpawnItemLabel;
 use inventory::spawn_item::build_inventory_items;
 use physics::spawn::build_rigid_bodies;
 use resources::is_server::is_server;
@@ -85,7 +84,7 @@ impl Plugin for ConstructionToolAdminPlugin {
                         .after(InventoryHudSet::UpdateSlot)
                         .in_set(InventoryHudSet::QueueUpdate)
                         .after(ClientBuildInventoryLabel::Net),
-                    load_entity::<ConstructionToolType>,
+                    load_entity::<ConstructionToolType>.before(SpawnItemSet::SpawnHeldItem),
                     link_base_mesh::<ConstructionToolType>,
                     active_item_display_camera::<ConstructionToolType>,
                     construction_tool_enable_select_cell_in_front_camera
@@ -105,8 +104,8 @@ impl Plugin for ConstructionToolAdminPlugin {
                 (build_base_entities::<ConstructionToolType>).after(BuildingSet::TriggerBuild),
                 (build_inventory_items::<ConstructionToolType>)
                     .after(BuildingSet::TriggerBuild)
-                    .after(SpawnItemLabel::SpawnHeldItem)
-                    .in_set(SpawnItemLabel::AddingComponent),
+                    .after(SpawnItemSet::SpawnHeldItem)
+                    .in_set(SpawnItemSet::AddingComponent),
             )
                 .in_set(MainSet::Update),
         )
