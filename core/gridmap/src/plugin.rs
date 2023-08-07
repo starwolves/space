@@ -17,7 +17,7 @@ use crate::{
         change_ghost_tile_request, client_mouse_click_input, create_select_cell_cam_state,
         input_ghost_rotation, input_yplane_position, move_ylevel_plane, register_input,
         select_cell_in_front_camera, set_yplane_position, show_ylevel_plane, update_ghost_cell,
-        ConstructionCellSelectionChanged, GridmapConstructionState, SetYPlanePosition,
+        ConstructionCellSelectionChanged, GridmapConstructionState, SetYPlanePosition, YPlaneSet,
     },
     examine::{
         examine_grid, examine_map, examine_map_abilities, examine_map_health, finalize_examine_map,
@@ -138,9 +138,18 @@ impl Plugin for GridmapPlugin {
                     (
                         set_cell_graphics.after(AddTileSet::Add),
                         create_select_cell_cam_state,
-                        set_yplane_position.run_if(resource_exists::<GridmapConstructionState>()),
-                        show_ylevel_plane.run_if(resource_exists::<GridmapConstructionState>()),
-                        input_yplane_position.run_if(resource_exists::<GridmapConstructionState>()),
+                        set_yplane_position
+                            .run_if(resource_exists::<GridmapConstructionState>())
+                            .after(YPlaneSet::Input)
+                            .after(YPlaneSet::Position),
+                        show_ylevel_plane
+                            .run_if(resource_exists::<GridmapConstructionState>())
+                            .after(YPlaneSet::Show)
+                            .in_set(YPlaneSet::Position),
+                        input_yplane_position
+                            .in_set(YPlaneSet::Input)
+                            .in_set(YPlaneSet::Position)
+                            .run_if(resource_exists::<GridmapConstructionState>()),
                         move_ylevel_plane.run_if(resource_exists::<GridmapConstructionState>()),
                         update_ghost_cell.run_if(resource_exists::<GridmapConstructionState>()),
                         change_ghost_tile_request

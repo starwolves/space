@@ -161,7 +161,16 @@ pub fn control_system(
         return;
     };
 
-    let look_vector = transform.look_direction().unwrap();
+    let look_vector;
+
+    match transform.look_direction() {
+        Some(v) => {
+            look_vector = v;
+        }
+        None => {
+            return;
+        }
+    }
     let mut look_angles = LookAngles::from_vector(look_vector);
 
     let yaw_rot = Quat::from_axis_angle(Vec3::Y, look_angles.get_yaw());

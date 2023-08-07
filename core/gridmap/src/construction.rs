@@ -6,8 +6,8 @@ use bevy::{
     prelude::{
         warn, AlphaMode, AssetServer, Assets, Color, Commands, Component, DespawnRecursiveExt,
         Entity, Event, EventReader, EventWriter, Handle, Input, KeyCode, Local, MouseButton,
-        PbrBundle, Quat, Query, Res, ResMut, Resource, StandardMaterial, Transform, Vec3,
-        Visibility, With,
+        PbrBundle, Quat, Query, Res, ResMut, Resource, StandardMaterial, SystemSet, Transform,
+        Vec3, Visibility, With,
     },
     transform::TransformBundle,
 };
@@ -282,6 +282,14 @@ pub(crate) fn register_input(mut binds: ResMut<KeyBinds>) {
             customizable: true,
         },
     );
+}
+
+/// Label for systems ordering.
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
+pub enum YPlaneSet {
+    Input,
+    Show,
+    Position,
 }
 
 pub(crate) fn input_yplane_position(

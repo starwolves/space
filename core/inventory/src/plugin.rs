@@ -12,7 +12,8 @@ use resources::{
 use crate::{
     client::{
         items::{
-            client_item_added_to_slot, set_active_item, ActiveItemCamera, ClientBuildInventoryLabel,
+            client_item_added_to_slot, set_active_item, ActiveItemCamera, ClientActiveCameraItem,
+            ClientBuildInventoryLabel,
         },
         slots::{client_slot_added, AddedSlot},
     },
@@ -62,7 +63,7 @@ impl Plugin for InventoryPlugin {
                 FixedUpdate,
                 (
                     client_item_added_to_slot.after(ClientBuildInventoryLabel::AddSlot),
-                    set_active_item,
+                    set_active_item.in_set(ClientActiveCameraItem::ActivateItem),
                     client_slot_added.in_set(ClientBuildInventoryLabel::AddSlot),
                 )
                     .in_set(MainSet::Update),

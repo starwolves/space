@@ -10,11 +10,13 @@ use entity::entity_types::register_entity_type;
 use entity::loading::load_entity;
 use entity::spawn::{build_base_entities, SpawnItemSet};
 
-use gridmap::construction::{GridmapConstructionState, ShowYLevelPlane};
+use gridmap::construction::{GridmapConstructionState, ShowYLevelPlane, YPlaneSet};
 use gridmap::grid::AddTileSet;
 use hud::inventory::items::update_inventory_hud_add_item_to_slot;
 use hud::inventory::slots::InventoryHudSet;
-use inventory::client::items::{active_item_display_camera, ClientBuildInventoryLabel};
+use inventory::client::items::{
+    active_item_display_camera, ClientActiveCameraItem, ClientBuildInventoryLabel,
+};
 use inventory::spawn_item::build_inventory_items;
 use physics::spawn::build_rigid_bodies;
 use resources::is_server::is_server;
@@ -86,9 +88,11 @@ impl Plugin for ConstructionToolAdminPlugin {
                         .after(ClientBuildInventoryLabel::Net),
                     load_entity::<ConstructionToolType>.before(SpawnItemSet::SpawnHeldItem),
                     link_base_mesh::<ConstructionToolType>,
-                    active_item_display_camera::<ConstructionToolType>,
+                    active_item_display_camera::<ConstructionToolType>
+                        .after(ClientActiveCameraItem::ActivateItem),
                     construction_tool_enable_select_cell_in_front_camera
-                        .run_if(resource_exists::<GridmapConstructionState>()),
+                        .run_if(resource_exists::<GridmapConstructionState>())
+                        .in_set(YPlaneSet::Show),
                 )
                     .in_set(MainSet::Update),
             );

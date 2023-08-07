@@ -9,6 +9,7 @@ use inventory::server::inventory::Inventory;
 use networking::server::{HandleToEntity, IncomingReliableClientMessage};
 
 use crate::construction_tool::ConstructionTool;
+
 pub(crate) fn construction_tool_enable_select_cell_in_front_camera(
     inventory: Res<Inventory>,
     construction_tool_query: Query<&ConstructionTool>,

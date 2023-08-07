@@ -1,4 +1,4 @@
-use bevy::prelude::{info, warn, EventReader, EventWriter, Query, Res};
+use bevy::prelude::{warn, EventReader, EventWriter, Query, Res};
 use networking::server::{
     HandleToEntity, IncomingReliableClientMessage, OutgoingReliableServerMessage,
 };
@@ -20,7 +20,6 @@ pub(crate) fn process_request_set_active_item(
                     Some(pawn_entity) => match inventory_query.get_mut(*pawn_entity) {
                         Ok(mut inventory_component) => {
                             inventory_component.active_item = Some(requested_active_item);
-                            info!("SetActiveItem");
                             o_net.send(OutgoingReliableServerMessage {
                                 handle: event.handle,
                                 message: InventoryServerMessage::SetActiveItem(

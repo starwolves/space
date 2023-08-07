@@ -243,7 +243,6 @@ pub(crate) fn slot_item_button_events(
                         }
                         None => {}
                     }
-                    info!("Sending RequestSetActiveItem");
                     inventory_net.send(OutgoingReliableClientMessage {
                         message: InventoryClientMessage::RequestSetActiveItem(slot_item_hud.entity),
                     });
@@ -273,8 +272,6 @@ pub fn change_active_item(
     for event in net.iter() {
         match event.message {
             InventoryServerMessage::SetActiveItem(entity) => {
-                info!("Receive SetActiveItem 1");
-
                 match inventory.active_item {
                     Some(old_focus) => match inventory.item_to_node.get(&old_focus) {
                         Some(old_focus_node) => match node_query.get_mut(*old_focus_node) {
