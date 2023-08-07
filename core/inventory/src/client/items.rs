@@ -1,6 +1,6 @@
 use bevy::prelude::{
-    warn, BuildChildren, Commands, Entity, Event, EventReader, EventWriter, Query, Res, ResMut,
-    SystemSet, Transform, Vec3, Visibility,
+    info, warn, BuildChildren, Commands, Entity, Event, EventReader, EventWriter, Query, Res,
+    ResMut, SystemSet, Transform, Vec3, Visibility,
 };
 use cameras::controllers::fps::ActiveCamera;
 use entity::{entity_data::EntityData, entity_types::EntityType, spawn::ClientEntityServerEntity};
@@ -90,6 +90,7 @@ pub fn set_active_item(
     for event in net.iter() {
         match event.message {
             InventoryServerMessage::SetActiveItem(entity) => {
+                info!("Received SetActiveItem");
                 match inventory.active_item {
                     Some(old_active) => match map.map.get(&old_active) {
                         Some(ent) => match visible_query.get_mut(*ent) {
@@ -112,6 +113,7 @@ pub fn set_active_item(
                         Ok((mut status, mut comp)) => {
                             *comp = Visibility::Inherited;
                             status.enabled = false;
+
                             match state.option {
                                 Some(camera_entity) => {
                                     commands.entity(camera_entity).add_child(*ent);

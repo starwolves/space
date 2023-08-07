@@ -4,7 +4,7 @@ use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, Startup};
 use bevy::time::common_conditions::on_fixed_timer;
 use networking::messaging::{register_reliable_message, MessageSender};
 use resources::is_server::is_server;
-use resources::sets::{ActionsSet, MainSet, PostUpdateSet, StartupSet};
+use resources::sets::{ActionsSet, BuildingSet, MainSet, PostUpdateSet, StartupSet};
 
 use crate::entity_data::{world_mode_update, InterpolationSet, RawSpawnEvent};
 use crate::entity_types::{finalize_register_entity_types, EntityTypeLabel, EntityTypes};
@@ -81,7 +81,8 @@ impl Plugin for EntityPlugin {
                 load_ron_entities
                     .after(StartupSet::BuildGridmap)
                     .in_set(MainSet::PreUpdate)
-                    .in_set(StartupSet::InitEntities),
+                    .in_set(StartupSet::InitEntities)
+                    .in_set(BuildingSet::RawTriggerBuild),
             );
         register_reliable_message::<EntityServerMessage>(app, MessageSender::Server);
         register_reliable_message::<EntityClientMessage>(app, MessageSender::Client);

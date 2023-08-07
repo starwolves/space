@@ -1,5 +1,5 @@
 use console_commands::commands::ConsoleCommandsSet;
-use resources::is_server::is_server;
+use resources::{is_server::is_server, sets::BuildingSet};
 pub fn register_basic_console_commands_for_type<T: EntityType + Clone + Default + 'static>(
     app: &mut App,
 ) {
@@ -26,7 +26,9 @@ pub fn register_basic_console_commands_for_inventory_item_type<
                 FixedUpdate,
                 (
                     rcon_entity_console_commands::<T>.after(ConsoleCommandsSet::Input),
-                    rcon_spawn_entity::<T>.before(SpawnItemSet::SpawnHeldItem),
+                    rcon_spawn_entity::<T>
+                        .before(SpawnItemSet::SpawnHeldItem)
+                        .in_set(BuildingSet::TriggerBuild),
                 ),
             )
             .add_event::<RconSpawnHeldEntity<T>>();

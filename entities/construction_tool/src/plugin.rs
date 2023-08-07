@@ -86,8 +86,10 @@ impl Plugin for ConstructionToolAdminPlugin {
                         .after(InventoryHudSet::UpdateSlot)
                         .in_set(InventoryHudSet::QueueUpdate)
                         .after(ClientBuildInventoryLabel::Net),
-                    load_entity::<ConstructionToolType>.before(SpawnItemSet::SpawnHeldItem),
-                    link_base_mesh::<ConstructionToolType>,
+                    load_entity::<ConstructionToolType>
+                        .before(SpawnItemSet::SpawnHeldItem)
+                        .in_set(BuildingSet::TriggerBuild),
+                    link_base_mesh::<ConstructionToolType>.after(BuildingSet::TriggerBuild),
                     active_item_display_camera::<ConstructionToolType>
                         .after(ClientActiveCameraItem::ActivateItem),
                     construction_tool_enable_select_cell_in_front_camera

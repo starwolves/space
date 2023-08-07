@@ -39,13 +39,20 @@ impl Plugin for HumanMalePlugin {
                 )
                     .in_set(MainSet::Update),
             )
-            .add_systems(FixedUpdate, spawn_boarding_player.before(player_boarded));
+            .add_systems(
+                FixedUpdate,
+                spawn_boarding_player
+                    .before(player_boarded)
+                    .in_set(BuildingSet::TriggerBuild),
+            );
         } else {
             app.add_systems(
                 FixedUpdate,
                 (
                     link_base_mesh::<HumanMaleType>,
-                    load_entity::<HumanMaleType>.before(SpawnItemSet::SpawnHeldItem),
+                    load_entity::<HumanMaleType>
+                        .before(SpawnItemSet::SpawnHeldItem)
+                        .in_set(BuildingSet::TriggerBuild),
                 )
                     .in_set(MainSet::Update),
             );
@@ -56,13 +63,13 @@ impl Plugin for HumanMalePlugin {
             FixedUpdate,
             (
                 build_human_males
-                    .before(BuildingSet::TriggerBuild)
+                    .after(BuildingSet::TriggerBuild)
                     .in_set(BuildingSet::NormalBuild),
                 (build_base_human_males::<HumanMaleType>).after(BuildingSet::TriggerBuild),
                 (build_rigid_bodies::<HumanMaleType>).after(BuildingSet::TriggerBuild),
                 spawn_held_item::<ConstructionToolType>
                     .before(SpawnItemSet::SpawnHeldItem)
-                    .before(BuildingSet::TriggerBuild),
+                    .after(BuildingSet::TriggerBuild),
             )
                 .in_set(MainSet::Update),
         )

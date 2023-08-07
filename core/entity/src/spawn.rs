@@ -123,11 +123,11 @@ use crate::init::RawEntityRon;
 use networking::server::OutgoingReliableServerMessage;
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
-
 pub enum SpawnItemSet {
     SpawnHeldItem,
     AddingComponent,
 }
+
 use bevy::prelude::Res;
 
 use crate::entity_types::EntityTypes;

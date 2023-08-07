@@ -67,8 +67,9 @@ pub fn register_entity_type<T: EntityType + Clone + Default + 'static>(app: &mut
     .add_systems(
         FixedUpdate,
         (build_raw_entities::<T>)
-            .after(BuildingSet::TriggerBuild)
-            .before(SpawnItemSet::SpawnHeldItem),
+            .before(SpawnItemSet::SpawnHeldItem)
+            .in_set(BuildingSet::TriggerBuild)
+            .after(BuildingSet::RawTriggerBuild),
     );
 }
 
