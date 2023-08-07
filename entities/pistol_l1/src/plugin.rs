@@ -9,12 +9,15 @@ use combat::{
     projectile_queries::projectile_attack_handler,
     sfx::{attack_sfx, health_combat_hit_result_sfx},
 };
-use entity::{entity_types::register_entity_type, spawn::build_base_entities};
+use entity::{
+    entity_types::register_entity_type,
+    spawn::{build_base_entities, SpawnItemSet},
+};
 use inventory::spawn_item::build_inventory_items;
 use physics::spawn::build_rigid_bodies;
 use resources::{
     is_server::is_server,
-    sets::{BuildingSet, CombatSet, MainSet},
+    sets::{CombatSet, MainSet},
 };
 
 use crate::pistol_l1::PistolL1;
@@ -50,10 +53,10 @@ impl Plugin for PistolL1Plugin {
         app.add_systems(
             FixedUpdate,
             (
-                (build_base_entities::<PistolL1Type>).after(BuildingSet::TriggerBuild),
-                (build_rigid_bodies::<PistolL1Type>).after(BuildingSet::TriggerBuild),
-                (build_inventory_items::<PistolL1Type>).after(BuildingSet::TriggerBuild),
-                build_pistols_l1::<PistolL1Type>.after(BuildingSet::TriggerBuild),
+                (build_base_entities::<PistolL1Type>).after(SpawnItemSet::SpawnHeldItem),
+                (build_rigid_bodies::<PistolL1Type>).after(SpawnItemSet::SpawnHeldItem),
+                (build_inventory_items::<PistolL1Type>).after(SpawnItemSet::SpawnHeldItem),
+                build_pistols_l1::<PistolL1Type>.after(SpawnItemSet::SpawnHeldItem),
             )
                 .in_set(MainSet::Update),
         );

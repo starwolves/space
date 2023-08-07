@@ -1,10 +1,10 @@
 use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, SystemSet};
 use combat::sfx::health_combat_hit_result_sfx;
 use entity::entity_types::register_entity_type;
-use entity::spawn::build_base_entities;
+use entity::spawn::{build_base_entities, SpawnItemSet};
 use physics::spawn::build_rigid_bodies;
 use resources::is_server::is_server;
-use resources::sets::{ActionsSet, BuildingSet, CombatSet, MainSet, PostUpdateSet};
+use resources::sets::{ActionsSet, CombatSet, MainSet, PostUpdateSet};
 
 use crate::{
     actions::{
@@ -73,9 +73,9 @@ impl Plugin for AirLocksPlugin {
         app.add_systems(
             FixedUpdate,
             (
-                build_airlocks::<AirlockType>.after(BuildingSet::TriggerBuild),
-                (build_rigid_bodies::<AirlockType>).after(BuildingSet::TriggerBuild),
-                (build_base_entities::<AirlockType>).after(BuildingSet::TriggerBuild),
+                build_airlocks::<AirlockType>.after(SpawnItemSet::SpawnHeldItem),
+                (build_rigid_bodies::<AirlockType>).after(SpawnItemSet::SpawnHeldItem),
+                (build_base_entities::<AirlockType>).after(SpawnItemSet::SpawnHeldItem),
             )
                 .in_set(MainSet::Update),
         );

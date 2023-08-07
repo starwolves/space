@@ -1,11 +1,11 @@
 use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin};
 use combat::sfx::health_combat_hit_result_sfx;
-use entity::entity_types::register_entity_type;
 use entity::spawn::build_base_entities;
+use entity::{entity_types::register_entity_type, spawn::SpawnItemSet};
 use physics::spawn::build_rigid_bodies;
 use resources::{
     is_server::is_server,
-    sets::{ActionsSet, BuildingSet, CombatSet, MainSet, PostUpdateSet},
+    sets::{ActionsSet, CombatSet, MainSet, PostUpdateSet},
 };
 
 use crate::{
@@ -71,9 +71,9 @@ impl Plugin for CounterWindowsPlugin {
         app.add_systems(
             FixedUpdate,
             (
-                build_counter_windows::<CounterWindowType>.after(BuildingSet::TriggerBuild),
-                (build_rigid_bodies::<CounterWindowType>).after(BuildingSet::TriggerBuild),
-                (build_base_entities::<CounterWindowType>).after(BuildingSet::TriggerBuild),
+                build_counter_windows::<CounterWindowType>.after(SpawnItemSet::SpawnHeldItem),
+                (build_rigid_bodies::<CounterWindowType>).after(SpawnItemSet::SpawnHeldItem),
+                (build_base_entities::<CounterWindowType>).after(SpawnItemSet::SpawnHeldItem),
             )
                 .in_set(MainSet::Update),
         );

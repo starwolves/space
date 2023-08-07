@@ -89,7 +89,7 @@ impl Plugin for ConstructionToolAdminPlugin {
                     load_entity::<ConstructionToolType>
                         .before(SpawnItemSet::SpawnHeldItem)
                         .in_set(BuildingSet::TriggerBuild),
-                    link_base_mesh::<ConstructionToolType>.after(BuildingSet::TriggerBuild),
+                    link_base_mesh::<ConstructionToolType>.after(SpawnItemSet::SpawnHeldItem),
                     active_item_display_camera::<ConstructionToolType>
                         .after(ClientActiveCameraItem::ActivateItem),
                     construction_tool_enable_select_cell_in_front_camera
@@ -105,11 +105,11 @@ impl Plugin for ConstructionToolAdminPlugin {
         app.add_systems(
             FixedUpdate,
             (
-                build_construction_tools::<ConstructionToolType>.after(BuildingSet::TriggerBuild),
-                (build_rigid_bodies::<ConstructionToolType>).after(BuildingSet::TriggerBuild),
-                (build_base_entities::<ConstructionToolType>).after(BuildingSet::TriggerBuild),
+                build_construction_tools::<ConstructionToolType>.after(SpawnItemSet::SpawnHeldItem),
+                (build_rigid_bodies::<ConstructionToolType>).after(SpawnItemSet::SpawnHeldItem),
+                (build_base_entities::<ConstructionToolType>).after(SpawnItemSet::SpawnHeldItem),
                 (build_inventory_items::<ConstructionToolType>)
-                    .after(BuildingSet::TriggerBuild)
+                    .after(SpawnItemSet::SpawnHeldItem)
                     .after(SpawnItemSet::SpawnHeldItem)
                     .in_set(SpawnItemSet::AddingComponent),
             )

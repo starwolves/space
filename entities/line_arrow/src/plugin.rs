@@ -1,7 +1,10 @@
 use basic_console_commands::register::register_basic_console_commands_for_type;
 use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, ResMut, Startup};
 use console_commands::commands::{AllConsoleCommands, ConsoleCommand, ConsoleCommandsSet};
-use entity::{entity_types::register_entity_type, spawn::build_base_entities};
+use entity::{
+    entity_types::register_entity_type,
+    spawn::{build_base_entities, SpawnItemSet},
+};
 use networking::server::ConsoleArgVariant;
 use resources::{
     is_server::is_server,
@@ -33,8 +36,8 @@ impl Plugin for LineArrowPlugin {
         app.add_systems(
             FixedUpdate,
             (
-                (build_base_entities::<LineArrowType>).after(BuildingSet::TriggerBuild),
-                build_line_arrows::<LineArrowType>.after(BuildingSet::TriggerBuild),
+                (build_base_entities::<LineArrowType>).after(SpawnItemSet::SpawnHeldItem),
+                build_line_arrows::<LineArrowType>.after(SpawnItemSet::SpawnHeldItem),
             )
                 .in_set(MainSet::Update),
         )
@@ -56,7 +59,7 @@ impl Plugin for PointArrowPlugin {
                 FixedUpdate,
                 (
                     expire_point_arrow,
-                    (build_base_entities::<LineArrowType>).after(BuildingSet::TriggerBuild),
+                    (build_base_entities::<LineArrowType>).after(SpawnItemSet::SpawnHeldItem),
                 )
                     .in_set(MainSet::Update),
             );

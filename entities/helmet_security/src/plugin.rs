@@ -7,12 +7,15 @@ use combat::{
     melee_queries::melee_attack_handler,
     sfx::{attack_sfx, health_combat_hit_result_sfx},
 };
-use entity::{entity_types::register_entity_type, spawn::build_base_entities};
+use entity::{
+    entity_types::register_entity_type,
+    spawn::{build_base_entities, SpawnItemSet},
+};
 use inventory::spawn_item::build_inventory_items;
 use physics::spawn::build_rigid_bodies;
 use resources::{
     is_server::is_server,
-    sets::{BuildingSet, CombatSet, MainSet},
+    sets::{CombatSet, MainSet},
 };
 
 use crate::helmet::Helmet;
@@ -44,10 +47,10 @@ impl Plugin for HelmetsPlugin {
         app.add_systems(
             FixedUpdate,
             (
-                build_helmets::<HelmetType>.after(BuildingSet::TriggerBuild),
-                (build_base_entities::<HelmetType>).after(BuildingSet::TriggerBuild),
-                (build_rigid_bodies::<HelmetType>).after(BuildingSet::TriggerBuild),
-                (build_inventory_items::<HelmetType>).after(BuildingSet::TriggerBuild),
+                build_helmets::<HelmetType>.after(SpawnItemSet::SpawnHeldItem),
+                (build_base_entities::<HelmetType>).after(SpawnItemSet::SpawnHeldItem),
+                (build_rigid_bodies::<HelmetType>).after(SpawnItemSet::SpawnHeldItem),
+                (build_inventory_items::<HelmetType>).after(SpawnItemSet::SpawnHeldItem),
             )
                 .in_set(MainSet::Update),
         );

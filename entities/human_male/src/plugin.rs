@@ -49,7 +49,7 @@ impl Plugin for HumanMalePlugin {
             app.add_systems(
                 FixedUpdate,
                 (
-                    link_base_mesh::<HumanMaleType>,
+                    link_base_mesh::<HumanMaleType>.after(SpawnItemSet::SpawnHeldItem),
                     load_entity::<HumanMaleType>
                         .before(SpawnItemSet::SpawnHeldItem)
                         .in_set(BuildingSet::TriggerBuild),
@@ -63,10 +63,10 @@ impl Plugin for HumanMalePlugin {
             FixedUpdate,
             (
                 build_human_males
-                    .after(BuildingSet::TriggerBuild)
+                    .after(SpawnItemSet::SpawnHeldItem)
                     .in_set(BuildingSet::NormalBuild),
-                (build_base_human_males::<HumanMaleType>).after(BuildingSet::TriggerBuild),
-                (build_rigid_bodies::<HumanMaleType>).after(BuildingSet::TriggerBuild),
+                (build_base_human_males::<HumanMaleType>).after(SpawnItemSet::SpawnHeldItem),
+                (build_rigid_bodies::<HumanMaleType>).after(SpawnItemSet::SpawnHeldItem),
                 spawn_held_item::<ConstructionToolType>
                     .before(SpawnItemSet::SpawnHeldItem)
                     .after(BuildingSet::TriggerBuild),
