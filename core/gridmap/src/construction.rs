@@ -4,10 +4,10 @@ use bevy::{
     gltf::GltfMesh,
     pbr::{NotShadowCaster, NotShadowReceiver},
     prelude::{
-        warn, AlphaMode, AssetServer, Assets, Color, Commands, Component, DespawnRecursiveExt,
-        Entity, Event, EventReader, EventWriter, Handle, Input, KeyCode, Local, MouseButton,
-        PbrBundle, Quat, Query, Res, ResMut, Resource, StandardMaterial, SystemSet, Transform,
-        Vec3, Visibility, With,
+        info, warn, AlphaMode, AssetServer, Assets, Color, Commands, Component,
+        DespawnRecursiveExt, Entity, Event, EventReader, EventWriter, Handle, Input, KeyCode,
+        Local, MouseButton, PbrBundle, Quat, Query, Res, ResMut, Resource, StandardMaterial,
+        SystemSet, Transform, Vec3, Visibility, With,
     },
     transform::TransformBundle,
 };
@@ -310,6 +310,10 @@ pub(crate) fn input_yplane_position(
         }
     }
 }
+#[derive(Resource, Default)]
+pub(crate) struct NewGhostBuffer {
+    pub buffer: Vec<ConstructionCellSelectionChanged>,
+}
 
 #[derive(Component)]
 pub struct GhostTileComponent;
@@ -320,6 +324,7 @@ pub(crate) fn update_ghost_cell(
     mut events: EventReader<ConstructionCellSelectionChanged>,
     mut commands: Commands,
     assets_gltfmesh: Res<Assets<GltfMesh>>,
+    mut buffer: ResMut<NewGhostBuffer>,
 ) {
     if !state.is_constructing {
         return;
@@ -491,24 +496,27 @@ pub(crate) fn update_ghost_cell(
                 }
             }
         }
+
+        buffer.buffer.push(changed.clone());
     }
 }
 
-pub(crate) fn input_ghost_rotation(
+pub(crate) fn apply_ghost_rotation(
     keys: Res<InputBuffer>,
     mut state: ResMut<GridmapConstructionState>,
     gridmap: Res<Gridmap>,
     mut ghost_query: Query<&mut Transform, With<GhostTileComponent>>,
-    mut events: EventReader<ConstructionCellSelectionChanged>,
+    mut events: ResMut<NewGhostBuffer>,
 ) {
     if !state.is_constructing {
         return;
     }
 
     let mut changed = false;
-    for _ in events.iter() {
+    for _ in events.buffer.iter() {
         changed = true;
     }
+    events.buffer.clear();
 
     if keys.just_pressed(ROTATE_CONSTRUCTION_LEFT_BIND) {
         // x
@@ -838,7 +846,7 @@ pub(crate) fn input_ghost_rotation(
                     }
                 },
                 Err(_) => {
-                    warn!("Couldnt find ghost transform.");
+                    warn!("Couldnt find ghost components: {:?}.", ghost_entity);
                 }
             },
             None => {}
@@ -851,11 +859,15 @@ pub(crate) fn input_ghost_rotation(
         }
     }
 }
-#[derive(Event)]
+#[derive(Event, Clone)]
 pub struct ConstructionCellSelectionChanged {
     pub only_selection_changed: bool,
 }
 
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
+pub enum ConstructionSelection {
+    Changed,
+}
 pub(crate) fn select_cell_in_front_camera(
     camera_query: Query<&LookTransform>,
     active_camera: Res<ActiveCamera>,
@@ -938,6 +950,7 @@ pub(crate) fn change_ghost_tile_request(
     for message in net.iter() {
         match &message.message {
             GridmapServerMessage::GhostCellType(type_id) => {
+                info!("Receive ghost cell type.");
                 match type_id {
                     CellIds::CellType(id) => {
                         match select_state

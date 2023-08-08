@@ -215,7 +215,6 @@ pub(crate) fn right_mouse_click_item(
                         target_entity_option: Some(e),
                     }),
                 });
-                info!("Send RequestTabData.");
             }
             None => {}
         }

@@ -560,6 +560,16 @@ pub(crate) fn set_text_input_node_text(
 
 use networking::server::IncomingReliableClientMessage;
 
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
+pub enum InterpolationSet {
+    Main,
+}
+
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
+pub enum TextTree {
+    Input,
+}
+
 use crate::net::UiClientMessage;
 /// Manage incoming network messages from clients.
 

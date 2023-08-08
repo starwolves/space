@@ -14,10 +14,11 @@ use resources::{
 use crate::{
     connections::configure,
     construction::{
-        change_ghost_tile_request, client_mouse_click_input, create_select_cell_cam_state,
-        input_ghost_rotation, input_yplane_position, move_ylevel_plane, register_input,
+        apply_ghost_rotation, change_ghost_tile_request, client_mouse_click_input,
+        create_select_cell_cam_state, input_yplane_position, move_ylevel_plane, register_input,
         select_cell_in_front_camera, set_yplane_position, show_ylevel_plane, update_ghost_cell,
-        ConstructionCellSelectionChanged, GridmapConstructionState, SetYPlanePosition, YPlaneSet,
+        ConstructionCellSelectionChanged, ConstructionSelection, GridmapConstructionState,
+        NewGhostBuffer, SetYPlanePosition, YPlaneSet,
     },
     examine::{
         examine_grid, examine_map, examine_map_abilities, examine_map_health, finalize_examine_map,
@@ -132,7 +133,8 @@ impl Plugin for GridmapPlugin {
             .add_event::<InputExamineMap>()
             .init_resource::<GridmapExamineMessages>();
         } else {
-            app.init_resource::<CellGraphicsBuffer>()
+            app.init_resource::<NewGhostBuffer>()
+                .init_resource::<CellGraphicsBuffer>()
                 .add_systems(
                     FixedUpdate,
                     (
@@ -151,12 +153,20 @@ impl Plugin for GridmapPlugin {
                             .in_set(YPlaneSet::Position)
                             .run_if(resource_exists::<GridmapConstructionState>()),
                         move_ylevel_plane.run_if(resource_exists::<GridmapConstructionState>()),
-                        update_ghost_cell.run_if(resource_exists::<GridmapConstructionState>()),
+                        update_ghost_cell
+                            .after(ConstructionSelection::Changed)
+                            .run_if(resource_exists::<GridmapConstructionState>()),
                         change_ghost_tile_request
+                            .in_set(ConstructionSelection::Changed)
                             .run_if(resource_exists::<GridmapConstructionState>()),
                         select_cell_in_front_camera
+                            .in_set(ConstructionSelection::Changed)
                             .run_if(resource_exists::<GridmapConstructionState>())
                             .run_if(on_fixed_timer(Duration::from_secs_f32(1. / 8.))),
+                        apply_ghost_rotation
+                            .after(ConstructionSelection::Changed)
+                            .run_if(resource_exists::<GridmapConstructionState>())
+                            .before(update_ghost_cell),
                     )
                         .in_set(MainSet::Update),
                 )
@@ -164,11 +174,8 @@ impl Plugin for GridmapPlugin {
                 .add_event::<ConstructionCellSelectionChanged>()
                 .add_systems(
                     FixedUpdate,
-                    (
-                        input_ghost_rotation.run_if(resource_exists::<GridmapConstructionState>()),
-                        client_mouse_click_input
-                            .run_if(resource_exists::<GridmapConstructionState>()),
-                    )
+                    (client_mouse_click_input
+                        .run_if(resource_exists::<GridmapConstructionState>()),)
                         .in_set(MainSet::PostUpdate),
                 )
                 .add_systems(

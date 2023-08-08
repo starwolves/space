@@ -21,6 +21,7 @@ use inventory::spawn_item::build_inventory_items;
 use physics::spawn::build_rigid_bodies;
 use resources::is_server::is_server;
 use resources::sets::{ActionsSet, BuildingSet, CombatSet, MainSet, UpdateSet};
+use ui::text_input::TextTree;
 
 use crate::action::{
     build_actions, construct_action_prequisite_check, construction_tool_actions,
@@ -72,8 +73,9 @@ impl Plugin for ConstructionToolAdminPlugin {
                             .in_set(ActionsSet::Build)
                             .after(ActionsSet::Init),
                         construction_tool_select_construction_option
+                            .after(TextTree::Input)
                             .in_set(UpdateSet::TextTreeInputSelection),
-                        send_constructable_items,
+                        send_constructable_items.after(construction_tool_actions),
                         mouse_click_input.before(AddTileSet::Add),
                     )
                         .in_set(MainSet::Update),

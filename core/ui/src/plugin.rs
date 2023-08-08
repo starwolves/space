@@ -18,7 +18,7 @@ use crate::{
     text_input::{
         clear_old_focus, focus_events, incoming_messages, input_characters,
         input_mouse_press_unfocus, register_input, set_text_input_node_text, ui_events,
-        FocusTextInput, FocusTextSet, SetText, TextInputLabel, TextTreeInputSelection,
+        FocusTextInput, FocusTextSet, SetText, TextInputLabel, TextTree, TextTreeInputSelection,
         UnfocusTextInput,
     },
 };
@@ -27,8 +27,13 @@ pub struct UiPlugin;
 impl Plugin for UiPlugin {
     fn build(&self, app: &mut App) {
         if is_server() {
-            app.add_systems(FixedUpdate, incoming_messages.in_set(MainSet::PreUpdate))
-                .add_event::<TextTreeInputSelection>();
+            app.add_systems(
+                FixedUpdate,
+                incoming_messages
+                    .in_set(TextTree::Input)
+                    .in_set(MainSet::Update),
+            )
+            .add_event::<TextTreeInputSelection>();
         } else {
             app.configure_sets(Update, (FocusTextSet::Focus, FocusTextSet::Unfocus).chain());
             app.init_resource::<WindowFocusBuffer>()

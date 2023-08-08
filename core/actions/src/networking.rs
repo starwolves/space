@@ -1,4 +1,3 @@
-use bevy::prelude::info;
 use bevy::prelude::Entity;
 use resources::grid::TargetCell;
 use serde::Deserialize;
@@ -36,7 +35,6 @@ pub(crate) fn incoming_messages(
                             action_taker_item: None,
                             targetted_cell: tab_data.target_cell_option,
                         });
-                        info!("Receive RequestTabData");
                     }
                     None => {
                         warn!(
