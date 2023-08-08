@@ -68,7 +68,7 @@ impl Plugin for HumanMalePlugin {
                 (build_base_human_males::<HumanMaleType>).after(SpawnItemSet::SpawnHeldItem),
                 (build_rigid_bodies::<HumanMaleType>).after(SpawnItemSet::SpawnHeldItem),
                 spawn_held_item::<ConstructionToolType>
-                    .before(SpawnItemSet::SpawnHeldItem)
+                    .in_set(SpawnItemSet::SpawnHeldItem)
                     .after(BuildingSet::TriggerBuild),
             )
                 .in_set(MainSet::Update),

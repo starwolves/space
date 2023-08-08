@@ -2,7 +2,7 @@ use basic_console_commands::register::{
     register_basic_console_commands_for_inventory_item_type,
     register_basic_console_commands_for_type,
 };
-use bevy::prelude::{resource_exists, App, FixedUpdate, IntoSystemConfigs, Plugin};
+use bevy::prelude::{resource_exists, App, FixedUpdate, IntoSystemConfigs, Plugin, PostUpdate};
 use combat::melee_queries::melee_attack_handler;
 use combat::sfx::{attack_sfx, health_combat_hit_result_sfx};
 use entity::base_mesh::link_base_mesh;
@@ -90,13 +90,16 @@ impl Plugin for ConstructionToolAdminPlugin {
                         .before(SpawnItemSet::SpawnHeldItem)
                         .in_set(BuildingSet::TriggerBuild),
                     link_base_mesh::<ConstructionToolType>.after(SpawnItemSet::SpawnHeldItem),
-                    active_item_display_camera::<ConstructionToolType>
-                        .after(ClientActiveCameraItem::ActivateItem),
                     construction_tool_enable_select_cell_in_front_camera
                         .run_if(resource_exists::<GridmapConstructionState>())
                         .in_set(YPlaneSet::Show),
                 )
                     .in_set(MainSet::Update),
+            )
+            .add_systems(
+                PostUpdate,
+                active_item_display_camera::<ConstructionToolType>
+                    .after(ClientActiveCameraItem::ActivateItem),
             );
         }
         register_entity_type::<ConstructionToolType>(app);

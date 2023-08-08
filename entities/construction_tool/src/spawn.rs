@@ -1,5 +1,5 @@
 use bevy::math::{Mat4, Quat, Vec3};
-use bevy::prelude::{info, Commands, EventReader, Res, Transform};
+use bevy::prelude::{Commands, EventReader, Transform};
 use bevy_xpbd_3d::prelude::{CoefficientCombine, Collider, Friction};
 use combat::attack::DEFAULT_INVENTORY_ITEM_DAMAGE;
 use entity::entity_macros::Identity;
@@ -11,7 +11,6 @@ use inventory::item::InventoryItem;
 use inventory::server::combat::{DamageModel, MeleeCombat};
 use inventory::server::inventory::SlotType;
 use inventory::spawn_item::{InventoryItemBuilder, InventoryItemBundle};
-use networking::sync::TickRateStamp;
 use physics::rigid_body::STANDARD_BODY_FRICTION;
 use physics::spawn::{RigidBodyBuilder, RigidBodyBundle};
 use resources::content::SF_CONTENT_PREFIX;
@@ -133,12 +132,10 @@ impl Default for ConstructionToolType {
 pub fn build_construction_tools<T: Send + Sync + 'static>(
     mut commands: Commands,
     mut spawn_events: EventReader<SpawnEntity<T>>,
-    tick: Res<TickRateStamp>,
 ) {
     for spawn_event in spawn_events.iter() {
         commands
             .entity(spawn_event.spawn_data.entity)
             .insert(ConstructionTool::default());
-        info!("{}", tick.stamp);
     }
 }

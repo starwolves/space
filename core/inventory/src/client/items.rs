@@ -2,10 +2,10 @@ use bevy::prelude::{
     warn, BuildChildren, Commands, Entity, Event, EventReader, EventWriter, Query, Res, ResMut,
     SystemSet, Transform, Vec3, Visibility,
 };
+use bevy_xpbd_3d::prelude::Sleeping;
 use cameras::controllers::fps::ActiveCamera;
 use entity::{entity_data::EntityData, entity_types::EntityType, spawn::ClientEntityServerEntity};
 use networking::client::IncomingReliableServerMessage;
-use physics::rigid_body::RigidBodyStatus;
 
 use crate::{
     net::InventoryServerMessage,
@@ -81,7 +81,7 @@ pub fn set_active_item(
     mut net: EventReader<IncomingReliableServerMessage<InventoryServerMessage>>,
     mut inventory: ResMut<Inventory>,
     map: Res<ClientEntityServerEntity>,
-    mut visible_query: Query<(&mut RigidBodyStatus, &mut Visibility)>,
+    mut visible_query: Query<(Entity, &mut Visibility)>,
     state: Res<ActiveCamera>,
     mut commands: Commands,
 
@@ -109,10 +109,9 @@ pub fn set_active_item(
                 inventory.active_item = Some(entity);
                 match map.map.get(&entity) {
                     Some(ent) => match visible_query.get_mut(*ent) {
-                        Ok((mut status, mut comp)) => {
+                        Ok((entt, mut comp)) => {
                             *comp = Visibility::Inherited;
-                            status.enabled = false;
-
+                            commands.entity(entt).insert(Sleeping);
                             match state.option {
                                 Some(camera_entity) => {
                                     commands.entity(camera_entity).add_child(*ent);

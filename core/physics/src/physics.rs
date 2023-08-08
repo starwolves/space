@@ -1,8 +1,5 @@
-use bevy::prelude::{Added, Changed, Commands, Component, Entity, Query};
-use bevy_xpbd_3d::prelude::Sleeping;
+use bevy::prelude::{Component, Entity};
 use resources::math::Vec3Int;
-
-use crate::rigid_body::RigidBodyStatus;
 
 /// Get a desired bit mask as a function.
 
@@ -36,27 +33,6 @@ pub enum ColliderGroup {
 /// Character floor physics friction.
 
 pub const CHARACTER_FLOOR_FRICTION: f32 = 7.2;
-
-/// Disable a rigidbody as a function.
-
-pub(crate) fn disable_rigidbodies(
-    mut query: Query<(Entity, &RigidBodyStatus), Changed<RigidBodyStatus>>,
-    mut commands: Commands,
-    query_added: Query<Entity, Added<RigidBodyStatus>>,
-) {
-    for (entity, status) in query.iter_mut() {
-        if !status.enabled {
-            commands.entity(entity).insert(Sleeping);
-        } else {
-            match query_added.get(entity) {
-                Ok(_) => {}
-                Err(_) => {
-                    commands.entity(entity).remove::<Sleeping>();
-                }
-            }
-        }
-    }
-}
 
 /// Reach result.
 

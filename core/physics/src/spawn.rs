@@ -1,6 +1,6 @@
 use crate::{
     physics::{get_bit_masks, ColliderGroup},
-    rigid_body::{RigidBodyData, RigidBodyStatus},
+    rigid_body::RigidBodyData,
 };
 use bevy::prelude::{Commands, Entity, EventReader, GlobalTransform, Transform};
 use bevy_xpbd_3d::prelude::{
@@ -105,21 +105,15 @@ pub fn rigidbody_builder(
             friction_combine_rule: rigidbody_spawn_data.collider_friction.combine_rule,
         });
 
-    let mut rigidbody_enabled = true;
-
     if rigidbody_spawn_data.entity_is_stored_item {
         builder.insert(Sleeping);
-        rigidbody_enabled = false;
-    } else {
-        builder
-            .insert(Sleeping::default())
-            .insert(RigidBodyStatus { enabled: true });
     }
     builder
         .insert(rigidbody_spawn_data.collider)
         .insert(rigidbody_spawn_data.collider_transform)
         .insert(rigidbody_spawn_data.collider_friction)
         .insert(masks);
+    let mut rigidbody_enabled = true;
 
     match rigidbody_spawn_data.entity_is_stored_item {
         true => {
@@ -137,9 +131,9 @@ pub fn rigidbody_builder(
             false => {}
         },
     }
-    builder.insert(RigidBodyStatus {
-        enabled: rigidbody_enabled,
-    });
+    if !rigidbody_enabled {
+        builder.insert(Sleeping);
+    }
 }
 
 pub trait RigidBodyBuilder<Y>: Send + Sync {

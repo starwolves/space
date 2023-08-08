@@ -80,7 +80,7 @@ impl BaseEntityBuilder<HumanMaleBuildData> for HumanMaleType {
         }
     }
 }
-use networking::{server::OutgoingReliableServerMessage, sync::TickRateStamp};
+use networking::server::OutgoingReliableServerMessage;
 
 use bevy::prelude::Res;
 use entity::entity_types::EntityTypes;
@@ -312,13 +312,9 @@ pub struct AddItemToSlotBuffer {
 pub fn process_add_item_slot_buffer(
     mut add_slot_item: ResMut<AddItemToSlotBuffer>,
     mut event: EventWriter<AddItemToSlot>,
-    tick: Res<TickRateStamp>,
 ) {
     for i in &add_slot_item.buffer {
         event.send(i.clone());
-    }
-    if add_slot_item.buffer.len() > 0 {
-        info!("Fired {}", tick.stamp);
     }
     add_slot_item.buffer.clear();
 }
@@ -329,7 +325,6 @@ pub fn spawn_held_item<T: Send + Sync + Default + 'static>(
     mut spawn_events: EventReader<SpawnEntity<HumanMaleType>>,
     mut add_slot_item: ResMut<AddItemToSlotBuffer>,
     types: Res<EntityTypes>,
-    tick: Res<TickRateStamp>,
 ) {
     for spawn_event in spawn_events.iter() {
         let spawn_pawn_data = spawn_event.entity_type.get_spawn_pawn_data();
@@ -372,7 +367,6 @@ pub fn spawn_held_item<T: Send + Sync + Default + 'static>(
                 item_entity: item,
                 item_type_id: net_type,
             });
-            info!("Buffered {}", tick.stamp);
         }
     }
 }
