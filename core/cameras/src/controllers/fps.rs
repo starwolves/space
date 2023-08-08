@@ -9,11 +9,10 @@ use bevy::{
     transform::components::Transform,
 };
 use resources::{
-    binds::KeyBinds,
     hud::HudState,
     input::{
-        HOLD_SPRINT_BIND, JUMP_BIND, MOVE_BACKWARD_BIND, MOVE_FORWARD_BIND, MOVE_LEFT_BIND,
-        MOVE_RIGHT_BIND,
+        KeyBinds, HOLD_SPRINT_BIND, JUMP_BIND, MOVE_BACKWARD_BIND, MOVE_FORWARD_BIND,
+        MOVE_LEFT_BIND, MOVE_RIGHT_BIND,
     },
 };
 use serde::{Deserialize, Serialize};
@@ -128,12 +127,12 @@ pub fn default_input_map(
     ));
 
     for (key, dir) in [
-        (binds.bind(MOVE_FORWARD_BIND), Vec3::Z),
-        (binds.bind(MOVE_LEFT_BIND), Vec3::X),
-        (binds.bind(MOVE_BACKWARD_BIND), -Vec3::Z),
-        (binds.bind(MOVE_RIGHT_BIND), -Vec3::X),
-        (binds.bind(HOLD_SPRINT_BIND), -Vec3::Y),
-        (binds.bind(JUMP_BIND), Vec3::Y),
+        (binds.keyboard_bind(MOVE_FORWARD_BIND), Vec3::Z),
+        (binds.keyboard_bind(MOVE_LEFT_BIND), Vec3::X),
+        (binds.keyboard_bind(MOVE_BACKWARD_BIND), -Vec3::Z),
+        (binds.keyboard_bind(MOVE_RIGHT_BIND), -Vec3::X),
+        (binds.keyboard_bind(HOLD_SPRINT_BIND), -Vec3::Y),
+        (binds.keyboard_bind(JUMP_BIND), Vec3::Y),
     ]
     .iter()
     .cloned()

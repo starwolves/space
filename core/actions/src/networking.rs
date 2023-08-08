@@ -1,3 +1,4 @@
+use bevy::prelude::info;
 use bevy::prelude::Entity;
 use resources::grid::TargetCell;
 use serde::Deserialize;
@@ -25,7 +26,7 @@ pub(crate) fn incoming_messages(
     for message in server.iter() {
         let client_message = message.message.clone();
         match client_message {
-            ActionsClientMessage::TabData(tab_data) => {
+            ActionsClientMessage::RequestTabData(tab_data) => {
                 match handle_to_entity.map.get(&message.handle) {
                     Some(player_entity) => {
                         action_data_entity.send(InputListActions {
@@ -35,6 +36,7 @@ pub(crate) fn incoming_messages(
                             action_taker_item: None,
                             targetted_cell: tab_data.target_cell_option,
                         });
+                        info!("Receive RequestTabData");
                     }
                     None => {
                         warn!(

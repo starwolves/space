@@ -252,7 +252,7 @@ use bevy::time::Time;
 use bevy::time::TimerMode;
 use bevy::{prelude::Local, time::Timer};
 use bevy_egui::EguiClipboard;
-use resources::binds::{KeyBind, KeyBinds};
+use resources::input::{KeyBind, KeyBinds, KeyCodeEnum};
 use resources::ui::TextInput;
 use std::time::Duration;
 
@@ -265,7 +265,7 @@ pub(crate) fn register_input(mut map: ResMut<KeyBinds>) {
     map.list.insert(
         COPY_PASTE_CTRL.to_string(),
         KeyBind {
-            key_code: KeyCode::ControlLeft,
+            key_code: KeyCodeEnum::Keyboard(KeyCode::ControlLeft),
             description: "For copy pasting.".to_string(),
             name: "Control button.".to_string(),
             customizable: false,
@@ -274,7 +274,7 @@ pub(crate) fn register_input(mut map: ResMut<KeyBinds>) {
     map.list.insert(
         COPY_PASTE_CTRL_RIGHT.to_string(),
         KeyBind {
-            key_code: KeyCode::ControlRight,
+            key_code: KeyCodeEnum::Keyboard(KeyCode::ControlRight),
             description: "For copy pasting.".to_string(),
             name: "Right control button.".to_string(),
             customizable: false,
@@ -283,7 +283,7 @@ pub(crate) fn register_input(mut map: ResMut<KeyBinds>) {
     map.list.insert(
         COPY_PASTE_V.to_string(),
         KeyBind {
-            key_code: KeyCode::V,
+            key_code: KeyCodeEnum::Keyboard(KeyCode::V),
             description: "For copy pasting.".to_string(),
             name: "V button.".to_string(),
             customizable: false,
@@ -292,7 +292,7 @@ pub(crate) fn register_input(mut map: ResMut<KeyBinds>) {
     map.list.insert(
         INPUT_BACK.to_string(),
         KeyBind {
-            key_code: KeyCode::Back,
+            key_code: KeyCodeEnum::Keyboard(KeyCode::Back),
             description: "For removing text from input.".to_string(),
             name: "Return key.".to_string(),
             customizable: false,
@@ -352,9 +352,9 @@ pub(crate) fn input_characters(
 
                         let mut is_pasting = false;
 
-                        if (keys.just_pressed(keys2.bind(COPY_PASTE_CTRL)))
-                            || keys.just_pressed(keys2.bind(COPY_PASTE_CTRL_RIGHT))
-                                && keys.just_pressed(keys2.bind(COPY_PASTE_V))
+                        if (keys.just_pressed(keys2.keyboard_bind(COPY_PASTE_CTRL)))
+                            || keys.just_pressed(keys2.keyboard_bind(COPY_PASTE_CTRL_RIGHT))
+                                && keys.just_pressed(keys2.keyboard_bind(COPY_PASTE_V))
                         {
                             if !*pasting {
                                 *pasting = true;
@@ -465,12 +465,12 @@ pub(crate) fn input_characters(
                             input_node.input = input_node.input.to_string();
                         }
 
-                        if keys.just_pressed(keys2.bind(INPUT_BACK)) {
+                        if keys.just_pressed(keys2.keyboard_bind(INPUT_BACK)) {
                             input_node.input.pop();
 
                             *backspace_init_timer =
                                 Timer::new(Duration::from_millis(300), TimerMode::Once);
-                        } else if keys.pressed(keys2.bind(INPUT_BACK)) {
+                        } else if keys.pressed(keys2.keyboard_bind(INPUT_BACK)) {
                             let delta_time = time.delta();
                             backspace_timer.tick(delta_time);
                             backspace_init_timer.tick(delta_time);
@@ -487,7 +487,7 @@ pub(crate) fn input_characters(
                                     input_node.input.pop();
                                 }
                             }
-                        } else if keys.just_released(keys2.bind(INPUT_BACK)) {
+                        } else if keys.just_released(keys2.keyboard_bind(INPUT_BACK)) {
                             backspace_timer.pause();
                         }
                         text.value = input_node.input.clone();

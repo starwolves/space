@@ -38,7 +38,7 @@ impl Plugin for ActionsPlugin {
             .init_resource::<ActionIncremented>()
             .init_resource::<ListActionDataRequests>()
             .init_resource::<ActionRequests>()
-            .add_systems(FixedUpdate, incoming_messages.in_set(MainSet::PreUpdate))
+            .add_systems(FixedUpdate, incoming_messages.in_set(MainSet::Update))
             .add_event::<InputListActions>()
             .add_event::<InputAction>();
         }

@@ -14,7 +14,7 @@ use bevy::{
     },
 };
 use graphics::settings::GraphicsSettings;
-use resources::{binds::KeyBinds, hud::EscapeMenuState};
+use resources::{hud::EscapeMenuState, input::KeyBinds};
 use ui::{
     button::SFButton,
     fonts::{Fonts, ARIZONE_FONT, EMPIRE_FONT, SOURCECODE_REGULAR_FONT},

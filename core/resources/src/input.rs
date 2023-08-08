@@ -1,8 +1,6 @@
 use std::collections::HashMap;
 
-use bevy::prelude::{Input, KeyCode, Res, ResMut, Resource};
-
-use crate::binds::{KeyBind, KeyBinds};
+use bevy::prelude::{Input, KeyCode, MouseButton, Res, ResMut, Resource};
 
 pub const MOVE_FORWARD_BIND: &str = "moveForward";
 pub const MOVE_BACKWARD_BIND: &str = "moveBackward";
@@ -71,21 +69,77 @@ pub(crate) fn clear_buffer(mut buffer: ResMut<InputBuffer>) {
 pub(crate) fn buffer_input(
     keys: Res<KeyBinds>,
     mut buffer: ResMut<InputBuffer>,
-    keys2: Res<Input<KeyCode>>,
+    keyboard: Res<Input<KeyCode>>,
+    mouse: Res<Input<MouseButton>>,
 ) {
     for (id, bind) in keys.list.iter() {
-        if keys2.just_pressed(bind.key_code) {
-            buffer.add_input(InputPart {
-                bind: bind.clone(),
-                pressed: true,
-                id: id.clone(),
-            });
-        } else if keys2.just_released(bind.key_code) {
-            buffer.add_input(InputPart {
-                bind: bind.clone(),
-                pressed: false,
-                id: id.clone(),
-            });
+        match bind.key_code {
+            KeyCodeEnum::Keyboard(k) => {
+                if keyboard.just_pressed(k) {
+                    buffer.add_input(InputPart {
+                        bind: bind.clone(),
+                        pressed: true,
+                        id: id.clone(),
+                    });
+                } else if keyboard.just_released(k) {
+                    buffer.add_input(InputPart {
+                        bind: bind.clone(),
+                        pressed: false,
+                        id: id.clone(),
+                    });
+                }
+            }
+            KeyCodeEnum::Mouse(m) => {
+                if mouse.just_pressed(m) {
+                    buffer.add_input(InputPart {
+                        bind: bind.clone(),
+                        pressed: true,
+                        id: id.clone(),
+                    });
+                } else if mouse.just_released(m) {
+                    buffer.add_input(InputPart {
+                        bind: bind.clone(),
+                        pressed: false,
+                        id: id.clone(),
+                    });
+                }
+            }
+        }
+    }
+}
+
+#[derive(Default, Resource)]
+pub struct KeyBinds {
+    pub list: HashMap<String, KeyBind>,
+}
+#[derive(Clone)]
+pub struct KeyBind {
+    pub key_code: KeyCodeEnum,
+    pub description: String,
+    pub name: String,
+    pub customizable: bool,
+}
+#[derive(Clone, Debug)]
+pub enum KeyCodeEnum {
+    Keyboard(KeyCode),
+    Mouse(MouseButton),
+}
+
+impl KeyBinds {
+    pub fn keyboard_bind(&self, id: &str) -> KeyCode {
+        match self.list.get(id).unwrap().key_code {
+            KeyCodeEnum::Keyboard(t) => t,
+            KeyCodeEnum::Mouse(_) => {
+                panic!("Not a keyboard bind.");
+            }
+        }
+    }
+    pub fn mouse_bind(&self, id: &str) -> MouseButton {
+        match self.list.get(id).unwrap().key_code {
+            KeyCodeEnum::Keyboard(_) => {
+                panic!("Not a mouse bind.");
+            }
+            KeyCodeEnum::Mouse(t) => t,
         }
     }
 }

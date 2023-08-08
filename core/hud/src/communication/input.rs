@@ -10,9 +10,8 @@ use chat::net::ChatClientMessage;
 use console_commands::net::ClientSideConsoleInput;
 use networking::client::OutgoingReliableClientMessage;
 use resources::{
-    binds::KeyBinds,
     hud::{EscapeMenuState, HudState},
-    input::InputBuffer,
+    input::{InputBuffer, KeyBinds},
     ui::{MainMenuState, TextInput},
 };
 use ui::text_input::{FocusTextInput, TextInputNode, UnfocusTextInput};
@@ -92,7 +91,7 @@ pub(crate) fn tab_communication_input_toggle(
     binds: Res<KeyBinds>,
     mut event: EventWriter<ToggleCommunication>,
 ) {
-    if keys.just_pressed(binds.bind(TOGGLE_CHAT)) {
+    if keys.just_pressed(binds.keyboard_bind(TOGGLE_CHAT)) {
         event.send(ToggleCommunication);
     }
 }

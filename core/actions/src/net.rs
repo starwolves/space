@@ -14,7 +14,7 @@ pub enum ActionsServerMessage {
 #[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
 
 pub enum ActionsClientMessage {
-    TabData(TabData),
+    RequestTabData(TabData),
     TabPressed(TabPressed),
 }
 #[derive(Serialize, Deserialize, Debug, Clone)]

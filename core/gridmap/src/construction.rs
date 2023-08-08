@@ -18,10 +18,9 @@ use cameras::{controllers::fps::ActiveCamera, LookTransform};
 use networking::client::{IncomingReliableServerMessage, OutgoingReliableClientMessage};
 use physics::physics::{get_bit_masks, ColliderGroup};
 use resources::{
-    binds::{KeyBind, KeyBinds},
     grid::{CellFace, TargetCell},
     hud::HudState,
-    input::InputBuffer,
+    input::{InputBuffer, KeyBind, KeyBinds, KeyCodeEnum},
 };
 use resources::{
     math::{cell_id_to_world, world_to_cell_id, Vec2Int, Vec3Int},
@@ -231,7 +230,7 @@ pub(crate) fn register_input(mut binds: ResMut<KeyBinds>) {
     binds.list.insert(
         YPLANE_MOVE_UP_BIND.to_string(),
         KeyBind {
-            key_code: KeyCode::E,
+            key_code: KeyCodeEnum::Keyboard(KeyCode::E),
             description: "Increase y-level of gridmap construction.".to_string(),
             name: "Map Construction add height".to_string(),
             customizable: true,
@@ -240,7 +239,7 @@ pub(crate) fn register_input(mut binds: ResMut<KeyBinds>) {
     binds.list.insert(
         YPLANE_MOVE_DOWN_BIND.to_string(),
         KeyBind {
-            key_code: KeyCode::Q,
+            key_code: KeyCodeEnum::Keyboard(KeyCode::Q),
             description: "Decrease y-level of gridmap construction.".to_string(),
             name: "Map Construction decrease height".to_string(),
             customizable: true,
@@ -249,7 +248,7 @@ pub(crate) fn register_input(mut binds: ResMut<KeyBinds>) {
     binds.list.insert(
         ROTATE_CONSTRUCTION_LEFT_BIND.to_string(),
         KeyBind {
-            key_code: KeyCode::Left,
+            key_code: KeyCodeEnum::Keyboard(KeyCode::Left),
             description: "Rotates map construction.".to_string(),
             name: "Map Construction Rotate Left".to_string(),
             customizable: true,
@@ -258,7 +257,7 @@ pub(crate) fn register_input(mut binds: ResMut<KeyBinds>) {
     binds.list.insert(
         ROTATE_CONSTRUCTION_RIGHT_BIND.to_string(),
         KeyBind {
-            key_code: KeyCode::Right,
+            key_code: KeyCodeEnum::Keyboard(KeyCode::Right),
             description: "Rotates map construction.".to_string(),
             name: "Map Construction Rotate Right".to_string(),
             customizable: true,
@@ -267,7 +266,7 @@ pub(crate) fn register_input(mut binds: ResMut<KeyBinds>) {
     binds.list.insert(
         ROTATE_CONSTRUCTION_UP_BIND.to_string(),
         KeyBind {
-            key_code: KeyCode::Up,
+            key_code: KeyCodeEnum::Keyboard(KeyCode::Up),
             description: "Rotates map construction.".to_string(),
             name: "Map Construction Rotate Up".to_string(),
             customizable: true,
@@ -276,7 +275,7 @@ pub(crate) fn register_input(mut binds: ResMut<KeyBinds>) {
     binds.list.insert(
         ROTATE_CONSTRUCTION_DOWN_BIND.to_string(),
         KeyBind {
-            key_code: KeyCode::Down,
+            key_code: KeyCodeEnum::Keyboard(KeyCode::Down),
             description: "Rotates map construction.".to_string(),
             name: "Map Construction Rotate Down".to_string(),
             customizable: true,

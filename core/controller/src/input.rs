@@ -8,10 +8,9 @@ use bevy::prelude::{
 use entity::spawn::PawnId;
 use networking::client::OutgoingReliableClientMessage;
 use resources::{
-    binds::{KeyBind, KeyBinds},
     input::{
-        InputBuffer, HOLD_SPRINT_BIND, JUMP_BIND, MOVE_BACKWARD_BIND, MOVE_FORWARD_BIND,
-        MOVE_LEFT_BIND, MOVE_RIGHT_BIND,
+        InputBuffer, KeyBind, KeyBinds, KeyCodeEnum, HOLD_SPRINT_BIND, JUMP_BIND,
+        MOVE_BACKWARD_BIND, MOVE_FORWARD_BIND, MOVE_LEFT_BIND, MOVE_RIGHT_BIND,
     },
     math::Vec3Int,
 };
@@ -89,7 +88,7 @@ pub(crate) fn create_input_map(mut map: ResMut<KeyBinds>) {
     map.list.insert(
         MOVE_FORWARD_BIND.to_string(),
         KeyBind {
-            key_code: KeyCode::W,
+            key_code: KeyCodeEnum::Keyboard(KeyCode::W),
             description: "Moves the player forward.".to_string(),
             name: "Move Forward".to_string(),
             customizable: true,
@@ -98,7 +97,7 @@ pub(crate) fn create_input_map(mut map: ResMut<KeyBinds>) {
     map.list.insert(
         MOVE_BACKWARD_BIND.to_string(),
         KeyBind {
-            key_code: KeyCode::S,
+            key_code: KeyCodeEnum::Keyboard(KeyCode::S),
             description: "Moves the player backward.".to_string(),
             name: "Move Backward".to_string(),
             customizable: true,
@@ -107,7 +106,7 @@ pub(crate) fn create_input_map(mut map: ResMut<KeyBinds>) {
     map.list.insert(
         MOVE_LEFT_BIND.to_string(),
         KeyBind {
-            key_code: KeyCode::A,
+            key_code: KeyCodeEnum::Keyboard(KeyCode::A),
             description: "Moves the player left.".to_string(),
             name: "Move Left".to_string(),
             customizable: true,
@@ -116,7 +115,7 @@ pub(crate) fn create_input_map(mut map: ResMut<KeyBinds>) {
     map.list.insert(
         MOVE_RIGHT_BIND.to_string(),
         KeyBind {
-            key_code: KeyCode::D,
+            key_code: KeyCodeEnum::Keyboard(KeyCode::D),
             description: "Moves the player right.".to_string(),
             name: "Move Right".to_string(),
             customizable: true,
@@ -125,7 +124,7 @@ pub(crate) fn create_input_map(mut map: ResMut<KeyBinds>) {
     map.list.insert(
         JUMP_BIND.to_string(),
         KeyBind {
-            key_code: KeyCode::Space,
+            key_code: KeyCodeEnum::Keyboard(KeyCode::Space),
             description: "Jump into the air.".to_string(),
             name: "Jump".to_string(),
             customizable: true,
@@ -134,7 +133,7 @@ pub(crate) fn create_input_map(mut map: ResMut<KeyBinds>) {
     map.list.insert(
         HOLD_SPRINT_BIND.to_string(),
         KeyBind {
-            key_code: KeyCode::ShiftLeft,
+            key_code: KeyCodeEnum::Keyboard(KeyCode::ShiftLeft),
             description: "Hold to sprint.".to_string(),
             name: "Sprint".to_string(),
             customizable: true,

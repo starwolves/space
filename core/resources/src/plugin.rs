@@ -2,8 +2,7 @@ use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, IntoSystemSetConfigs, P
 use bevy_xpbd_3d::PhysicsSet;
 
 use crate::{
-    binds::KeyBinds,
-    input::{buffer_input, clear_buffer, InputBuffer},
+    input::{buffer_input, clear_buffer, InputBuffer, KeyBinds},
     is_server::is_server,
     sets::MainSet,
     ui::MainMenuState,

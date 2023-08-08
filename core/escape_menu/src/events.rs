@@ -10,9 +10,8 @@ use graphics::settings::{SetFxaa, SetMsaa, SetResolution, SetVsync, SetWindowMod
 use hud::inventory::build::OpenHud;
 use num_traits::FromPrimitive;
 use resources::{
-    binds::{KeyBind, KeyBinds},
     hud::{EscapeMenuState, HudState},
-    input::InputBuffer,
+    input::{InputBuffer, KeyBind, KeyBinds, KeyCodeEnum},
     ui::MainMenuState,
 };
 use ui::{button::SFButton, hlist::HList, text_input::TextInputNode};
@@ -33,7 +32,7 @@ pub(crate) fn register_input(mut keys: ResMut<KeyBinds>) {
     keys.list.insert(
         ESC_MENU_BIND.to_string(),
         KeyBind {
-            key_code: KeyCode::Escape,
+            key_code: KeyCodeEnum::Keyboard(KeyCode::Escape),
             description: "Toggles the escape menu.".to_string(),
             name: "Escape Menu".to_string(),
             customizable: true,

@@ -2,8 +2,8 @@ use actions::net::{ActionsClientMessage, TabData};
 use bevy::{
     prelude::{
         info, warn, AssetServer, BuildChildren, Button, ButtonBundle, Changed, Color, Commands,
-        Component, Entity, Event, EventReader, EventWriter, ImageBundle, Input, MouseButton,
-        NodeBundle, Query, Res, ResMut, Resource, With,
+        Component, Entity, Event, EventReader, EventWriter, ImageBundle, NodeBundle, Query, Res,
+        ResMut, Resource, With,
     },
     ui::{BackgroundColor, Interaction, PositionType, Style, UiImage, Val},
 };
@@ -17,9 +17,9 @@ use inventory::{
     spawn_item::InventoryItemBuilder,
 };
 use networking::client::{IncomingReliableServerMessage, OutgoingReliableClientMessage};
-use resources::{hud::HudState, math::Vec2Int};
+use resources::{hud::HudState, input::InputBuffer, math::Vec2Int};
 
-use crate::inventory::queue::RequeueHudAddItemToSlot;
+use crate::{input::binds::SHOW_TAB_ACTIONS, inventory::queue::RequeueHudAddItemToSlot};
 
 use super::build::InventoryHudState;
 
@@ -196,7 +196,7 @@ pub struct HoveringSlotItem {
 }
 
 pub(crate) fn right_mouse_click_item(
-    buttons: Res<Input<MouseButton>>,
+    buttons: Res<InputBuffer>,
     state: Res<HoveringSlotItem>,
     mut actions_net: EventWriter<OutgoingReliableClientMessage<ActionsClientMessage>>,
     inventory_state: Res<InventoryHudState>,
@@ -205,16 +205,17 @@ pub(crate) fn right_mouse_click_item(
     if !inventory_state.open || !hud_state.expanded {
         return;
     }
-    if buttons.just_pressed(MouseButton::Right) {
+    if buttons.just_pressed(SHOW_TAB_ACTIONS) {
         match state.option {
             Some(e) => {
                 actions_net.send(OutgoingReliableClientMessage {
-                    message: ActionsClientMessage::TabData(TabData {
+                    message: ActionsClientMessage::RequestTabData(TabData {
                         action_taker_item: None,
                         target_cell_option: None,
                         target_entity_option: Some(e),
                     }),
                 });
+                info!("Send RequestTabData.");
             }
             None => {}
         }
