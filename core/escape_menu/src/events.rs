@@ -7,7 +7,7 @@ use bevy::{
     ui::{Display, Interaction, Style},
 };
 use graphics::settings::{SetFxaa, SetMsaa, SetResolution, SetVsync, SetWindowMode};
-use hud::inventory::build::OpenHud;
+use hud::inventory::build::{InventoryHudState, OpenHud};
 use num_traits::FromPrimitive;
 use resources::{
     hud::{EscapeMenuState, HudState},
@@ -65,12 +65,20 @@ pub fn toggle_escape_menu(
     mut toggle_general: EventWriter<ToggleGeneralSection>,
     mut toggle_graphics: EventWriter<ToggleGraphicsSection>,
     mut toggle_controls: EventWriter<ToggleControlsSection>,
+    inventory_state: Res<InventoryHudState>,
 ) {
     for toggle in events.iter() {
         state.visible = toggle.enabled;
 
+        let visible_state;
+        if !state.visible {
+            visible_state = inventory_state.open;
+        } else {
+            visible_state = state.visible;
+        }
+
         hud.send(OpenHud {
-            open: state.visible,
+            open: visible_state,
         });
 
         let mut esc_root_style = style_query.get_mut(state.root).unwrap();
