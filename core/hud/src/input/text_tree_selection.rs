@@ -1,6 +1,6 @@
 use bevy::{
     prelude::{
-        info, warn, BuildChildren, Button, ButtonBundle, Changed, Color, Commands, Component,
+        warn, BuildChildren, Button, ButtonBundle, Changed, Color, Commands, Component,
         DespawnRecursiveExt, Entity, EventReader, EventWriter, NodeBundle, Query, Res, ResMut,
         Resource, TextBundle, With, Without,
     },
@@ -303,7 +303,6 @@ pub(crate) fn text_tree_select_submit_button(
                             entry: tree.entry.clone(),
                         }),
                     });
-                    info!("Send submit button message.");
                 }
                 None => {}
             },

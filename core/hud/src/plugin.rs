@@ -63,7 +63,7 @@ impl Plugin for HudPlugin {
                     FixedUpdate,
                     (
                         (
-                            expand_inventory_hud,
+                            expand_inventory_hud.after(OpenHudSet::ExpandInventory),
                             inventory_hud_key_press,
                             inventory_net_updates
                                 .in_set(ClientBuildInventoryLabel::Net)
@@ -76,12 +76,12 @@ impl Plugin for HudPlugin {
                             scale_slots,
                             change_active_item,
                             right_mouse_click_item,
-                            slot_item_actions,
+                            slot_item_actions.in_set(OpenHudSet::ExpandInventory),
                             show_hud,
                             item_actions_button_events,
                             create_text_tree_selection,
                             button_style_events,
-                            hide_text_tree_selection,
+                            hide_text_tree_selection.after(OpenHudSet::ExpandInventory),
                             text_tree_select_button,
                             changed_focus,
                             text_tree_select_submit_button,
@@ -90,7 +90,10 @@ impl Plugin for HudPlugin {
                         (
                             text_input.in_set(ConsoleCommandsClientSet::Submit),
                             receive_chat_message,
-                            open_inventory_hud.after(OpenHudSet::Process),
+                            open_inventory_hud
+                                .after(inventory_hud_key_press)
+                                .after(OpenHudSet::Process)
+                                .in_set(OpenHudSet::ExpandInventory),
                             toggle_console_button
                                 .before(OpenHudSet::Process)
                                 .before(TextInputLabel::MousePressUnfocus)

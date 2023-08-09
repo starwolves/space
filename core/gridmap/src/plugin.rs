@@ -29,7 +29,7 @@ use crate::{
     graphics::{set_cell_graphics, CellGraphicsBuffer},
     grid::{
         add_cell_client, add_tile, add_tile_collision, add_tile_net, remove_cell_client,
-        remove_tile, remove_tile_net, spawn_group, AddGroup, AddTile, AddTileSet, Gridmap,
+        remove_tile, remove_tile_net, spawn_group, AddGroup, AddTile, EditTileSet, Gridmap,
         RemoveTile,
     },
     init::{
@@ -115,8 +115,8 @@ impl Plugin for GridmapPlugin {
                         .after(process_response)
                         .in_set(ConfigurationLabel::Main)
                         .after(ConfigurationLabel::SpawnEntity),
-                    add_tile_net.after(AddTileSet::Add),
-                    remove_tile_net,
+                    add_tile_net.after(EditTileSet::Add),
+                    remove_tile_net.after(EditTileSet::Remove),
                 )
                     .in_set(MainSet::Update),
             )
@@ -138,7 +138,7 @@ impl Plugin for GridmapPlugin {
                 .add_systems(
                     FixedUpdate,
                     (
-                        set_cell_graphics.after(AddTileSet::Add),
+                        set_cell_graphics.after(EditTileSet::Add),
                         create_select_cell_cam_state,
                         set_yplane_position
                             .run_if(resource_exists::<GridmapConstructionState>())
@@ -167,6 +167,9 @@ impl Plugin for GridmapPlugin {
                             .after(ConstructionSelection::Changed)
                             .run_if(resource_exists::<GridmapConstructionState>())
                             .before(update_ghost_cell),
+                        (client_mouse_click_input
+                            .after(update_ghost_cell)
+                            .run_if(resource_exists::<GridmapConstructionState>()),),
                     )
                         .in_set(MainSet::Update),
                 )
@@ -174,13 +177,10 @@ impl Plugin for GridmapPlugin {
                 .add_event::<ConstructionCellSelectionChanged>()
                 .add_systems(
                     FixedUpdate,
-                    (client_mouse_click_input
-                        .run_if(resource_exists::<GridmapConstructionState>()),)
-                        .in_set(MainSet::PostUpdate),
-                )
-                .add_systems(
-                    FixedUpdate,
-                    (add_cell_client.before(AddTileSet::Add), remove_cell_client)
+                    (
+                        add_cell_client.before(EditTileSet::Add),
+                        remove_cell_client.in_set(EditTileSet::Remove),
+                    )
                         .in_set(MainSet::Update),
                 )
                 .add_systems(
@@ -229,7 +229,7 @@ impl Plugin for GridmapPlugin {
             .add_systems(
                 FixedUpdate,
                 load_ron_gridmap
-                    .before(AddTileSet::Add)
+                    .before(EditTileSet::Add)
                     .in_set(StartupSet::BuildGridmap)
                     .in_set(MainSet::PreUpdate)
                     .after(StartupSet::InitDefaultGridmapData),
@@ -335,10 +335,10 @@ impl Plugin for GridmapPlugin {
             .add_systems(
                 FixedUpdate,
                 (
-                    remove_tile,
-                    add_tile_collision.after(AddTileSet::Add),
-                    add_tile.after(AddTileSet::Add),
-                    spawn_group.before(AddTileSet::Add),
+                    remove_tile.after(EditTileSet::Remove),
+                    add_tile_collision.after(EditTileSet::Add),
+                    add_tile.after(EditTileSet::Add),
+                    spawn_group.before(EditTileSet::Add),
                 )
                     .in_set(MainSet::Update),
             )

@@ -60,7 +60,7 @@ pub struct TileGroup {
 }
 
 /// Gridmap meta-data set.
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 
 pub struct TileProperties {
     pub name_id: CellTypeName,
@@ -641,8 +641,9 @@ impl Default for Cell {
 }
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
-pub enum AddTileSet {
+pub enum EditTileSet {
     Add,
+    Remove,
 }
 
 /// Event to add a gridmap tile.

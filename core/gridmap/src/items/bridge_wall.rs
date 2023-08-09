@@ -67,7 +67,7 @@ pub(crate) fn init_bridge_wall(
             n: true,
             the: false,
         },
-        description: "A generic wall tile.".to_string(),
+        description: "A bridge wall tile.".to_string(),
         constructable: true,
         mesh_option,
         cell_type: CellType::Wall,

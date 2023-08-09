@@ -174,6 +174,7 @@ pub(crate) fn open_inventory_hud(
 
 pub enum OpenHudSet {
     Process,
+    ExpandInventory,
 }
 
 pub fn open_hud(

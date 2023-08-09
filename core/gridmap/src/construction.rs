@@ -4,10 +4,10 @@ use bevy::{
     gltf::GltfMesh,
     pbr::{NotShadowCaster, NotShadowReceiver},
     prelude::{
-        info, warn, AlphaMode, AssetServer, Assets, Color, Commands, Component,
-        DespawnRecursiveExt, Entity, Event, EventReader, EventWriter, Handle, Input, KeyCode,
-        Local, MouseButton, PbrBundle, Quat, Query, Res, ResMut, Resource, StandardMaterial,
-        SystemSet, Transform, Vec3, Visibility, With,
+        warn, AlphaMode, AssetServer, Assets, Color, Commands, Component, DespawnRecursiveExt,
+        Entity, Event, EventReader, EventWriter, Handle, KeyCode, Local, MouseButton, PbrBundle,
+        Quat, Query, Res, ResMut, Resource, StandardMaterial, SystemSet, Transform, Vec3,
+        Visibility, With,
     },
     transform::TransformBundle,
 };
@@ -279,6 +279,24 @@ pub(crate) fn register_input(mut binds: ResMut<KeyBinds>) {
             description: "Rotates map construction.".to_string(),
             name: "Map Construction Rotate Down".to_string(),
             customizable: true,
+        },
+    );
+    binds.list.insert(
+        CONSTRUCT_CELL.to_string(),
+        KeyBind {
+            key_code: KeyCodeEnum::Mouse(MouseButton::Left),
+            description: "Use button to constuct gridmap cell.".to_string(),
+            name: "Construct cell.".to_string(),
+            customizable: false,
+        },
+    );
+    binds.list.insert(
+        DECONSTRUCT_CELL.to_string(),
+        KeyBind {
+            key_code: KeyCodeEnum::Mouse(MouseButton::Right),
+            description: "Use button to deconstuct gridmap cell".to_string(),
+            name: "Deconstruct cell.".to_string(),
+            customizable: false,
         },
     );
 }
@@ -755,33 +773,26 @@ pub(crate) fn apply_ghost_rotation(
 
                                         if properties.x_rotations.len() > 0 {
                                             x_rotations = properties.x_rotations.clone();
+                                            relative_rotation = x_rotations
+                                                .iter()
+                                                .position(|&r| r == new_rotation)
+                                                .unwrap();
                                         } else {
-                                            warn!(
-                                                "Rotation of this tiletype is not yet supported."
-                                            );
-                                            continue;
+                                            relative_rotation = new_rotation as usize;
                                         }
-
-                                        relative_rotation = x_rotations
-                                            .iter()
-                                            .position(|&r| r == new_rotation)
-                                            .unwrap();
                                     } else {
                                         let y_rotations;
 
                                         if properties.y_rotations.len() > 0 {
                                             y_rotations = properties.y_rotations.clone();
-                                        } else {
-                                            warn!(
-                                                "Rotation of this tiletype is not yet supported."
-                                            );
-                                            continue;
-                                        }
 
-                                        relative_rotation = y_rotations
-                                            .iter()
-                                            .position(|&r| r == new_rotation)
-                                            .unwrap();
+                                            relative_rotation = y_rotations
+                                                .iter()
+                                                .position(|&r| r == new_rotation)
+                                                .unwrap();
+                                        } else {
+                                            relative_rotation = new_rotation as usize;
+                                        }
                                     }
 
                                     let mut quat;
@@ -950,7 +961,6 @@ pub(crate) fn change_ghost_tile_request(
     for message in net.iter() {
         match &message.message {
             GridmapServerMessage::GhostCellType(type_id) => {
-                info!("Receive ghost cell type.");
                 match type_id {
                     CellIds::CellType(id) => {
                         match select_state
@@ -988,8 +998,11 @@ pub(crate) fn change_ghost_tile_request(
     }
 }
 
+pub const CONSTRUCT_CELL: &str = "ConstructCell";
+pub const DECONSTRUCT_CELL: &str = "DeconstructCell";
+
 pub(crate) fn client_mouse_click_input(
-    buttons: Res<Input<MouseButton>>,
+    buttons: Res<InputBuffer>,
     state: Res<GridmapConstructionState>,
     mut net: EventWriter<OutgoingReliableClientMessage<GridmapClientMessage>>,
     hud_state: Res<HudState>,
@@ -999,7 +1012,7 @@ pub(crate) fn client_mouse_click_input(
         return;
     }
 
-    if buttons.just_pressed(MouseButton::Left) {
+    if buttons.just_pressed(CONSTRUCT_CELL) {
         if state.ghost_items.len() == 0 {
             return;
         }
@@ -1055,7 +1068,7 @@ pub(crate) fn client_mouse_click_input(
             });
         }
     }
-    if buttons.just_pressed(MouseButton::Right) {
+    if buttons.just_pressed(DECONSTRUCT_CELL) {
         let cell_id;
 
         match state.selected {
@@ -1075,6 +1088,7 @@ pub(crate) fn client_mouse_click_input(
                 face: tile.ghost_face.clone(),
             });
         }
+
         net.send(OutgoingReliableClientMessage {
             message: GridmapClientMessage::DeconstructCells(DeconstructCell {
                 cells: construct_cells,
