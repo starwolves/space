@@ -12,8 +12,6 @@
 
 ![Continuous integration](https://gitlab.starwolves.io/starwolves/space/badges/master/pipeline.svg)
 
-![forthebadge](https://forthebadge.com/images/badges/made-with-rust.svg) ![forthebadge](https://forthebadge.com/images/badges/powered-by-black-magic.svg)
-
 ![Screenshot of new Space Frontiers gridmap](/data/project/sfss.png?raw=true)
 
 ## Description
