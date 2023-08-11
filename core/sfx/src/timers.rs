@@ -1,6 +1,7 @@
 use std::time::Duration;
 
-use bevy::prelude::{Commands, Entity, Query, ResMut};
+use bevy::prelude::{Entity, EventWriter, Query, ResMut};
+use entity::despawn::DespawnEntity;
 
 use crate::entity_update::SfxAutoDestroyTimers;
 
@@ -33,7 +34,7 @@ pub(crate) fn tick_timers_slowed(
 
 pub(crate) fn free_sfx(
     mut sfx_auto_destroy_timers: ResMut<SfxAutoDestroyTimers>,
-    mut commands: Commands,
+    mut despawn: EventWriter<DespawnEntity>,
 ) {
     let mut expired_sfx_entities: Vec<Entity> = vec![];
 
@@ -57,6 +58,8 @@ pub(crate) fn free_sfx(
 
         sfx_auto_destroy_timers.timers.remove(j);
 
-        commands.entity(this_entity_id).despawn();
+        despawn.send(DespawnEntity {
+            entity: this_entity_id,
+        });
     }
 }

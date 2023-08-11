@@ -134,7 +134,9 @@ impl Plugin for HudPlugin {
                             .in_set(CommunicationToggleSet::Toggle)
                             .in_set(FocusTextSet::Unfocus),
                         open_hud.in_set(OpenHudSet::Process),
-                        hide_actions.in_set(OpenHudSet::Process),
+                        hide_actions
+                            .in_set(OpenHudSet::Process)
+                            .in_set(MainSet::Update),
                         grab_mouse_hud_expand
                             .in_set(OpenHudSet::Process)
                             .before(CursorSet::Perform),

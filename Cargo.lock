@@ -3024,6 +3024,7 @@ name = "main_menu"
 version = "0.0.3"
 dependencies = [
  "bevy",
+ "entity",
  "escape_menu",
  "hud",
  "local_ipaddress",

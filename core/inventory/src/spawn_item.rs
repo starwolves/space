@@ -4,6 +4,7 @@ use bevy_xpbd_3d::prelude::RigidBody;
 use entity::net::{EntityServerMessage, LoadEntity};
 use entity::spawn::{EntityBuildData, SpawnEntity};
 use entity::spawning_events::SpawnClientEntity;
+use physics::mirror_physics_transform::MirrorPhysicsTransform;
 
 use crate::server::combat::{MeleeCombat, ProjectileCombat};
 
@@ -25,7 +26,6 @@ pub struct InventoryBuilderData {
     pub melee_combat: MeleeCombat,
     pub projectile_option: Option<ProjectileCombat>,
 }
-use physics::physics::RigidBodyLinkTransform;
 
 /// Build inventory item at building stage.
 
@@ -38,8 +38,8 @@ pub(crate) fn inventory_item_builder(
     builder.insert((data.inventory_item, data.melee_combat));
     match data.holder_entity_option {
         Some(holder_entity) => {
-            builder.insert(RigidBodyLinkTransform {
-                follow_entity: holder_entity,
+            builder.insert(MirrorPhysicsTransform {
+                mirrored_physics_entity: holder_entity,
                 ..Default::default()
             });
             match data.projectile_option {

@@ -1,18 +1,14 @@
-<img src="/data/project/sflogo.png?raw=true" data-canonical-src="/data/project/sflogo.png?raw=true" width="175" height="175"/>
+# Space Frontiers [pre-alpha]
 
-# Space Frontiers pre-alpha
-
-*"You gotta die for something." - STARWOLF*
-
+[![Chat on Matrix](https://matrix.to/img/matrix-badge.svg)](https://comms.starwolves.io)
+![Continuous integration](https://gitlab.starwolves.io/starwolves/space/badges/master/pipeline.svg)
 <a href="https://discord.gg/yYpMun9CTT">
     <img src="https://img.shields.io/discord/942798229953716274.svg?logo=discord&colorB=7289DA">
 </a>
 
-[![Chat on Matrix](https://matrix.to/img/matrix-badge.svg)](https://comms.starwolves.io)
+*"You gotta die for something." - STARWOLF*
 
-![Continuous integration](https://gitlab.starwolves.io/starwolves/space/badges/master/pipeline.svg)
-
-![Screenshot of new Space Frontiers gridmap](/data/project/sfss.png?raw=true)
+<img src="/data/project/sflogo.png?raw=true" data-canonical-src="/data/project/sflogo.png?raw=true" width="175" height="175"/>
 
 ## Description
 
@@ -24,7 +20,9 @@
 
 **[Support and try today (link).](https://store.starwolves.io/)**
 
-**There are gameplay videos of the new prototype on [YouTube](https://youtu.be/Qa-Y_PxzeiI).**
+**There are gameplay videos of the new prototype on [YouTube](https://youtu.be/Qr_in7tUxAM).**
+
+![Screenshot of new Space Frontiers gridmap](/data/project/sfss.png?raw=true)
 
 ### Technology
 
@@ -133,10 +131,6 @@ Ensure your server has the right git branch with the same version as the obtaine
 The old prototype client is built on top of a Godot 3.4 release.
 
 ## Documentation
-
-The technical documentation of the most recent stable snap branch is found at [docs.sf.starwolves.io](https://docs.sf.starwolves.io).
-
-There is also a [(currently outdated) guide](https://guide.docs.sf.starwolves.io) available.
 
 Generate documentation yourself for master (latest code and docs!!) or other versions:
 

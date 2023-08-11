@@ -1,6 +1,7 @@
+use bevy::prelude::EventReader;
 use bevy::prelude::EventWriter;
-use bevy::prelude::{Commands, EventReader};
-use bevy::prelude::{DespawnRecursiveExt, ResMut};
+use bevy::prelude::ResMut;
+use entity::despawn::DespawnEntity;
 use networking::client::IncomingReliableServerMessage;
 use resources::ui::MainMenuState;
 
@@ -11,7 +12,7 @@ use crate::build::EnableMainMenu;
 pub(crate) fn hide_main_menu(
     mut enable_events: EventReader<EnableMainMenu>,
     mut state: ResMut<MainMenuState>,
-    mut commands: Commands,
+    mut despawn: EventWriter<DespawnEntity>,
 ) {
     for event in enable_events.iter() {
         if event.enable == false {
@@ -19,9 +20,13 @@ pub(crate) fn hide_main_menu(
                 return;
             }
             state.enabled = false;
-            commands.entity(state.root.unwrap()).despawn_recursive();
+            despawn.send(DespawnEntity {
+                entity: state.root.unwrap(),
+            });
             state.root = None;
-            commands.entity(state.camera.unwrap()).despawn_recursive();
+            despawn.send(DespawnEntity {
+                entity: state.camera.unwrap(),
+            });
             state.camera = None;
         }
     }

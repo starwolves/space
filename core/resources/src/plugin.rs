@@ -1,4 +1,6 @@
-use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, IntoSystemSetConfigs, Plugin, PreUpdate};
+use bevy::prelude::{
+    App, FixedUpdate, IntoSystemConfigs, IntoSystemSetConfigs, Plugin, PreUpdate, Update,
+};
 use bevy_xpbd_3d::PhysicsSet;
 
 use crate::{
@@ -22,6 +24,12 @@ impl Plugin for ResourcesPlugin {
 
         app.configure_sets(
             FixedUpdate,
+            (MainSet::PreUpdate, MainSet::Update, MainSet::PostUpdate)
+                .chain()
+                .before(PhysicsSet::Prepare),
+        );
+        app.configure_sets(
+            Update,
             (MainSet::PreUpdate, MainSet::Update, MainSet::PostUpdate)
                 .chain()
                 .before(PhysicsSet::Prepare),

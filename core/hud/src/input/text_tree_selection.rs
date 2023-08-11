@@ -1,12 +1,13 @@
 use bevy::{
     prelude::{
-        warn, BuildChildren, Button, ButtonBundle, Changed, Color, Commands, Component,
-        DespawnRecursiveExt, Entity, EventReader, EventWriter, NodeBundle, Query, Res, ResMut,
-        Resource, TextBundle, With, Without,
+        warn, BuildChildren, Button, ButtonBundle, Changed, Color, Commands, Component, Entity,
+        EventReader, EventWriter, NodeBundle, Query, Res, ResMut, Resource, TextBundle, With,
+        Without,
     },
     text::TextStyle,
     ui::{AlignItems, FlexDirection, Interaction, JustifyContent, Style, Val},
 };
+use entity::despawn::DespawnEntity;
 use networking::client::{IncomingReliableServerMessage, OutgoingReliableClientMessage};
 use resources::hud::HudState;
 use ui::{
@@ -30,13 +31,13 @@ pub struct TextTreeInputSelectionState {
 pub(crate) fn hide_text_tree_selection(
     mut events: EventReader<ExpandInventoryHud>,
     mut state: ResMut<TextTreeInputSelectionState>,
-    mut commands: Commands,
+    mut despawn: EventWriter<DespawnEntity>,
 ) {
     for event in events.iter() {
         if !event.expand {
             match state.entity {
                 Some(entity) => {
-                    commands.entity(entity).despawn_recursive();
+                    despawn.send(DespawnEntity { entity });
                 }
                 None => {}
             }
@@ -51,6 +52,7 @@ pub(crate) fn create_text_tree_selection(
     mut commands: Commands,
     fonts: Res<Fonts>,
     mut state: ResMut<TextTreeInputSelectionState>,
+    mut despawn: EventWriter<DespawnEntity>,
 ) {
     for message in events.iter() {
         match &message.message {
@@ -60,7 +62,7 @@ pub(crate) fn create_text_tree_selection(
 
                 match state.entity {
                     Some(old_entity) => {
-                        commands.entity(old_entity).despawn_recursive();
+                        despawn.send(DespawnEntity { entity: old_entity });
                     }
                     None => {}
                 }

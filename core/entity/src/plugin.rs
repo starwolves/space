@@ -6,6 +6,7 @@ use networking::messaging::{register_reliable_message, MessageSender};
 use resources::is_server::is_server;
 use resources::sets::{ActionsSet, BuildingSet, MainSet, PostUpdateSet, StartupSet};
 
+use crate::despawn::{despawn_entities, DespawnEntity};
 use crate::entity_data::{world_mode_update, InterpolationSet, RawSpawnEvent};
 use crate::entity_types::{finalize_register_entity_types, EntityTypeLabel, EntityTypes};
 use crate::examine::{
@@ -69,7 +70,8 @@ impl Plugin for EntityPlugin {
         } else {
             app.init_resource::<ClientEntityServerEntity>();
         }
-        app.add_event::<RawSpawnEvent>()
+        app.add_event::<DespawnEntity>()
+            .add_event::<RawSpawnEvent>()
             .init_resource::<PawnId>()
             .init_resource::<EntityTypes>()
             .add_systems(
@@ -78,11 +80,14 @@ impl Plugin for EntityPlugin {
             )
             .add_systems(
                 FixedUpdate,
-                load_ron_entities
-                    .after(StartupSet::BuildGridmap)
-                    .in_set(MainSet::PreUpdate)
-                    .in_set(StartupSet::InitEntities)
-                    .in_set(BuildingSet::RawTriggerBuild),
+                (
+                    load_ron_entities
+                        .after(StartupSet::BuildGridmap)
+                        .in_set(MainSet::PreUpdate)
+                        .in_set(StartupSet::InitEntities)
+                        .in_set(BuildingSet::RawTriggerBuild),
+                    despawn_entities.in_set(MainSet::PostUpdate),
+                ),
             );
         register_reliable_message::<EntityServerMessage>(app, MessageSender::Server);
         register_reliable_message::<EntityClientMessage>(app, MessageSender::Client);

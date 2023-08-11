@@ -1,8 +1,12 @@
 use crate::{
+    entity::RigidBodies,
     physics::{get_bit_masks, ColliderGroup},
     rigid_body::RigidBodyData,
 };
-use bevy::prelude::{Commands, Entity, EventReader, GlobalTransform, Transform};
+use bevy::{
+    prelude::{Commands, Entity, EventReader, ResMut, Transform},
+    transform::TransformBundle,
+};
 use bevy_xpbd_3d::prelude::{
     Collider, CollisionLayers, ExternalForce, Friction, LinearVelocity, RigidBody, Sleeping,
 };
@@ -67,6 +71,7 @@ pub fn rigidbody_builder(
     rigidbody_spawn_data: RigidBodyBuildData,
     entity: Entity,
     is_showcase: bool,
+    rigidbodies: &mut ResMut<RigidBodies>,
 ) {
     let rigidbody;
     let masks;
@@ -90,29 +95,34 @@ pub fn rigidbody_builder(
         rigidbody = RigidBody::Static;
         masks = rigidbody_spawn_data.collider_collision_groups;
     }
-
-    let mut builder = commands.entity(entity);
-
-    builder
-        .insert(GlobalTransform::default())
-        .insert(rigidbody)
-        .insert(rigidbody_spawn_data.rigid_transform)
-        .insert(rigidbody_spawn_data.external_force)
-        .insert(rigidbody_spawn_data.velocity)
-        .insert(RigidBodyData {
+    let t = TransformBundle {
+        local: rigidbody_spawn_data.rigid_transform,
+        ..Default::default()
+    };
+    let mut builder = commands.spawn((
+        t.clone(),
+        rigidbody,
+        rigidbody_spawn_data.external_force,
+        rigidbody_spawn_data.velocity,
+        RigidBodyData {
             dynamic_friction: rigidbody_spawn_data.collider_friction.dynamic_coefficient,
             static_friction: rigidbody_spawn_data.collider_friction.static_coefficient,
             friction_combine_rule: rigidbody_spawn_data.collider_friction.combine_rule,
-        });
+        },
+        rigidbody_spawn_data.collider,
+        //rigidbody_spawn_data.collider_transform,
+        rigidbody_spawn_data.collider_friction,
+        masks,
+    ));
+
+    let rigid_entity = builder.id();
 
     if rigidbody_spawn_data.entity_is_stored_item {
         builder.insert(Sleeping);
     }
-    builder
-        .insert(rigidbody_spawn_data.collider)
-        .insert(rigidbody_spawn_data.collider_transform)
-        .insert(rigidbody_spawn_data.collider_friction)
-        .insert(masks);
+
+    let mut builder = commands.entity(entity);
+    builder.insert(t);
     let mut rigidbody_enabled = true;
 
     match rigidbody_spawn_data.entity_is_stored_item {
@@ -131,9 +141,13 @@ pub fn rigidbody_builder(
             false => {}
         },
     }
+
+    let mut builder = commands.entity(rigid_entity);
     if !rigidbody_enabled {
         builder.insert(Sleeping);
     }
+
+    rigidbodies.link_entity(&entity, &rigid_entity)
 }
 
 pub trait RigidBodyBuilder<Y>: Send + Sync {
@@ -146,6 +160,7 @@ use entity::spawn::{NoData, SpawnEntity};
 pub fn build_rigid_bodies<T: RigidBodyBuilder<NoData> + 'static>(
     mut spawn_events: EventReader<SpawnEntity<T>>,
     mut commands: Commands,
+    mut rigidbodies: ResMut<RigidBodies>,
 ) {
     for spawn_event in spawn_events.iter() {
         let rigidbody_bundle = spawn_event
@@ -166,6 +181,7 @@ pub fn build_rigid_bodies<T: RigidBodyBuilder<NoData> + 'static>(
             },
             spawn_event.spawn_data.entity,
             spawn_event.spawn_data.showcase_data_option.is_some(),
+            &mut rigidbodies,
         );
     }
 }

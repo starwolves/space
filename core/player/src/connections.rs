@@ -1,10 +1,7 @@
 use std::collections::HashMap;
 use std::net::SocketAddr;
 
-use bevy::prelude::{
-    error, Commands, DespawnRecursiveExt, Entity, Event, EventReader, EventWriter, Query, Res,
-    ResMut,
-};
+use bevy::prelude::{error, Commands, Entity, Event, EventReader, EventWriter, Query, Res, ResMut};
 #[derive(Event)]
 pub struct PlayerAwaitingBoarding {
     pub handle: u64,
@@ -182,7 +179,6 @@ pub struct Accounts {
     pub list: HashMap<u64, String>,
 }
 pub fn process_response(
-    mut commands: Commands,
     mut query: Query<(Entity, &mut VerifyToken)>,
     mut server: ResMut<RenetServer>,
     mut accounts: ResMut<Accounts>,
@@ -191,6 +187,7 @@ pub fn process_response(
     mut configure: EventWriter<SendServerConfiguration>,
     stamp: Res<TickRateStamp>,
     tickrate: Res<TickRate>,
+    mut despawn: EventWriter<DespawnEntity>,
 ) {
     for (entity, mut token) in query.iter_mut() {
         if let Some(response) = future::block_on(future::poll_once(&mut token.task)) {
@@ -223,8 +220,7 @@ pub fn process_response(
 
                         info!("Set account name {} for {}", d.name, token.handle);
                     }
-
-                    commands.entity(entity).despawn_recursive();
+                    despawn.send(DespawnEntity { entity });
                 }
                 Err(e) => {
                     error!("Unexpected response: {:?}", e,);
@@ -237,6 +233,7 @@ pub fn process_response(
 use bevy::prelude::Component;
 use bevy::prelude::Resource;
 use bevy_renet::renet::transport::NetcodeServerTransport;
+use entity::despawn::DespawnEntity;
 use futures_lite::future;
 use networking::server::{NetworkingServerMessage, OutgoingReliableServerMessage, StartSync};
 use networking::sync::TickRateStamp;

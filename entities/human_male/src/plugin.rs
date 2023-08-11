@@ -43,7 +43,8 @@ impl Plugin for HumanMalePlugin {
                 FixedUpdate,
                 spawn_boarding_player
                     .before(player_boarded)
-                    .in_set(BuildingSet::TriggerBuild),
+                    .in_set(BuildingSet::TriggerBuild)
+                    .in_set(MainSet::Update),
             );
         } else {
             app.add_systems(

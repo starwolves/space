@@ -4,10 +4,9 @@ use bevy::{
     gltf::GltfMesh,
     pbr::{NotShadowCaster, NotShadowReceiver},
     prelude::{
-        warn, AlphaMode, AssetServer, Assets, Color, Commands, Component, DespawnRecursiveExt,
-        Entity, Event, EventReader, EventWriter, Handle, KeyCode, Local, MouseButton, PbrBundle,
-        Quat, Query, Res, ResMut, Resource, StandardMaterial, SystemSet, Transform, Vec3,
-        Visibility, With,
+        warn, AlphaMode, AssetServer, Assets, Color, Commands, Component, Entity, Event,
+        EventReader, EventWriter, Handle, KeyCode, Local, MouseButton, PbrBundle, Quat, Query, Res,
+        ResMut, Resource, StandardMaterial, SystemSet, Transform, Vec3, Visibility, With,
     },
     transform::TransformBundle,
 };
@@ -15,6 +14,7 @@ use bevy_xpbd_3d::prelude::{
     Collider, CollisionLayers, RigidBody, SpatialQuery, SpatialQueryFilter,
 };
 use cameras::{controllers::fps::ActiveCamera, LookTransform};
+use entity::despawn::DespawnEntity;
 use networking::client::{IncomingReliableServerMessage, OutgoingReliableClientMessage};
 use physics::physics::{get_bit_masks, ColliderGroup};
 use resources::{
@@ -343,6 +343,7 @@ pub(crate) fn update_ghost_cell(
     mut commands: Commands,
     assets_gltfmesh: Res<Assets<GltfMesh>>,
     mut buffer: ResMut<NewGhostBuffer>,
+    mut despawn: EventWriter<DespawnEntity>,
 ) {
     if !state.is_constructing {
         return;
@@ -351,7 +352,9 @@ pub(crate) fn update_ghost_cell(
         for (_, tile) in state.ghost_items.iter() {
             match tile.ghost_entity_option {
                 Some(ghost_entity) => {
-                    commands.entity(ghost_entity).despawn_recursive();
+                    despawn.send(DespawnEntity {
+                        entity: ghost_entity,
+                    });
                 }
                 None => {}
             }

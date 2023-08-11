@@ -1,4 +1,4 @@
-use bevy::prelude::{Component, Entity};
+use bevy::prelude::Entity;
 use resources::math::Vec3Int;
 
 /// Get a desired bit mask as a function.
@@ -40,20 +40,4 @@ pub struct ReachResult {
     pub distance: f32,
     pub hit_entity: Option<(Entity, bool)>,
     pub hit_cell: Option<Vec3Int>,
-}
-/// The component that links and stores rigid body transform.
-#[derive(Component)]
-
-pub struct RigidBodyLinkTransform {
-    pub follow_entity: Entity,
-    pub active: bool,
-}
-
-impl Default for RigidBodyLinkTransform {
-    fn default() -> Self {
-        Self {
-            follow_entity: Entity::from_raw(0),
-            active: true,
-        }
-    }
 }

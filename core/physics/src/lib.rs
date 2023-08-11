@@ -1,11 +1,13 @@
 //! General physics logic.
 
+/// Decoupled phyisics entities.
+pub mod entity;
+/// Link rigid body transforms.
+pub mod mirror_physics_transform;
 /// Physics resources.
 pub mod physics;
 pub mod plugin;
 /// Rigid body resources.
 pub mod rigid_body;
-/// Link rigid body transforms.
-mod rigidbody_link_transform;
 /// Base rigid body spawner.
 pub mod spawn;

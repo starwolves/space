@@ -1,6 +1,7 @@
 use bevy::prelude::{Added, Commands, Entity, EventWriter, Query, ResMut};
 
 use construction_tool::spawn::ConstructionToolType;
+use entity::despawn::DespawnEntity;
 use entity::entity_types::EntityType;
 use networking::server::{ConnectedPlayer, HandleToEntity};
 use player::connections::Accounts;
@@ -31,6 +32,7 @@ pub(crate) fn spawn_boarding_player(
     accounts: Res<Accounts>,
     setup_ui_datas: Res<SetupUiUserDataSets>,
     mut boarded: EventWriter<PlayerBoarded>,
+    mut despawn: EventWriter<DespawnEntity>,
 ) {
     for (entity_id, spawning_component, connected_player_component) in query.iter() {
         let setup_data;
@@ -94,8 +96,7 @@ pub(crate) fn spawn_boarding_player(
             .names
             .insert(setup_data.character_name.clone(), new_human_entity);
 
-        commands.entity(entity_id).despawn();
-
+        despawn.send(DespawnEntity { entity: entity_id });
         match accounts.list.get(&handle) {
             Some(n) => {
                 boarded.send(PlayerBoarded {

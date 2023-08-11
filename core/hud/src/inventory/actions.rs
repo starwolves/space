@@ -5,12 +5,12 @@ use actions::{
 use bevy::{
     prelude::{
         BuildChildren, Button, ButtonBundle, Changed, Children, Color, Commands, Component,
-        DespawnRecursiveExt, EventReader, EventWriter, NodeBundle, Query, Res, TextBundle, With,
+        EventReader, EventWriter, NodeBundle, Query, Res, TextBundle, With,
     },
     text::{TextAlignment, TextStyle},
     ui::{AlignItems, FlexDirection, Interaction, JustifyContent, Style, Val},
 };
-use entity::spawn::PawnId;
+use entity::{despawn::DespawnEntity, spawn::PawnId};
 use networking::client::{IncomingReliableServerMessage, OutgoingReliableClientMessage};
 use player::configuration::Boarded;
 use resources::hud::HudState;
@@ -34,6 +34,7 @@ pub(crate) fn slot_item_actions(
     children_query: Query<&Children>,
     fonts: Res<Fonts>,
     mut expand_event: EventWriter<ExpandedLeftContentHud>,
+    mut despawn: EventWriter<DespawnEntity>,
 ) {
     if !inventory_state.open || !hud_state.expanded {
         return;
@@ -44,7 +45,7 @@ pub(crate) fn slot_item_actions(
                 match children_query.get(hud_state.left_content_node) {
                     Ok(c) => {
                         for child in c.iter() {
-                            commands.entity(*child).despawn_recursive();
+                            despawn.send(DespawnEntity { entity: *child });
                         }
                     }
                     Err(_) => {}
@@ -216,7 +217,7 @@ pub(crate) fn hide_actions(
     mut events: EventReader<OpenHud>,
     query: Query<&Children, With<LeftContentHud>>,
     hud: Res<HudState>,
-    mut commands: Commands,
+    mut despawn: EventWriter<DespawnEntity>,
 ) {
     for event in events.iter() {
         if !boarded.boarded {
@@ -226,7 +227,7 @@ pub(crate) fn hide_actions(
             match query.get(hud.left_content_node) {
                 Ok(children) => {
                     for child in children.iter() {
-                        commands.entity(*child).despawn_recursive();
+                        despawn.send(DespawnEntity { entity: *child });
                     }
                 }
                 Err(_) => {}

@@ -3,18 +3,21 @@ use std::{collections::HashMap, f32::consts::PI, ops::Deref};
 use bevy::{
     gltf::GltfMesh,
     prelude::{
-        warn, Commands, Component, DespawnRecursiveExt, Entity, Event, EventWriter, Handle, Mat3,
-        Quat, Query, Res, Resource, StandardMaterial, SystemSet, Transform, Vec3, Without,
+        warn, Commands, Component, Entity, Event, EventWriter, Handle, Mat3, Quat, Query, Res,
+        Resource, StandardMaterial, SystemSet, Transform, Vec3, Without,
     },
     transform::TransformBundle,
 };
 use bevy_xpbd_3d::prelude::{CoefficientCombine, Collider, CollisionLayers, Friction, RigidBody};
-use entity::{examine::RichName, health::Health};
+use entity::{despawn::DespawnEntity, examine::RichName, health::Health};
 use networking::{
     client::IncomingReliableServerMessage,
     server::{ConnectedPlayer, OutgoingReliableServerMessage},
 };
-use physics::physics::{get_bit_masks, ColliderGroup};
+use physics::{
+    entity::{RigidBodies, RigidBodyLink, SFRigidBody},
+    physics::{get_bit_masks, ColliderGroup},
+};
 use player::boarding::SoftPlayer;
 use resources::{grid::CellFace, is_server::is_server};
 use resources::{
@@ -703,7 +706,7 @@ use crate::{
 pub(crate) fn remove_tile(
     mut events: EventReader<RemoveTile>,
     mut gridmap: ResMut<Gridmap>,
-    mut commands: Commands,
+    mut despawn: EventWriter<DespawnEntity>,
 ) {
     for event in events.iter() {
         let strict_cell = gridmap.get_strict_cell(event.cell.clone());
@@ -764,7 +767,7 @@ pub(crate) fn remove_tile(
 
                                         match old_cell_entity {
                                             Some(ent) => {
-                                                commands.entity(ent).despawn_recursive();
+                                                despawn.send(DespawnEntity { entity: ent });
                                             }
                                             None => {}
                                         }
@@ -952,6 +955,7 @@ pub(crate) fn add_tile_collision(
     mut events: EventReader<AddTile>,
     mut commands: Commands,
     gridmap_data: Res<Gridmap>,
+    mut rigidbodies: ResMut<RigidBodies>,
 ) {
     for event in events.iter() {
         let cell_properties;
@@ -981,12 +985,19 @@ pub(crate) fn add_tile_collision(
         let mut friction_component = Friction::new(cell_properties.friction);
         friction_component.combine_rule = cell_properties.combine_rule;
 
+        let rigid_entity = commands
+            .spawn((
+                friction_component,
+                CollisionLayers::from_bits(masks.0, masks.1),
+                RigidBody::Static,
+                SFRigidBody,
+            ))
+            .id();
+
+        rigidbodies.link_entity(&event.entity, &rigid_entity);
+
         let mut entity_builder = commands.entity(event.entity);
-        entity_builder
-            .insert(RigidBody::Static)
-            .insert(Cell { id: event.id })
-            .insert(friction_component)
-            .insert(CollisionLayers::from_bits(masks.0, masks.1));
+        entity_builder.insert((Cell { id: event.id }, RigidBodyLink));
 
         if is_server() {
             entity_builder.insert(TransformBundle {
