@@ -1,5 +1,5 @@
 use crate::{
-    entity::RigidBodies,
+    entity::{RigidBodies, RigidBodyLink, SFRigidBody},
     physics::{get_bit_masks, ColliderGroup},
     rigid_body::RigidBodyData,
 };
@@ -113,6 +113,7 @@ pub fn rigidbody_builder(
         //rigidbody_spawn_data.collider_transform,
         rigidbody_spawn_data.collider_friction,
         masks,
+        SFRigidBody,
     ));
 
     let rigid_entity = builder.id();
@@ -122,7 +123,7 @@ pub fn rigidbody_builder(
     }
 
     let mut builder = commands.entity(entity);
-    builder.insert(t);
+    builder.insert((t, RigidBodyLink));
     let mut rigidbody_enabled = true;
 
     match rigidbody_spawn_data.entity_is_stored_item {
