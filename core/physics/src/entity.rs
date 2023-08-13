@@ -182,7 +182,7 @@ pub(crate) fn client_mirror_link_target_transform(
                     let mut fin_transform = rbt.clone();
                     fin_transform.translation += t.offset.translation;
                     fin_transform.rotation *= t.offset.rotation;
-                    fin_transform.scale *= t.offset.scale;
+                    fin_transform.scale = t.offset.scale;
 
                     t.origin_transfom = t.target_transform.clone();
                     t.target_transform = fin_transform;
