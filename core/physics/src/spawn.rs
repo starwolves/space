@@ -128,7 +128,7 @@ pub fn rigidbody_builder(
 
     if !is_server() {
         t.local.translation += rigidbody_spawn_data.mesh_offset.translation;
-        t.local.scale += rigidbody_spawn_data.mesh_offset.scale;
+        t.local.scale = rigidbody_spawn_data.mesh_offset.scale;
         t.local.rotation *= rigidbody_spawn_data.mesh_offset.rotation;
     }
 
