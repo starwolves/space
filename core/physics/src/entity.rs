@@ -3,11 +3,14 @@ use std::collections::{hash_map::Entry, HashMap};
 use bevy::{
     prelude::{
         warn, Component, Entity, Event, EventReader, EventWriter, Local, Query, Res, ResMut,
-        Resource, Transform, Without,
+        Resource, Transform, With, Without,
     },
     time::Time,
 };
-use entity::despawn::DespawnEntity;
+use entity::{
+    despawn::DespawnEntity,
+    entity_data::{WorldMode, WorldModes},
+};
 use resources::{core::TickRate, grid::Tile};
 
 /// A rigidbody that is linked to a decoupled entity.
@@ -110,6 +113,7 @@ pub(crate) fn remove_rigidbodies(
 
 pub(crate) fn server_mirror_link_transform(
     mut transforms: Query<&mut Transform, Without<Tile>>,
+    links_query: Query<&WorldMode, (With<RigidBodyLink>, Without<Tile>)>,
     rigidbodies: Res<RigidBodies>,
 ) {
     for (rigidbody, links) in rigidbodies.entity_map.iter() {
@@ -125,6 +129,17 @@ pub(crate) fn server_mirror_link_transform(
         }
 
         for link in links.iter() {
+            match links_query.get(*link) {
+                Ok(world_mode) => {
+                    if !matches!(world_mode.mode, WorldModes::Physics) {
+                        continue;
+                    }
+                }
+                Err(_) => {
+                    warn!("Couldnt find link components.");
+                    continue;
+                }
+            }
             match transforms.get_mut(*link) {
                 Ok(mut t) => {
                     *t = rbt;
@@ -142,7 +157,7 @@ pub struct ResetLerp;
 
 pub(crate) fn client_mirror_link_target_transform(
     transforms: Query<&Transform, Without<Tile>>,
-    mut target_transforms: Query<&mut RigidBodyLink, Without<Tile>>,
+    mut target_transforms: Query<(&mut RigidBodyLink, &WorldMode), Without<Tile>>,
     rigidbodies: Res<RigidBodies>,
     mut reset: EventWriter<ResetLerp>,
 ) {
@@ -160,7 +175,10 @@ pub(crate) fn client_mirror_link_target_transform(
 
         for link in links.iter() {
             match target_transforms.get_mut(*link) {
-                Ok(mut t) => {
+                Ok((mut t, world_mode)) => {
+                    if !matches!(world_mode.mode, WorldModes::Physics) {
+                        continue;
+                    }
                     let mut fin_transform = rbt.clone();
                     fin_transform.translation += t.offset.translation;
                     fin_transform.rotation *= t.offset.rotation;
@@ -180,7 +198,7 @@ pub(crate) fn client_mirror_link_target_transform(
 }
 
 pub(crate) fn client_interpolate_link_transform(
-    mut query: Query<(&mut Transform, &RigidBodyLink), Without<Tile>>,
+    mut query: Query<(&mut Transform, &RigidBodyLink, &WorldMode), Without<Tile>>,
     rigidbodies: Res<RigidBodies>,
     time: Res<Time>,
     rate: Res<TickRate>,
@@ -204,7 +222,11 @@ pub(crate) fn client_interpolate_link_transform(
     for links in rigidbodies.entity_map.values() {
         for link in links.iter() {
             match query.get_mut(*link) {
-                Ok((mut transform, link_component)) => {
+                Ok((mut transform, link_component, world_mode)) => {
+                    if !matches!(world_mode.mode, WorldModes::Physics) {
+                        continue;
+                    }
+
                     let interp_position = link_component
                         .origin_transfom
                         .translation
