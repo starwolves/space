@@ -40,10 +40,12 @@ pub struct RigidBodyBuildData {
     pub sleeping: Sleeping,
     pub entity_is_stored_item: bool,
     pub collider: Collider,
-    pub collider_transform: Transform,
     pub collider_friction: Friction,
     pub collider_collision_groups: CollisionLayers,
     pub collision_events: bool,
+    pub mesh_offset: Transform,
+    // Temporarily not used.
+    pub collider_transform: Transform,
 }
 
 impl Default for RigidBodyBuildData {
@@ -61,6 +63,7 @@ impl Default for RigidBodyBuildData {
             collider_friction: Friction::default(),
             collider_collision_groups: CollisionLayers::from_bits(masks.0, masks.1),
             collision_events: false,
+            mesh_offset: Transform::default(),
         }
     }
 }
@@ -95,7 +98,7 @@ pub fn rigidbody_builder(
         rigidbody = RigidBody::Static;
         masks = rigidbody_spawn_data.collider_collision_groups;
     }
-    let t = TransformBundle {
+    let mut t = TransformBundle {
         local: rigidbody_spawn_data.rigid_transform,
         ..Default::default()
     };
@@ -110,7 +113,6 @@ pub fn rigidbody_builder(
             friction_combine_rule: rigidbody_spawn_data.collider_friction.combine_rule,
         },
         rigidbody_spawn_data.collider,
-        //rigidbody_spawn_data.collider_transform,
         rigidbody_spawn_data.collider_friction,
         masks,
         SFRigidBody,
@@ -123,7 +125,20 @@ pub fn rigidbody_builder(
     }
 
     let mut builder = commands.entity(entity);
-    builder.insert((t, RigidBodyLink));
+
+    if !is_server() {
+        t.local.translation += rigidbody_spawn_data.mesh_offset.translation;
+        t.local.scale += rigidbody_spawn_data.mesh_offset.scale;
+        t.local.rotation *= rigidbody_spawn_data.mesh_offset.rotation;
+    }
+
+    builder.insert((
+        t,
+        RigidBodyLink {
+            offset: rigidbody_spawn_data.mesh_offset,
+            ..Default::default()
+        },
+    ));
     let mut rigidbody_enabled = true;
 
     match rigidbody_spawn_data.entity_is_stored_item {
@@ -155,6 +170,7 @@ pub trait RigidBodyBuilder<Y>: Send + Sync {
     fn get_bundle(&self, spawn_data: &EntityBuildData, entity_data_option: Y) -> RigidBodyBundle;
 }
 use entity::spawn::{NoData, SpawnEntity};
+use resources::is_server::is_server;
 
 /// Rigid body spawning.
 

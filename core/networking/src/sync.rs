@@ -6,11 +6,13 @@ use crate::{client::IncomingReliableServerMessage, server::NetworkingServerMessa
 #[derive(Resource, Default, Serialize, Deserialize, Debug, Clone)]
 pub struct TickRateStamp {
     pub stamp: u8,
-    pub iteration: u32,
+    pub iteration: u64,
+    pub large: u64,
 }
 
 impl TickRateStamp {
     pub fn step(&mut self) {
+        self.large += 1;
         if self.stamp == u8::MAX {
             self.stamp = 0;
             self.iteration += 1;

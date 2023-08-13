@@ -1,4 +1,5 @@
 use crate::math::Vec3Int;
+use bevy::prelude::Component;
 use serde::{Deserialize, Serialize};
 
 /// All six faces of the cell. Represents walls, ceilings and floors.
@@ -25,3 +26,6 @@ pub struct TargetCellWithOrientation {
     pub face: CellFace,
     pub orientation: u8,
 }
+
+#[derive(Component)]
+pub struct Tile;

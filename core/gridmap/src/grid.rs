@@ -19,10 +19,13 @@ use physics::{
     physics::{get_bit_masks, ColliderGroup},
 };
 use player::boarding::SoftPlayer;
-use resources::{grid::CellFace, is_server::is_server};
 use resources::{
     grid::TargetCell,
     math::{cell_id_to_world, Vec3Int},
+};
+use resources::{
+    grid::{CellFace, Tile},
+    is_server::is_server,
 };
 use serde::{Deserialize, Serialize};
 
@@ -976,9 +979,6 @@ pub(crate) fn add_tile_collision(
             },
             event.orientation,
         );
-        /*let mut collider_position = Transform::IDENTITY;
-        collider_position.translation += cell_properties.collider_position.translation;
-        collider_position.rotation *= cell_properties.collider_position.rotation;*/
 
         let masks = get_bit_masks(ColliderGroup::Standard);
 
@@ -991,13 +991,17 @@ pub(crate) fn add_tile_collision(
                 CollisionLayers::from_bits(masks.0, masks.1),
                 RigidBody::Static,
                 SFRigidBody,
+                TransformBundle {
+                    local: world_position,
+                    ..Default::default()
+                },
             ))
             .id();
 
-        rigidbodies.link_entity(&event.entity, &rigid_entity);
+        rigidbodies.link_tile(&event.entity, &rigid_entity);
 
         let mut entity_builder = commands.entity(event.entity);
-        entity_builder.insert((Cell { id: event.id }, RigidBodyLink));
+        entity_builder.insert((Cell { id: event.id }, RigidBodyLink::default()));
 
         if is_server() {
             entity_builder.insert(TransformBundle {
@@ -1243,7 +1247,7 @@ pub(crate) fn spawn_group(
                         group_instance_id_option: Some(
                             gridmap_main.group_instance_incremental + i + 1,
                         ),
-                        entity: commands.spawn(()).id(),
+                        entity: commands.spawn(Tile).id(),
                         default_map_spawn: add_group_event.default_map_spawn,
                     });
                     i += 1;
