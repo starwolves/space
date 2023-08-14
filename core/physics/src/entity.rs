@@ -243,6 +243,11 @@ pub(crate) fn client_interpolate_link_transform(
                         link_component.target_velocity,
                     );
 
+                    let interp_position = link_component
+                        .origin_transfom
+                        .translation
+                        .lerp(link_component.target_transform.translation, relative_delta);
+
                     let interp_scale = link_component
                         .origin_transfom
                         .scale

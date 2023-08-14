@@ -5,6 +5,7 @@ use std::env::current_dir;
 use actions::plugin::ActionsPlugin;
 use airlocks::plugin::AirLocksPlugin;
 use asana::plugin::AsanaPlugin;
+use ball::plugin::BallPlugin;
 use basic_console_commands::plugin::BasicConsoleCommandsPlugin;
 use bevy::app::ScheduleRunnerPlugin;
 use bevy::diagnostic::DiagnosticsPlugin;
@@ -180,6 +181,7 @@ pub(crate) fn configure_and_start() {
         .add_plugins(SetupMenuPlugin)
         .add_plugins(PhysicsPlugin)
         .add_plugins(PointLightPlugin)
+        .add_plugins(BallPlugin)
         .add_plugins(BasicConsoleCommandsPlugin {
             give_all_rcon: true,
         })

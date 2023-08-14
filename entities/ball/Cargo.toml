@@ -1,0 +1,25 @@
+[package]
+name = "ball"
+version = "0.0.3"
+authors = ["Nikita Ramses Abdoelrahman <ramses@starwolves.io>"]
+description = "A ball."
+homepage = "https://starwolves.io"
+repository = "https://gitlab.starwolves.io/starwolves/space"
+documentation = "https://docs.sf.starwolves.io"
+license-file = "LICENSE"
+edition = "2021"
+
+
+
+
+[dependencies.bevy]
+version = "0.11.0"
+default-features = false
+
+[dependencies]
+bevy_xpbd_3d = { version = "0.2.0" , features = ["enhanced-determinism"]}
+
+entity = { path = "../../core/entity" }
+resources = { path = "../../core/resources" }
+physics = { path = "../../core/physics" }
+pawn = { path = "../../core/pawn" }

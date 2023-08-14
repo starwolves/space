@@ -1,5 +1,5 @@
 use bevy::{
-    prelude::{warn, AssetServer, Commands, EventReader, Res, Visibility},
+    prelude::{info, warn, AssetServer, Commands, EventReader, Res, Visibility},
     scene::SceneBundle,
 };
 
@@ -21,6 +21,8 @@ pub fn link_base_mesh<T: Send + Sync + 'static + EntityType + Default>(
         if !spawn.entity_type.is_type(entity_type.get_identity()) {
             continue;
         }
+
+        info!("Loading base mesh: {}", entity_type.get_clean_identity());
 
         let mesh = asset_server.load(
             "entities/".to_string()

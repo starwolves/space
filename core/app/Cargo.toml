@@ -63,3 +63,4 @@ jumpsuit_security = { path = "../../entities/jumpsuit_security" }
 line_arrow = { path = "../../entities/line_arrow" }
 pistol_l1 = { path = "../../entities/pistol_l1" }
 point_light = { path = "../../entities/point_light" }
+ball = { path = "../../entities/ball" }

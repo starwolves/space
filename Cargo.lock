@@ -240,6 +240,7 @@ dependencies = [
  "actions",
  "airlocks",
  "asana",
+ "ball",
  "basic_console_commands",
  "bevy",
  "bevy_egui",
@@ -400,6 +401,18 @@ dependencies = [
  "miniz_oxide",
  "object",
  "rustc-demangle",
+]
+
+[[package]]
+name = "ball"
+version = "0.0.3"
+dependencies = [
+ "bevy",
+ "bevy_xpbd_3d",
+ "entity",
+ "pawn",
+ "physics",
+ "resources",
 ]
 
 [[package]]
