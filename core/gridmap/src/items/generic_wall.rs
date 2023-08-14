@@ -1,6 +1,7 @@
 use bevy::prelude::{
     AssetServer, Assets, Handle, Res, ResMut, Resource, StandardMaterial, Transform,
 };
+use bevy_xpbd_3d::prelude::Collider;
 use entity::examine::RichName;
 use resources::is_server::is_server;
 
@@ -73,6 +74,7 @@ pub(crate) fn init_generic_wall(
         mesh_option,
         cell_type: CellType::Wall,
         material_option,
+        collider: Collider::cuboid(2., 2., 0.2),
         ..Default::default()
     });
 }

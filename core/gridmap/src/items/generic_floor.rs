@@ -2,6 +2,7 @@ use bevy::{
     gltf::GltfMesh,
     prelude::{AssetServer, Assets, Handle, Res, ResMut, Resource, StandardMaterial},
 };
+use bevy_xpbd_3d::prelude::Collider;
 use entity::examine::RichName;
 use resources::is_server::is_server;
 
@@ -32,7 +33,6 @@ pub(crate) fn init_generic_floor_material(
         metallic_roughness_texture: Some(metallic_roughness_texture_handle.clone()),
         perceptual_roughness: 0.9,
         metallic: 0.97,
-
         ..Default::default()
     });
     res.material_handle = material_handle;
@@ -67,6 +67,7 @@ pub(crate) fn init_generic_floor(
         mesh_option,
         cell_type: CellType::Floor,
         material_option,
+        collider: Collider::cuboid(2., 0.2, 2.),
         ..Default::default()
     });
 }
