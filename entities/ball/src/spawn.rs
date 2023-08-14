@@ -60,7 +60,7 @@ impl RigidBodyBuilder<NoData> for BallType {
         friction.combine_rule = CoefficientCombine::Multiply;
 
         RigidBodyBundle {
-            collider: Collider::ball(0.5),
+            collider: Collider::ball(0.25),
             collider_transform: Transform::IDENTITY,
             collider_friction: friction,
             ..Default::default()

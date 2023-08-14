@@ -2,8 +2,8 @@ use std::collections::{hash_map::Entry, HashMap};
 
 use bevy::{
     prelude::{
-        warn, Component, Entity, Event, EventReader, EventWriter, Local, Query, Res, ResMut,
-        Resource, Transform, Vec3, With, Without,
+        warn, Component, CubicGenerator, Entity, Event, EventReader, EventWriter, Hermite, Local,
+        Query, Res, ResMut, Resource, Transform, Vec3, With, Without,
     },
     time::Time,
 };
@@ -224,7 +224,7 @@ pub(crate) fn client_interpolate_link_transform(
     }
 
     let total_time = 1. / rate.physics_rate as f32;
-    let dt = time.delta().as_secs_f32();
+    let dt = time.delta_seconds();
     let relative_delta = *local_delta / total_time;
 
     for links in rigidbodies.entity_map.values() {
@@ -242,6 +242,20 @@ pub(crate) fn client_interpolate_link_transform(
                         link_component.origin_velocity,
                         link_component.target_velocity,
                     );
+
+                    let hermite = Hermite::new(
+                        vec![
+                            link_component.origin_transfom.translation,
+                            link_component.target_transform.translation,
+                        ],
+                        vec![
+                            link_component.origin_velocity,
+                            link_component.target_velocity,
+                        ],
+                    )
+                    .to_curve();
+
+                    let interp_position = hermite.position(relative_delta);
 
                     let interp_position = link_component
                         .origin_transfom
