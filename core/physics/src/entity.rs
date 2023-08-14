@@ -3,10 +3,11 @@ use std::collections::{hash_map::Entry, HashMap};
 use bevy::{
     prelude::{
         warn, Component, Entity, Event, EventReader, EventWriter, Local, Query, Res, ResMut,
-        Resource, Transform, With, Without,
+        Resource, Transform, Vec3, With, Without,
     },
     time::Time,
 };
+use bevy_xpbd_3d::prelude::LinearVelocity;
 use entity::{
     despawn::DespawnEntity,
     entity_data::{WorldMode, WorldModes},
@@ -23,6 +24,8 @@ pub struct RigidBodyLink {
     // Used for client-side interpolation.
     pub target_transform: Transform,
     pub origin_transfom: Transform,
+    pub origin_velocity: Vec3,
+    pub target_velocity: Vec3,
 }
 
 /// Resource linking rigidbodies to game entities.
@@ -156,16 +159,18 @@ pub(crate) fn server_mirror_link_transform(
 pub struct ResetLerp;
 
 pub(crate) fn client_mirror_link_target_transform(
-    transforms: Query<&Transform, Without<Tile>>,
+    transforms: Query<(&Transform, &LinearVelocity), (With<SFRigidBody>, Without<Tile>)>,
     mut target_transforms: Query<(&mut RigidBodyLink, &WorldMode), Without<Tile>>,
     rigidbodies: Res<RigidBodies>,
     mut reset: EventWriter<ResetLerp>,
 ) {
     for (rigidbody, links) in rigidbodies.entity_map.iter() {
         let rbt;
+        let velocity;
         match transforms.get(*rigidbody) {
-            Ok(t) => {
+            Ok((t, v)) => {
                 rbt = t.clone();
+                velocity = v.clone();
             }
             Err(_) => {
                 warn!("Couldnt find client_mirror_link_target_transform components.");
@@ -185,7 +190,10 @@ pub(crate) fn client_mirror_link_target_transform(
                     fin_transform.scale = t.offset.scale;
 
                     t.origin_transfom = t.target_transform.clone();
+                    t.origin_velocity = t.target_velocity.clone();
+
                     t.target_transform = fin_transform;
+                    t.target_velocity = velocity.0;
                 }
                 Err(_) => {
                     warn!("Couldnt find link entity transform.");
@@ -227,10 +235,13 @@ pub(crate) fn client_interpolate_link_transform(
                         continue;
                     }
 
-                    let interp_position = link_component
-                        .origin_transfom
-                        .translation
-                        .lerp(link_component.target_transform.translation, relative_delta);
+                    let interp_position = hermite_interpolation(
+                        relative_delta,
+                        link_component.origin_transfom.translation,
+                        link_component.target_transform.translation,
+                        link_component.origin_velocity,
+                        link_component.target_velocity,
+                    );
 
                     let interp_scale = link_component
                         .origin_transfom
@@ -256,4 +267,21 @@ pub(crate) fn client_interpolate_link_transform(
     if *local_delta > total_time {
         *local_delta = total_time;
     }
+}
+use num_traits::pow::Pow;
+pub fn hermite_interpolation(
+    time: f32,
+    position1: Vec3,
+    position2: Vec3,
+    velocity1: Vec3,
+    velocity2: Vec3,
+) -> Vec3 {
+    let time2 = time.pow(2);
+    let time3 = time.pow(3);
+
+    let a = 1. as f32 - 3. as f32 * time2 + 2. as f32 * time3;
+    let b = time2 * (3. - 2. * time);
+    let c = time * (time - 1.).pow(2);
+    let d = time2 * (time - 1.);
+    return a * position1 + b * position2 + c * velocity1 + d * velocity2;
 }

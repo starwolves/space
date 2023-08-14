@@ -17,6 +17,7 @@ default-features = false
 
 [dependencies]
 bevy_xpbd_3d = { version = "0.2.0" , features = ["enhanced-determinism"]}
+num-traits = "0.2.16"
 
 entity = { path = "../entity"}
 networking = { path = "../networking" }

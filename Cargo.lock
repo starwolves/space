@@ -3770,6 +3770,7 @@ dependencies = [
  "bevy_xpbd_3d",
  "entity",
  "networking",
+ "num-traits",
  "resources",
 ]
 
