@@ -1,5 +1,8 @@
 use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, Update};
-use bevy_xpbd_3d::{prelude::PhysicsPlugins, resources::SubstepCount};
+use bevy_xpbd_3d::{
+    prelude::PhysicsPlugins,
+    resources::{PhysicsTimestep, SubstepCount},
+};
 use resources::{core::TickRate, is_server::is_server, sets::MainSet};
 
 use crate::{
@@ -36,6 +39,9 @@ impl Plugin for PhysicsPlugin {
             .add_event::<ResetLerp>();
         }
         app.add_plugins(PhysicsPlugins::new(FixedUpdate))
+            .insert_resource(PhysicsTimestep::Fixed(
+                1. / TickRate::default().physics_rate as f32,
+            ))
             .init_resource::<RigidBodies>()
             .add_systems(
                 FixedUpdate,

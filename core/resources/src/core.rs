@@ -11,9 +11,9 @@ pub struct TickRate {
 }
 
 pub const DEFAULT_TICKRATE: TickRate = TickRate {
-    physics_rate: 64,
-    physics_substep: 12,
-    bevy_rate: 64,
+    physics_rate: 60,
+    physics_substep: 1,
+    bevy_rate: 60,
 };
 
 impl Default for TickRate {
