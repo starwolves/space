@@ -995,6 +995,7 @@ pub(crate) fn add_tile_collision(
                     local: world_position,
                     ..Default::default()
                 },
+                cell_properties.collider.clone(),
             ))
             .id();
 

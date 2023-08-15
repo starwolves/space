@@ -409,6 +409,7 @@ version = "0.0.3"
 dependencies = [
  "bevy",
  "bevy_xpbd_3d",
+ "cameras",
  "entity",
  "pawn",
  "physics",

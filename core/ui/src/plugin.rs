@@ -18,8 +18,8 @@ use crate::{
     text_input::{
         clear_old_focus, focus_events, incoming_messages, input_characters,
         input_mouse_press_unfocus, register_input, set_text_input_node_text, ui_events,
-        FocusTextInput, FocusTextSet, SetText, TextInputLabel, TextTree, TextTreeInputSelection,
-        UnfocusTextInput,
+        FocusTextInput, FocusTextSet, SetText, TextInputLabel, TextInputSet, TextTree,
+        TextTreeInputSelection, UnfocusTextInput,
     },
 };
 use resources::{is_server::is_server, sets::MainSet, ui::TextInput};
@@ -60,7 +60,7 @@ impl Plugin for UiPlugin {
                     FixedUpdate,
                     (
                         button_hover_visuals,
-                        set_text_input_node_text,
+                        set_text_input_node_text.in_set(TextInputSet::Set),
                         mouse_scroll_inverted,
                         mouse_scroll,
                         hlist_input.before(freeze_button),

@@ -1,6 +1,6 @@
 use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, Update};
-use bevy_xpbd_3d::prelude::PhysicsPlugins;
-use resources::{is_server::is_server, sets::MainSet};
+use bevy_xpbd_3d::{prelude::PhysicsPlugins, resources::SubstepCount};
+use resources::{core::TickRate, is_server::is_server, sets::MainSet};
 
 use crate::{
     entity::{
@@ -40,6 +40,7 @@ impl Plugin for PhysicsPlugin {
             .add_systems(
                 FixedUpdate,
                 (remove_links, remove_rigidbodies).in_set(MainSet::PostUpdate),
-            );
+            )
+            .insert_resource(SubstepCount(TickRate::default().physics_substep.into()));
     }
 }

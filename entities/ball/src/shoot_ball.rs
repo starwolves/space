@@ -1,8 +1,8 @@
 use bevy::prelude::{
-    info, warn, Commands, EventWriter, KeyCode, Query, Res, ResMut, Transform, With,
+    warn, Camera3d, Commands, EventWriter, KeyCode, Query, Res, ResMut, Transform, With,
 };
-use entity::spawn::{EntityBuildData, PawnId, SpawnEntity};
-use pawn::pawn::Pawn;
+use cameras::LookTransform;
+use entity::spawn::{EntityBuildData, SpawnEntity};
 use resources::{
     hud::{EscapeMenuState, HudState},
     input::{InputBuffer, KeyBind, KeyBinds, KeyCodeEnum},
@@ -31,28 +31,17 @@ pub(crate) fn shoot_ball(
     hud_state: Res<HudState>,
     esc_state: Res<EscapeMenuState>,
     mut commands: Commands,
-    pawn_id: Res<PawnId>,
-    pawn_query: Query<&Transform, With<Pawn>>,
+    camera_query: Query<&LookTransform, With<Camera3d>>,
     mut spawner: EventWriter<SpawnEntity<BallType>>,
 ) {
     if main_menu.enabled || hud_state.expanded || esc_state.visible {
         return;
     }
     if input.just_pressed(SHOOT_BALL_BIND) {
-        let pawn_entity;
-        match pawn_id.client {
-            Some(e) => {
-                pawn_entity = e;
-            }
-            None => {
-                return;
-            }
-        }
-
-        let pawn_transform;
-        match pawn_query.get(pawn_entity) {
+        let camera_transform;
+        match camera_query.get_single() {
             Ok(t) => {
-                pawn_transform = t.clone();
+                camera_transform = t.clone();
             }
             Err(_) => {
                 warn!("Couldnt find pawn components.");
@@ -60,16 +49,9 @@ pub(crate) fn shoot_ball(
             }
         }
 
-        let unit_rotation = pawn_transform.rotation.to_axis_angle().0;
-
-        let mut ball_transform = pawn_transform.clone();
-        ball_transform.translation += unit_rotation;
-
-        info!("Spawning ball.");
-
         spawner.send(SpawnEntity {
             spawn_data: EntityBuildData {
-                entity_transform: ball_transform,
+                entity_transform: Transform::from_translation(camera_transform.target),
                 entity: commands.spawn(()).id(),
                 ..Default::default()
             },

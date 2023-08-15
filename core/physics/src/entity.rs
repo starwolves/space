@@ -10,9 +10,9 @@ use bevy::{
 use bevy_xpbd_3d::prelude::LinearVelocity;
 use entity::{
     despawn::DespawnEntity,
-    entity_data::{WorldMode, WorldModes},
+    entity_data::{EntityData, WorldMode, WorldModes},
 };
-use resources::{core::TickRate, grid::Tile};
+use resources::{content::SF_CONTENT_PREFIX, core::TickRate, grid::Tile};
 
 /// A rigidbody that is linked to a decoupled entity.
 #[derive(Component)]
@@ -206,7 +206,7 @@ pub(crate) fn client_mirror_link_target_transform(
 }
 
 pub(crate) fn client_interpolate_link_transform(
-    mut query: Query<(&mut Transform, &RigidBodyLink, &WorldMode), Without<Tile>>,
+    mut query: Query<(&mut Transform, &RigidBodyLink, &WorldMode, &EntityData), Without<Tile>>,
     rigidbodies: Res<RigidBodies>,
     time: Res<Time>,
     rate: Res<TickRate>,
@@ -230,7 +230,7 @@ pub(crate) fn client_interpolate_link_transform(
     for links in rigidbodies.entity_map.values() {
         for link in links.iter() {
             match query.get_mut(*link) {
-                Ok((mut transform, link_component, world_mode)) => {
+                Ok((mut transform, link_component, world_mode, entity_data)) => {
                     if !matches!(world_mode.mode, WorldModes::Physics) {
                         continue;
                     }
@@ -255,13 +255,21 @@ pub(crate) fn client_interpolate_link_transform(
                     )
                     .to_curve();
 
-                    let interp_position = hermite.position(relative_delta);
+                    let interp_position: Vec3 = hermite.position(relative_delta);
 
                     let interp_position = link_component
                         .origin_transfom
                         .translation
                         .lerp(link_component.target_transform.translation, relative_delta);
 
+                    if entity_data
+                        .entity_type
+                        .is_type(SF_CONTENT_PREFIX.to_owned() + "ball")
+                    {
+                        //info!("relative_delta {:?}", relative_delta);
+                        //info!("original velocity {:?}", link_component.origin_velocity);
+                        //info!("target velocity {:?}", link_component.target_velocity);
+                    }
                     let interp_scale = link_component
                         .origin_transfom
                         .scale

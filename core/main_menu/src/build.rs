@@ -22,6 +22,7 @@ pub struct EnableMainMenu {
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
 
 pub enum MainMenuLabel {
+    Play,
     BuildMainMenu,
 }
 
@@ -69,6 +70,20 @@ pub(crate) fn on_submenu_connect_creation(
         fill_connect_menu.send(AutoFillConnectSubMenu);
     }
 }
+#[derive(Resource, Default)]
+pub struct EnablePlayMenuBuffer {
+    pub buffer: Vec<EnablePlayMenu>,
+}
+
+pub(crate) fn buffer_play_menu(
+    mut res: ResMut<EnablePlayMenuBuffer>,
+    mut events: EventWriter<EnablePlayMenu>,
+) {
+    for f in res.buffer.iter() {
+        events.send(f.clone());
+    }
+    res.buffer.clear();
+}
 
 /// System that toggles the base visiblity of the main menu.
 
@@ -78,7 +93,7 @@ pub(crate) fn show_main_menu(
     mut commands: Commands,
     fonts: Res<Fonts>,
     client_information: Res<ClientInformation>,
-    mut show_play_menu: EventWriter<EnablePlayMenu>,
+    mut show_play_menu: ResMut<EnablePlayMenuBuffer>,
 ) {
     if state.enabled {
         return;
@@ -95,7 +110,7 @@ pub(crate) fn show_main_menu(
         state.enabled = true;
 
         // Open play menu by default.
-        show_play_menu.send(EnablePlayMenu { enable: true });
+        show_play_menu.buffer.push(EnablePlayMenu { enable: true });
 
         let camera_entity = commands.spawn(()).insert(Camera2dBundle::default()).id();
 
@@ -460,7 +475,7 @@ pub struct MainMenuStarWolvesLink;
 pub struct MainMainMenuRoot;
 
 /// Event that enables play menu belonging to the main menu.
-#[derive(Event)]
+#[derive(Event, Clone)]
 pub struct EnablePlayMenu {
     pub enable: bool,
 }

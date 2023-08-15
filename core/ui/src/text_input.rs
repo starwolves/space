@@ -504,6 +504,13 @@ pub(crate) fn input_characters(
     }
 }
 
+use networking::server::IncomingReliableClientMessage;
+
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
+pub enum TextInputSet {
+    Set,
+}
+
 /// Event that sets the content of the given TextInputNode
 #[derive(Event)]
 pub struct SetText {
@@ -557,8 +564,6 @@ pub(crate) fn set_text_input_node_text(
         }
     }
 }
-
-use networking::server::IncomingReliableClientMessage;
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
 pub enum InterpolationSet {
