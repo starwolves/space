@@ -12,7 +12,7 @@ pub struct TickRate {
 
 pub const DEFAULT_TICKRATE: TickRate = TickRate {
     physics_rate: 60,
-    physics_substep: 1,
+    physics_substep: 2,
     bevy_rate: 60,
 };
 
