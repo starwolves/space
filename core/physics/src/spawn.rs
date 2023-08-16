@@ -98,10 +98,7 @@ pub fn rigidbody_builder(
         rigidbody = RigidBody::Static;
         masks = rigidbody_spawn_data.collider_collision_groups;
     }
-    let mut t = TransformBundle {
-        local: rigidbody_spawn_data.rigid_transform,
-        ..Default::default()
-    };
+    let mut t = TransformBundle::from(rigidbody_spawn_data.rigid_transform);
     let mut builder = commands.spawn((
         t.clone(),
         rigidbody,

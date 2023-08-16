@@ -991,10 +991,7 @@ pub(crate) fn add_tile_collision(
                 CollisionLayers::from_bits(masks.0, masks.1),
                 RigidBody::Static,
                 SFRigidBody,
-                TransformBundle {
-                    local: world_position,
-                    ..Default::default()
-                },
+                TransformBundle::from(world_position),
                 cell_properties.collider.clone(),
             ))
             .id();
@@ -1005,10 +1002,7 @@ pub(crate) fn add_tile_collision(
         entity_builder.insert((Cell { id: event.id }, RigidBodyLink::default()));
 
         if is_server() {
-            entity_builder.insert(TransformBundle {
-                local: world_position,
-                ..Default::default()
-            });
+            entity_builder.insert(TransformBundle::from(world_position));
         }
     }
 }

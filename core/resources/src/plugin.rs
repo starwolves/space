@@ -24,15 +24,23 @@ impl Plugin for ResourcesPlugin {
 
         app.configure_sets(
             FixedUpdate,
-            (MainSet::PreUpdate, MainSet::Update, MainSet::PostUpdate)
-                .chain()
-                .before(PhysicsSet::Prepare),
+            (
+                MainSet::PreUpdate,
+                MainSet::Update,
+                MainSet::PostUpdate,
+                PhysicsSet::Prepare,
+            )
+                .chain(),
         );
         app.configure_sets(
             Update,
-            (MainSet::PreUpdate, MainSet::Update, MainSet::PostUpdate)
-                .chain()
-                .before(PhysicsSet::Prepare),
+            (
+                MainSet::PreUpdate,
+                MainSet::Update,
+                MainSet::PostUpdate,
+                PhysicsSet::Prepare,
+            )
+                .chain(),
         );
     }
 }
