@@ -4,7 +4,7 @@ use crate::{
     rigid_body::RigidBodyData,
 };
 use bevy::{
-    prelude::{Commands, Entity, EventReader, ResMut, Transform},
+    prelude::{info, Commands, Entity, EventReader, ResMut, Transform},
     transform::TransformBundle,
 };
 use bevy_xpbd_3d::prelude::{
@@ -129,10 +129,14 @@ pub fn rigidbody_builder(
         t.local.rotation *= rigidbody_spawn_data.mesh_offset.rotation;
     }
 
+    info!("{:?}", t.local.translation);
+
     builder.insert((
-        t,
+        t.clone(),
         RigidBodyLink {
             offset: rigidbody_spawn_data.mesh_offset,
+            target_transform: t.local.clone(),
+            origin_transfom: t.local,
             ..Default::default()
         },
     ));

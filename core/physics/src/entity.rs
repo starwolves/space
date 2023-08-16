@@ -2,8 +2,8 @@ use std::collections::{hash_map::Entry, HashMap};
 
 use bevy::{
     prelude::{
-        warn, Component, CubicGenerator, Entity, Event, EventReader, EventWriter, Hermite, Local,
-        Query, Res, ResMut, Resource, Transform, Vec3, With, Without,
+        info, warn, Component, CubicGenerator, Entity, Event, EventReader, EventWriter, Hermite,
+        Local, Query, Res, ResMut, Resource, Transform, Vec3, With, Without,
     },
     time::Time,
 };
@@ -18,7 +18,7 @@ use resources::{content::SF_CONTENT_PREFIX, core::TickRate, grid::Tile};
 #[derive(Component)]
 pub struct SFRigidBody;
 /// Entities that are linked to a decoupled rigidbody.
-#[derive(Component, Default)]
+#[derive(Component, Default, Debug)]
 pub struct RigidBodyLink {
     pub offset: Transform,
     // Used for client-side interpolation.
