@@ -49,9 +49,11 @@ pub(crate) fn shoot_ball(
             }
         }
 
+        let offset = (camera_transform.target - camera_transform.eye).normalize();
+
         spawner.send(SpawnEntity {
             spawn_data: EntityBuildData {
-                entity_transform: Transform::from_translation(camera_transform.target),
+                entity_transform: Transform::from_translation(camera_transform.eye + offset * 2.),
                 entity: commands.spawn(()).id(),
                 ..Default::default()
             },
