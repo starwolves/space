@@ -9,13 +9,6 @@ use crate::grid::{
     TileProperties,
 };
 
-/// Physics friction on placeable item surfaces.
-
-//pub const PLACEABLE_SURFACE_FRICTION: f32 = 0.2;
-/// Physics coefficient combiner of placeable item surfaces.
-
-//pub const PLACEABLE_FRICTION: CoefficientCombineRule = CoefficientCombineRule::Min;
-
 /// Initiate map resource meta-data.
 
 #[derive(Default, Resource)]

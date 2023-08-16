@@ -109,7 +109,7 @@ impl Default for TileProperties {
             floor_cell: false,
             atmospherics_blocker: true,
             atmospherics_pushes_up: false,
-            friction: 0.,
+            friction: 0.3,
             combine_rule: CoefficientCombine::Min,
             mesh_option: None,
             material_option: None,
