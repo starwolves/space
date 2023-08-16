@@ -2020,6 +2020,7 @@ name = "entity"
 version = "0.0.3"
 dependencies = [
  "bevy",
+ "bevy_renet",
  "doryen_fov",
  "dyn-clone",
  "entity_macros",
@@ -2488,6 +2489,7 @@ version = "0.0.3"
 dependencies = [
  "actions",
  "bevy",
+ "bevy_renet",
  "bevy_xpbd_3d",
  "bincode",
  "cameras",

@@ -1,7 +1,10 @@
 use std::time::Duration;
 
-use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, Startup};
+use bevy::prelude::{
+    resource_exists, App, Condition, FixedUpdate, IntoSystemConfigs, Plugin, Startup,
+};
 use bevy::time::common_conditions::on_fixed_timer;
+use bevy_renet::renet::{RenetClient, RenetServer};
 use networking::messaging::{register_reliable_message, MessageSender};
 use resources::is_server::is_server;
 use resources::sets::{ActionsSet, BuildingSet, MainSet, PostUpdateSet, StartupSet};
@@ -85,7 +88,11 @@ impl Plugin for EntityPlugin {
                         .after(StartupSet::BuildGridmap)
                         .in_set(MainSet::PreUpdate)
                         .in_set(StartupSet::InitEntities)
-                        .in_set(BuildingSet::RawTriggerBuild),
+                        .in_set(BuildingSet::RawTriggerBuild)
+                        .run_if(
+                            resource_exists::<RenetClient>()
+                                .or_else(resource_exists::<RenetServer>()),
+                        ),
                     despawn_entities.in_set(MainSet::PostUpdate),
                 ),
             );

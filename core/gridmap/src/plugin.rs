@@ -1,9 +1,10 @@
 use std::time::Duration;
 
 use bevy::{
-    prelude::{resource_exists, App, FixedUpdate, IntoSystemConfigs, Plugin, Startup},
+    prelude::{resource_exists, App, Condition, FixedUpdate, IntoSystemConfigs, Plugin, Startup},
     time::common_conditions::on_fixed_timer,
 };
+use bevy_renet::renet::{RenetClient, RenetServer};
 use networking::messaging::{register_reliable_message, MessageSender};
 use player::{connections::process_response, plugin::ConfigurationLabel};
 use resources::{
@@ -232,7 +233,10 @@ impl Plugin for GridmapPlugin {
                     .before(EditTileSet::Add)
                     .in_set(StartupSet::BuildGridmap)
                     .in_set(MainSet::PreUpdate)
-                    .after(StartupSet::InitDefaultGridmapData),
+                    .after(StartupSet::InitDefaultGridmapData)
+                    .run_if(
+                        resource_exists::<RenetClient>().or_else(resource_exists::<RenetServer>()),
+                    ),
             )
             .add_systems(
                 Startup,

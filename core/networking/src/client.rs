@@ -97,7 +97,7 @@ struct Response {
 pub struct TokenAssignServer {
     pub task: Task<ehttp::Response>,
 }
-pub fn process_response(
+pub fn starwolves_response(
     mut commands: Commands,
     mut task: ResMut<TokenAssignServer>,
     mut connect: EventWriter<ConnectToServer>,
@@ -142,7 +142,7 @@ pub(crate) fn connect_to_server(
     for _ in event.iter() {
         match connection_state.status {
             ConnectionStatus::None => {
-                info!("Connect to server.");
+                info!("Initializing connection with server.");
                 let address;
                 let port;
 

@@ -10,11 +10,11 @@ use super::server::{souls, startup_server_listen_connections};
 use crate::{
     client::{
         confirm_connection, connect_to_server, connected, is_client_connected, on_disconnect,
-        process_response, receive_incoming_reliable_server_messages,
-        receive_incoming_unreliable_server_messages, step_buffer, token_assign_server,
-        AssignTokenToServer, AssigningServerToken, ConnectToServer, Connection,
-        ConnectionPreferences, IncomingRawReliableServerMessage,
-        IncomingRawUnreliableServerMessage, OutgoingBuffer, TokenAssignServer,
+        receive_incoming_reliable_server_messages, receive_incoming_unreliable_server_messages,
+        starwolves_response, step_buffer, token_assign_server, AssignTokenToServer,
+        AssigningServerToken, ConnectToServer, Connection, ConnectionPreferences,
+        IncomingRawReliableServerMessage, IncomingRawUnreliableServerMessage, OutgoingBuffer,
+        TokenAssignServer,
     },
     messaging::{
         generate_typenames, register_reliable_message, register_unreliable_message, MessageSender,
@@ -57,9 +57,9 @@ impl Plugin for NetworkingPlugin {
             app.add_systems(
                 FixedUpdate,
                 (
-                    process_response.run_if(resource_exists::<TokenAssignServer>()),
+                    starwolves_response.run_if(resource_exists::<TokenAssignServer>()),
                     token_assign_server,
-                    connect_to_server.after(process_response),
+                    connect_to_server.after(starwolves_response),
                     setup_client_tickrate_stamp,
                 )
                     .in_set(MainSet::Update),
