@@ -15,7 +15,7 @@ version = "0.11.0"
 default-features = false
 
 [dependencies]
-bevy_xpbd_3d = { version = "0.2.0" , features = ["enhanced-determinism"]}
+bevy_xpbd_3d = { version = "0.2.0" , features = ["enhanced-determinism"], git = "https://github.com/starwolfy/bevy_xpbd.git"}
 image = "0.24.6"
 # Must match winit version used by Bevy.
 winit = { version = "0.28", default-features = false }

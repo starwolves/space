@@ -1195,12 +1195,13 @@ dependencies = [
 [[package]]
 name = "bevy_xpbd_3d"
 version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1bf2f04f9ef95af4b1d5189b638086c958b2684dcb287dfc0aeedfaf00141d56"
+source = "git+https://github.com/starwolfy/bevy_xpbd.git#59cabbe9e55fa9a114a78b9602483accb73319df"
 dependencies = [
  "bevy",
  "bevy_xpbd_derive",
  "derive_more",
+ "fxhash",
+ "indexmap 2.0.0",
  "nalgebra",
  "parry3d",
  "parry3d-f64",
@@ -1209,8 +1210,7 @@ dependencies = [
 [[package]]
 name = "bevy_xpbd_derive"
 version = "0.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3e1ef1d5e328abe1b76df974245f78e17fd17867583883d5e77444c6a8223a64"
+source = "git+https://github.com/starwolfy/bevy_xpbd.git#59cabbe9e55fa9a114a78b9602483accb73319df"
 dependencies = [
  "quote",
  "syn 2.0.27",
@@ -2253,6 +2253,15 @@ name = "futures-sink"
 version = "0.3.28"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f43be4fe21a13b9781a69afa4985b0f6ee0e1afab2c6f454a8cf30e2b2237b6e"
+
+[[package]]
+name = "fxhash"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c31b6d751ae2c7f11320402d34e41349dd1016f8d5d45e48c4312bc8625af50c"
+dependencies = [
+ "byteorder",
+]
 
 [[package]]
 name = "generic-array"
@@ -3703,6 +3712,7 @@ dependencies = [
  "nalgebra",
  "num-derive",
  "num-traits",
+ "rayon",
  "rustc-hash",
  "simba",
  "slab",
@@ -3725,6 +3735,7 @@ dependencies = [
  "nalgebra",
  "num-derive",
  "num-traits",
+ "rayon",
  "rustc-hash",
  "simba",
  "slab",

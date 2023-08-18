@@ -2,8 +2,8 @@ use std::collections::{hash_map::Entry, HashMap};
 
 use bevy::{
     prelude::{
-        info, warn, Component, CubicGenerator, Entity, Event, EventReader, EventWriter, Hermite,
-        Local, Query, Res, ResMut, Resource, Transform, Vec3, With, Without,
+        warn, Component, CubicGenerator, Entity, Event, EventReader, EventWriter, Hermite, Local,
+        Query, Res, ResMut, Resource, Transform, Vec3, With, Without,
     },
     time::Time,
 };
@@ -160,7 +160,7 @@ pub struct ResetLerp;
 
 pub(crate) fn client_mirror_link_target_transform(
     transforms: Query<(&Transform, &LinearVelocity), (With<SFRigidBody>, Without<Tile>)>,
-    mut target_transforms: Query<(&mut RigidBodyLink, &WorldMode), Without<Tile>>,
+    mut target_transforms: Query<(&mut RigidBodyLink, &WorldMode, &EntityData), Without<Tile>>,
     rigidbodies: Res<RigidBodies>,
     mut reset: EventWriter<ResetLerp>,
 ) {
@@ -180,20 +180,35 @@ pub(crate) fn client_mirror_link_target_transform(
 
         for link in links.iter() {
             match target_transforms.get_mut(*link) {
-                Ok((mut t, world_mode)) => {
+                Ok((mut link, world_mode, entity_data)) => {
                     if !matches!(world_mode.mode, WorldModes::Physics) {
                         continue;
                     }
                     let mut fin_transform = rbt.clone();
-                    fin_transform.translation += t.offset.translation;
-                    fin_transform.rotation *= t.offset.rotation;
-                    fin_transform.scale = t.offset.scale;
+                    fin_transform.translation += link.offset.translation;
+                    fin_transform.rotation *= link.offset.rotation;
+                    fin_transform.scale = link.offset.scale;
 
-                    t.origin_transfom = t.target_transform.clone();
-                    t.origin_velocity = t.target_velocity.clone();
+                    link.origin_transfom = link.target_transform.clone();
+                    link.origin_velocity = link.target_velocity.clone();
 
-                    t.target_transform = fin_transform;
-                    t.target_velocity = velocity.0;
+                    link.target_transform = fin_transform;
+                    link.target_velocity = velocity.0;
+
+                    if entity_data
+                        .entity_type
+                        .is_type(SF_CONTENT_PREFIX.to_owned() + "ball")
+                    {
+                        /*info!(
+                            "transform {:?} -> {:?}",
+                            link.origin_transfom.translation, link.target_transform.translation
+                        );
+                        info!(
+                            "velocity {:?} -> {:?}",
+                            link.origin_velocity, link.target_velocity
+                        );
+                        info!("");*/
+                    }
                 }
                 Err(_) => {
                     warn!("Couldnt find link entity transform.");
@@ -235,14 +250,6 @@ pub(crate) fn client_interpolate_link_transform(
                         continue;
                     }
 
-                    let interp_position = hermite_interpolation(
-                        relative_delta,
-                        link_component.origin_transfom.translation,
-                        link_component.target_transform.translation,
-                        link_component.origin_velocity,
-                        link_component.target_velocity,
-                    );
-
                     let hermite = Hermite::new(
                         vec![
                             link_component.origin_transfom.translation,
@@ -255,20 +262,25 @@ pub(crate) fn client_interpolate_link_transform(
                     )
                     .to_curve();
 
+                    let interp_position = hermite_interpolation(
+                        relative_delta,
+                        link_component.origin_transfom.translation,
+                        link_component.target_transform.translation,
+                        link_component.origin_velocity,
+                        link_component.target_velocity,
+                    );
+
                     let interp_position: Vec3 = hermite.position(relative_delta);
 
                     let interp_position = link_component
                         .origin_transfom
                         .translation
                         .lerp(link_component.target_transform.translation, relative_delta);
-
                     if entity_data
                         .entity_type
                         .is_type(SF_CONTENT_PREFIX.to_owned() + "ball")
                     {
                         //info!("relative_delta {:?}", relative_delta);
-                        //info!("original velocity {:?}", link_component.origin_velocity);
-                        //info!("target velocity {:?}", link_component.target_velocity);
                     }
                     let interp_scale = link_component
                         .origin_transfom
@@ -290,6 +302,7 @@ pub(crate) fn client_interpolate_link_transform(
             }
         }
     }
+
     *local_delta += dt;
     if *local_delta > total_time {
         *local_delta = total_time;
