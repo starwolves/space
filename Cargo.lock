@@ -1195,7 +1195,7 @@ dependencies = [
 [[package]]
 name = "bevy_xpbd_3d"
 version = "0.2.0"
-source = "git+https://github.com/starwolfy/bevy_xpbd.git#59cabbe9e55fa9a114a78b9602483accb73319df"
+source = "git+https://github.com/starwolfy/bevy_xpbd.git?branch=fixedtime#0be94c38e351fed21791502f935386e917eac453"
 dependencies = [
  "bevy",
  "bevy_xpbd_derive",
@@ -1210,7 +1210,7 @@ dependencies = [
 [[package]]
 name = "bevy_xpbd_derive"
 version = "0.1.0"
-source = "git+https://github.com/starwolfy/bevy_xpbd.git#59cabbe9e55fa9a114a78b9602483accb73319df"
+source = "git+https://github.com/starwolfy/bevy_xpbd.git?branch=fixedtime#0be94c38e351fed21791502f935386e917eac453"
 dependencies = [
  "quote",
  "syn 2.0.27",

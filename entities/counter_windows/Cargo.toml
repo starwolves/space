@@ -15,7 +15,7 @@ version = "0.11.0"
 default-features = false
 
 [dependencies]
-bevy_xpbd_3d = { version = "0.2.0" , features = ["enhanced-determinism"], git = "https://github.com/starwolfy/bevy_xpbd.git"}
+bevy_xpbd_3d = { version = "0.2.0" , features = ["enhanced-determinism"], git = "https://github.com/starwolfy/bevy_xpbd.git", branch="fixedtime"}
 const_format = "0.2.31"
 
 entity = { path = "../../core/entity" }
