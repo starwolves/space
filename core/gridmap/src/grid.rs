@@ -17,6 +17,7 @@ use networking::{
 use physics::{
     entity::{RigidBodies, RigidBodyLink, SFRigidBody},
     physics::{get_bit_masks, ColliderGroup},
+    rigid_body::STANDARD_BODY_FRICTION,
 };
 use player::boarding::SoftPlayer;
 use resources::{
@@ -109,7 +110,7 @@ impl Default for TileProperties {
             floor_cell: false,
             atmospherics_blocker: true,
             atmospherics_pushes_up: false,
-            friction: 0.3,
+            friction: STANDARD_BODY_FRICTION,
             combine_rule: CoefficientCombine::Min,
             mesh_option: None,
             material_option: None,
