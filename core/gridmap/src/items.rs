@@ -1,5 +1,5 @@
-pub mod bridge_diagonal_ceiling;
 pub mod bridge_floor;
+pub mod bridge_half_diagonal_ceiling;
 pub mod bridge_wall;
 pub mod generic_assets;
 pub mod generic_diagonal_ceiling;

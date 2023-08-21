@@ -2,6 +2,7 @@ use bevy::{
     gltf::GltfMesh,
     prelude::{AlphaMode, AssetServer, Assets, Handle, Res, ResMut, Resource, StandardMaterial},
 };
+use bevy_xpbd_3d::prelude::Collider;
 use entity::examine::RichName;
 use resources::is_server::is_server;
 
@@ -68,6 +69,7 @@ pub(crate) fn init_reinforced_glass_floor(
         mesh_option,
         cell_type: CellType::Floor,
         material_option,
+        collider: Collider::cuboid(1., 0.2, 1.),
         ..Default::default()
     });
 }

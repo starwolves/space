@@ -973,13 +973,15 @@ pub(crate) fn add_tile_collision(
             }
         }
 
-        let world_position = gridmap_data.get_cell_transform(
+        let mut world_position = gridmap_data.get_cell_transform(
             TargetCell {
                 id: event.id,
                 face: event.face.clone(),
             },
             event.orientation,
         );
+        world_position.translation += cell_properties.collider_position.translation;
+        world_position.rotation *= cell_properties.collider_position.rotation;
 
         let masks = get_bit_masks(ColliderGroup::Standard);
 

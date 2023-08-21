@@ -2,6 +2,7 @@ use super::generic_assets::GenericMeshes;
 use bevy::prelude::{
     AlphaMode, AssetServer, Assets, Handle, Res, ResMut, Resource, StandardMaterial, Transform,
 };
+use bevy_xpbd_3d::prelude::Collider;
 use entity::examine::RichName;
 use resources::is_server::is_server;
 
@@ -68,6 +69,7 @@ pub(crate) fn init_reinforced_glass_wall(
         mesh_option,
         cell_type: CellType::Wall,
         material_option,
+        collider: Collider::cuboid(1., 1., 0.2),
         ..Default::default()
     });
 }

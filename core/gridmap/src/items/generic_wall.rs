@@ -74,7 +74,7 @@ pub(crate) fn init_generic_wall(
         mesh_option,
         cell_type: CellType::Wall,
         material_option,
-        collider: Collider::cuboid(2., 2., 0.2),
+        collider: Collider::cuboid(1., 1., 0.2),
         ..Default::default()
     });
 }

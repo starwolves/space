@@ -67,7 +67,7 @@ pub(crate) fn init_generic_floor(
         mesh_option,
         cell_type: CellType::Floor,
         material_option,
-        collider: Collider::cuboid(2., 0.2, 2.),
+        collider: Collider::cuboid(1., 0.2, 1.),
         ..Default::default()
     });
 }

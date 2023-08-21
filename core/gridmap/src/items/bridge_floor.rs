@@ -2,6 +2,7 @@ use bevy::{
     gltf::GltfMesh,
     prelude::{AssetServer, Assets, Handle, Res, ResMut, Resource, StandardMaterial},
 };
+use bevy_xpbd_3d::prelude::Collider;
 use entity::examine::RichName;
 use resources::is_server::is_server;
 
@@ -111,6 +112,7 @@ pub(crate) fn init_filled_bridge_floor(
         mesh_option,
         cell_type: CellType::Floor,
         material_option,
+        collider: Collider::cuboid(1., 0.2, 1.),
         ..Default::default()
     });
 }
@@ -144,6 +146,7 @@ pub(crate) fn init_half_bridge_floor(
         mesh_option,
         cell_type: CellType::Floor,
         material_option,
+        collider: Collider::cuboid(2., 0.2, 2.),
         ..Default::default()
     });
 }
@@ -177,6 +180,7 @@ pub(crate) fn init_corner_bridge_floor(
         mesh_option,
         cell_type: CellType::Floor,
         material_option,
+        collider: Collider::cuboid(2., 0.2, 2.),
         ..Default::default()
     });
 }
@@ -209,6 +213,7 @@ pub(crate) fn init_corner2_bridge_floor(
         mesh_option,
         cell_type: CellType::Floor,
         material_option,
+        collider: Collider::cuboid(2., 0.2, 2.),
         ..Default::default()
     });
 }

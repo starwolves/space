@@ -31,11 +31,20 @@ pub(crate) fn rigidbody_link_transform(
             }
         }
     }
-
     for (entity, _rigid_body_link_transform_component) in linked_rigidbodies.iter_mut() {
-        let t = *linked_with_new_positions.get_mut(&entity).expect(
-            "Couldn't find linked entity that we were about to set following transform of.",
-        );
+        let t;
+
+        match linked_with_new_positions.get(&entity) {
+            Some(x) => {
+                t = x;
+            }
+            None => {
+                warn!(
+                    "Couldn't find linked entity that we were about to set following transform of.",
+                );
+                continue;
+            }
+        }
 
         match transforms.get_mut(entity) {
             Ok(mut rigidbody_position_component) => {
