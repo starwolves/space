@@ -117,6 +117,8 @@ pub(crate) fn mouse_click_input(
                                 face: cell.face.clone(),
                                 group_instance_id_option: None,
                                 entity: commands.spawn(()).id(),
+                                rigidbody_entity: commands.spawn(()).id(),
+
                                 default_map_spawn: false,
                             });
                         }
@@ -130,6 +132,8 @@ pub(crate) fn mouse_click_input(
                                 face: cell.face.clone(),
                                 group_instance_id_option: None,
                                 entity: commands.spawn(()).id(),
+                                rigidbody_entity: commands.spawn(()).id(),
+
                                 default_map_spawn: false,
                             });
                         }

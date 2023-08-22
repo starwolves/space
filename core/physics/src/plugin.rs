@@ -5,7 +5,7 @@ use resources::{core::TickRate, is_server::is_server, sets::MainSet};
 use crate::{
     entity::{
         client_interpolate_link_transform, client_mirror_link_target_transform, remove_links,
-        remove_rigidbodies, server_mirror_link_transform, ResetLerp, RigidBodies,
+        server_mirror_link_transform, ResetLerp, RigidBodies,
     },
     mirror_physics_transform::rigidbody_link_transform,
 };
@@ -37,10 +37,7 @@ impl Plugin for PhysicsPlugin {
         }
         app.add_plugins(PhysicsPlugins::new(FixedUpdate))
             .init_resource::<RigidBodies>()
-            .add_systems(
-                FixedUpdate,
-                (remove_links, remove_rigidbodies).in_set(MainSet::PostUpdate),
-            )
+            .add_systems(FixedUpdate, remove_links.in_set(MainSet::PostUpdate))
             .insert_resource(SubstepCount(TickRate::default().physics_substep.into()));
     }
 }

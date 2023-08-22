@@ -101,14 +101,6 @@ pub(crate) fn remove_links(
     for event in events.iter() {
         rigidbodies.remove_linked_entity(&event.entity);
         rigidbodies.remove_linked_tile(&event.entity);
-    }
-}
-
-pub(crate) fn remove_rigidbodies(
-    mut rigidbodies: ResMut<RigidBodies>,
-    mut events: EventReader<DespawnEntity>,
-) {
-    for event in events.iter() {
         rigidbodies.remove_entity_rigidbody(&event.entity);
         rigidbodies.remove_tile_rigidbody(&event.entity);
     }

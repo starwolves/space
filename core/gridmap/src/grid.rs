@@ -192,6 +192,8 @@ pub struct CellItem {
     pub group_id_option: Option<u32>,
     /// Entity belonging to cell item.
     pub entity: Option<Entity>,
+    /// Rigidbody belonging to cell item.
+    pub rigidbody_entity: Option<Entity>,
     /// Health of this tile.
     pub health: Health,
     /// Rotation. Range of 0 - 24. See [OrthogonalBases].
@@ -625,6 +627,23 @@ pub struct RemoveTile {
     pub cell: TargetCell,
 }
 
+pub(crate) fn removed_tile(
+    mut events: EventReader<RemoveTile>,
+    mut despawn: EventWriter<DespawnEntity>,
+    gridmap: Res<Gridmap>,
+) {
+    for e in events.iter() {
+        match gridmap.get_cell(e.cell.clone()) {
+            Some(cell) => {
+                despawn.send(DespawnEntity {
+                    entity: cell.rigidbody_entity.unwrap(),
+                });
+            }
+            None => {}
+        }
+    }
+}
+
 /// A pending cell update like a cell construction.
 
 pub struct CellUpdate {
@@ -664,6 +683,7 @@ pub struct AddTile {
     pub face: CellFace,
     pub group_instance_id_option: Option<u32>,
     pub entity: Entity,
+    pub rigidbody_entity: Entity,
     pub default_map_spawn: bool,
 }
 
@@ -676,6 +696,7 @@ impl Default for AddTile {
             face: CellFace::default(),
             group_instance_id_option: None,
             entity: Entity::from_bits(0),
+            rigidbody_entity: Entity::from_bits(0),
             default_map_spawn: false,
         }
     }
@@ -935,6 +956,8 @@ pub(crate) fn add_cell_client(
                     face: new.cell.face.clone(),
                     group_instance_id_option: None,
                     entity: commands.spawn(()).id(),
+                    rigidbody_entity: commands.spawn(()).id(),
+
                     default_map_spawn: false,
                 });
             }
@@ -994,7 +1017,8 @@ pub(crate) fn add_tile_collision(
         friction_component.combine_rule = cell_properties.combine_rule;
 
         let rigid_entity = commands
-            .spawn((
+            .entity(event.rigidbody_entity)
+            .insert((
                 friction_component,
                 CollisionLayers::from_bits(masks.0, masks.1),
                 RigidBody::Static,
@@ -1015,8 +1039,13 @@ pub(crate) fn add_tile_collision(
     }
 }
 
-pub(crate) fn add_tile(mut events: EventReader<AddTile>, mut gridmap_main: ResMut<Gridmap>) {
+pub(crate) fn add_tile(
+    mut events: EventReader<AddTile>,
+    mut gridmap_main: ResMut<Gridmap>,
+    mut commands: Commands,
+) {
     for add_tile_event in events.iter() {
+        commands.entity(add_tile_event.entity).insert(Tile);
         let strict = gridmap_main.get_strict_cell(TargetCell {
             id: add_tile_event.id,
             face: add_tile_event.face.clone(),
@@ -1061,6 +1090,7 @@ pub(crate) fn add_tile(mut events: EventReader<AddTile>, mut gridmap_main: ResMu
                             },
                             orientation: add_tile_event.orientation.clone(),
                             group_id_option: add_tile_event.group_instance_id_option,
+                            rigidbody_entity: Some(add_tile_event.rigidbody_entity),
                         });
 
                         match strict.face {
@@ -1250,7 +1280,8 @@ pub(crate) fn spawn_group(
                         group_instance_id_option: Some(
                             gridmap_main.group_instance_incremental + i + 1,
                         ),
-                        entity: commands.spawn(Tile).id(),
+                        entity: commands.spawn(()).id(),
+                        rigidbody_entity: commands.spawn(()).id(),
                         default_map_spawn: add_group_event.default_map_spawn,
                     });
                     i += 1;

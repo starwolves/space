@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use bevy::gltf::GltfMesh;
 use bevy::prelude::Assets;
 use bevy::prelude::Commands;
+use bevy::prelude::Component;
 use bevy::prelude::EventReader;
 
 use bevy::prelude::warn;
@@ -17,6 +18,11 @@ use resources::math::Vec3Int;
 use crate::grid::AddTile;
 use crate::grid::Gridmap;
 use crate::items::generic_assets::GenericMaterials;
+
+#[derive(Component)]
+pub struct GraphicsGridLink {
+    pub id: Vec3Int,
+}
 
 #[derive(Default, Resource)]
 pub(crate) struct CellGraphicsBuffer {
@@ -46,15 +52,15 @@ pub(crate) fn set_cell_graphics(
         );
     }
     let mut remove_ids = vec![];
-    for (id, set_cell) in buffer.buffer.iter() {
-        match gridmap_main.tile_properties.get(&set_cell.tile_type) {
+    for (id, add_tile) in buffer.buffer.iter() {
+        match gridmap_main.tile_properties.get(&add_tile.tile_type) {
             Some(properties) => {
                 let transform = gridmap_main.get_cell_transform(
                     TargetCell {
-                        id: set_cell.id,
-                        face: set_cell.face.clone(),
+                        id: add_tile.id,
+                        face: add_tile.face.clone(),
                     },
-                    set_cell.orientation,
+                    add_tile.orientation,
                 );
 
                 let mat;
@@ -68,12 +74,17 @@ pub(crate) fn set_cell_graphics(
                 }
                 match assets_gltfmesh.get(&properties.mesh_option.clone().unwrap()) {
                     Some(mesh) => {
-                        commands.entity(set_cell.entity).insert(PbrBundle {
-                            mesh: mesh.primitives[0].mesh.clone(),
-                            material: mat.clone(),
-                            transform: transform.into(),
-                            ..Default::default()
-                        });
+                        commands.entity(add_tile.entity).insert((
+                            PbrBundle {
+                                mesh: mesh.primitives[0].mesh.clone(),
+                                material: mat.clone(),
+                                transform: transform.into(),
+                                ..Default::default()
+                            },
+                            GraphicsGridLink {
+                                id: add_tile.id.clone(),
+                            },
+                        ));
                         remove_ids.push(id.clone());
                     }
                     None => {}

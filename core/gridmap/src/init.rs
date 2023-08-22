@@ -139,6 +139,8 @@ pub(crate) fn load_ron_gridmap(
                     tile_type: cell_item_id,
                     group_instance_id_option: None,
                     entity: commands.spawn(()).id(),
+                    rigidbody_entity: commands.spawn(()).id(),
+
                     default_map_spawn: true,
                 });
             }
@@ -161,6 +163,8 @@ pub(crate) fn load_ron_gridmap(
                     tile_type: *id,
                     group_instance_id_option: Some(item.group_id),
                     entity: commands.spawn(()).id(),
+                    rigidbody_entity: commands.spawn(()).id(),
+
                     default_map_spawn: true,
                 });
             }
