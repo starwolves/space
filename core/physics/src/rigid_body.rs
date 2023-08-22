@@ -1,7 +1,7 @@
 use bevy::prelude::Component;
 use bevy_xpbd_3d::prelude::CoefficientCombine;
 
-pub const STANDARD_BODY_FRICTION: f32 = 0.5;
+pub const STANDARD_BODY_FRICTION: f32 = 3.;
 
 /// Component holding rigid body data.
 #[derive(Component)]

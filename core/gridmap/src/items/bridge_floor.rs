@@ -146,7 +146,7 @@ pub(crate) fn init_half_bridge_floor(
         mesh_option,
         cell_type: CellType::Floor,
         material_option,
-        collider: Collider::cuboid(2., 0.2, 2.),
+        collider: Collider::cuboid(1., 0.2, 1.),
         ..Default::default()
     });
 }
@@ -180,7 +180,7 @@ pub(crate) fn init_corner_bridge_floor(
         mesh_option,
         cell_type: CellType::Floor,
         material_option,
-        collider: Collider::cuboid(2., 0.2, 2.),
+        collider: Collider::cuboid(1., 0.2, 1.),
         ..Default::default()
     });
 }
@@ -213,7 +213,7 @@ pub(crate) fn init_corner2_bridge_floor(
         mesh_option,
         cell_type: CellType::Floor,
         material_option,
-        collider: Collider::cuboid(2., 0.2, 2.),
+        collider: Collider::cuboid(1., 0.2, 1.),
         ..Default::default()
     });
 }

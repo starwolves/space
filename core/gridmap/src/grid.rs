@@ -980,7 +980,12 @@ pub(crate) fn add_tile_collision(
             },
             event.orientation,
         );
-        world_position.translation += cell_properties.collider_position.translation;
+
+        let relative_collider_position = OrthogonalBases::default().bases
+            [event.orientation as usize]
+            .mul_vec3(cell_properties.collider_position.translation);
+
+        world_position.translation += relative_collider_position;
         world_position.rotation *= cell_properties.collider_position.rotation;
 
         let masks = get_bit_masks(ColliderGroup::Standard);

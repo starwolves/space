@@ -160,7 +160,7 @@ impl RigidBodyBuilder<NoData> for HumanMaleType {
             collider: Collider::capsule(R, 1.8 - R),
             collider_transform: Transform::from_translation(Vec3::new(0., 0.011, -0.004)),
             collider_friction: friction,
-            rigidbody_dynamic: true,
+            rigidbody_dynamic: false,
             ..Default::default()
         }
     }

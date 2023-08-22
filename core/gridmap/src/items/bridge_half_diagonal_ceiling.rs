@@ -72,9 +72,9 @@ pub(crate) fn init_bridge_half_diagonal_ceiling_low(
         mesh_option = None;
         material_option = None;
     }
+
     let mut rot = Quat::from_axis_angle(Vec3::new(1., 0., 0.), 0.5 * PI);
-    rot *= Quat::from_axis_angle(Vec3::new(0., 0., 1.), PI);
-    rot *= Quat::from_axis_angle(Vec3::new(0., 1., 0.), PI);
+    rot *= Quat::from_axis_angle(Vec3::new(0., 1., 0.), -0.15 * PI);
 
     init.properties.push(TileProperties {
         name_id: CellTypeName("bridge_half_diagonal_ceiling_low".to_string()),
@@ -91,19 +91,10 @@ pub(crate) fn init_bridge_half_diagonal_ceiling_low(
         vertical_rotation: false,
         x_rotations: vec![0, 16, 10, 22],
         material_option,
-        collider: Collider::convex_hull(vec![
-            Vec3::new(-0.5, -0.5, 0.1).into(),
-            Vec3::new(-0.5, -0.5, -0.2).into(),
-            Vec3::new(-0.5, 0.5, 0.1).into(),
-            Vec3::new(-0.5, 0.5, -0.2).into(),
-            Vec3::new(0.3, -0.5, -0.6).into(),
-            Vec3::new(0.5, -0.5, -0.4).into(),
-            Vec3::new(0.3, 0.5, -0.6).into(),
-            Vec3::new(0.5, 0.5, -0.4).into(),
-        ])
-        .unwrap(),
+        collider: Collider::cuboid(1.117, 1., 0.265),
         collider_position: Transform {
             rotation: rot,
+            translation: Vec3::new(-0., -0.272, -0.05),
             ..Default::default()
         },
         ..Default::default()
@@ -125,7 +116,7 @@ pub(crate) fn init_bridge_half_diagonal_ceiling_high(
         material_option = None;
     }
     let mut rot = Quat::from_axis_angle(Vec3::new(1., 0., 0.), 0.5 * PI);
-    rot *= Quat::from_axis_angle(Vec3::new(0., 0., 1.), PI);
+    rot *= Quat::from_axis_angle(Vec3::new(0., 1., 0.), -0.145 * PI);
 
     init.properties.push(TileProperties {
         name_id: CellTypeName("bridge_half_diagonal_ceiling_high".to_string()),
@@ -142,20 +133,10 @@ pub(crate) fn init_bridge_half_diagonal_ceiling_high(
         vertical_rotation: false,
         x_rotations: vec![0, 16, 10, 22],
         material_option,
-        collider: Collider::convex_hull(vec![
-            Vec3::new(-0.5, 0.5, 0.6).into(),
-            Vec3::new(-0.5, 0.5, 0.3).into(),
-            Vec3::new(-0.5, -0.5, 0.3).into(),
-            Vec3::new(-0.5, -0.5, 0.6).into(),
-            Vec3::new(0.5, 0.5, 0.1).into(),
-            Vec3::new(0.5, 0.5, -0.2).into(),
-            Vec3::new(0.5, -0.5, -0.2).into(),
-            Vec3::new(0.5, -0.5, 0.1).into(),
-        ])
-        .unwrap(),
+        collider: Collider::cuboid(1.12, 1., 0.265),
         collider_position: Transform {
-            translation: Vec3::new(0., 0.4, 0.),
             rotation: rot,
+            translation: Vec3::new(-0.05, 0.23, 0.),
             ..Default::default()
         },
         ..Default::default()
