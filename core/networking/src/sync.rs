@@ -20,6 +20,16 @@ impl TickRateStamp {
             self.stamp += 1;
         }
     }
+    pub fn step_custom(&mut self, step_amount: u8) {
+        self.large += step_amount as u64;
+        if self.stamp > u8::MAX - step_amount {
+            let remainder = u8::MAX - self.stamp;
+            self.stamp = step_amount - remainder;
+            self.iteration += 1;
+        } else {
+            self.stamp += step_amount;
+        }
+    }
 }
 
 pub(crate) fn setup_client_tickrate_stamp(
@@ -30,7 +40,7 @@ pub(crate) fn setup_client_tickrate_stamp(
         match &event.message {
             NetworkingServerMessage::Awoo(sync) => {
                 let mut m_stamp = sync.stamp.clone();
-                m_stamp.stamp += 5;
+                m_stamp.step_custom(5);
                 *stamp = m_stamp;
             }
         }
