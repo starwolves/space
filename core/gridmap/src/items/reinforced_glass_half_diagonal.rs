@@ -96,7 +96,7 @@ pub(crate) fn init_reinforced_glass_half_diagonal_ceiling_low(
         collider: Collider::cuboid(1.117, 1., 0.265),
         collider_position: Transform {
             rotation: rot,
-            translation: Vec3::new(-0., -0.272, -0.05),
+            translation: Vec3::new(-0.05, -0.272, 0.),
             ..Default::default()
         },
         ..Default::default()
