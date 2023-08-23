@@ -9,7 +9,8 @@ documentation = "https://docs.sf.starwolves.io"
 license-file = "LICENSE"
 edition = "2021"
 [dependencies.bevy]
-version = "0.11.0"
+version = "0.11.2"
+
 default-features = false
 
 

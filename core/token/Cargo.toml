@@ -12,7 +12,8 @@ edition = "2021"
 
 
 [dependencies.bevy]
-version = "0.11.0"
+version = "0.11.2"
+
 
 [dependencies]
 directories = "5.0.1"

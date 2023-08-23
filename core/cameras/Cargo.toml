@@ -9,7 +9,8 @@ edition = "2021"
 license = "MIT"
 
 [dependencies.bevy]
-version = "0.11.0"
+version = "0.11.2"
+
 default-features = false
 
 [dependencies]
