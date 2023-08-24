@@ -23,5 +23,4 @@ bevy_xpbd_3d = { version = "0.2.0" , features = ["enhanced-determinism"], git = 
 entity = { path = "../../core/entity" }
 resources = { path = "../../core/resources" }
 physics = { path = "../../core/physics" }
-pawn = { path = "../../core/pawn" }
 cameras = { path = "../../core/cameras" }
