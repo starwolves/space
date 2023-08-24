@@ -19,9 +19,9 @@ use crate::{
     hands_attack_handler::hands_attack_handler,
     setup_ui_showcase::human_male_setup_ui,
     spawn::{
-        build_base_human_males, build_human_males, process_add_item_slot_buffer,
-        process_add_slot_buffer, spawn_held_item, AddItemToSlotBuffer, AddSlotBuffer,
-        HumanMaleType,
+        attach_human_male_camera, build_base_human_males, build_human_males,
+        process_add_item_slot_buffer, process_add_slot_buffer, spawn_held_item,
+        AddItemToSlotBuffer, AddSlotBuffer, HumanMaleType,
     },
 };
 pub struct HumanMalePlugin;
@@ -54,6 +54,7 @@ impl Plugin for HumanMalePlugin {
                     load_entity::<HumanMaleType>
                         .before(SpawnItemSet::SpawnHeldItem)
                         .in_set(BuildingSet::TriggerBuild),
+                    attach_human_male_camera,
                 )
                     .in_set(MainSet::Update),
             );

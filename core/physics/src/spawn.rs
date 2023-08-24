@@ -8,7 +8,8 @@ use bevy::{
     transform::TransformBundle,
 };
 use bevy_xpbd_3d::prelude::{
-    Collider, CollisionLayers, ExternalForce, Friction, LinearVelocity, RigidBody, Sleeping,
+    Collider, CollisionLayers, ExternalForce, Friction, LinearVelocity, LockedAxes, RigidBody,
+    Sleeping,
 };
 use entity::spawn::EntityBuildData;
 
@@ -16,6 +17,7 @@ pub struct RigidBodyBundle {
     pub collider: Collider,
     pub collider_transform: Transform,
     pub collider_friction: Friction,
+    pub locked_axes: LockedAxes,
     pub rigidbody_dynamic: bool,
     pub collision_events: bool,
 }
@@ -28,6 +30,7 @@ impl Default for RigidBodyBundle {
             collider_friction: Friction::default(),
             rigidbody_dynamic: true,
             collision_events: false,
+            locked_axes: LockedAxes::new(),
         }
     }
 }
@@ -44,6 +47,7 @@ pub struct RigidBodyBuildData {
     pub collider_collision_groups: CollisionLayers,
     pub collision_events: bool,
     pub mesh_offset: Transform,
+    pub locked_axes: LockedAxes,
     // Temporarily not used.
     pub collider_transform: Transform,
 }
@@ -63,6 +67,7 @@ impl Default for RigidBodyBuildData {
             collider_friction: Friction::default(),
             collider_collision_groups: CollisionLayers::from_bits(masks.0, masks.1),
             collision_events: false,
+            locked_axes: LockedAxes::new(),
             mesh_offset: Transform::default(),
         }
     }
@@ -113,6 +118,7 @@ pub fn rigidbody_builder(
         rigidbody_spawn_data.collider_friction,
         masks,
         SFRigidBody,
+        rigidbody_spawn_data.locked_axes,
     ));
 
     let rigid_entity = builder.id();
@@ -193,6 +199,7 @@ pub fn build_rigid_bodies<T: RigidBodyBuilder<NoData> + 'static>(
                 collider_transform: rigidbody_bundle.collider_transform,
                 collider_friction: rigidbody_bundle.collider_friction,
                 collision_events: rigidbody_bundle.collision_events,
+                locked_axes: rigidbody_bundle.locked_axes,
                 ..Default::default()
             },
             spawn_event.spawn_data.entity,

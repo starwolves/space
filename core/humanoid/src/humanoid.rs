@@ -86,7 +86,11 @@ pub const HUMAN_MALE_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "human_mal
 
 use bevy_renet::renet::ServerEvent;
 
-pub(crate) fn humanoid_movement(humanoids: Query<(&Humanoid, &ControllerInput)>) {}
+pub(crate) fn humanoid_movement(humanoids: Query<(&Humanoid, &ControllerInput)>) {
+    /*for (humanoid, input) in humanoids.iter() {
+        info!("{:?}", input.movement_vector);
+    }*/
+}
 
 /// On player disconnect as a function.
 

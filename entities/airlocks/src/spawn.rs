@@ -102,6 +102,7 @@ impl RigidBodyBuilder<NoData> for AirlockType {
             collider_friction: friction,
             rigidbody_dynamic: false,
             collision_events: true,
+            ..Default::default()
         }
     }
 }

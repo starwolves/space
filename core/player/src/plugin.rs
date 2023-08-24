@@ -6,7 +6,7 @@ use crate::connections::{
     buffer_server_events, clear_buffer, process_response, Accounts, AuthidI,
     SendServerConfiguration, ServerEventBuffer,
 };
-use crate::debug_camera::spawn_debug_camera;
+use crate::debug_camera::{spawn_debug_camera, ActivateDebugCamera};
 use crate::net::PlayerServerMessage;
 use crate::{
     boarding::{done_boarding, BoardingAnnouncements, InputUIInputTransmitText},
@@ -79,7 +79,8 @@ impl Plugin for PlayerPlugin {
             )
             .add_plugins(LookTransformPlugin)
             .add_plugins(FpsCameraPlugin::default())
-            .init_resource::<Boarded>();
+            .init_resource::<Boarded>()
+            .add_event::<ActivateDebugCamera>();
         }
         app.init_resource::<SpawnPoints>();
         register_reliable_message::<PlayerServerMessage>(app, MessageSender::Server);

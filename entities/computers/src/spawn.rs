@@ -63,6 +63,7 @@ impl RigidBodyBuilder<NoData> for ComputerType {
             collider_friction: friction,
             rigidbody_dynamic: false,
             collision_events: true,
+            ..Default::default()
         }
     }
 }

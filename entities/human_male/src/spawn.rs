@@ -1,9 +1,15 @@
 use std::collections::{BTreeMap, HashMap};
 
-use bevy::prelude::{
-    info, warn, Commands, EventReader, EventWriter, ResMut, Resource, Transform, Vec3,
+use bevy::{
+    core_pipeline::{fxaa::Fxaa, tonemapping::Tonemapping, Skybox},
+    prelude::{
+        info, warn, BuildChildren, Camera, Camera3dBundle, Commands, EventReader, EventWriter,
+        ResMut, Resource, Transform, Vec3, VisibilityBundle,
+    },
+    transform::TransformBundle,
 };
 use bevy_xpbd_3d::prelude::{CoefficientCombine, Collider, Friction, LockedAxes};
+use cameras::controllers::fps::ActiveCamera;
 use entity::{
     entity_data::{WorldMode, WorldModes},
     entity_macros::Identity,
@@ -17,6 +23,7 @@ use entity::{
         NoData, PawnId, SpawnEntity,
     },
 };
+use graphics::{settings::GraphicsSettings, skybox::SkyboxHandle};
 use humanoid::humanoid::{Humanoid, HUMAN_MALE_ENTITY_NAME};
 use inventory::server::{
     combat::{DamageModel, MeleeCombat},
@@ -157,10 +164,11 @@ impl RigidBodyBuilder<NoData> for HumanMaleType {
         friction.combine_rule = CoefficientCombine::Min;
 
         RigidBodyBundle {
-            collider: Collider::capsule(R, 1.8 - R),
-            collider_transform: Transform::from_translation(Vec3::new(0., 0.011, -0.004)),
+            collider: Collider::capsule(1.8 - R - R, R),
+            collider_transform: Transform::from_translation(Vec3::new(0., 1., 0.)),
             collider_friction: friction,
-            rigidbody_dynamic: false,
+            rigidbody_dynamic: true,
+            locked_axes: LockedAxes::new().lock_rotation_x().lock_rotation_z(),
             ..Default::default()
         }
     }
@@ -186,6 +194,61 @@ pub(crate) fn process_add_slot_buffer(
         event.send(i.clone());
     }
     add_slot.buffer.clear();
+}
+
+pub fn attach_human_male_camera(
+    mut commands: Commands,
+    mut spawn_events: EventReader<SpawnEntity<HumanMaleType>>,
+    mut pawn_id: ResMut<PawnId>,
+    mut state: ResMut<ActiveCamera>,
+    settings: Res<GraphicsSettings>,
+    handle: Res<SkyboxHandle>,
+) {
+    for spawn_event in spawn_events.iter() {
+        let mut is_player_pawn = false;
+
+        match pawn_id.server {
+            Some(server_id) => match spawn_event.spawn_data.server_entity {
+                Some(ent) => {
+                    if server_id == ent {
+                        pawn_id.client = Some(spawn_event.spawn_data.entity);
+                        is_player_pawn = true;
+                        info!("Client pawn id: {:?}", spawn_event.spawn_data.entity);
+                    }
+                }
+                None => {}
+            },
+            None => {}
+        }
+
+        if is_player_pawn {
+            // Add camera.
+            commands
+                .entity(spawn_event.spawn_data.entity)
+                .with_children(|parent| {
+                    let id = parent
+                        .spawn((
+                            Camera3dBundle {
+                                camera: Camera {
+                                    msaa_writeback: settings.msaa.is_enabled(),
+                                    ..Default::default()
+                                },
+                                tonemapping: Tonemapping::ReinhardLuminance,
+                                ..Default::default()
+                            },
+                            Skybox(handle.h.clone_weak()),
+                            Fxaa {
+                                enabled: settings.fxaa.is_some(),
+                                ..Default::default()
+                            },
+                            VisibilityBundle::default(),
+                            TransformBundle::default(),
+                        ))
+                        .id();
+                    state.option = Some(id);
+                });
+        }
+    }
 }
 
 /// human-male specific spawn components and bundles.
