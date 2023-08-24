@@ -6,7 +6,6 @@ use bevy::{
         info, warn, BuildChildren, Camera, Camera3dBundle, Commands, EventReader, EventWriter,
         ResMut, Resource, Transform, Vec3, VisibilityBundle,
     },
-    transform::TransformBundle,
 };
 use bevy_xpbd_3d::prelude::{CoefficientCombine, Collider, Friction, LockedAxes};
 use cameras::controllers::fps::ActiveCamera;
@@ -229,6 +228,11 @@ pub fn attach_human_male_camera(
                     let id = parent
                         .spawn((
                             Camera3dBundle {
+                                transform: Transform::from_translation(Vec3::new(
+                                    0.,
+                                    1.8 - R - R,
+                                    0.,
+                                )),
                                 camera: Camera {
                                     msaa_writeback: settings.msaa.is_enabled(),
                                     ..Default::default()
@@ -242,7 +246,6 @@ pub fn attach_human_male_camera(
                                 ..Default::default()
                             },
                             VisibilityBundle::default(),
-                            TransformBundle::default(),
                         ))
                         .id();
                     state.option = Some(id);
