@@ -20,6 +20,7 @@ pub struct RigidBodyBundle {
     pub locked_axes: LockedAxes,
     pub rigidbody_dynamic: bool,
     pub collision_events: bool,
+    pub external_force: ExternalForce,
 }
 
 impl Default for RigidBodyBundle {
@@ -31,6 +32,7 @@ impl Default for RigidBodyBundle {
             rigidbody_dynamic: true,
             collision_events: false,
             locked_axes: LockedAxes::new(),
+            external_force: ExternalForce::default(),
         }
     }
 }
@@ -134,7 +136,6 @@ pub fn rigidbody_builder(
         t.local.scale = rigidbody_spawn_data.mesh_offset.scale;
         t.local.rotation *= rigidbody_spawn_data.mesh_offset.rotation;
     }
-
     builder.insert((
         t.clone(),
         RigidBodyLink {
@@ -200,6 +201,7 @@ pub fn build_rigid_bodies<T: RigidBodyBuilder<NoData> + 'static>(
                 collider_friction: rigidbody_bundle.collider_friction,
                 collision_events: rigidbody_bundle.collision_events,
                 locked_axes: rigidbody_bundle.locked_axes,
+                external_force: rigidbody_bundle.external_force,
                 ..Default::default()
             },
             spawn_event.spawn_data.entity,

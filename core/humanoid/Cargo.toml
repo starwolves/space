@@ -19,6 +19,7 @@ default-features = false
 vector2math = "0.13.1"
 bevy_renet = "0.0.9"
 const_format = "0.2.31"
+bevy_xpbd_3d = { version = "0.2.0" , features = ["enhanced-determinism"], git = "https://github.com/Jondolf/bevy_xpbd.git", branch="main"}
 
 networking = { path = "../networking" }
 pawn = { path = "../pawn" }
@@ -30,3 +31,4 @@ text_api = { path = "../text_api" }
 controller = { path = "../controller" }
 player = { path = "../player" }
 inventory = { path = "../inventory" }
+physics = { path = "../physics" }

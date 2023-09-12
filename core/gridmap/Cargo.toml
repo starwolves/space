@@ -17,7 +17,7 @@ version = "0.11.2"
 default-features = false
 
 [dependencies]
-bevy_xpbd_3d = { version = "0.2.0" , features = ["enhanced-determinism"], git = "https://github.com/starwolfy/bevy_xpbd.git", branch="fixedtime"}
+bevy_xpbd_3d = { version = "0.2.0" , features = ["enhanced-determinism"], git = "https://github.com/Jondolf/bevy_xpbd.git", branch="main"}
 serde = "1.0.177"
 typename = "0.1.2"
 ron = "0.8.0"

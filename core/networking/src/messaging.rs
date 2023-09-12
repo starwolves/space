@@ -93,7 +93,7 @@ pub fn register_reliable_message<
 ) {
     app.add_systems(
         Startup,
-        reliable_message::<T>.in_set(TypenamesLabel::Generate),
+        reliable_message::<T>.in_set(TypenamesSet::Generate),
     );
 
     let mut client_is_sender = false;
@@ -126,7 +126,7 @@ pub fn register_reliable_message<
         app.add_systems(
             FixedUpdate,
             deserialize_incoming_reliable_server_message::<T>
-                .after(TypenamesLabel::SendRawEvents)
+                .after(TypenamesSet::SendRawEvents)
                 .in_set(MainSet::PreUpdate),
         );
     }
@@ -146,8 +146,9 @@ pub fn register_reliable_message<
         app.add_systems(
             FixedUpdate,
             deserialize_incoming_reliable_client_message::<T>
-                .after(TypenamesLabel::SendRawEvents)
-                .in_set(MainSet::PreUpdate),
+                .after(TypenamesSet::SendRawEvents)
+                .in_set(MainSet::PreUpdate)
+                .in_set(MessagingSet::DeserializeIncoming),
         );
     }
 }
@@ -175,7 +176,7 @@ pub fn register_unreliable_message<
 
     app.add_systems(
         Startup,
-        unreliable_message::<T>.in_set(TypenamesLabel::Generate),
+        unreliable_message::<T>.in_set(TypenamesSet::Generate),
     );
     let mut client_is_sender = false;
     let mut server_is_sender = false;
@@ -206,7 +207,7 @@ pub fn register_unreliable_message<
             .add_systems(
                 FixedUpdate,
                 deserialize_incoming_unreliable_server_message::<T>
-                    .after(TypenamesLabel::SendRawEvents)
+                    .after(TypenamesSet::SendRawEvents)
                     .in_set(MainSet::PreUpdate),
             );
     }
@@ -225,8 +226,9 @@ pub fn register_unreliable_message<
             .add_systems(
                 FixedUpdate,
                 deserialize_incoming_unreliable_client_message::<T>
-                    .after(TypenamesLabel::SendRawEvents)
-                    .in_set(MainSet::PreUpdate),
+                    .after(TypenamesSet::SendRawEvents)
+                    .in_set(MainSet::PreUpdate)
+                    .in_set(MessagingSet::DeserializeIncoming),
             );
     }
 }
@@ -280,7 +282,11 @@ use serde::{Deserialize, Serialize};
 /// Typenames systems ordering label.
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
-pub enum TypenamesLabel {
+pub enum TypenamesSet {
     Generate,
     SendRawEvents,
+}
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
+pub enum MessagingSet {
+    DeserializeIncoming,
 }

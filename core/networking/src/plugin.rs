@@ -18,7 +18,7 @@ use crate::{
     },
     messaging::{
         generate_typenames, register_reliable_message, register_unreliable_message, MessageSender,
-        Typenames, TypenamesLabel,
+        Typenames, TypenamesSet,
     },
     server::{
         receive_incoming_reliable_client_messages, receive_incoming_unreliable_client_messages,
@@ -44,13 +44,13 @@ impl Plugin for NetworkingPlugin {
                 .add_systems(
                     FixedUpdate,
                     receive_incoming_reliable_client_messages
-                        .in_set(TypenamesLabel::SendRawEvents)
+                        .in_set(TypenamesSet::SendRawEvents)
                         .in_set(MainSet::PreUpdate),
                 )
                 .add_systems(
                     FixedUpdate,
                     receive_incoming_unreliable_client_messages
-                        .in_set(TypenamesLabel::SendRawEvents)
+                        .in_set(TypenamesSet::SendRawEvents)
                         .in_set(MainSet::PreUpdate),
                 );
         } else {
@@ -74,14 +74,14 @@ impl Plugin for NetworkingPlugin {
             .add_systems(
                 FixedUpdate,
                 receive_incoming_reliable_server_messages
-                    .in_set(TypenamesLabel::SendRawEvents)
+                    .in_set(TypenamesSet::SendRawEvents)
                     .run_if(resource_exists::<RenetClient>())
                     .in_set(MainSet::PreUpdate),
             )
             .add_systems(
                 FixedUpdate,
                 receive_incoming_unreliable_server_messages
-                    .in_set(TypenamesLabel::SendRawEvents)
+                    .in_set(TypenamesSet::SendRawEvents)
                     .run_if(resource_exists::<RenetClient>())
                     .in_set(MainSet::PreUpdate),
             )
@@ -107,7 +107,7 @@ impl Plugin for NetworkingPlugin {
         app.init_resource::<TickRateStamp>()
             .add_systems(FixedUpdate, step_tickrate_stamp.in_set(MainSet::PreUpdate))
             .init_resource::<Typenames>()
-            .add_systems(Startup, generate_typenames.after(TypenamesLabel::Generate));
+            .add_systems(Startup, generate_typenames.after(TypenamesSet::Generate));
         register_reliable_message::<NetworkingClientMessage>(app, MessageSender::Client);
         register_unreliable_message::<UnreliableServerMessage>(app, MessageSender::Server);
         register_reliable_message::<NetworkingChatServerMessage>(app, MessageSender::Server);

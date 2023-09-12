@@ -1,11 +1,13 @@
 use std::collections::HashMap;
 
 use bevy::{
-    prelude::{warn, Component, Entity, Query, Res, ResMut},
+    prelude::{warn, Component, Entity, Query, Res, ResMut, Vec3, With},
     time::{Timer, TimerMode},
 };
+use bevy_xpbd_3d::prelude::{ExternalForce, LinearVelocity};
 use controller::controller::ControllerInput;
 use entity::health::DamageFlag;
+use physics::entity::{RigidBodies, SFRigidBody};
 use player::connections::ServerEventBuffer;
 
 use std::time::Duration;
@@ -86,10 +88,55 @@ pub const HUMAN_MALE_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "human_mal
 
 use bevy_renet::renet::ServerEvent;
 
-pub(crate) fn humanoid_movement(humanoids: Query<(&Humanoid, &ControllerInput)>) {
-    /*for (humanoid, input) in humanoids.iter() {
-        info!("{:?}", input.movement_vector);
-    }*/
+pub const MOVEMENT_SPEED: f32 = 80.;
+pub const MAX_MOVEMENT_SPEED: f32 = 5.;
+
+pub(crate) fn humanoid_movement(
+    humanoids: Query<(Entity, &Humanoid, &ControllerInput)>,
+    rigidbodies: Res<RigidBodies>,
+    mut rigidbodies_query: Query<(&mut ExternalForce, &LinearVelocity), With<SFRigidBody>>,
+) {
+    for (entity, _humanoid, input) in humanoids.iter() {
+        let rigidbody_entity;
+        match rigidbodies.get_entity_rigidbody(&entity) {
+            Some(bdy) => {
+                rigidbody_entity = bdy;
+            }
+            None => {
+                warn!("Humanoid had no rigidbody.");
+                continue;
+            }
+        }
+
+        match rigidbodies_query.get_mut(*rigidbody_entity) {
+            Ok((mut external_force, velocity)) => {
+                let mut corrected_movement_vector = input.movement_vector.clone();
+                if input.movement_vector.x == 1. && velocity.x > MAX_MOVEMENT_SPEED {
+                    corrected_movement_vector.x = 0.;
+                }
+                if input.movement_vector.x == -1. && velocity.x < -MAX_MOVEMENT_SPEED {
+                    corrected_movement_vector.x = 0.;
+                }
+                if input.movement_vector.y == 1. && velocity.z > MAX_MOVEMENT_SPEED {
+                    corrected_movement_vector.y = 0.;
+                }
+                if input.movement_vector.y == -1. && velocity.z < -MAX_MOVEMENT_SPEED {
+                    corrected_movement_vector.y = 0.;
+                }
+
+                let normalized_movement_vector = corrected_movement_vector.normalize_or_zero();
+
+                external_force.set_force(Vec3::new(
+                    normalized_movement_vector.x * MOVEMENT_SPEED,
+                    0.,
+                    normalized_movement_vector.y * MOVEMENT_SPEED,
+                ));
+            }
+            Err(_rr) => {
+                warn!("Couldnt find ExternalForce component");
+            }
+        }
+    }
 }
 
 /// On player disconnect as a function.

@@ -14,7 +14,7 @@ use bevy::prelude::Local;
 pub struct ActivateDebugCamera;
 
 /// Spawn 3D debug camera on boarding.
-
+/// ONLY MANUALLY ENABLED FOR DEBUGGING. NOT ACTIVELY USED.
 pub(crate) fn spawn_debug_camera(
     mut commands: Commands,
     mut ativates: EventReader<ActivateDebugCamera>,

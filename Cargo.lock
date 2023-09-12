@@ -1195,12 +1195,13 @@ dependencies = [
 [[package]]
 name = "bevy_xpbd_3d"
 version = "0.2.0"
-source = "git+https://github.com/starwolfy/bevy_xpbd.git?branch=fixedtime#0be94c38e351fed21791502f935386e917eac453"
+source = "git+https://github.com/Jondolf/bevy_xpbd.git?branch=main#06e9330dd066cd2cdf1bb9e43719d5d0a0834469"
 dependencies = [
  "bevy",
  "bevy_xpbd_derive",
  "derive_more",
  "fxhash",
+ "glam",
  "indexmap 2.0.0",
  "nalgebra",
  "parry3d",
@@ -1210,7 +1211,7 @@ dependencies = [
 [[package]]
 name = "bevy_xpbd_derive"
 version = "0.1.0"
-source = "git+https://github.com/starwolfy/bevy_xpbd.git?branch=fixedtime#0be94c38e351fed21791502f935386e917eac453"
+source = "git+https://github.com/Jondolf/bevy_xpbd.git?branch=main#06e9330dd066cd2cdf1bb9e43719d5d0a0834469"
 dependencies = [
  "quote",
  "syn 2.0.27",
@@ -2351,7 +2352,9 @@ version = "0.24.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "42218cb640844e3872cc3c153dc975229e080a6c4733b34709ef445610550226"
 dependencies = [
+ "approx",
  "bytemuck",
+ "libm",
  "serde",
 ]
 
@@ -2653,6 +2656,7 @@ version = "0.0.3"
 dependencies = [
  "bevy",
  "bevy_renet",
+ "bevy_xpbd_3d",
  "combat",
  "const_format",
  "controller",
@@ -2660,6 +2664,7 @@ dependencies = [
  "inventory",
  "networking",
  "pawn",
+ "physics",
  "player",
  "resources",
  "sfx",

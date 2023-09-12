@@ -2,9 +2,10 @@ use std::time::Duration;
 
 use crate::connections::connections;
 use crate::input::{
-    controller_input, create_input_map, get_client_input, InputAltItemAttack, InputAttackCell,
-    InputAttackEntity, InputBuildGraphics, InputMouseAction, InputMouseDirectionUpdate,
-    InputMovementInput, InputSprinting, InputToggleAutoMove, InputToggleCombatMode,
+    controller_input, create_input_map, get_client_input, Controller, InputAltItemAttack,
+    InputAttackCell, InputAttackEntity, InputBuildGraphics, InputMouseAction,
+    InputMouseDirectionUpdate, InputMovementInput, InputSet, InputSprinting, InputToggleAutoMove,
+    InputToggleCombatMode,
 };
 use crate::net::{ControllerClientMessage, ControllerUnreliableClientMessage};
 use crate::networking::incoming_messages;
@@ -12,7 +13,7 @@ use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, Startup};
 
 use bevy::time::common_conditions::on_fixed_timer;
 use networking::messaging::{
-    register_reliable_message, register_unreliable_message, MessageSender,
+    register_reliable_message, register_unreliable_message, MessageSender, MessagingSet,
 };
 use player::boarding::BoardingPlayer;
 use resources::is_server::is_server;
@@ -37,11 +38,18 @@ impl Plugin for ControllerPlugin {
                     .in_set(MainSet::Update),
             )
             .add_event::<BoardingPlayer>()
-            .add_systems(FixedUpdate, incoming_messages.in_set(MainSet::PreUpdate));
+            .add_systems(
+                FixedUpdate,
+                incoming_messages
+                    .in_set(InputSet::First)
+                    .in_set(MainSet::PreUpdate)
+                    .after(MessagingSet::DeserializeIncoming),
+            );
         } else {
             app.add_systems(Startup, create_input_map).add_systems(
                 FixedUpdate,
                 get_client_input
+                    .in_set(InputSet::First)
                     .before(UpdateSet::StandardCharacters)
                     .in_set(MainSet::Update),
             );
@@ -50,8 +58,10 @@ impl Plugin for ControllerPlugin {
         app.add_systems(
             FixedUpdate,
             controller_input
+                .after(InputSet::First)
                 .before(UpdateSet::StandardCharacters)
-                .in_set(MainSet::Update),
+                .in_set(MainSet::Update)
+                .in_set(Controller::Input),
         )
         .add_event::<InputMovementInput>()
         .add_event::<InputAttackCell>()

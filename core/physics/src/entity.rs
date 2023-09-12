@@ -173,7 +173,9 @@ pub(crate) fn client_mirror_link_target_transform(
         for link in links.iter() {
             match target_transforms.get_mut(*link) {
                 Ok((mut link, world_mode)) => {
-                    if !matches!(world_mode.mode, WorldModes::Physics) {
+                    if !matches!(world_mode.mode, WorldModes::Physics)
+                        && !matches!(world_mode.mode, WorldModes::Kinematic)
+                    {
                         continue;
                     }
                     let mut fin_transform = rbt.clone();
@@ -223,7 +225,9 @@ pub(crate) fn client_interpolate_link_transform(
         for link in links.iter() {
             match query.get_mut(*link) {
                 Ok((mut transform, link_component, world_mode)) => {
-                    if !matches!(world_mode.mode, WorldModes::Physics) {
+                    if !matches!(world_mode.mode, WorldModes::Physics)
+                        && !matches!(world_mode.mode, WorldModes::Kinematic)
+                    {
                         continue;
                     }
 

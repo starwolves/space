@@ -3,7 +3,7 @@ use crate::{
     net::{ControllerClientMessage, MovementInput},
 };
 use bevy::prelude::{
-    warn, Entity, Event, EventReader, EventWriter, KeyCode, Query, Res, ResMut, Vec2,
+    warn, Entity, Event, EventReader, EventWriter, KeyCode, Query, Res, ResMut, SystemSet, Vec2,
 };
 use entity::spawn::PawnId;
 use networking::client::OutgoingReliableClientMessage;
@@ -52,6 +52,13 @@ pub struct InputMouseAction {
     pub entity: Entity,
     pub pressed: bool,
 }
+
+/// Label for systems ordering.
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
+pub enum InputSet {
+    First,
+}
+
 /// Client input movement event.
 #[derive(Event)]
 pub struct InputMovementInput {
@@ -61,6 +68,19 @@ pub struct InputMovementInput {
     pub right: bool,
     pub down: bool,
     pub pressed: bool,
+}
+
+impl Default for InputMovementInput {
+    fn default() -> Self {
+        Self {
+            player_entity: Entity::from_bits(0),
+            up: false,
+            left: false,
+            right: false,
+            down: false,
+            pressed: false,
+        }
+    }
 }
 
 /// Client input sprinting event.
@@ -156,71 +176,134 @@ pub(crate) fn get_client_input(
             return;
         }
     }
-    let mut pressed_movement = MovementInput::default();
-    pressed_movement.pressed = true;
-    let mut released_movement = MovementInput::default();
-    let mut new_pressed_input = false;
-    let mut new_released_input = false;
-
     if keyboard.just_pressed(MOVE_FORWARD_BIND) {
-        pressed_movement.up = true;
-        new_pressed_input = true;
+        movement_event.send(InputMovementInput {
+            player_entity: pawn_entity,
+            up: true,
+            pressed: true,
+            ..Default::default()
+        });
+        net.send(OutgoingReliableClientMessage {
+            message: ControllerClientMessage::MovementInput(MovementInput {
+                up: true,
+                pressed: true,
+                ..Default::default()
+            }),
+        });
     }
     if keyboard.just_pressed(MOVE_BACKWARD_BIND) {
-        pressed_movement.down = true;
-        new_pressed_input = true;
+        movement_event.send(InputMovementInput {
+            player_entity: pawn_entity,
+            down: true,
+            pressed: true,
+            ..Default::default()
+        });
+        net.send(OutgoingReliableClientMessage {
+            message: ControllerClientMessage::MovementInput(MovementInput {
+                down: true,
+                pressed: true,
+                ..Default::default()
+            }),
+        });
     }
     if keyboard.just_pressed(MOVE_LEFT_BIND) {
-        pressed_movement.left = true;
-        new_pressed_input = true;
+        movement_event.send(InputMovementInput {
+            player_entity: pawn_entity,
+            left: true,
+            pressed: true,
+            ..Default::default()
+        });
+        net.send(OutgoingReliableClientMessage {
+            message: ControllerClientMessage::MovementInput(MovementInput {
+                left: true,
+                pressed: true,
+                ..Default::default()
+            }),
+        });
     }
     if keyboard.just_pressed(MOVE_RIGHT_BIND) {
-        pressed_movement.right = true;
-        new_pressed_input = true;
+        movement_event.send(InputMovementInput {
+            player_entity: pawn_entity,
+            right: true,
+            pressed: true,
+            ..Default::default()
+        });
+        net.send(OutgoingReliableClientMessage {
+            message: ControllerClientMessage::MovementInput(MovementInput {
+                right: true,
+                pressed: true,
+                ..Default::default()
+            }),
+        });
     }
 
     if keyboard.just_released(MOVE_FORWARD_BIND) {
-        released_movement.up = true;
-        new_released_input = true;
+        movement_event.send(InputMovementInput {
+            player_entity: pawn_entity,
+            up: true,
+            pressed: false,
+            ..Default::default()
+        });
+        net.send(OutgoingReliableClientMessage {
+            message: ControllerClientMessage::MovementInput(MovementInput {
+                up: true,
+                pressed: false,
+                ..Default::default()
+            }),
+        });
     }
     if keyboard.just_released(MOVE_BACKWARD_BIND) {
-        released_movement.down = true;
-        new_released_input = true;
+        movement_event.send(InputMovementInput {
+            player_entity: pawn_entity,
+            down: true,
+            pressed: false,
+            ..Default::default()
+        });
+        net.send(OutgoingReliableClientMessage {
+            message: ControllerClientMessage::MovementInput(MovementInput {
+                down: true,
+                pressed: false,
+                ..Default::default()
+            }),
+        });
     }
     if keyboard.just_released(MOVE_LEFT_BIND) {
-        released_movement.left = true;
-        new_released_input = true;
+        movement_event.send(InputMovementInput {
+            player_entity: pawn_entity,
+            left: true,
+            pressed: false,
+            ..Default::default()
+        });
+        net.send(OutgoingReliableClientMessage {
+            message: ControllerClientMessage::MovementInput(MovementInput {
+                left: true,
+                pressed: false,
+                ..Default::default()
+            }),
+        });
     }
     if keyboard.just_released(MOVE_RIGHT_BIND) {
-        released_movement.right = true;
-        new_released_input = true;
-    }
-    if new_pressed_input {
         movement_event.send(InputMovementInput {
             player_entity: pawn_entity,
-            up: pressed_movement.up,
-            left: pressed_movement.left,
-            right: pressed_movement.right,
-            down: pressed_movement.down,
-            pressed: pressed_movement.pressed,
+            right: true,
+            pressed: false,
+            ..Default::default()
         });
         net.send(OutgoingReliableClientMessage {
-            message: ControllerClientMessage::MovementInput(pressed_movement),
+            message: ControllerClientMessage::MovementInput(MovementInput {
+                right: true,
+                pressed: false,
+                ..Default::default()
+            }),
         });
     }
-    if new_released_input {
-        movement_event.send(InputMovementInput {
-            player_entity: pawn_entity,
-            up: released_movement.up,
-            left: released_movement.left,
-            right: released_movement.right,
-            down: released_movement.down,
-            pressed: released_movement.pressed,
-        });
-        net.send(OutgoingReliableClientMessage {
-            message: ControllerClientMessage::MovementInput(released_movement),
-        });
-    }
+}
+
+/// Label for systems ordering.
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
+
+pub enum Controller {
+    Input,
 }
 
 /// Manage controller input for humanoid. The controller can be controlled by a player or AI.
@@ -245,11 +328,23 @@ pub(crate) fn controller_input(
             Ok(mut player_input_component) => {
                 let mut additive = Vec2::default();
 
+                if new_event.left {
+                    additive.x = -1.;
+                } else if new_event.right {
+                    additive.x = 1.;
+                } else if new_event.up {
+                    additive.y = -1.;
+                } else if new_event.down {
+                    additive.y = 1.;
+                }
+
                 if !new_event.pressed {
                     additive *= -1.;
                 }
 
                 player_input_component.movement_vector += additive;
+
+                //info!("{:?}", player_input_component.movement_vector);
             }
             Err(_rr) => {
                 warn!("Couldn't process player input (movement_input_event): couldn't find player_entity 0. {:?}", player_entity);

@@ -7,7 +7,7 @@ use bevy::{
         ResMut, Resource, Transform, Vec3, VisibilityBundle,
     },
 };
-use bevy_xpbd_3d::prelude::{CoefficientCombine, Collider, Friction, LockedAxes};
+use bevy_xpbd_3d::prelude::{CoefficientCombine, Collider, ExternalForce, Friction, LockedAxes};
 use cameras::controllers::fps::ActiveCamera;
 use entity::{
     entity_data::{WorldMode, WorldModes},
@@ -162,12 +162,19 @@ impl RigidBodyBuilder<NoData> for HumanMaleType {
         let mut friction = Friction::new(CHARACTER_FLOOR_FRICTION);
         friction.combine_rule = CoefficientCombine::Min;
 
+        let mut ext_f = ExternalForce::default();
+        ext_f.persistent = false;
+
         RigidBodyBundle {
             collider: Collider::capsule(1.8 - R - R, R),
             collider_transform: Transform::from_translation(Vec3::new(0., 1., 0.)),
             collider_friction: friction,
             rigidbody_dynamic: true,
-            locked_axes: LockedAxes::new().lock_rotation_x().lock_rotation_z(),
+            locked_axes: LockedAxes::new()
+                .lock_rotation_x()
+                .lock_rotation_z()
+                .lock_rotation_y(),
+            external_force: ext_f,
             ..Default::default()
         }
     }
@@ -268,7 +275,6 @@ pub fn build_human_males(
                 Some(ent) => {
                     if server_id == ent {
                         pawn_id.client = Some(spawn_event.spawn_data.entity);
-                        info!("Client pawn id: {:?}", spawn_event.spawn_data.entity);
                     }
                 }
                 None => {}
