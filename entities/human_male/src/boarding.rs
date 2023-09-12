@@ -17,9 +17,10 @@ use setup_menu::core::SetupUiUserDataSets;
 
 use entity::spawn::SpawnEntity;
 
-use crate::spawn::HumanMaleType;
 use pawn::pawn::Pawn;
 use player::boarding::PlayerBoarded;
+
+use crate::spawn::HumanMaleType;
 
 /// Spawn player as human male with preset inventory.
 

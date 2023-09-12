@@ -161,3 +161,6 @@ pub enum DataLinkType {
 pub trait PawnBuilder: Send + Sync {
     fn get_spawn_pawn_data(&self) -> SpawnPawnData;
 }
+// Entity with this component is controleld by the local client.
+#[derive(Component)]
+pub struct ClientPawn;

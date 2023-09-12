@@ -32,3 +32,4 @@ controller = { path = "../controller" }
 player = { path = "../player" }
 inventory = { path = "../inventory" }
 physics = { path = "../physics" }
+cameras = { path = "../cameras" }

@@ -2,6 +2,8 @@
 
 /// Manage pawn actions.
 mod actions;
+pub mod camera;
+pub mod net;
 /// Pawn resources.
 pub mod pawn;
 /// The Bevy plugin of this crate.

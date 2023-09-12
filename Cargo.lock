@@ -2657,6 +2657,7 @@ dependencies = [
  "bevy",
  "bevy_renet",
  "bevy_xpbd_3d",
+ "cameras",
  "combat",
  "const_format",
  "controller",
@@ -3769,9 +3770,12 @@ dependencies = [
  "actions",
  "bevy",
  "bevy_xpbd_3d",
+ "cameras",
  "entity",
  "networking",
  "resources",
+ "serde",
+ "typename",
 ]
 
 [[package]]

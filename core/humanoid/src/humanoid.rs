@@ -1,10 +1,11 @@
 use std::collections::HashMap;
 
 use bevy::{
-    prelude::{warn, Component, Entity, Query, Res, ResMut, Vec3, With},
+    prelude::{info, warn, Component, Entity, Query, Res, ResMut, Vec3, With},
     time::{Timer, TimerMode},
 };
 use bevy_xpbd_3d::prelude::{ExternalForce, LinearVelocity};
+use cameras::LookTransform;
 use controller::controller::ControllerInput;
 use entity::health::DamageFlag;
 use physics::entity::{RigidBodies, SFRigidBody};
@@ -92,11 +93,12 @@ pub const MOVEMENT_SPEED: f32 = 80.;
 pub const MAX_MOVEMENT_SPEED: f32 = 5.;
 
 pub(crate) fn humanoid_movement(
-    humanoids: Query<(Entity, &Humanoid, &ControllerInput)>,
+    humanoids: Query<(Entity, &Humanoid, &ControllerInput, &LookTransform)>,
     rigidbodies: Res<RigidBodies>,
     mut rigidbodies_query: Query<(&mut ExternalForce, &LinearVelocity), With<SFRigidBody>>,
 ) {
-    for (entity, _humanoid, input) in humanoids.iter() {
+    for (entity, _humanoid, input, look_transform) in humanoids.iter() {
+        info!("{:?}", look_transform.target);
         let rigidbody_entity;
         match rigidbodies.get_entity_rigidbody(&entity) {
             Some(bdy) => {

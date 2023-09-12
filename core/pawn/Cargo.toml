@@ -18,8 +18,11 @@ default-features = false
 
 [dependencies]
 bevy_xpbd_3d = { version = "0.2.0" , features = ["enhanced-determinism"], git = "https://github.com/Jondolf/bevy_xpbd.git", branch="main"}
+serde = "1.0.177"
+typename = "0.1.2"
 
 networking = { path = "../networking"}
 actions = { path = "../actions" }
 resources = { path = "../resources" }
 entity = { path = "../entity" }
+cameras = { path = "../cameras" }

@@ -3,18 +3,12 @@ use crate::{LookAngles, LookTransform, LookTransformBundle, Smoother};
 use bevy::{
     app::prelude::*,
     ecs::{bundle::Bundle, prelude::*},
-    input::{mouse::MouseMotion, prelude::*},
+    input::mouse::MouseMotion,
     math::prelude::*,
     time::Time,
     transform::components::Transform,
 };
-use resources::{
-    hud::HudState,
-    input::{
-        KeyBinds, HOLD_SPRINT_BIND, JUMP_BIND, MOVE_BACKWARD_BIND, MOVE_FORWARD_BIND,
-        MOVE_LEFT_BIND, MOVE_RIGHT_BIND,
-    },
-};
+use resources::hud::HudState;
 use serde::{Deserialize, Serialize};
 
 #[derive(Default)]
@@ -96,11 +90,9 @@ define_on_controller_enabled_changed!(FpsCameraController);
 
 pub fn default_input_map(
     mut events: EventWriter<ControlEvent>,
-    keyboard: Res<Input<KeyCode>>,
     mut mouse_motion_events: EventReader<MouseMotion>,
     controllers: Query<&FpsCameraController>,
     hud_state: Res<HudState>,
-    binds: Res<KeyBinds>,
 ) {
     // Can only control one camera at a time.
     let controller = if let Some(controller) = controllers.iter().find(|c| c.enabled) {
@@ -112,7 +104,6 @@ pub fn default_input_map(
         return;
     }
     let FpsCameraController {
-        translate_sensitivity,
         mouse_rotate_sensitivity,
         ..
     } = *controller;
@@ -126,7 +117,7 @@ pub fn default_input_map(
         mouse_rotate_sensitivity * cursor_delta,
     ));
 
-    for (key, dir) in [
+    /*for (key, dir) in [
         (binds.keyboard_bind(MOVE_FORWARD_BIND), Vec3::Z),
         (binds.keyboard_bind(MOVE_LEFT_BIND), Vec3::X),
         (binds.keyboard_bind(MOVE_BACKWARD_BIND), -Vec3::Z),
@@ -140,7 +131,7 @@ pub fn default_input_map(
         if keyboard.pressed(key) {
             events.send(ControlEvent::TranslateEye(translate_sensitivity * dir));
         }
-    }
+    }*/
 }
 
 #[derive(Resource, Default)]

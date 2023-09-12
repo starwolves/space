@@ -8,7 +8,10 @@ use bevy::{
     },
 };
 use bevy_xpbd_3d::prelude::{CoefficientCombine, Collider, ExternalForce, Friction, LockedAxes};
-use cameras::controllers::fps::ActiveCamera;
+use cameras::{
+    controllers::fps::{ActiveCamera, FpsCameraController},
+    LookTransform, LookTransformBundle, Smoother,
+};
 use entity::{
     entity_data::{WorldMode, WorldModes},
     entity_macros::Identity,
@@ -29,7 +32,7 @@ use inventory::server::{
     inventory::{AddItemToSlot, AddSlot, Inventory, Slot},
 };
 use map::map::Map;
-use pawn::pawn::{DataLink, DataLinkType, PawnBuilder};
+use pawn::pawn::{ClientPawn, DataLink, DataLinkType, PawnBuilder};
 use pawn::pawn::{PawnDesignation, ShipAuthorization, ShipAuthorizationEnum, SpawnPawnData};
 use physics::physics::CHARACTER_FLOOR_FRICTION;
 use physics::spawn::{RigidBodyBuilder, RigidBodyBundle};
@@ -202,6 +205,14 @@ pub(crate) fn process_add_slot_buffer(
     add_slot.buffer.clear();
 }
 
+fn default_look_transform() -> LookTransform {
+    LookTransform::new(
+        Vec3::new(0., 1.8 - R - R, 0.),
+        Vec3::new(0., 1.8 - R - R, -2.),
+        Vec3::Y,
+    )
+}
+
 pub fn attach_human_male_camera(
     mut commands: Commands,
     mut spawn_events: EventReader<SpawnEntity<HumanMaleType>>,
@@ -219,6 +230,9 @@ pub fn attach_human_male_camera(
                     if server_id == ent {
                         pawn_id.client = Some(spawn_event.spawn_data.entity);
                         is_player_pawn = true;
+                        commands
+                            .entity(spawn_event.spawn_data.entity)
+                            .insert(ClientPawn);
                         info!("Client pawn id: {:?}", spawn_event.spawn_data.entity);
                     }
                 }
@@ -232,6 +246,7 @@ pub fn attach_human_male_camera(
             commands
                 .entity(spawn_event.spawn_data.entity)
                 .with_children(|parent| {
+                    let controller = FpsCameraController::default();
                     let id = parent
                         .spawn((
                             Camera3dBundle {
@@ -247,6 +262,11 @@ pub fn attach_human_male_camera(
                                 tonemapping: Tonemapping::ReinhardLuminance,
                                 ..Default::default()
                             },
+                            LookTransformBundle {
+                                transform: default_look_transform(),
+                                smoother: Smoother::new(controller.smoothing_weight),
+                            },
+                            controller,
                             Skybox(handle.h.clone_weak()),
                             Fxaa {
                                 enabled: settings.fxaa.is_some(),
@@ -346,6 +366,7 @@ pub fn build_human_males(
         first_damage_flags.insert(0, DamageFlag::SoftDamage);
         spawner.insert((
             Humanoid::default(),
+            default_look_transform(),
             WorldMode {
                 mode: WorldModes::Kinematic,
             },
