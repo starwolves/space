@@ -1,7 +1,7 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, ops::Mul};
 
 use bevy::{
-    prelude::{info, warn, Component, Entity, Query, Res, ResMut, Vec3, With},
+    prelude::{warn, Component, Entity, Query, Res, ResMut, Vec2, Vec3, With},
     time::{Timer, TimerMode},
 };
 use bevy_xpbd_3d::prelude::{ExternalForce, LinearVelocity};
@@ -98,7 +98,6 @@ pub(crate) fn humanoid_movement(
     mut rigidbodies_query: Query<(&mut ExternalForce, &LinearVelocity), With<SFRigidBody>>,
 ) {
     for (entity, _humanoid, input, look_transform) in humanoids.iter() {
-        info!("{:?}", look_transform.target);
         let rigidbody_entity;
         match rigidbodies.get_entity_rigidbody(&entity) {
             Some(bdy) => {
@@ -127,11 +126,19 @@ pub(crate) fn humanoid_movement(
                 }
 
                 let normalized_movement_vector = corrected_movement_vector.normalize_or_zero();
+                let normalized_look_vector_vec3 = look_transform.target.normalize();
+                let normalized_look_vector_vec2 =
+                    Vec2::new(normalized_look_vector_vec3.x, normalized_look_vector_vec3.z);
+
+                let xform_movement = normalized_movement_vector
+                    .rotate(normalized_look_vector_vec2)
+                    .perp()
+                    .normalize_or_zero();
 
                 external_force.set_force(Vec3::new(
-                    normalized_movement_vector.x * MOVEMENT_SPEED,
+                    xform_movement.x * MOVEMENT_SPEED,
                     0.,
-                    normalized_movement_vector.y * MOVEMENT_SPEED,
+                    xform_movement.y * MOVEMENT_SPEED,
                 ));
             }
             Err(_rr) => {
