@@ -99,27 +99,13 @@ pub(crate) fn humanoid_movement(
 
         match rigidbodies_query.get_mut(*rigidbody_entity) {
             Ok((mut external_force, velocity)) => {
-                let mut corrected_movement_vector = input.movement_vector.clone();
-                if input.movement_vector.x == 1. && velocity.x > MAX_MOVEMENT_SPEED {
-                    corrected_movement_vector.x = 0.;
-                }
-                if input.movement_vector.x == -1. && velocity.x < -MAX_MOVEMENT_SPEED {
-                    corrected_movement_vector.x = 0.;
-                }
-                if input.movement_vector.y == 1. && velocity.z > MAX_MOVEMENT_SPEED {
-                    corrected_movement_vector.y = 0.;
-                }
-                if input.movement_vector.y == -1. && velocity.z < -MAX_MOVEMENT_SPEED {
-                    corrected_movement_vector.y = 0.;
-                }
-
                 let mut max_speed_substract = Vec3::ZERO;
 
                 if velocity.length() > MAX_MOVEMENT_SPEED {
                     max_speed_substract = velocity.normalize();
                 }
 
-                let normalized_movement_vector = corrected_movement_vector.normalize_or_zero();
+                let normalized_movement_vector = input.movement_vector.normalize_or_zero();
                 let normalized_look_vector_vec3 = look_transform.target.normalize();
                 let normalized_look_vector_vec2 =
                     Vec2::new(normalized_look_vector_vec3.x, normalized_look_vector_vec3.z);
