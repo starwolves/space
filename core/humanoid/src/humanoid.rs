@@ -77,7 +77,7 @@ pub const HUMAN_MALE_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "human_mal
 
 use bevy_renet::renet::ServerEvent;
 
-pub const MOVEMENT_SPEED: f32 = 80.;
+pub const MOVEMENT_FORCE: f32 = 80.;
 pub const MAX_MOVEMENT_SPEED: f32 = 5.;
 
 pub(crate) fn humanoid_movement(
@@ -113,6 +113,12 @@ pub(crate) fn humanoid_movement(
                     corrected_movement_vector.y = 0.;
                 }
 
+                let mut max_speed_substract = Vec3::ZERO;
+
+                if velocity.length() > MAX_MOVEMENT_SPEED {
+                    max_speed_substract = velocity.normalize();
+                }
+
                 let normalized_movement_vector = corrected_movement_vector.normalize_or_zero();
                 let normalized_look_vector_vec3 = look_transform.target.normalize();
                 let normalized_look_vector_vec2 =
@@ -124,9 +130,9 @@ pub(crate) fn humanoid_movement(
                     .normalize_or_zero();
 
                 external_force.set_force(Vec3::new(
-                    xform_movement.x * MOVEMENT_SPEED,
+                    (xform_movement.x - max_speed_substract.x) * MOVEMENT_FORCE,
                     0.,
-                    xform_movement.y * MOVEMENT_SPEED,
+                    (xform_movement.y - max_speed_substract.z) * MOVEMENT_FORCE,
                 ));
             }
             Err(_rr) => {
