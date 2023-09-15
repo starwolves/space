@@ -231,6 +231,14 @@ pub(crate) fn client_interpolate_link_transform(
                         continue;
                     }
 
+                    if link_component
+                        .target_transform
+                        .translation
+                        .distance(link_component.origin_transfom.translation)
+                        < 0.04
+                    {
+                        continue;
+                    }
                     let hermite = Hermite::new(
                         vec![
                             link_component.origin_transfom.translation,
