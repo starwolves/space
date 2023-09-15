@@ -1,4 +1,4 @@
-use std::{collections::HashMap, ops::Mul};
+use std::collections::HashMap;
 
 use bevy::{
     prelude::{warn, Component, Entity, Query, Res, ResMut, Vec2, Vec3, With},
@@ -65,18 +65,6 @@ impl Default for Humanoid {
         }
     }
 }
-
-const _JOG_SPEED: f32 = 3031.44;
-
-const _RUN_SPEED: f32 = 3031.44;
-
-const _MAX_JOG_SPEED: f32 = 10.;
-
-const _MAX_RUN_SPEED: f32 = 14.;
-
-const _COMBAT_ROTATION_SPEED: f32 = 18.;
-
-const _DOWN_FORCE: f32 = -1.0;
 
 use networking::server::HandleToEntity;
 
