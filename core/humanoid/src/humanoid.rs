@@ -4,7 +4,7 @@ use bevy::{
     prelude::{warn, Component, Entity, Query, Res, ResMut, Vec2, Vec3, With},
     time::{Timer, TimerMode},
 };
-use bevy_xpbd_3d::prelude::{ExternalForce, LinearVelocity};
+use bevy_xpbd_3d::prelude::LinearVelocity;
 use cameras::LookTransform;
 use controller::controller::ControllerInput;
 use entity::health::DamageFlag;
@@ -83,7 +83,7 @@ pub const MAX_MOVEMENT_SPEED: f32 = 5.;
 pub(crate) fn humanoid_movement(
     humanoids: Query<(Entity, &Humanoid, &ControllerInput, &LookTransform)>,
     rigidbodies: Res<RigidBodies>,
-    mut rigidbodies_query: Query<(&mut ExternalForce, &LinearVelocity), With<SFRigidBody>>,
+    mut rigidbodies_query: Query<&mut LinearVelocity, With<SFRigidBody>>,
 ) {
     for (entity, _humanoid, input, look_transform) in humanoids.iter() {
         let rigidbody_entity;
@@ -98,13 +98,7 @@ pub(crate) fn humanoid_movement(
         }
 
         match rigidbodies_query.get_mut(*rigidbody_entity) {
-            Ok((mut external_force, velocity)) => {
-                let mut max_speed_substract = Vec3::ZERO;
-
-                if velocity.length() > MAX_MOVEMENT_SPEED {
-                    max_speed_substract = velocity.normalize();
-                }
-
+            Ok(mut velocity) => {
                 let normalized_movement_vector = input.movement_vector.normalize_or_zero();
                 let normalized_look_vector_vec3 = look_transform.target.normalize();
                 let normalized_look_vector_vec2 =
@@ -115,11 +109,11 @@ pub(crate) fn humanoid_movement(
                     .perp()
                     .normalize_or_zero();
 
-                external_force.set_force(Vec3::new(
-                    (xform_movement.x - max_speed_substract.x) * MOVEMENT_FORCE,
+                velocity.0 = Vec3::new(
+                    xform_movement.x * MAX_MOVEMENT_SPEED,
                     0.,
-                    (xform_movement.y - max_speed_substract.z) * MOVEMENT_FORCE,
-                ));
+                    xform_movement.y * MAX_MOVEMENT_SPEED,
+                );
             }
             Err(_rr) => {
                 warn!("Couldnt find ExternalForce component");
