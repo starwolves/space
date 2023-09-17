@@ -233,10 +233,23 @@ pub fn register_unreliable_message<
     }
 }
 
-/// Wrapper for reliable messages.
+/// Wrapper for reliable server messages.
 #[derive(Serialize, Deserialize)]
-
-pub struct ReliableMessage {
+pub struct ReliableServerMessage {
+    // The message.
+    pub serialized: Vec<u8>,
+    // The message type.
+    pub typename_net: u16,
+    // The confirmed tick stamp.
+    pub stamp: u8,
+    // The tick adjustment.
+    //pub tick_adjustment: u8,
+    // The tick adjustment iteration.
+    //pub adjustment_iteration: u8,
+}
+/// Wrapper for reliable client messages.
+#[derive(Serialize, Deserialize)]
+pub struct ReliableClientMessage {
     pub serialized: Vec<u8>,
     pub typename_net: u16,
     pub stamp: u8,

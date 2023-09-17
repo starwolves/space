@@ -115,6 +115,6 @@ impl Plugin for NetworkingPlugin {
     }
 }
 
-pub const RENET_RELIABLE_CHANNEL_ID: u8 = 0;
-pub const RENET_UNRELIABLE_CHANNEL_ID: u8 = 1;
-pub const RENET_BLOCKING_CHANNEL_ID: u8 = 2;
+pub const RENET_UNRELIABLE_CHANNEL_ID: u8 = 0;
+pub const RENET_RELIABLE_UNORDERED_CHANNEL_ID: u8 = 1;
+pub const RENET_RELIABLE_ORDERED_ID: u8 = 2;

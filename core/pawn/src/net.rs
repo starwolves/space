@@ -4,6 +4,6 @@ use typename::TypeName;
 
 #[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
 
-pub enum PawnClientMessage {
+pub enum MouseMessage {
     SyncLookTransform(Vec3),
 }

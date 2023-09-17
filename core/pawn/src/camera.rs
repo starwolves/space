@@ -2,11 +2,11 @@ use bevy::prelude::{warn, EventReader, EventWriter, Local, Query, Res, SystemSet
 use cameras::{controllers::fps::ActiveCamera, LookTransform};
 use entity::spawn::PawnId;
 use networking::{
-    client::OutgoingReliableClientMessage,
-    server::{HandleToEntity, IncomingReliableClientMessage},
+    client::OutgoingUnreliableClientMessage,
+    server::{HandleToEntity, IncomingUnreliableClientMessage},
 };
 
-use crate::net::PawnClientMessage;
+use crate::net::MouseMessage;
 
 /// Label for systems ordering.
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
@@ -16,7 +16,7 @@ pub enum LookTransformSet {
 
 pub(crate) fn client_sync_look_transform(
     mut look_transform_query: Query<&mut LookTransform>,
-    mut events: EventWriter<OutgoingReliableClientMessage<PawnClientMessage>>,
+    mut events: EventWriter<OutgoingUnreliableClientMessage<MouseMessage>>,
     mut prev_target: Local<Vec3>,
     state: Res<ActiveCamera>,
     pawn_id: Res<PawnId>,
@@ -34,9 +34,10 @@ pub(crate) fn client_sync_look_transform(
     match look_transform_query.get(camera_entity) {
         Ok(look_transform) => {
             if *prev_target != look_transform.target {
-                events.send(OutgoingReliableClientMessage {
-                    message: PawnClientMessage::SyncLookTransform(look_transform.target),
+                events.send(OutgoingUnreliableClientMessage {
+                    message: MouseMessage::SyncLookTransform(look_transform.target),
                 });
+
                 *prev_target = look_transform.target;
             }
             lk = look_transform.clone();
@@ -62,12 +63,12 @@ pub(crate) fn client_sync_look_transform(
 
 pub(crate) fn server_sync_look_transform(
     mut humanoids: Query<&mut LookTransform>,
-    mut messages: EventReader<IncomingReliableClientMessage<PawnClientMessage>>,
+    mut messages: EventReader<IncomingUnreliableClientMessage<MouseMessage>>,
     handle_to_entity: Res<HandleToEntity>,
 ) {
     for msg in messages.iter() {
         match msg.message {
-            PawnClientMessage::SyncLookTransform(target) => {
+            MouseMessage::SyncLookTransform(target) => {
                 match handle_to_entity.map.get(&msg.handle) {
                     Some(entity) => match humanoids.get_mut(*entity) {
                         Ok(mut look_transform) => {
