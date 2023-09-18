@@ -86,7 +86,7 @@ use crate::{
 /// All reliable networking messages must be registered with this system.
 
 pub fn register_reliable_message<
-    T: TypeName + Send + Sync + Serialize + for<'a> Deserialize<'a> + 'static,
+    T: TypeName + Send + Sync + Clone + Serialize + for<'a> Deserialize<'a> + 'static,
 >(
     app: &mut App,
     sender: MessageSender,
@@ -156,7 +156,7 @@ use resources::is_server::is_server;
 
 /// All unreliable networking messages must be registered with this system.
 pub fn register_unreliable_message<
-    T: TypeName + Send + Sync + Serialize + for<'a> Deserialize<'a> + 'static,
+    T: TypeName + Send + Sync + Serialize + Clone + for<'a> Deserialize<'a> + 'static,
 >(
     app: &mut App,
     sender: MessageSender,

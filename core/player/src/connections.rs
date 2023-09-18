@@ -236,7 +236,7 @@ use bevy_renet::renet::transport::NetcodeServerTransport;
 use entity::despawn::DespawnEntity;
 use futures_lite::future;
 use networking::server::{NetworkingServerMessage, OutgoingReliableServerMessage, StartSync};
-use networking::sync::TickRateStamp;
+use networking::stamp::TickRateStamp;
 use resources::core::TickRate;
 use serde::{Deserialize, Serialize};
 

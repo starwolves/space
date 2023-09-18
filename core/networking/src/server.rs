@@ -1,6 +1,6 @@
 use bevy::{
     math::{Vec2, Vec3},
-    prelude::{info, Component, Entity, Event, Quat, Resource, SystemSet},
+    prelude::{info, Component, Entity, Event, Local, Quat, Resource, SystemSet},
 };
 use resources::core::TickRate;
 use serde::{Deserialize, Serialize};
@@ -66,7 +66,7 @@ use crate::{
         UnreliableServerMessageBatch,
     },
     plugin::RENET_RELIABLE_ORDERED_ID,
-    sync::TickRateStamp,
+    stamp::TickRateStamp,
 };
 
 /// Obtain player souls, mwahahhaa. (=^.^=)
@@ -333,61 +333,109 @@ use crate::client::get_unreliable_message;
 use bevy::prelude::EventWriter;
 
 pub(crate) fn deserialize_incoming_unreliable_client_message<
-    T: TypeName + Send + Sync + Serialize + for<'a> Deserialize<'a> + 'static,
+    T: TypeName + Send + Sync + Serialize + Clone + for<'a> Deserialize<'a> + 'static,
 >(
     mut incoming_raw: EventReader<IncomingRawUnreliableClientMessage>,
     mut outgoing: EventWriter<IncomingUnreliableClientMessage<T>>,
     typenames: Res<Typenames>,
+    stamp: Res<TickRateStamp>,
+    mut queue: Local<HashMap<u8, Vec<IncomingUnreliableClientMessage<T>>>>,
 ) {
     for event in incoming_raw.iter() {
         for message in event.message.messages.iter() {
             match get_unreliable_message::<T>(&typenames, message.typename_net, &message.serialized)
             {
                 Some(data) => {
-                    outgoing.send(IncomingUnreliableClientMessage {
+                    let r = IncomingUnreliableClientMessage {
                         message: data,
                         handle: event.handle,
-                    });
+                        stamp: event.message.stamp,
+                    };
+                    match queue.get_mut(&event.message.stamp) {
+                        Some(v) => v.push(r),
+                        None => {
+                            queue.insert(event.message.stamp, vec![r]);
+                        }
+                    }
                 }
                 None => {}
             }
         }
+    }
+
+    match queue.get_mut(&stamp.stamp) {
+        Some(v) => {
+            for msg in v.clone() {
+                outgoing.send(msg);
+            }
+            v.clear();
+        }
+        None => {}
     }
 }
 use crate::messaging::get_reliable_message;
 
 pub(crate) fn deserialize_incoming_reliable_client_message<
-    T: TypeName + Send + Sync + Serialize + for<'a> Deserialize<'a> + 'static,
+    T: TypeName + Send + Sync + Serialize + Clone + for<'a> Deserialize<'a> + 'static,
 >(
     mut incoming_raw: EventReader<IncomingRawReliableClientMessage>,
     mut outgoing: EventWriter<IncomingReliableClientMessage<T>>,
     typenames: Res<Typenames>,
+    stamp: Res<TickRateStamp>,
+    mut queue: Local<HashMap<u8, Vec<IncomingReliableClientMessage<T>>>>,
 ) {
     for event in incoming_raw.iter() {
         for message in event.message.messages.iter() {
             match get_reliable_message::<T>(&typenames, message.typename_net, &message.serialized) {
                 Some(data) => {
-                    outgoing.send(IncomingReliableClientMessage {
+                    let r = IncomingReliableClientMessage {
                         message: data,
                         handle: event.handle,
-                    });
+                        stamp: event.message.stamp,
+                    };
+
+                    if stamp.stamp > event.message.stamp
+                        || (event.message.stamp - stamp.stamp) > 182
+                    {
+                        outgoing.send(r);
+                        continue;
+                    }
+
+                    match queue.get_mut(&event.message.stamp) {
+                        Some(v) => v.push(r),
+                        None => {
+                            queue.insert(event.message.stamp, vec![r]);
+                        }
+                    }
                 }
                 None => {}
             }
         }
     }
+
+    match queue.get_mut(&stamp.stamp) {
+        Some(v) => {
+            for msg in v.clone() {
+                outgoing.send(msg);
+            }
+            v.clear();
+        }
+        None => {}
+    }
 }
 ///  Messages that you receive with this event must be initiated from a plugin builder with [crate::messaging::init_reliable_message].
-#[derive(Event)]
+#[derive(Event, Clone)]
 pub struct IncomingReliableClientMessage<T: TypeName + Send + Sync + Serialize> {
     pub handle: u64,
     pub message: T,
+    pub stamp: u8,
 }
 ///  Messages that you receive with this event must be initiated from a plugin builder with [crate::messaging::init_unreliable_message].
-#[derive(Event)]
-pub struct IncomingUnreliableClientMessage<T: TypeName + Send + Sync + Serialize> {
+#[derive(Event, Clone)]
+pub struct IncomingUnreliableClientMessage<T: TypeName + Send + Sync + Serialize + Clone> {
     pub handle: u64,
     pub message: T,
+    pub stamp: u8,
 }
 
 /// Deserializes header of incoming client messages and writes to event.

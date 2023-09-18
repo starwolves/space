@@ -21,7 +21,7 @@ use crate::{
     },
     plugin::RENET_RELIABLE_ORDERED_ID,
     server::PROTOCOL_ID,
-    sync::TickRateStamp,
+    stamp::TickRateStamp,
 };
 
 /// Resource containing needed for the server.
@@ -427,7 +427,10 @@ pub(crate) fn deserialize_incoming_unreliable_server_message<
             match get_unreliable_message::<T>(&typenames, message.typename_net, &message.serialized)
             {
                 Some(data) => {
-                    outgoing.send(IncomingUnreliableServerMessage { message: data });
+                    outgoing.send(IncomingUnreliableServerMessage {
+                        message: data,
+                        stamp: event.message.stamp,
+                    });
                 }
                 None => {}
             }
@@ -447,7 +450,10 @@ pub(crate) fn deserialize_incoming_reliable_server_message<
         for message in event.message.messages.iter() {
             match get_reliable_message::<T>(&typenames, message.typename_net, &message.serialized) {
                 Some(data) => {
-                    outgoing.send(IncomingReliableServerMessage { message: data });
+                    outgoing.send(IncomingReliableServerMessage {
+                        message: data,
+                        stamp: event.message.stamp,
+                    });
                 }
                 None => {}
             }
@@ -458,11 +464,13 @@ pub(crate) fn deserialize_incoming_reliable_server_message<
 #[derive(Event)]
 pub struct IncomingReliableServerMessage<T: TypeName + Send + Sync + Serialize> {
     pub message: T,
+    pub stamp: u8,
 }
 ///  Messages that you receive with this event must be initiated from a plugin builder with [crate::messaging::init_unreliable_message].
 #[derive(Event)]
 pub struct IncomingUnreliableServerMessage<T: TypeName + Send + Sync + Serialize> {
     pub message: T,
+    pub stamp: u8,
 }
 
 /// Dezerializes incoming server messages and writes to event.

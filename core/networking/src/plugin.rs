@@ -26,7 +26,7 @@ use crate::{
         NetworkingChatServerMessage, NetworkingClientMessage, NetworkingServerMessage,
         UnreliableServerMessage,
     },
-    sync::{setup_client_tickrate_stamp, step_tickrate_stamp, TickRateStamp},
+    stamp::{setup_client_tickrate_stamp, step_tickrate_stamp, TickRateStamp},
 };
 pub struct NetworkingPlugin;
 

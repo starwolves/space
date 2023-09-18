@@ -6,7 +6,7 @@ use entity::{
     spawn::SpawnItemSet,
 };
 
-use networking::sync::step_tickrate_stamp;
+use networking::stamp::step_tickrate_stamp;
 use physics::spawn::build_rigid_bodies;
 use player::boarding::player_boarded;
 use resources::{
