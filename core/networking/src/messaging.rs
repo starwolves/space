@@ -234,12 +234,19 @@ pub fn register_unreliable_message<
 }
 
 /// Wrapper for reliable server messages.
-#[derive(Serialize, Deserialize)]
-pub struct ReliableServerMessage {
+#[derive(Serialize, Deserialize, Clone)]
+pub struct ReliableMessage {
     // The message.
     pub serialized: Vec<u8>,
     // The message type.
     pub typename_net: u16,
+}
+
+/// Batch of reliable server messages.
+#[derive(Serialize, Deserialize)]
+pub struct ReliableServerMessageBatch {
+    // The messages of this batch.
+    pub messages: Vec<ReliableMessage>,
     // The confirmed tick stamp.
     pub stamp: u8,
     // The tick adjustment.
@@ -247,20 +254,34 @@ pub struct ReliableServerMessage {
     // The tick adjustment iteration.
     //pub adjustment_iteration: u8,
 }
-/// Wrapper for reliable client messages.
+
+/// Batch of reliable client messages.
 #[derive(Serialize, Deserialize)]
-pub struct ReliableClientMessage {
-    pub serialized: Vec<u8>,
-    pub typename_net: u16,
+pub struct ReliableClientMessageBatch {
+    pub messages: Vec<ReliableMessage>,
+    pub stamp: u8,
+}
+/// Batch of unreliable messages.
+#[derive(Serialize, Deserialize)]
+pub(crate) struct UnreliableServerMessageBatch {
+    pub messages: Vec<UnreliableMessage>,
+    pub stamp: u8,
+    // The tick adjustment.
+    //pub tick_adjustment: u8,
+    // The tick adjustment iteration.
+    //pub adjustment_iteration: u8,
+}
+/// Batch of unreliable messages.
+#[derive(Serialize, Deserialize)]
+pub(crate) struct UnreliableClientMessageBatch {
+    pub messages: Vec<UnreliableMessage>,
     pub stamp: u8,
 }
 /// Wrapper for unreliable messages.
-#[derive(Serialize, Deserialize)]
-
+#[derive(Serialize, Deserialize, Clone)]
 pub(crate) struct UnreliableMessage {
     pub serialized: Vec<u8>,
     pub typename_net: u8,
-    pub stamp: u8,
 }
 
 /// Returns an option containing the desired reliable netcode message.

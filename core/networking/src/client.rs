@@ -15,7 +15,12 @@ use futures_lite::future;
 use token::parse::Token;
 
 use crate::{
-    messaging::ReliableClientMessage, plugin::RENET_RELIABLE_ORDERED_ID, server::PROTOCOL_ID,
+    messaging::{
+        ReliableClientMessageBatch, ReliableMessage, UnreliableClientMessageBatch,
+        UnreliableMessage,
+    },
+    plugin::RENET_RELIABLE_ORDERED_ID,
+    server::PROTOCOL_ID,
     sync::TickRateStamp,
 };
 
@@ -273,7 +278,7 @@ pub fn is_client_connected(connection: Res<Connection>) -> bool {
     matches!(connection.status, ConnectionStatus::Connecting)
         || matches!(connection.status, ConnectionStatus::Connected)
 }
-use crate::messaging::ReliableServerMessage;
+use crate::messaging::ReliableServerMessageBatch;
 use crate::messaging::Typenames;
 use crate::plugin::RENET_UNRELIABLE_CHANNEL_ID;
 
@@ -281,17 +286,50 @@ use serde::Serialize;
 use typename::TypeName;
 
 #[derive(Resource, Default)]
-pub struct OutgoingBuffer {
-    pub reliable: Vec<Vec<u8>>,
-    pub unreliable: Vec<Vec<u8>>,
+pub(crate) struct OutgoingBuffer {
+    pub reliable: Vec<ReliableMessage>,
+    pub unreliable: Vec<UnreliableMessage>,
 }
 
-pub(crate) fn step_buffer(mut res: ResMut<OutgoingBuffer>, mut client: ResMut<RenetClient>) {
-    for message in res.reliable.iter() {
-        client.send_message(RENET_RELIABLE_ORDERED_ID, message.clone());
+pub(crate) fn step_buffer(
+    mut res: ResMut<OutgoingBuffer>,
+    mut client: ResMut<RenetClient>,
+    stamp: Res<TickRateStamp>,
+) {
+    if res.reliable.len() > 0 {
+        let bin;
+        match bincode::serialize(&ReliableClientMessageBatch {
+            messages: res.reliable.clone(),
+            stamp: stamp.stamp,
+        }) {
+            Ok(b) => {
+                bin = b;
+            }
+            Err(_) => {
+                warn!("Couldnt serialize step_buffer message");
+                return;
+            }
+        }
+
+        client.send_message(RENET_RELIABLE_ORDERED_ID, bin);
     }
-    for message in res.unreliable.iter() {
-        client.send_message(RENET_UNRELIABLE_CHANNEL_ID, message.clone())
+
+    if res.unreliable.len() > 0 {
+        let bin;
+        match bincode::serialize(&UnreliableClientMessageBatch {
+            messages: res.unreliable.clone(),
+            stamp: stamp.stamp,
+        }) {
+            Ok(b) => {
+                bin = b;
+            }
+            Err(_) => {
+                warn!("Couldnt serialize step_buffer message");
+                return;
+            }
+        }
+
+        client.send_message(RENET_UNRELIABLE_CHANNEL_ID, bin);
     }
 
     res.reliable.clear();
@@ -303,7 +341,6 @@ pub(crate) fn send_outgoing_reliable_client_messages<T: TypeName + Send + Sync +
     mut events: EventReader<OutgoingReliableClientMessage<T>>,
     mut client: ResMut<OutgoingBuffer>,
     typenames: Res<Typenames>,
-    stamp: Res<TickRateStamp>,
 ) {
     for message in events.iter() {
         let net;
@@ -329,29 +366,20 @@ pub(crate) fn send_outgoing_reliable_client_messages<T: TypeName + Send + Sync +
                 continue;
             }
         }
-        match bincode::serialize(&ReliableClientMessage {
+
+        client.reliable.push(ReliableMessage {
             serialized: bin,
             typename_net: *net,
-            stamp: stamp.stamp,
-        }) {
-            Ok(bits) => {
-                client.reliable.push(bits);
-            }
-            Err(_) => {
-                warn!("Failed to serialize unreliable message.");
-                continue;
-            }
-        }
+        });
     }
 }
-use crate::messaging::UnreliableMessage;
+use crate::messaging::UnreliableServerMessageBatch;
 
 /// Serializes and sends the outgoing unreliable client messages.
 pub(crate) fn send_outgoing_unreliable_client_messages<T: TypeName + Send + Sync + Serialize>(
     mut events: EventReader<OutgoingUnreliableClientMessage<T>>,
     mut client: ResMut<OutgoingBuffer>,
     typenames: Res<Typenames>,
-    stamp: Res<TickRateStamp>,
 ) {
     for message in events.iter() {
         let net;
@@ -379,19 +407,10 @@ pub(crate) fn send_outgoing_unreliable_client_messages<T: TypeName + Send + Sync
             }
         }
 
-        match bincode::serialize(&UnreliableMessage {
+        client.unreliable.push(UnreliableMessage {
             serialized: bin,
             typename_net: *net,
-            stamp: stamp.stamp,
-        }) {
-            Ok(bits) => {
-                client.unreliable.push(bits);
-            }
-            Err(_) => {
-                warn!("Failed to serialize unreliable message.");
-                continue;
-            }
-        }
+        });
     }
 }
 use serde::Deserialize;
@@ -404,15 +423,14 @@ pub(crate) fn deserialize_incoming_unreliable_server_message<
     typenames: Res<Typenames>,
 ) {
     for event in incoming_raw.iter() {
-        match get_unreliable_message::<T>(
-            &typenames,
-            event.message.typename_net,
-            &event.message.serialized,
-        ) {
-            Some(data) => {
-                outgoing.send(IncomingUnreliableServerMessage { message: data });
+        for message in event.message.messages.iter() {
+            match get_unreliable_message::<T>(&typenames, message.typename_net, &message.serialized)
+            {
+                Some(data) => {
+                    outgoing.send(IncomingUnreliableServerMessage { message: data });
+                }
+                None => {}
             }
-            None => {}
         }
     }
 }
@@ -426,15 +444,13 @@ pub(crate) fn deserialize_incoming_reliable_server_message<
     typenames: Res<Typenames>,
 ) {
     for event in incoming_raw.iter() {
-        match get_reliable_message::<T>(
-            &typenames,
-            event.message.typename_net,
-            &event.message.serialized,
-        ) {
-            Some(data) => {
-                outgoing.send(IncomingReliableServerMessage { message: data });
+        for message in event.message.messages.iter() {
+            match get_reliable_message::<T>(&typenames, message.typename_net, &message.serialized) {
+                Some(data) => {
+                    outgoing.send(IncomingReliableServerMessage { message: data });
+                }
+                None => {}
             }
-            None => {}
         }
     }
 }
@@ -456,12 +472,12 @@ pub(crate) fn receive_incoming_unreliable_server_messages(
     mut client: ResMut<RenetClient>,
 ) {
     while let Some(message) = client.receive_message(RENET_UNRELIABLE_CHANNEL_ID) {
-        match bincode::deserialize::<UnreliableMessage>(&message) {
+        match bincode::deserialize::<UnreliableServerMessageBatch>(&message) {
             Ok(msg) => {
                 events.send(IncomingRawUnreliableServerMessage { message: msg });
             }
             Err(_) => {
-                warn!("Received an invalid message.");
+                warn!("Received an invalid message 0.");
             }
         }
     }
@@ -474,7 +490,7 @@ pub(crate) fn receive_incoming_reliable_server_messages(
     mut client: ResMut<RenetClient>,
 ) {
     while let Some(message) = client.receive_message(RENET_RELIABLE_ORDERED_ID) {
-        match bincode::deserialize::<ReliableServerMessage>(&message) {
+        match bincode::deserialize::<ReliableServerMessageBatch>(&message) {
             Ok(msg) => {
                 events.send(IncomingRawReliableServerMessage { message: msg });
             }
@@ -500,13 +516,13 @@ pub struct OutgoingReliableClientMessage<T: TypeName + Send + Sync + 'static> {
 /// Event to when received reliable message from server. Messages that you receive with this event must be initiated from a plugin builder with [crate::messaging::init_reliable_message].
 #[derive(Event)]
 pub(crate) struct IncomingRawReliableServerMessage {
-    pub message: ReliableServerMessage,
+    pub message: ReliableServerMessageBatch,
 }
 
 /// Event to when received reliable message from server. Messages that you receive with this event must be initiated from a plugin builder with [crate::messaging::init_unreliable_message].
 #[derive(Event)]
 pub(crate) struct IncomingRawUnreliableServerMessage {
-    pub message: UnreliableMessage,
+    pub message: UnreliableServerMessageBatch,
 }
 
 /// Returns an option containing the desired unreliable netcode message.
