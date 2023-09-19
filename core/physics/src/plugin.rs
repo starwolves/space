@@ -1,5 +1,6 @@
 use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, Update};
 use bevy_xpbd_3d::{prelude::PhysicsPlugins, resources::SubstepCount};
+use networking::messaging::MessagingSet;
 use resources::{core::TickRate, is_server::is_server, sets::MainSet};
 
 use crate::{
@@ -8,6 +9,7 @@ use crate::{
         server_mirror_link_transform, ResetLerp, RigidBodies,
     },
     mirror_physics_transform::rigidbody_link_transform,
+    sync::pause_loop,
 };
 
 pub struct PhysicsPlugin;
@@ -33,7 +35,13 @@ impl Plugin for PhysicsPlugin {
                     .after(client_mirror_link_target_transform)
                     .in_set(MainSet::PreUpdate),
             )
-            .add_event::<ResetLerp>();
+            .add_event::<ResetLerp>()
+            .add_systems(
+                FixedUpdate,
+                pause_loop
+                    .after(MessagingSet::DeserializeIncoming)
+                    .in_set(MainSet::PreUpdate),
+            );
         }
         app.add_plugins(PhysicsPlugins::new(FixedUpdate))
             .init_resource::<RigidBodies>()

@@ -11,3 +11,5 @@ pub mod plugin;
 pub mod rigid_body;
 /// Base rigid body spawner.
 pub mod spawn;
+/// Networking syncing.
+pub mod sync;

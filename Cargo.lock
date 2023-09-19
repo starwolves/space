@@ -3807,6 +3807,7 @@ dependencies = [
  "bevy",
  "bevy_xpbd_3d",
  "entity",
+ "networking",
  "resources",
 ]
 

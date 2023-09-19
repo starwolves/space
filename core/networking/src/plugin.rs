@@ -9,16 +9,16 @@ use resources::{is_server::is_server, sets::MainSet};
 use super::server::{souls, startup_server_listen_connections};
 use crate::{
     client::{
-        adjust_tick, confirm_connection, connect_to_server, connected, is_client_connected,
-        on_disconnect, receive_incoming_reliable_server_messages,
-        receive_incoming_unreliable_server_messages, starwolves_response, step_buffer,
-        token_assign_server, AssignTokenToServer, AssigningServerToken, ConnectToServer,
-        Connection, ConnectionPreferences, IncomingRawReliableServerMessage,
-        IncomingRawUnreliableServerMessage, OutgoingBuffer, TokenAssignServer,
+        confirm_connection, connect_to_server, connected, is_client_connected, on_disconnect,
+        receive_incoming_reliable_server_messages, receive_incoming_unreliable_server_messages,
+        starwolves_response, step_buffer, token_assign_server, AssignTokenToServer,
+        AssigningServerToken, ConnectToServer, Connection, ConnectionPreferences,
+        IncomingRawReliableServerMessage, IncomingRawUnreliableServerMessage, OutgoingBuffer,
+        TokenAssignServer,
     },
     messaging::{
         generate_typenames, register_reliable_message, register_unreliable_message, MessageSender,
-        MessagingSet, Typenames, TypenamesSet,
+        Typenames, TypenamesSet,
     },
     server::{
         adjust_clients, receive_incoming_reliable_client_messages,
@@ -87,12 +87,6 @@ impl Plugin for NetworkingPlugin {
                 receive_incoming_unreliable_server_messages
                     .in_set(TypenamesSet::SendRawEvents)
                     .run_if(resource_exists::<RenetClient>())
-                    .in_set(MainSet::PreUpdate),
-            )
-            .add_systems(
-                FixedUpdate,
-                adjust_tick
-                    .after(MessagingSet::DeserializeIncoming)
                     .in_set(MainSet::PreUpdate),
             )
             .add_event::<IncomingRawReliableServerMessage>()
