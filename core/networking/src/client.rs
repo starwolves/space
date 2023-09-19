@@ -560,10 +560,23 @@ pub fn get_unreliable_message<T: TypeName + Serialize + for<'a> Deserialize<'a>>
         }
     }
 }
+
+pub(crate) fn adjust_tick(
+    mut net: EventReader<IncomingReliableServerMessage<NetworkingServerMessage>>,
+) {
+    for message in net.iter() {
+        match &message.message {
+            NetworkingServerMessage::AdjustSync(adjustment) => {
+                info!("Adjust: {}", adjustment.advance);
+            }
+            _ => (),
+        }
+    }
+}
+
 use crate::server::NetworkingServerMessage;
 
 /// Confirms connection with server.
-
 pub(crate) fn confirm_connection(
     mut client1: EventReader<IncomingReliableServerMessage<NetworkingServerMessage>>,
     mut connected_state: ResMut<Connection>,
@@ -575,6 +588,7 @@ pub(crate) fn confirm_connection(
                 connected_state.status = ConnectionStatus::Connected;
                 info!("Connected.");
             }
+            _ => (),
         }
     }
 }

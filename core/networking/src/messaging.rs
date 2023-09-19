@@ -127,6 +127,7 @@ pub fn register_reliable_message<
             FixedUpdate,
             deserialize_incoming_reliable_server_message::<T>
                 .after(TypenamesSet::SendRawEvents)
+                .in_set(MessagingSet::DeserializeIncoming)
                 .in_set(MainSet::PreUpdate),
         );
     }
@@ -208,6 +209,7 @@ pub fn register_unreliable_message<
                 FixedUpdate,
                 deserialize_incoming_unreliable_server_message::<T>
                     .after(TypenamesSet::SendRawEvents)
+                    .in_set(MessagingSet::DeserializeIncoming)
                     .in_set(MainSet::PreUpdate),
             );
     }
@@ -249,27 +251,19 @@ pub struct ReliableServerMessageBatch {
     pub messages: Vec<ReliableMessage>,
     // The confirmed tick stamp.
     pub stamp: u8,
-    // The tick adjustment.
-    //pub tick_adjustment: u8,
-    // The tick adjustment iteration.
-    //pub adjustment_iteration: u8,
 }
 
 /// Batch of reliable client messages.
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct ReliableClientMessageBatch {
     pub messages: Vec<ReliableMessage>,
     pub stamp: u8,
 }
 /// Batch of unreliable messages.
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub(crate) struct UnreliableServerMessageBatch {
     pub messages: Vec<UnreliableMessage>,
     pub stamp: u8,
-    // The tick adjustment.
-    //pub tick_adjustment: u8,
-    // The tick adjustment iteration.
-    //pub adjustment_iteration: u8,
 }
 /// Batch of unreliable messages.
 #[derive(Serialize, Deserialize)]

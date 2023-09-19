@@ -97,6 +97,7 @@ pub enum NetworkingClientMessage {
 
 pub enum NetworkingServerMessage {
     Awoo(StartSync),
+    AdjustSync(AdjustSync),
 }
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct StartSync {
@@ -351,6 +352,13 @@ pub(crate) fn deserialize_incoming_unreliable_client_message<
                         handle: event.handle,
                         stamp: event.message.stamp,
                     };
+
+                    if stamp.stamp > event.message.stamp
+                        || (event.message.stamp - stamp.stamp) > 182
+                    {
+                        continue;
+                    }
+
                     match queue.get_mut(&event.message.stamp) {
                         Some(v) => v.push(r),
                         None => {
@@ -437,21 +445,83 @@ pub struct IncomingUnreliableClientMessage<T: TypeName + Send + Sync + Serialize
     pub message: T,
     pub stamp: u8,
 }
+#[derive(Resource, Default)]
+pub struct Latency {
+    pub tickrate_differences: HashMap<u64, Vec<i16>>,
+}
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct AdjustSync {
+    pub advance: i8,
+}
+
+pub(crate) fn adjust_clients(
+    mut latency: ResMut<Latency>,
+    tickrate: Res<TickRate>,
+    mut net: EventWriter<OutgoingReliableServerMessage<NetworkingServerMessage>>,
+) {
+    for (handle, tickrate_differences) in latency.tickrate_differences.iter_mut() {
+        let mut accumulative = 0;
+        for difference in tickrate_differences.iter() {
+            accumulative += difference;
+        }
+        let average_latency = accumulative as f32 / tickrate_differences.len() as f32;
+
+        let max_latency = 3. * (tickrate.bevy_rate as f32 / 30.);
+
+        if average_latency < 1. {
+            // Tell client to freeze x ticks.
+            let advance;
+            if average_latency > 0. {
+                advance = -1;
+            } else {
+                advance = average_latency.floor() as i8 - 1;
+            }
+
+            net.send(OutgoingReliableServerMessage {
+                handle: *handle,
+                message: NetworkingServerMessage::AdjustSync(AdjustSync { advance }),
+            });
+        } else if average_latency > max_latency {
+            // Tell client advance x ticks.
+            net.send(OutgoingReliableServerMessage {
+                handle: *handle,
+                message: NetworkingServerMessage::AdjustSync(AdjustSync {
+                    advance: average_latency.ceil() as i8 - max_latency.floor() as i8,
+                }),
+            });
+        }
+
+        if tickrate_differences.len() > 16 {
+            tickrate_differences.pop();
+        }
+    }
+}
 
 /// Deserializes header of incoming client messages and writes to event.
 
 pub(crate) fn receive_incoming_unreliable_client_messages(
     mut events: EventWriter<IncomingRawUnreliableClientMessage>,
     mut server: ResMut<RenetServer>,
+    mut sync: ResMut<Latency>,
+    stamp: Res<TickRateStamp>,
 ) {
     for handle in server.clients_id().into_iter() {
         while let Some(message) = server.receive_message(handle, RENET_RELIABLE_ORDERED_ID) {
             match bincode::deserialize::<UnreliableServerMessageBatch>(&message) {
                 Ok(msg) => {
                     events.send(IncomingRawUnreliableClientMessage {
-                        message: msg,
+                        message: msg.clone(),
                         handle,
                     });
+                    match sync.tickrate_differences.get_mut(&handle) {
+                        Some(v) => {
+                            v.push(stamp.get_difference(msg.stamp));
+                        }
+                        None => {
+                            sync.tickrate_differences
+                                .insert(handle, vec![stamp.get_difference(msg.stamp)]);
+                        }
+                    }
                 }
                 Err(_) => {
                     warn!("Received an invalid message 0.");
@@ -467,15 +537,26 @@ use crate::plugin::RENET_UNRELIABLE_CHANNEL_ID;
 pub(crate) fn receive_incoming_reliable_client_messages(
     mut events: EventWriter<IncomingRawReliableClientMessage>,
     mut server: ResMut<RenetServer>,
+    mut sync: ResMut<Latency>,
+    stamp: Res<TickRateStamp>,
 ) {
     for handle in server.clients_id().into_iter() {
         while let Some(message) = server.receive_message(handle, RENET_RELIABLE_ORDERED_ID) {
             match bincode::deserialize::<ReliableClientMessageBatch>(&message) {
                 Ok(msg) => {
                     events.send(IncomingRawReliableClientMessage {
-                        message: msg,
+                        message: msg.clone(),
                         handle,
                     });
+                    match sync.tickrate_differences.get_mut(&handle) {
+                        Some(v) => {
+                            v.push(stamp.get_difference(msg.stamp));
+                        }
+                        None => {
+                            sync.tickrate_differences
+                                .insert(handle, vec![stamp.get_difference(msg.stamp)]);
+                        }
+                    }
                 }
                 Err(_) => {
                     warn!("Received an invalid message.");
