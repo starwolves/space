@@ -468,27 +468,32 @@ pub(crate) fn adjust_clients(
 
         let max_latency = 3. * (tickrate.bevy_rate as f32 / 30.);
 
-        if average_latency < 1. {
-            // Tell client to freeze x ticks.
-            let advance;
-            if average_latency > 0. {
-                advance = -1;
-            } else {
-                advance = average_latency.floor() as i8 - 1;
-            }
+        if tickrate_differences.len() >= 16 {
+            if average_latency < 1. {
+                // Tell client to freeze x ticks.
+                let advance;
+                if average_latency > 0. {
+                    advance = -1;
+                } else {
+                    advance = average_latency.floor() as i8 - 1;
+                }
 
-            net.send(OutgoingReliableServerMessage {
-                handle: *handle,
-                message: NetworkingServerMessage::AdjustSync(AdjustSync { advance }),
-            });
-        } else if average_latency > max_latency {
-            // Tell client advance x ticks.
-            net.send(OutgoingReliableServerMessage {
-                handle: *handle,
-                message: NetworkingServerMessage::AdjustSync(AdjustSync {
-                    advance: average_latency.ceil() as i8 - max_latency.floor() as i8,
-                }),
-            });
+                net.send(OutgoingReliableServerMessage {
+                    handle: *handle,
+                    message: NetworkingServerMessage::AdjustSync(AdjustSync { advance }),
+                });
+
+                tickrate_differences.clear();
+            } else if average_latency > max_latency {
+                // Tell client advance x ticks.
+                net.send(OutgoingReliableServerMessage {
+                    handle: *handle,
+                    message: NetworkingServerMessage::AdjustSync(AdjustSync {
+                        advance: average_latency.ceil() as i8 - max_latency.floor() as i8,
+                    }),
+                });
+                tickrate_differences.clear();
+            }
         }
 
         if tickrate_differences.len() > 16 {
