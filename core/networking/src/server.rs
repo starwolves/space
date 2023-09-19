@@ -511,7 +511,7 @@ pub(crate) fn receive_incoming_unreliable_client_messages(
     stamp: Res<TickRateStamp>,
 ) {
     for handle in server.clients_id().into_iter() {
-        while let Some(message) = server.receive_message(handle, RENET_RELIABLE_ORDERED_ID) {
+        while let Some(message) = server.receive_message(handle, RENET_UNRELIABLE_CHANNEL_ID) {
             match bincode::deserialize::<UnreliableServerMessageBatch>(&message) {
                 Ok(msg) => {
                     events.send(IncomingRawUnreliableClientMessage {
