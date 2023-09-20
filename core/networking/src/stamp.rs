@@ -1,4 +1,5 @@
-use bevy::prelude::{EventReader, ResMut, Resource};
+use bevy::prelude::{EventReader, Res, ResMut, Resource};
+use bevy_xpbd_3d::prelude::PhysicsLoop;
 use serde::{Deserialize, Serialize};
 
 use crate::{client::IncomingReliableServerMessage, server::NetworkingServerMessage};
@@ -65,6 +66,8 @@ pub(crate) fn setup_client_tickrate_stamp(
     }
 }
 
-pub fn step_tickrate_stamp(mut stamp: ResMut<TickRateStamp>) {
-    stamp.step();
+pub fn step_tickrate_stamp(mut stamp: ResMut<TickRateStamp>, physics_loop: Res<PhysicsLoop>) {
+    if !physics_loop.paused {
+        stamp.step();
+    }
 }

@@ -1,6 +1,6 @@
 use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, Update};
 use bevy_xpbd_3d::{prelude::PhysicsPlugins, resources::SubstepCount};
-use networking::messaging::MessagingSet;
+use networking::{messaging::MessagingSet, stamp::step_tickrate_stamp};
 use resources::{core::TickRate, is_server::is_server, sets::MainSet};
 
 use crate::{
@@ -39,6 +39,7 @@ impl Plugin for PhysicsPlugin {
             .add_systems(
                 FixedUpdate,
                 pause_loop
+                    .before(step_tickrate_stamp)
                     .after(MessagingSet::DeserializeIncoming)
                     .in_set(MainSet::PreUpdate),
             );

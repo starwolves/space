@@ -475,6 +475,7 @@ pub(crate) fn adjust_clients(
                 if average_latency > 0. {
                     advance = -1;
                 } else {
+                    info!("{}", average_latency);
                     advance = average_latency.floor() as i8 - 1;
                 }
 
