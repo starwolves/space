@@ -21,7 +21,7 @@ pub(crate) fn pause_loop(
                     paused.0 = adjustment.advance;
                     paused.1 = 0;
                     physics_loop.pause();
-                    info!("Pause {} ticks", adjustment.advance);
+                    info!("Pause {} ticks", paused.0);
                 }
             }
             _ => (),

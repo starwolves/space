@@ -447,7 +447,7 @@ pub struct IncomingUnreliableClientMessage<T: TypeName + Send + Sync + Serialize
 }
 #[derive(Resource, Default)]
 pub struct Latency {
-    pub tickrate_differences: HashMap<u64, Vec<i16>>,
+    pub tickrate_differences: HashMap<u64, Vec<i8>>,
 }
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct AdjustSync {
@@ -462,7 +462,7 @@ pub(crate) fn adjust_clients(
     for (handle, tickrate_differences) in latency.tickrate_differences.iter_mut() {
         let mut accumulative = 0;
         for difference in tickrate_differences.iter() {
-            accumulative += difference;
+            accumulative += *difference as i16;
         }
         let average_latency = accumulative as f32 / tickrate_differences.len() as f32;
 
@@ -470,12 +470,11 @@ pub(crate) fn adjust_clients(
 
         if tickrate_differences.len() >= 16 {
             if average_latency < 1. {
-                // Tell client to freeze x ticks.
+                // Tell client to fast-forward x ticks.
                 let advance;
                 if average_latency > 0. {
                     advance = -1;
                 } else {
-                    info!("{}", average_latency);
                     advance = average_latency.floor() as i8 - 1;
                 }
 
@@ -486,7 +485,7 @@ pub(crate) fn adjust_clients(
 
                 tickrate_differences.clear();
             } else if average_latency > max_latency {
-                // Tell client advance x ticks.
+                // Tell client freeze x ticks.
                 net.send(OutgoingReliableServerMessage {
                     handle: *handle,
                     message: NetworkingServerMessage::AdjustSync(AdjustSync {
