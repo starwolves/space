@@ -1348,6 +1348,7 @@ version = "0.7.0"
 dependencies = [
  "approx",
  "bevy",
+ "bevy_xpbd_3d",
  "resources",
  "serde",
 ]

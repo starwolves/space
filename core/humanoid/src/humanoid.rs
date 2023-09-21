@@ -4,7 +4,7 @@ use bevy::{
     prelude::{warn, Component, Entity, Query, Res, ResMut, Vec2, Vec3, With},
     time::{Timer, TimerMode},
 };
-use bevy_xpbd_3d::prelude::LinearVelocity;
+use bevy_xpbd_3d::prelude::{LinearVelocity, PhysicsLoop};
 use cameras::LookTransform;
 use controller::controller::ControllerInput;
 use entity::health::DamageFlag;
@@ -84,7 +84,11 @@ pub(crate) fn humanoid_movement(
     humanoids: Query<(Entity, &Humanoid, &ControllerInput, &LookTransform)>,
     rigidbodies: Res<RigidBodies>,
     mut rigidbodies_query: Query<&mut LinearVelocity, With<SFRigidBody>>,
+    physics_loop: Res<PhysicsLoop>,
 ) {
+    if physics_loop.paused {
+        return;
+    }
     for (entity, _humanoid, input, look_transform) in humanoids.iter() {
         let rigidbody_entity;
         match rigidbodies.get_entity_rigidbody(&entity) {
