@@ -61,6 +61,7 @@ pub(crate) fn startup_server_listen_connections() -> (RenetServer, NetcodeServer
 use bevy::prelude::EventReader;
 
 use crate::{
+    client::NetworkingClientMessage,
     messaging::{
         ReliableClientMessageBatch, ReliableMessage, ReliableServerMessageBatch, UnreliableMessage,
         UnreliableServerMessageBatch,
@@ -81,15 +82,9 @@ pub(crate) fn souls(
             // Where the souls of the players are       |
             //   while they're connected.               V
             NetworkingClientMessage::HeartBeat => { /* <3 */ }
+            _ => (),
         }
     }
-}
-
-/// Gets serialized and sent over the net, this is the client message.
-#[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
-
-pub enum NetworkingClientMessage {
-    HeartBeat,
 }
 
 /// Gets serialized and sent over the net, this is the client message.
@@ -445,9 +440,17 @@ pub struct IncomingUnreliableClientMessage<T: TypeName + Send + Sync + Serialize
     pub message: T,
     pub stamp: u8,
 }
+
+#[derive(Resource, Default)]
+pub struct SyncConfirmations {
+    pub incremental: HashMap<u64, u64>,
+    pub server_sync: HashMap<u64, u64>,
+}
+
+/// Vectors containing adjustment iteration and tick difference linked by connection handle.
 #[derive(Resource, Default)]
 pub struct Latency {
-    pub tickrate_differences: HashMap<u64, Vec<i8>>,
+    pub tickrate_differences: HashMap<u64, Vec<(u64, i8)>>,
 }
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct AdjustSync {
@@ -458,17 +461,33 @@ pub(crate) fn adjust_clients(
     mut latency: ResMut<Latency>,
     tickrate: Res<TickRate>,
     mut net: EventWriter<OutgoingReliableServerMessage<NetworkingServerMessage>>,
+    mut confirmations: ResMut<SyncConfirmations>,
 ) {
     for (handle, tickrate_differences) in latency.tickrate_differences.iter_mut() {
-        let mut accumulative = 0;
-        for difference in tickrate_differences.iter() {
-            accumulative += *difference as i16;
+        let server_sync;
+
+        match confirmations.server_sync.get(handle) {
+            Some(x) => {
+                server_sync = *x;
+            }
+            None => {
+                server_sync = 0;
+            }
         }
-        let average_latency = accumulative as f32 / tickrate_differences.len() as f32;
+
+        let mut accumulative = 0;
+        let mut length = 0;
+        for difference in tickrate_differences.iter() {
+            if difference.0 >= server_sync {
+                accumulative += difference.1 as i16;
+                length += 1;
+            }
+        }
+        let average_latency = accumulative as f32 / length as f32;
 
         let max_latency = 3. * (tickrate.bevy_rate as f32 / 32.);
 
-        if tickrate_differences.len() >= 16 {
+        if length >= 16 {
             if average_latency < 1. {
                 // Tell client to fast-forward x ticks.
                 let advance;
@@ -484,8 +503,19 @@ pub(crate) fn adjust_clients(
                 });
 
                 tickrate_differences.clear();
+                length = 0;
+
+                match confirmations.server_sync.get_mut(handle) {
+                    Some(x) => {
+                        *x += 1;
+                    }
+                    None => {
+                        confirmations.server_sync.insert(*handle, 1);
+                    }
+                }
             } else if average_latency > max_latency {
                 // Tell client freeze x ticks.
+
                 net.send(OutgoingReliableServerMessage {
                     handle: *handle,
                     message: NetworkingServerMessage::AdjustSync(AdjustSync {
@@ -493,11 +523,21 @@ pub(crate) fn adjust_clients(
                     }),
                 });
                 tickrate_differences.clear();
+                length = 0;
+
+                match confirmations.server_sync.get_mut(handle) {
+                    Some(x) => {
+                        *x += 1;
+                    }
+                    None => {
+                        confirmations.server_sync.insert(*handle, 1);
+                    }
+                }
             }
         }
 
-        if tickrate_differences.len() > 16 {
-            tickrate_differences.pop();
+        if length > 16 {
+            tickrate_differences.remove(0);
         }
     }
 }
@@ -509,6 +549,7 @@ pub(crate) fn receive_incoming_unreliable_client_messages(
     mut server: ResMut<RenetServer>,
     mut sync: ResMut<Latency>,
     stamp: Res<TickRateStamp>,
+    confirmations: Res<SyncConfirmations>,
 ) {
     for handle in server.clients_id().into_iter() {
         while let Some(message) = server.receive_message(handle, RENET_UNRELIABLE_CHANNEL_ID) {
@@ -518,13 +559,22 @@ pub(crate) fn receive_incoming_unreliable_client_messages(
                         message: msg.clone(),
                         handle,
                     });
+                    let c: u64;
+                    match confirmations.incremental.get(&handle) {
+                        Some(x) => {
+                            c = *x;
+                        }
+                        None => {
+                            c = 0;
+                        }
+                    }
                     match sync.tickrate_differences.get_mut(&handle) {
                         Some(v) => {
-                            v.push(stamp.get_difference(msg.stamp));
+                            v.push((c, stamp.get_difference(msg.stamp)));
                         }
                         None => {
                             sync.tickrate_differences
-                                .insert(handle, vec![stamp.get_difference(msg.stamp)]);
+                                .insert(handle, vec![(c, stamp.get_difference(msg.stamp))]);
                         }
                     }
                 }
@@ -544,6 +594,8 @@ pub(crate) fn receive_incoming_reliable_client_messages(
     mut server: ResMut<RenetServer>,
     mut sync: ResMut<Latency>,
     stamp: Res<TickRateStamp>,
+    typenames: Res<Typenames>,
+    mut confirmations: ResMut<SyncConfirmations>,
 ) {
     for handle in server.clients_id().into_iter() {
         while let Some(message) = server.receive_message(handle, RENET_RELIABLE_ORDERED_ID) {
@@ -553,13 +605,41 @@ pub(crate) fn receive_incoming_reliable_client_messages(
                         message: msg.clone(),
                         handle,
                     });
+
+                    for m in msg.messages.iter() {
+                        if m.typename_net
+                            == *typenames
+                                .reliable_net_types
+                                .get(&NetworkingClientMessage::type_name())
+                                .unwrap()
+                        {
+                            match confirmations.incremental.get_mut(&handle) {
+                                Some(a) => {
+                                    *a += 1;
+                                }
+                                None => {
+                                    confirmations.incremental.insert(handle, 0);
+                                }
+                            }
+                        }
+                    }
+
+                    let c: u64;
+                    match confirmations.incremental.get(&handle) {
+                        Some(x) => {
+                            c = *x;
+                        }
+                        None => {
+                            c = 0;
+                        }
+                    }
                     match sync.tickrate_differences.get_mut(&handle) {
                         Some(v) => {
-                            v.push(stamp.get_difference(msg.stamp));
+                            v.push((c, stamp.get_difference(msg.stamp)));
                         }
                         None => {
                             sync.tickrate_differences
-                                .insert(handle, vec![stamp.get_difference(msg.stamp)]);
+                                .insert(handle, vec![(c, stamp.get_difference(msg.stamp))]);
                         }
                     }
                 }

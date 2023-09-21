@@ -13,8 +13,8 @@ use crate::{
         receive_incoming_reliable_server_messages, receive_incoming_unreliable_server_messages,
         starwolves_response, step_buffer, token_assign_server, AssignTokenToServer,
         AssigningServerToken, ConnectToServer, Connection, ConnectionPreferences,
-        IncomingRawReliableServerMessage, IncomingRawUnreliableServerMessage, OutgoingBuffer,
-        TokenAssignServer,
+        IncomingRawReliableServerMessage, IncomingRawUnreliableServerMessage,
+        NetworkingClientMessage, OutgoingBuffer, TokenAssignServer,
     },
     messaging::{
         generate_typenames, register_reliable_message, register_unreliable_message, MessageSender,
@@ -24,7 +24,7 @@ use crate::{
         adjust_clients, receive_incoming_reliable_client_messages,
         receive_incoming_unreliable_client_messages, IncomingRawReliableClientMessage,
         IncomingRawUnreliableClientMessage, Latency, NetworkingChatServerMessage,
-        NetworkingClientMessage, NetworkingServerMessage, UnreliableServerMessage,
+        NetworkingServerMessage, SyncConfirmations, UnreliableServerMessage,
     },
     stamp::{setup_client_tickrate_stamp, step_tickrate_stamp, TickRateStamp},
 };
@@ -39,22 +39,20 @@ impl Plugin for NetworkingPlugin {
                 .insert_resource(res.0)
                 .insert_resource(res.1)
                 .init_resource::<Latency>()
+                .init_resource::<SyncConfirmations>()
                 .add_systems(FixedUpdate, souls.in_set(MainSet::Update))
                 .add_event::<IncomingRawReliableClientMessage>()
                 .add_event::<IncomingRawUnreliableClientMessage>()
                 .add_systems(
                     FixedUpdate,
                     (
-                        receive_incoming_reliable_client_messages,
-                        receive_incoming_unreliable_client_messages,
+                        receive_incoming_reliable_client_messages
+                            .in_set(TypenamesSet::SendRawEvents),
+                        receive_incoming_unreliable_client_messages
+                            .in_set(TypenamesSet::SendRawEvents)
+                            .after(receive_incoming_reliable_client_messages),
+                        adjust_clients.after(TypenamesSet::SendRawEvents),
                     )
-                        .in_set(TypenamesSet::SendRawEvents)
-                        .in_set(MainSet::PreUpdate),
-                )
-                .add_systems(
-                    FixedUpdate,
-                    adjust_clients
-                        .after(TypenamesSet::SendRawEvents)
                         .in_set(MainSet::PreUpdate),
                 );
         } else {

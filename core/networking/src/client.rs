@@ -597,3 +597,11 @@ pub(crate) fn on_disconnect(
         false => {}
     }
 }
+
+/// Gets serialized and sent over the net, this is the client message.
+#[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
+
+pub enum NetworkingClientMessage {
+    HeartBeat,
+    SyncConfirmation,
+}
