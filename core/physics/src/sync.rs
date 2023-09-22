@@ -7,6 +7,7 @@ use networking::{
         IncomingReliableServerMessage, NetworkingClientMessage, OutgoingReliableClientMessage,
     },
     server::{AdjustSync, NetworkingServerMessage},
+    stamp::PauseMe,
 };
 use resources::core::TickRate;
 #[derive(Resource, Default)]
@@ -16,6 +17,8 @@ pub(crate) struct FastForwarding {
     pub i: u8,
 }
 
+pub const DEBUG_FAST_FORWARD: bool = true;
+
 pub(crate) fn sync_loop(
     mut net: EventReader<IncomingReliableServerMessage<NetworkingServerMessage>>,
     mut physics_loop: ResMut<PhysicsLoop>,
@@ -24,6 +27,7 @@ pub(crate) fn sync_loop(
     mut out: EventWriter<OutgoingReliableClientMessage<NetworkingClientMessage>>,
     mut fixed_time: ResMut<FixedTime>,
     mut fast_forwarding: ResMut<FastForwarding>,
+    mut p: ResMut<PauseMe>,
 ) {
     if physics_loop.paused {
         paused.1 += 1;
@@ -41,6 +45,7 @@ pub(crate) fn sync_loop(
             out.send(OutgoingReliableClientMessage {
                 message: NetworkingClientMessage::SyncConfirmation,
             });
+            p.0 = false;
         }
     }
 
@@ -96,6 +101,9 @@ pub(crate) fn sync_loop(
                     fast_forwarding.forwarding = true;
                     fast_forwarding.i = 0;
                     fast_forwarding.advance = adjustment.advance.abs() as u8;
+                    if DEBUG_FAST_FORWARD {
+                        p.0 = true;
+                    }
                 }
             } else if !process_queue {
                 sync_queue.push(adjustment.clone());

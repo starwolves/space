@@ -65,9 +65,15 @@ pub(crate) fn setup_client_tickrate_stamp(
         }
     }
 }
+#[derive(Resource, Default)]
+pub struct PauseMe(pub bool);
 
-pub fn step_tickrate_stamp(mut stamp: ResMut<TickRateStamp>, physics_loop: Res<PhysicsLoop>) {
-    if !physics_loop.paused {
+pub fn step_tickrate_stamp(
+    mut stamp: ResMut<TickRateStamp>,
+    physics_loop: Res<PhysicsLoop>,
+    p: Res<PauseMe>,
+) {
+    if !physics_loop.paused || p.0 {
         stamp.step();
     }
 }

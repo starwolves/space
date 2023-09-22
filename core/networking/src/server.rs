@@ -447,10 +447,15 @@ pub struct SyncConfirmations {
     pub server_sync: HashMap<u64, u64>,
 }
 
+pub struct LatencyReport {
+    pub sync_iteration: u64,
+    pub tick_difference: i8,
+}
+
 /// Vectors containing adjustment iteration and tick difference linked by connection handle.
 #[derive(Resource, Default)]
 pub struct Latency {
-    pub tickrate_differences: HashMap<u64, Vec<(u64, i8)>>,
+    pub tickrate_differences: HashMap<u64, Vec<LatencyReport>>,
 }
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct AdjustSync {
@@ -478,8 +483,9 @@ pub(crate) fn adjust_clients(
         let mut accumulative = 0;
         let mut length = 0;
         for difference in tickrate_differences.iter() {
-            if difference.0 >= server_sync {
-                accumulative += difference.1 as i16;
+            info!("{} >= {}", difference.sync_iteration, server_sync);
+            if difference.sync_iteration >= server_sync {
+                accumulative += difference.tick_difference as i16;
                 length += 1;
             }
         }
@@ -488,6 +494,7 @@ pub(crate) fn adjust_clients(
         let max_latency = 3. * (tickrate.bevy_rate as f32 / 32.);
 
         if length >= 16 {
+            info!("test");
             if average_latency < 1. {
                 // Tell client to fast-forward x ticks.
                 let advance;
@@ -496,6 +503,8 @@ pub(crate) fn adjust_clients(
                 } else {
                     advance = average_latency.floor() as i8 - 1;
                 }
+
+                info!("Send fast-forward adjustment.");
 
                 net.send(OutgoingReliableServerMessage {
                     handle: *handle,
@@ -570,11 +579,19 @@ pub(crate) fn receive_incoming_unreliable_client_messages(
                     }
                     match sync.tickrate_differences.get_mut(&handle) {
                         Some(v) => {
-                            v.push((c, stamp.get_difference(msg.stamp)));
+                            v.push(LatencyReport {
+                                sync_iteration: c,
+                                tick_difference: stamp.get_difference(msg.stamp),
+                            });
                         }
                         None => {
-                            sync.tickrate_differences
-                                .insert(handle, vec![(c, stamp.get_difference(msg.stamp))]);
+                            sync.tickrate_differences.insert(
+                                handle,
+                                vec![LatencyReport {
+                                    sync_iteration: c,
+                                    tick_difference: stamp.get_difference(msg.stamp),
+                                }],
+                            );
                         }
                     }
                 }
@@ -635,11 +652,19 @@ pub(crate) fn receive_incoming_reliable_client_messages(
                     }
                     match sync.tickrate_differences.get_mut(&handle) {
                         Some(v) => {
-                            v.push((c, stamp.get_difference(msg.stamp)));
+                            v.push(LatencyReport {
+                                sync_iteration: c,
+                                tick_difference: stamp.get_difference(msg.stamp),
+                            });
                         }
                         None => {
-                            sync.tickrate_differences
-                                .insert(handle, vec![(c, stamp.get_difference(msg.stamp))]);
+                            sync.tickrate_differences.insert(
+                                handle,
+                                vec![LatencyReport {
+                                    sync_iteration: c,
+                                    tick_difference: stamp.get_difference(msg.stamp),
+                                }],
+                            );
                         }
                     }
                 }
