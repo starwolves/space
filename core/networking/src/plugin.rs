@@ -26,7 +26,7 @@ use crate::{
         IncomingRawUnreliableClientMessage, Latency, NetworkingChatServerMessage,
         NetworkingServerMessage, SyncConfirmations, UnreliableServerMessage,
     },
-    stamp::{setup_client_tickrate_stamp, step_tickrate_stamp, PauseMe, TickRateStamp},
+    stamp::{setup_client_tickrate_stamp, step_tickrate_stamp, PauseTickStep, TickRateStamp},
 };
 pub struct NetworkingPlugin;
 
@@ -107,7 +107,7 @@ impl Plugin for NetworkingPlugin {
         }
 
         app.init_resource::<TickRateStamp>()
-            .init_resource::<PauseMe>()
+            .init_resource::<PauseTickStep>()
             .add_systems(FixedUpdate, step_tickrate_stamp.in_set(MainSet::PreUpdate))
             .init_resource::<Typenames>()
             .add_systems(Startup, generate_typenames.after(TypenamesSet::Generate));
