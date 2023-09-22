@@ -502,8 +502,6 @@ pub(crate) fn adjust_clients(
                     advance = average_latency.floor() as i8 - 1;
                 }
 
-                info!("Send fast-forward adjustment.");
-
                 net.send(OutgoingReliableServerMessage {
                     handle: *handle,
                     message: NetworkingServerMessage::AdjustSync(AdjustSync { advance }),
