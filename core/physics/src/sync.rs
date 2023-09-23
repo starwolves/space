@@ -96,7 +96,7 @@ pub(crate) fn sync_loop(
 
                     fixed_time.period = Duration::from_secs_f32(
                         (1. / TickRate::default().bevy_rate as f32)
-                            / adjustment.advance.abs() as f32,
+                            / (adjustment.advance.abs() + 1) as f32,
                     );
                     fast_forwarding.forwarding = true;
                     fast_forwarding.i = 0;

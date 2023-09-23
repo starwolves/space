@@ -446,7 +446,7 @@ pub struct SyncConfirmations {
     pub incremental: HashMap<u64, u64>,
     pub server_sync: HashMap<u64, u64>,
 }
-
+#[derive(Debug)]
 pub struct LatencyReport {
     pub client_sync_iteration: u64,
     pub tick_difference: i8,
