@@ -239,7 +239,7 @@ pub(crate) fn send_outgoing_unreliable_server_messages<T: TypeName + Send + Sync
     for (handle, msgs) in messages {
         match bincode::serialize(&UnreliableServerMessageBatch {
             messages: msgs,
-            stamp: stamp.stamp,
+            stamp: stamp.tick,
         }) {
             Ok(bits) => {
                 server.send_message(handle, RENET_UNRELIABLE_CHANNEL_ID, bits);
@@ -313,7 +313,7 @@ pub fn send_outgoing_reliable_server_messages<T: TypeName + Send + Sync + Serial
     for (handle, msgs) in messages {
         match bincode::serialize(&ReliableServerMessageBatch {
             messages: msgs,
-            stamp: stamp.stamp,
+            stamp: stamp.tick,
         }) {
             Ok(bits) => {
                 server.send_message(handle, RENET_RELIABLE_ORDERED_ID, bits);
@@ -348,8 +348,7 @@ pub(crate) fn deserialize_incoming_unreliable_client_message<
                         stamp: event.message.stamp,
                     };
 
-                    if stamp.stamp > event.message.stamp
-                        || (event.message.stamp - stamp.stamp) > 182
+                    if stamp.tick > event.message.stamp || (event.message.stamp - stamp.tick) > 182
                     {
                         continue;
                     }
@@ -366,7 +365,7 @@ pub(crate) fn deserialize_incoming_unreliable_client_message<
         }
     }
 
-    match queue.get_mut(&stamp.stamp) {
+    match queue.get_mut(&stamp.tick) {
         Some(v) => {
             for msg in v.clone() {
                 outgoing.send(msg);
@@ -397,8 +396,7 @@ pub(crate) fn deserialize_incoming_reliable_client_message<
                         stamp: event.message.stamp,
                     };
 
-                    if stamp.stamp > event.message.stamp
-                        || (event.message.stamp - stamp.stamp) > 182
+                    if stamp.tick > event.message.stamp || (event.message.stamp - stamp.tick) > 182
                     {
                         outgoing.send(r);
                         continue;
@@ -416,7 +414,7 @@ pub(crate) fn deserialize_incoming_reliable_client_message<
         }
     }
 
-    match queue.get_mut(&stamp.stamp) {
+    match queue.get_mut(&stamp.tick) {
         Some(v) => {
             for msg in v.clone() {
                 outgoing.send(msg);
@@ -459,7 +457,8 @@ pub struct Latency {
 }
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct AdjustSync {
-    pub advance: i8,
+    pub tick: i8,
+    pub iteration: u64,
 }
 
 pub(crate) fn adjust_clients(
@@ -467,6 +466,7 @@ pub(crate) fn adjust_clients(
     tickrate: Res<TickRate>,
     mut net: EventWriter<OutgoingReliableServerMessage<NetworkingServerMessage>>,
     mut confirmations: ResMut<SyncConfirmations>,
+    stamp: Res<TickRateStamp>,
 ) {
     for (handle, tickrate_differences) in latency.tickrate_differences.iter_mut() {
         let server_side_sync_iteration;
@@ -504,7 +504,10 @@ pub(crate) fn adjust_clients(
 
                 net.send(OutgoingReliableServerMessage {
                     handle: *handle,
-                    message: NetworkingServerMessage::AdjustSync(AdjustSync { advance }),
+                    message: NetworkingServerMessage::AdjustSync(AdjustSync {
+                        tick: advance,
+                        iteration: stamp.iteration,
+                    }),
                 });
 
                 tickrate_differences.clear();
@@ -524,7 +527,8 @@ pub(crate) fn adjust_clients(
                 net.send(OutgoingReliableServerMessage {
                     handle: *handle,
                     message: NetworkingServerMessage::AdjustSync(AdjustSync {
-                        advance: average_latency.ceil() as i8 - max_latency.floor() as i8,
+                        tick: average_latency.ceil() as i8 - max_latency.floor() as i8,
+                        iteration: stamp.iteration,
                     }),
                 });
                 tickrate_differences.clear();

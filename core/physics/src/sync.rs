@@ -1,37 +1,44 @@
 use std::time::Duration;
 
-use bevy::prelude::{info, EventReader, EventWriter, FixedTime, Local, ResMut, Resource};
+use bevy::prelude::{info, EventReader, EventWriter, FixedTime, Local, Res, ResMut, Resource};
 use bevy_xpbd_3d::prelude::PhysicsLoop;
 use networking::{
     client::{
         IncomingReliableServerMessage, NetworkingClientMessage, OutgoingReliableClientMessage,
     },
     server::{AdjustSync, NetworkingServerMessage},
-    stamp::PauseTickStep,
+    stamp::{PauseTickStep, TickRateStamp},
 };
 use resources::core::TickRate;
 #[derive(Resource, Default)]
 pub(crate) struct FastForwarding {
     pub forwarding: bool,
-    pub advance: u8,
-    pub i: u8,
+    pub advance: u16,
+    pub i: u16,
 }
 
 pub const DEBUG_FAST_FORWARD: bool = false;
 
+#[derive(Resource, Default)]
+pub struct SyncPause {
+    pub duration: u16,
+    pub i: u16,
+}
+
 pub(crate) fn sync_loop(
     mut net: EventReader<IncomingReliableServerMessage<NetworkingServerMessage>>,
     mut physics_loop: ResMut<PhysicsLoop>,
-    mut paused: Local<(i8, i8)>,
+    mut paused: ResMut<SyncPause>,
     mut sync_queue: Local<Vec<AdjustSync>>,
     mut out: EventWriter<OutgoingReliableClientMessage<NetworkingClientMessage>>,
     mut fixed_time: ResMut<FixedTime>,
     mut fast_forwarding: ResMut<FastForwarding>,
     mut p: ResMut<PauseTickStep>,
+    stamp: Res<TickRateStamp>,
 ) {
     if physics_loop.paused {
-        paused.1 += 1;
-        if paused.1 >= paused.0 {
+        paused.i += 1;
+        if paused.i >= paused.duration {
             physics_loop.resume();
             out.send(OutgoingReliableClientMessage {
                 message: NetworkingClientMessage::SyncConfirmation,
@@ -81,30 +88,33 @@ pub(crate) fn sync_loop(
     match adjustment_option {
         Some(adjustment) => {
             if !physics_loop.paused {
-                if adjustment.advance > 0 {
-                    paused.0 = adjustment.advance;
-                    paused.1 = 0;
+                let delta = (((stamp.iteration as i128 - adjustment.iteration as i128)
+                    * u8::MAX as i128)
+                    + adjustment.tick as i128) as i16;
+
+                if delta > 0 {
+                    paused.duration = delta as u16;
+                    paused.i = 0;
                     physics_loop.pause();
                     if process_queue {
                         erase_queue = true;
-                        info!("-{} ticks (from queue)", paused.0);
+                        info!("- {} ticks (from queue)", paused.duration);
                     } else {
-                        info!("-{} ticks", paused.0);
+                        info!("- {} ticks", paused.duration);
                     }
                 } else {
                     if process_queue {
-                        info!("+{} ticks (from queue)", adjustment.advance.abs());
+                        info!("+ {} ticks (from queue)", delta.abs());
                     } else {
-                        info!("+{} ticks", adjustment.advance.abs());
+                        info!("+ {} ticks", delta.abs());
                     }
 
                     fixed_time.period = Duration::from_secs_f32(
-                        (1. / TickRate::default().bevy_rate as f32)
-                            / (adjustment.advance.abs() + 1) as f32,
+                        (1. / TickRate::default().bevy_rate as f32) / (delta.abs() + 1) as f32,
                     );
                     fast_forwarding.forwarding = true;
                     fast_forwarding.i = 0;
-                    fast_forwarding.advance = adjustment.advance.abs() as u8;
+                    fast_forwarding.advance = delta.abs() as u16;
                     if DEBUG_FAST_FORWARD {
                         p.0 = true;
                     }

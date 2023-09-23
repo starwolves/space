@@ -9,7 +9,7 @@ use crate::{
         server_mirror_link_transform, ResetLerp, RigidBodies,
     },
     mirror_physics_transform::rigidbody_link_transform,
-    sync::{sync_loop, FastForwarding},
+    sync::{sync_loop, FastForwarding, SyncPause},
 };
 
 pub struct PhysicsPlugin;
@@ -36,6 +36,7 @@ impl Plugin for PhysicsPlugin {
                     .in_set(MainSet::PreUpdate),
             )
             .add_event::<ResetLerp>()
+            .init_resource::<SyncPause>()
             .add_systems(
                 FixedUpdate,
                 sync_loop

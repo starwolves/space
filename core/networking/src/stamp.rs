@@ -6,7 +6,7 @@ use crate::{client::IncomingReliableServerMessage, server::NetworkingServerMessa
 
 #[derive(Resource, Default, Serialize, Deserialize, Debug, Clone)]
 pub struct TickRateStamp {
-    pub stamp: u8,
+    pub tick: u8,
     pub iteration: u64,
     pub large: u64,
 }
@@ -14,36 +14,36 @@ pub struct TickRateStamp {
 impl TickRateStamp {
     pub fn step(&mut self) {
         self.large += 1;
-        if self.stamp == u8::MAX {
-            self.stamp = 0;
+        if self.tick == u8::MAX {
+            self.tick = 0;
             self.iteration += 1;
         } else {
-            self.stamp += 1;
+            self.tick += 1;
         }
     }
     pub fn step_custom(&mut self, step_amount: u8) {
         self.large += step_amount as u64;
-        if self.stamp > u8::MAX - step_amount {
-            let remainder = u8::MAX - self.stamp;
-            self.stamp = step_amount - remainder;
+        if self.tick > u8::MAX - step_amount {
+            let remainder = u8::MAX - self.tick;
+            self.tick = step_amount - remainder;
             self.iteration += 1;
         } else {
-            self.stamp += step_amount;
+            self.tick += step_amount;
         }
     }
     pub fn get_difference(&self, input: u8) -> i8 {
         let d;
-        if input > self.stamp {
-            if u8::MAX - input < 64 && input - self.stamp > 64 {
-                d = (-((u8::MAX - input) as i16 + self.stamp as i16)) as i8;
+        if input > self.tick {
+            if u8::MAX - input < 64 && input - self.tick > 64 {
+                d = (-((u8::MAX - input) as i16 + self.tick as i16)) as i8;
             } else {
-                d = (input as i16 - self.stamp as i16) as i8;
+                d = (input as i16 - self.tick as i16) as i8;
             }
         } else {
-            if u8::MAX - self.stamp < 64 && self.stamp - input > 64 {
-                d = ((u8::MAX as i16 - self.stamp as i16) + input as i16) as i8;
+            if u8::MAX - self.tick < 64 && self.tick - input > 64 {
+                d = ((u8::MAX as i16 - self.tick as i16) + input as i16) as i8;
             } else {
-                d = (-(self.stamp as i16 - input as i16)) as i8;
+                d = (-(self.tick as i16 - input as i16)) as i8;
             }
         }
         d

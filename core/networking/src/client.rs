@@ -300,7 +300,7 @@ pub(crate) fn step_buffer(
         let bin;
         match bincode::serialize(&ReliableClientMessageBatch {
             messages: res.reliable.clone(),
-            stamp: stamp.stamp,
+            stamp: stamp.tick,
         }) {
             Ok(b) => {
                 bin = b;
@@ -318,7 +318,7 @@ pub(crate) fn step_buffer(
         let bin;
         match bincode::serialize(&UnreliableClientMessageBatch {
             messages: res.unreliable.clone(),
-            stamp: stamp.stamp,
+            stamp: stamp.tick,
         }) {
             Ok(b) => {
                 bin = b;
