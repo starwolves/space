@@ -87,12 +87,16 @@ pub(crate) fn sync_loop(
                     physics_loop.pause();
                     if process_queue {
                         erase_queue = true;
-                        info!("Pause {} ticks (from queue)", paused.0);
+                        info!("-{} ticks (from queue)", paused.0);
                     } else {
-                        info!("Pause {} ticks", paused.0);
+                        info!("-{} ticks", paused.0);
                     }
                 } else {
-                    info!("Fast-forward {} ticks", adjustment.advance.abs());
+                    if process_queue {
+                        info!("+{} ticks (from queue)", adjustment.advance.abs());
+                    } else {
+                        info!("+{} ticks", adjustment.advance.abs());
+                    }
 
                     fixed_time.period = Duration::from_secs_f32(
                         (1. / TickRate::default().bevy_rate as f32)
