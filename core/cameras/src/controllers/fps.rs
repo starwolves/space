@@ -8,7 +8,6 @@ use bevy::{
     time::Time,
     transform::components::Transform,
 };
-use bevy_xpbd_3d::prelude::PhysicsLoop;
 use resources::hud::HudState;
 use serde::{Deserialize, Serialize};
 
