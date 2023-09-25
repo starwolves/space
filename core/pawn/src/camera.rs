@@ -1,4 +1,5 @@
 use bevy::prelude::{warn, EventReader, EventWriter, Local, Query, Res, SystemSet, Vec3};
+use bevy_xpbd_3d::prelude::PhysicsLoop;
 use cameras::{controllers::fps::ActiveCamera, LookTransform};
 use entity::spawn::PawnId;
 use networking::{
@@ -20,6 +21,7 @@ pub(crate) fn client_sync_look_transform(
     mut prev_target: Local<Vec3>,
     state: Res<ActiveCamera>,
     pawn_id: Res<PawnId>,
+    physics_loop: Res<PhysicsLoop>,
 ) {
     let camera_entity;
     match state.option {
@@ -33,7 +35,7 @@ pub(crate) fn client_sync_look_transform(
     let lk;
     match look_transform_query.get(camera_entity) {
         Ok(look_transform) => {
-            if *prev_target != look_transform.target {
+            if *prev_target != look_transform.target && !physics_loop.paused {
                 events.send(OutgoingUnreliableClientMessage {
                     message: MouseMessage::SyncLookTransform(look_transform.target),
                 });

@@ -94,11 +94,7 @@ pub fn default_input_map(
     mut mouse_motion_events: EventReader<MouseMotion>,
     controllers: Query<&FpsCameraController>,
     hud_state: Res<HudState>,
-    physics_loop: Res<PhysicsLoop>,
 ) {
-    if physics_loop.paused {
-        return;
-    }
     // Can only control one camera at a time.
     let controller = if let Some(controller) = controllers.iter().find(|c| c.enabled) {
         controller
