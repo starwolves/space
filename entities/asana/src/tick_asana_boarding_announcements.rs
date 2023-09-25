@@ -1,11 +1,8 @@
-use std::time::Duration;
-
-use bevy::prelude::{Color, EventWriter, Query, Res, ResMut};
+use bevy::prelude::{Color, EventWriter, FixedTime, Query, Res, ResMut};
 
 use chat::net::{ChatMessage, ChatServerMessage};
 use networking::server::{ConnectedPlayer, OutgoingReliableServerMessage};
 use player::boarding::BoardingAnnouncements;
-use resources::core::TickRate;
 use ui::{
     fonts::{Fonts, SOURCECODE_REGULAR_FONT},
     text::{NetTextSection, COMMUNICATION_FONT_SIZE},
@@ -17,6 +14,7 @@ pub(crate) fn tick_asana_boarding_announcements(
     mut net: EventWriter<OutgoingReliableServerMessage<ChatServerMessage>>,
     connected_players: Query<&ConnectedPlayer>,
     fonts: Res<Fonts>,
+    fixed_time: Res<FixedTime>,
 ) {
     let mut done_messages: Vec<usize> = vec![];
 
@@ -25,12 +23,7 @@ pub(crate) fn tick_asana_boarding_announcements(
     for (announcement_message, announcement_timer) in
         &mut asana_boarding_announcements.announcements
     {
-        if announcement_timer
-            .tick(Duration::from_secs_f32(
-                1. / TickRate::default().bevy_rate as f32,
-            ))
-            .just_finished()
-        {
+        if announcement_timer.tick(fixed_time.period).just_finished() {
             for player in connected_players.iter() {
                 if !player.connected {
                     continue;

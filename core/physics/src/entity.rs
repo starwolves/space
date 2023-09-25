@@ -2,8 +2,8 @@ use std::collections::{hash_map::Entry, HashMap};
 
 use bevy::{
     prelude::{
-        warn, Component, CubicGenerator, Entity, Event, EventReader, EventWriter, Hermite, Local,
-        Query, Res, ResMut, Resource, Transform, Vec3, With, Without,
+        warn, Component, CubicGenerator, Entity, Event, EventReader, EventWriter, FixedTime,
+        Hermite, Local, Query, Res, ResMut, Resource, Transform, Vec3, With, Without,
     },
     time::Time,
 };
@@ -155,6 +155,7 @@ pub(crate) fn client_mirror_link_target_transform(
     mut target_transforms: Query<(&mut RigidBodyLink, &WorldMode), Without<Tile>>,
     rigidbodies: Res<RigidBodies>,
     mut reset: EventWriter<ResetLerp>,
+    fixed_time: Res<FixedTime>,
 ) {
     for (rigidbody, links) in rigidbodies.entity_map.iter() {
         let rbt;
@@ -187,7 +188,7 @@ pub(crate) fn client_mirror_link_target_transform(
                     link.origin_velocity = link.target_velocity.clone();
 
                     link.target_transform = fin_transform;
-                    link.target_velocity = velocity.0 / TickRate::default().physics_rate as f32;
+                    link.target_velocity = velocity.0 / (1. / fixed_time.period.as_secs_f32());
                 }
                 Err(_) => {
                     warn!("Couldnt find link entity transform.");
