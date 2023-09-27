@@ -411,6 +411,7 @@ dependencies = [
  "bevy_xpbd_3d",
  "cameras",
  "entity",
+ "pawn",
  "physics",
  "resources",
 ]

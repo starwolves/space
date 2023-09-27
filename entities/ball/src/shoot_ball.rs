@@ -1,8 +1,7 @@
-use bevy::prelude::{
-    warn, Camera3d, Commands, EventWriter, KeyCode, Query, Res, ResMut, Transform, With,
-};
+use bevy::prelude::{warn, Commands, EventWriter, KeyCode, Query, Res, ResMut, Transform, With};
 use cameras::LookTransform;
 use entity::spawn::{EntityBuildData, SpawnEntity};
+use pawn::pawn::Pawn;
 use resources::{
     hud::{EscapeMenuState, HudState},
     input::{InputBuffer, KeyBind, KeyBinds, KeyCodeEnum},
@@ -31,17 +30,18 @@ pub(crate) fn shoot_ball(
     hud_state: Res<HudState>,
     esc_state: Res<EscapeMenuState>,
     mut commands: Commands,
-    camera_query: Query<&LookTransform, With<Camera3d>>,
+    camera_query: Query<(&LookTransform, &Transform), With<Pawn>>,
     mut spawner: EventWriter<SpawnEntity<BallType>>,
 ) {
     if main_menu.enabled || hud_state.expanded || esc_state.visible {
         return;
     }
     if input.just_pressed(SHOOT_BALL_BIND) {
-        let camera_transform;
+        let (camera_transform, entity_transform);
         match camera_query.get_single() {
             Ok(t) => {
-                camera_transform = t.clone();
+                camera_transform = t.0.clone();
+                entity_transform = t.1.clone();
             }
             Err(_) => {
                 warn!("Couldnt find pawn components.");
@@ -53,7 +53,9 @@ pub(crate) fn shoot_ball(
 
         spawner.send(SpawnEntity {
             spawn_data: EntityBuildData {
-                entity_transform: Transform::from_translation(camera_transform.eye + offset * 2.),
+                entity_transform: Transform::from_translation(
+                    entity_transform.translation + camera_transform.eye + offset * 2.,
+                ),
                 entity: commands.spawn(()).id(),
                 ..Default::default()
             },

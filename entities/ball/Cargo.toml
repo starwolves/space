@@ -24,3 +24,4 @@ entity = { path = "../../core/entity" }
 resources = { path = "../../core/resources" }
 physics = { path = "../../core/physics" }
 cameras = { path = "../../core/cameras" }
+pawn = { path = "../../core/pawn" }
