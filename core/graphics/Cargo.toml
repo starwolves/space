@@ -12,13 +12,13 @@ edition = "2021"
 
 
 [dependencies.bevy]
-version = "0.11.2"
+version = "0.11.3"
 
 default-features = false
 
 [dependencies]
 serde = "1.0.177"
 ron = "0.8.0"
-num-derive = "0.3.3"
+num-derive = "0.4.0"
 num-traits = "0.2.16"
 resources = { path = "../resources" }
