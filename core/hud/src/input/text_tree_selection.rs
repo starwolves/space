@@ -190,7 +190,7 @@ pub(crate) fn create_text_tree_selection(
                                             .insert(TextTreeSelectionSubmitButton)
                                             .with_children(|parent| {
                                                 parent.spawn(TextBundle::from_section(
-                                                    "Submit".clone(),
+                                                    "Submit",
                                                     TextStyle {
                                                         font_size: 13.0,
                                                         color: Color::WHITE,

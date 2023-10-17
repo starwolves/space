@@ -28,7 +28,7 @@ pub(crate) fn examine(
         let building_action_id;
         match action_requests.list.get(&building.incremented_i) {
             Some(action_request) => {
-                building_action_id = action_request.get_id().clone();
+                building_action_id = action_request.get_id();
             }
             None => {
                 continue;
