@@ -333,6 +333,7 @@ pub(crate) fn deserialize_incoming_unreliable_client_message<
 >(
     mut incoming_raw: EventReader<IncomingRawUnreliableClientMessage>,
     mut outgoing: EventWriter<IncomingUnreliableClientMessage<T>>,
+    mut outgoing_early: EventWriter<IncomingEarlyUnreliableClientMessage<T>>,
     typenames: Res<Typenames>,
     stamp: Res<TickRateStamp>,
     mut queue: Local<HashMap<u8, Vec<IncomingUnreliableClientMessage<T>>>>,
@@ -356,6 +357,12 @@ pub(crate) fn deserialize_incoming_unreliable_client_message<
                     match queue.get_mut(&event.message.stamp) {
                         Some(v) => v.push(r),
                         None => {
+                            let cr = r.clone();
+                            outgoing_early.send(IncomingEarlyUnreliableClientMessage {
+                                handle: cr.handle,
+                                message: cr.message,
+                                stamp: cr.stamp,
+                            });
                             queue.insert(event.message.stamp, vec![r]);
                         }
                     }
@@ -382,6 +389,7 @@ pub(crate) fn deserialize_incoming_reliable_client_message<
 >(
     mut incoming_raw: EventReader<IncomingRawReliableClientMessage>,
     mut outgoing: EventWriter<IncomingReliableClientMessage<T>>,
+    mut outgoing_early: EventWriter<IncomingEarlyReliableClientMessage<T>>,
     typenames: Res<Typenames>,
     stamp: Res<TickRateStamp>,
     mut queue: Local<HashMap<u8, Vec<IncomingReliableClientMessage<T>>>>,
@@ -405,6 +413,12 @@ pub(crate) fn deserialize_incoming_reliable_client_message<
                     match queue.get_mut(&event.message.stamp) {
                         Some(v) => v.push(r),
                         None => {
+                            let cr = r.clone();
+                            outgoing_early.send(IncomingEarlyReliableClientMessage {
+                                handle: cr.handle,
+                                message: cr.message,
+                                stamp: cr.stamp,
+                            });
                             queue.insert(event.message.stamp, vec![r]);
                         }
                     }
@@ -434,6 +448,20 @@ pub struct IncomingReliableClientMessage<T: TypeName + Send + Sync + Serialize> 
 ///  Messages that you receive with this event must be initiated from a plugin builder with [crate::messaging::init_unreliable_message].
 #[derive(Event, Clone)]
 pub struct IncomingUnreliableClientMessage<T: TypeName + Send + Sync + Serialize + Clone> {
+    pub handle: u64,
+    pub message: T,
+    pub stamp: u8,
+}
+///  Messages that you receive with this event must be initiated from a plugin builder with [crate::messaging::init_reliable_message].
+#[derive(Event, Clone)]
+pub struct IncomingEarlyReliableClientMessage<T: TypeName + Send + Sync + Serialize> {
+    pub handle: u64,
+    pub message: T,
+    pub stamp: u8,
+}
+///  Messages that you receive with this event must be initiated from a plugin builder with [crate::messaging::init_unreliable_message].
+#[derive(Event, Clone)]
+pub struct IncomingEarlyUnreliableClientMessage<T: TypeName + Send + Sync + Serialize + Clone> {
     pub handle: u64,
     pub message: T,
     pub stamp: u8,

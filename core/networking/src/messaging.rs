@@ -72,7 +72,9 @@ pub enum MessageSender {
 }
 
 use crate::client::step_buffer;
-use crate::server::ServerMessageSet;
+use crate::server::{
+    IncomingEarlyReliableClientMessage, IncomingEarlyUnreliableClientMessage, ServerMessageSet,
+};
 use crate::{
     client::{
         deserialize_incoming_reliable_server_message, send_outgoing_reliable_client_messages,
@@ -141,7 +143,8 @@ pub fn register_reliable_message<
                 .before(step_buffer),
         );
     }
-    app.add_event::<IncomingReliableClientMessage<T>>();
+    app.add_event::<IncomingReliableClientMessage<T>>()
+        .add_event::<IncomingEarlyReliableClientMessage<T>>();
 
     if client_is_sender && is_server() {
         app.add_systems(
@@ -225,6 +228,7 @@ pub fn register_unreliable_message<
     }
     if client_is_sender && is_server() {
         app.add_event::<IncomingUnreliableClientMessage<T>>()
+            .add_event::<IncomingEarlyUnreliableClientMessage<T>>()
             .add_systems(
                 FixedUpdate,
                 deserialize_incoming_unreliable_client_message::<T>
