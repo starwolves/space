@@ -58,6 +58,7 @@ use networking::server::{IncomingReliableClientMessage, IncomingUnreliableClient
 pub struct PeerReliableControllerMessage {
     pub message: ControllerClientMessage,
     pub peer_handle: u64,
+    pub client_stamp: u8,
 }
 /// Replicates client input to peers this is a server message.
 #[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
@@ -65,6 +66,7 @@ pub struct PeerReliableControllerMessage {
 pub struct PeerUnreliableControllerMessage {
     pub message: ControllerUnreliableClientMessage,
     pub peer_handle: u64,
+    pub client_stamp: u8,
 }
 
 /// Replicate client input to peers instantly.
@@ -93,6 +95,7 @@ pub(crate) fn peer_replication(
                 message: PeerReliableControllerMessage {
                     message: message.message.clone(),
                     peer_handle: message.handle,
+                    client_stamp: message.stamp,
                 },
             });
         }
@@ -111,6 +114,7 @@ pub(crate) fn peer_replication(
                 message: PeerUnreliableControllerMessage {
                     message: message.message.clone(),
                     peer_handle: message.handle,
+                    client_stamp: message.stamp,
                 },
             });
         }
