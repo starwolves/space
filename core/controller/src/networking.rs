@@ -9,6 +9,7 @@ use networking::server::IncomingEarlyUnreliableClientMessage;
 use networking::server::OutgoingReliableServerMessage;
 use networking::server::OutgoingUnreliableServerMessage;
 use networking::server::UIInputAction;
+use pawn::net::MouseMessage;
 use serde::Deserialize;
 use serde::Serialize;
 use typename::TypeName;
@@ -63,8 +64,8 @@ pub struct PeerReliableControllerMessage {
 /// Replicates client input to peers this is a server message.
 #[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
 
-pub struct PeerUnreliableControllerMessage {
-    pub message: ControllerUnreliableClientMessage,
+pub struct PeerMouseMessage {
+    pub message: MouseMessage,
     pub peer_handle: u64,
     pub client_stamp: u8,
 }
@@ -72,13 +73,9 @@ pub struct PeerUnreliableControllerMessage {
 /// Replicate client input to peers instantly.
 pub(crate) fn peer_replication(
     mut server: EventReader<IncomingEarlyReliableClientMessage<ControllerClientMessage>>,
-    mut u_server: EventReader<
-        IncomingEarlyUnreliableClientMessage<ControllerUnreliableClientMessage>,
-    >,
+    mut u_server: EventReader<IncomingEarlyUnreliableClientMessage<MouseMessage>>,
     mut peer: EventWriter<OutgoingReliableServerMessage<PeerReliableControllerMessage>>,
-    mut peer_unreliable: EventWriter<
-        OutgoingUnreliableServerMessage<PeerUnreliableControllerMessage>,
-    >,
+    mut peer_unreliable: EventWriter<OutgoingUnreliableServerMessage<PeerMouseMessage>>,
     players: Query<&ConnectedPlayer>,
 ) {
     for message in server.iter() {
@@ -111,7 +108,7 @@ pub(crate) fn peer_replication(
 
             peer_unreliable.send(OutgoingUnreliableServerMessage {
                 handle: connected.handle,
-                message: PeerUnreliableControllerMessage {
+                message: PeerMouseMessage {
                     message: message.message.clone(),
                     peer_handle: message.handle,
                     client_stamp: message.stamp,

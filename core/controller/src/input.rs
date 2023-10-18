@@ -1,12 +1,20 @@
 use crate::{
     controller::ControllerInput,
     net::{ControllerClientMessage, MovementInput},
+    networking::{PeerMouseMessage, PeerReliableControllerMessage},
 };
 use bevy::prelude::{
     warn, Entity, Event, EventReader, EventWriter, KeyCode, Query, Res, ResMut, SystemSet, Vec2,
 };
 use entity::spawn::PawnId;
-use networking::client::OutgoingReliableClientMessage;
+use networking::{
+    client::{
+        IncomingReliableServerMessage, IncomingUnreliableServerMessage,
+        OutgoingReliableClientMessage,
+    },
+    server::HandleToEntity,
+};
+use pawn::net::MouseMessage;
 use resources::{
     input::{
         InputBuffer, KeyBind, KeyBinds, KeyCodeEnum, HOLD_SPRINT_BIND, JUMP_BIND,
@@ -159,6 +167,52 @@ pub(crate) fn create_input_map(mut map: ResMut<KeyBinds>) {
             customizable: true,
         },
     );
+}
+
+pub(crate) fn get_peer_input(
+    mut peer: EventReader<IncomingReliableServerMessage<PeerReliableControllerMessage>>,
+    mut unreliable_peer: EventReader<IncomingUnreliableServerMessage<PeerMouseMessage>>,
+    handles: Res<HandleToEntity>,
+) {
+    for message in peer.iter() {
+        let peer_entity;
+        match handles.map.get(&message.message.peer_handle) {
+            Some(e) => {
+                peer_entity = *e;
+            }
+            None => {
+                warn!(
+                    "Couldnt find peer entity, handle: {}",
+                    message.message.peer_handle
+                );
+                continue;
+            }
+        }
+
+        match &message.message.message {
+            ControllerClientMessage::MovementInput(input) => {}
+            _ => (),
+        }
+    }
+    for message in unreliable_peer.iter() {
+        let peer_entity;
+        match handles.map.get(&message.message.peer_handle) {
+            Some(e) => {
+                peer_entity = *e;
+            }
+            None => {
+                warn!(
+                    "Couldnt find peer entity, handle: {}",
+                    message.message.peer_handle
+                );
+                continue;
+            }
+        }
+
+        match &message.message.message {
+            MouseMessage::SyncLookTransform(look_target) => {}
+        }
+    }
 }
 
 pub(crate) fn get_client_input(

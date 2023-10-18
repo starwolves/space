@@ -2,8 +2,8 @@ use std::time::Duration;
 
 use crate::connections::connections;
 use crate::input::{
-    controller_input, create_input_map, get_client_input, Controller, InputAltItemAttack,
-    InputAttackCell, InputAttackEntity, InputBuildGraphics, InputMouseAction,
+    controller_input, create_input_map, get_client_input, get_peer_input, Controller,
+    InputAltItemAttack, InputAttackCell, InputAttackEntity, InputBuildGraphics, InputMouseAction,
     InputMouseDirectionUpdate, InputMovementInput, InputSet, InputSprinting, InputToggleAutoMove,
     InputToggleCombatMode,
 };
@@ -49,7 +49,7 @@ impl Plugin for ControllerPlugin {
         } else {
             app.add_systems(Startup, create_input_map).add_systems(
                 FixedUpdate,
-                get_client_input
+                (get_client_input, get_peer_input)
                     .in_set(InputSet::First)
                     .before(UpdateSet::StandardCharacters)
                     .in_set(MainSet::Update),
