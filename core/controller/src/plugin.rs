@@ -8,7 +8,7 @@ use crate::input::{
     InputToggleCombatMode,
 };
 use crate::net::{ControllerClientMessage, ControllerUnreliableClientMessage};
-use crate::networking::incoming_messages;
+use crate::networking::{incoming_messages, peer_replication, PeerReliableControllerMessage};
 use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, Startup};
 
 use bevy::time::common_conditions::on_fixed_timer;
@@ -34,6 +34,7 @@ impl Plugin for ControllerPlugin {
                 (
                     update_player_count.run_if(on_fixed_timer(Duration::from_secs_f32(5.))),
                     connections,
+                    peer_replication,
                 )
                     .in_set(MainSet::Update),
             )
@@ -74,6 +75,8 @@ impl Plugin for ControllerPlugin {
         .add_event::<InputBuildGraphics>()
         .add_event::<InputMouseDirectionUpdate>();
         register_reliable_message::<ControllerClientMessage>(app, MessageSender::Client);
+        register_reliable_message::<PeerReliableControllerMessage>(app, MessageSender::Server);
+
         register_unreliable_message::<ControllerUnreliableClientMessage>(
             app,
             MessageSender::Client,

@@ -1,10 +1,17 @@
 use bevy::prelude::warn;
 use bevy::prelude::Event;
 use bevy::prelude::EventWriter;
+use bevy::prelude::Query;
 use bevy::prelude::Res;
+use networking::server::ConnectedPlayer;
+use networking::server::IncomingEarlyReliableClientMessage;
+use networking::server::IncomingEarlyUnreliableClientMessage;
+use networking::server::OutgoingReliableServerMessage;
+use networking::server::OutgoingUnreliableServerMessage;
 use networking::server::UIInputAction;
 use serde::Deserialize;
 use serde::Serialize;
+use typename::TypeName;
 
 use crate::input::InputAltItemAttack;
 use crate::input::InputAttackCell;
@@ -44,6 +51,71 @@ pub struct InputUIInput {
 use crate::net::{ControllerClientMessage, ControllerUnreliableClientMessage};
 use bevy::prelude::EventReader;
 use networking::server::{IncomingReliableClientMessage, IncomingUnreliableClientMessage};
+
+/// Replicates client input to peers this is a server message.
+#[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
+
+pub struct PeerReliableControllerMessage {
+    pub message: ControllerClientMessage,
+    pub peer_handle: u64,
+}
+/// Replicates client input to peers this is a server message.
+#[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
+
+pub struct PeerUnreliableControllerMessage {
+    pub message: ControllerUnreliableClientMessage,
+    pub peer_handle: u64,
+}
+
+/// Replicate client input to peers instantly.
+pub(crate) fn peer_replication(
+    mut server: EventReader<IncomingEarlyReliableClientMessage<ControllerClientMessage>>,
+    mut u_server: EventReader<
+        IncomingEarlyUnreliableClientMessage<ControllerUnreliableClientMessage>,
+    >,
+    mut peer: EventWriter<OutgoingReliableServerMessage<PeerReliableControllerMessage>>,
+    mut peer_unreliable: EventWriter<
+        OutgoingUnreliableServerMessage<PeerUnreliableControllerMessage>,
+    >,
+    players: Query<&ConnectedPlayer>,
+) {
+    for message in server.iter() {
+        for connected in players.iter() {
+            if !connected.connected {
+                continue;
+            }
+            if message.handle == connected.handle {
+                continue;
+            }
+
+            peer.send(OutgoingReliableServerMessage {
+                handle: connected.handle,
+                message: PeerReliableControllerMessage {
+                    message: message.message.clone(),
+                    peer_handle: message.handle,
+                },
+            });
+        }
+    }
+    for message in u_server.iter() {
+        for connected in players.iter() {
+            if !connected.connected {
+                continue;
+            }
+            if message.handle == connected.handle {
+                continue;
+            }
+
+            peer_unreliable.send(OutgoingUnreliableServerMessage {
+                handle: connected.handle,
+                message: PeerUnreliableControllerMessage {
+                    message: message.message.clone(),
+                    peer_handle: message.handle,
+                },
+            });
+        }
+    }
+}
 
 /// Manage incoming network messages from clients.
 
