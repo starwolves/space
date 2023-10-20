@@ -2,8 +2,8 @@ use std::time::Duration;
 
 use crate::connections::connections;
 use crate::input::{
-    controller_input, create_input_map, get_client_input, get_peer_input, Controller,
-    InputMovementInput, InputSet, RecordedControllerInput,
+    clean_recorded_input, controller_input, create_input_map, get_client_input, get_peer_input,
+    Controller, InputMovementInput, InputSet, RecordedControllerInput,
 };
 use crate::net::ControllerClientMessage;
 use crate::networking::{incoming_messages, peer_replication, PeerReliableControllerMessage};
@@ -51,6 +51,7 @@ impl Plugin for ControllerPlugin {
                         .before(UpdateSet::StandardCharacters)
                         .in_set(MainSet::Update),
                 )
+                .add_systems(FixedUpdate, clean_recorded_input.in_set(MainSet::PreUpdate))
                 .init_resource::<RecordedControllerInput>();
         }
 

@@ -153,6 +153,21 @@ pub(crate) fn get_peer_input(
     }
 }
 
+pub(crate) fn clean_recorded_input(
+    mut record: ResMut<RecordedControllerInput>,
+    stamp: Res<TickRateStamp>,
+) {
+    let mut to_remove = vec![];
+    for recorded_stamp in record.input.keys() {
+        if recorded_stamp < &(stamp.large - 1000) {
+            to_remove.push(*recorded_stamp);
+        }
+    }
+    for i in to_remove {
+        record.input.remove(&i);
+    }
+}
+
 pub(crate) fn get_client_input(
     keyboard: Res<InputBuffer>,
     mut net: EventWriter<OutgoingReliableClientMessage<ControllerClientMessage>>,
