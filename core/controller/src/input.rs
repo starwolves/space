@@ -159,7 +159,7 @@ pub(crate) fn clean_recorded_input(
 ) {
     let mut to_remove = vec![];
     for recorded_stamp in record.input.keys() {
-        if recorded_stamp < &(stamp.large - 1000) {
+        if stamp.large >= 1000 && recorded_stamp < &(stamp.large - 1000) {
             to_remove.push(*recorded_stamp);
         }
     }

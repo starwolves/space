@@ -6,11 +6,16 @@ use crate::input::{
     Controller, InputMovementInput, InputSet, RecordedControllerInput,
 };
 use crate::net::ControllerClientMessage;
-use crate::networking::{incoming_messages, peer_replication, PeerReliableControllerMessage};
+use crate::networking::{
+    incoming_messages, peer_replication, PeerReliableControllerMessage,
+    PeerUnreliableControllerMessage,
+};
 use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, Startup};
 
 use bevy::time::common_conditions::on_fixed_timer;
-use networking::messaging::{register_reliable_message, MessageSender, MessagingSet};
+use networking::messaging::{
+    register_reliable_message, register_unreliable_message, MessageSender, MessagingSet,
+};
 use player::boarding::BoardingPlayer;
 use resources::is_server::is_server;
 use resources::sets::{MainSet, UpdateSet};
@@ -66,5 +71,6 @@ impl Plugin for ControllerPlugin {
         .add_event::<InputMovementInput>();
         register_reliable_message::<ControllerClientMessage>(app, MessageSender::Client);
         register_reliable_message::<PeerReliableControllerMessage>(app, MessageSender::Server);
+        register_unreliable_message::<PeerUnreliableControllerMessage>(app, MessageSender::Server);
     }
 }
