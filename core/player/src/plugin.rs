@@ -9,7 +9,7 @@ use crate::connections::{
 use crate::debug_camera::{spawn_debug_camera, ActivateDebugCamera};
 use crate::net::PlayerServerMessage;
 use crate::{
-    boarding::{done_boarding, BoardingAnnouncements, InputUIInputTransmitText},
+    boarding::{done_boarding, BoardingAnnouncements},
     connections::{server_events, PlayerAwaitingBoarding},
 };
 use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, SystemSet, Update};
@@ -61,9 +61,7 @@ impl Plugin for PlayerPlugin {
                 )
                 .init_resource::<AuthidI>()
                 .init_resource::<BoardingAnnouncements>()
-                .add_event::<InputUIInputTransmitText>()
                 .add_event::<PlayerAwaitingBoarding>()
-                .add_event::<InputUIInputTransmitText>()
                 .init_resource::<Accounts>()
                 .add_event::<PlayerBoarded>()
                 .init_resource::<ServerEventBuffer>();

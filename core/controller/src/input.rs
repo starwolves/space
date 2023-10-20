@@ -1,10 +1,13 @@
+use std::collections::HashMap;
+
 use crate::{
     controller::ControllerInput,
     net::{ControllerClientMessage, MovementInput},
-    networking::{PeerMouseMessage, PeerReliableControllerMessage},
+    networking::{PeerReliableControllerMessage, PeerUnreliableControllerMessage},
 };
 use bevy::prelude::{
-    warn, Entity, Event, EventReader, EventWriter, KeyCode, Query, Res, ResMut, SystemSet, Vec2,
+    warn, Entity, Event, EventReader, EventWriter, KeyCode, Query, Res, ResMut, Resource,
+    SystemSet, Vec2,
 };
 use entity::spawn::PawnId;
 use networking::{
@@ -12,54 +15,12 @@ use networking::{
         IncomingReliableServerMessage, IncomingUnreliableServerMessage,
         OutgoingReliableClientMessage,
     },
-    server::HandleToEntity,
+    stamp::TickRateStamp,
 };
-use pawn::net::MouseMessage;
-use resources::{
-    input::{
-        InputBuffer, KeyBind, KeyBinds, KeyCodeEnum, HOLD_SPRINT_BIND, JUMP_BIND,
-        MOVE_BACKWARD_BIND, MOVE_FORWARD_BIND, MOVE_LEFT_BIND, MOVE_RIGHT_BIND,
-    },
-    math::Vec3Int,
+use resources::input::{
+    InputBuffer, KeyBind, KeyBinds, KeyCodeEnum, HOLD_SPRINT_BIND, JUMP_BIND, MOVE_BACKWARD_BIND,
+    MOVE_FORWARD_BIND, MOVE_LEFT_BIND, MOVE_RIGHT_BIND,
 };
-/// Client attack cell input event.
-#[derive(Event)]
-pub struct InputAttackCell {
-    pub entity: Entity,
-    pub id: Vec3Int,
-}
-
-/// Client input toggle combat mode event.
-#[derive(Event)]
-pub struct InputToggleCombatMode {
-    pub entity: Entity,
-}
-
-/// Client input toggle auto move event.
-#[derive(Event)]
-pub struct InputToggleAutoMove {
-    pub entity: Entity,
-}
-
-/// Client input attack entity event.
-#[derive(Event)]
-pub struct InputAttackEntity {
-    pub entity: Entity,
-    pub target_entity_bits: u64,
-}
-
-/// Client input alt item attack event.
-#[derive(Event)]
-pub struct InputAltItemAttack {
-    pub entity: Entity,
-}
-
-/// Client input mouse action event.
-#[derive(Event)]
-pub struct InputMouseAction {
-    pub entity: Entity,
-    pub pressed: bool,
-}
 
 /// Label for systems ordering.
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
@@ -89,27 +50,6 @@ impl Default for InputMovementInput {
             pressed: false,
         }
     }
-}
-
-/// Client input sprinting event.
-#[derive(Event)]
-pub struct InputSprinting {
-    pub entity: Entity,
-    pub is_sprinting: bool,
-}
-
-/// Client input build graphics event.
-#[derive(Event)]
-pub struct InputBuildGraphics {
-    pub handle: u64,
-}
-
-/// Client input mouse direction update event.
-#[derive(Event)]
-pub struct InputMouseDirectionUpdate {
-    pub entity: Entity,
-    pub direction: f32,
-    pub time_stamp: u64,
 }
 
 pub(crate) fn create_input_map(mut map: ResMut<KeyBinds>) {
@@ -169,48 +109,46 @@ pub(crate) fn create_input_map(mut map: ResMut<KeyBinds>) {
     );
 }
 
+pub enum RecordedInput {
+    Reliable(PeerReliableControllerMessage),
+    Unreliable(PeerUnreliableControllerMessage),
+}
+
+#[derive(Resource, Default)]
+pub struct RecordedControllerInput {
+    pub input: HashMap<u64, Vec<RecordedInput>>,
+}
+
 pub(crate) fn get_peer_input(
     mut peer: EventReader<IncomingReliableServerMessage<PeerReliableControllerMessage>>,
-    mut unreliable_peer: EventReader<IncomingUnreliableServerMessage<PeerMouseMessage>>,
-    handles: Res<HandleToEntity>,
+    mut unreliable_peer: EventReader<
+        IncomingUnreliableServerMessage<PeerUnreliableControllerMessage>,
+    >,
+    mut record: ResMut<RecordedControllerInput>,
+    stamp: Res<TickRateStamp>,
 ) {
     for message in peer.iter() {
-        let peer_entity;
-        match handles.map.get(&message.message.peer_handle) {
-            Some(e) => {
-                peer_entity = *e;
+        let large_stamp = stamp.calculate_large(message.stamp);
+        let msg = RecordedInput::Reliable(message.message.clone());
+        match record.input.get_mut(&large_stamp) {
+            Some(v) => {
+                v.push(msg);
             }
             None => {
-                warn!(
-                    "Couldnt find peer entity, handle: {}",
-                    message.message.peer_handle
-                );
-                continue;
+                record.input.insert(large_stamp, vec![msg]);
             }
-        }
-
-        match &message.message.message {
-            ControllerClientMessage::MovementInput(input) => {}
-            _ => (),
         }
     }
     for message in unreliable_peer.iter() {
-        let peer_entity;
-        match handles.map.get(&message.message.peer_handle) {
-            Some(e) => {
-                peer_entity = *e;
+        let large_stamp = stamp.calculate_large(message.stamp);
+        let msg = RecordedInput::Unreliable(message.message.clone());
+        match record.input.get_mut(&large_stamp) {
+            Some(v) => {
+                v.push(msg);
             }
             None => {
-                warn!(
-                    "Couldnt find peer entity, handle: {}",
-                    message.message.peer_handle
-                );
-                continue;
+                record.input.insert(large_stamp, vec![msg]);
             }
-        }
-
-        match &message.message.message {
-            MouseMessage::SyncLookTransform(look_target) => {}
         }
     }
 }
@@ -362,16 +300,9 @@ pub enum Controller {
 
 /// Manage controller input for humanoid. The controller can be controlled by a player or AI.
 pub(crate) fn controller_input(
-    mut alternative_item_attack_events: EventReader<InputAltItemAttack>,
-    mut input_attack_entity: EventReader<InputAttackEntity>,
-    mut input_attack_cell: EventReader<InputAttackCell>,
-    mut input_mouse_action_events: EventReader<InputMouseAction>,
-    mut input_toggle_auto_move: EventReader<InputToggleAutoMove>,
     mut humanoids_query: Query<&mut ControllerInput>,
-    mut toggle_combat_mode_events: EventReader<InputToggleCombatMode>,
 
     mut movement_input_event: EventReader<InputMovementInput>,
-    mut sprinting_input_event: EventReader<InputSprinting>,
 ) {
     for new_event in movement_input_event.iter() {
         let player_entity = new_event.player_entity;
@@ -402,91 +333,6 @@ pub(crate) fn controller_input(
             }
             Err(_rr) => {
                 warn!("Couldn't process player input (movement_input_event): couldn't find player_entity 0. {:?}", player_entity);
-            }
-        }
-    }
-
-    for new_event in sprinting_input_event.iter() {
-        let player_entity = new_event.entity;
-
-        let player_input_component_result = humanoids_query.get_mut(player_entity);
-
-        match player_input_component_result {
-            Ok(mut player_input_component) => {
-                player_input_component.sprinting = new_event.is_sprinting;
-            }
-            Err(_rr) => {
-                warn!("Couldn't process player input (sprinting_input_event): couldn't find player_entity.");
-            }
-        }
-    }
-    for event in toggle_combat_mode_events.iter() {
-        match humanoids_query.get_mut(event.entity) {
-            Ok(mut controller) => {
-                controller.combat_mode = !controller.combat_mode;
-            }
-            Err(_rr) => {}
-        }
-    }
-    for event in alternative_item_attack_events.iter() {
-        match humanoids_query.get_component_mut::<ControllerInput>(event.entity) {
-            Ok(mut controller_input_component) => {
-                controller_input_component.alt_attack_mode =
-                    !controller_input_component.alt_attack_mode;
-            }
-            Err(_rr) => {
-                warn!("Couldn't find standard_character_component belonging to entity of InputAltItemAttack.");
-            }
-        }
-    }
-
-    for event in input_attack_cell.iter() {
-        match humanoids_query.get_component_mut::<ControllerInput>(event.entity) {
-            Ok(mut controller_input_component) => {
-                controller_input_component.combat_targetted_cell = Some(event.id);
-            }
-            Err(_rr) => {
-                warn!("Couldn't find standard_character_component belonging to entity of input_attack_cell.");
-            }
-        }
-    }
-
-    for event in input_attack_entity.iter() {
-        match humanoids_query.get_component_mut::<ControllerInput>(event.entity) {
-            Ok(mut played_input_component) => {
-                played_input_component.combat_targetted_entity =
-                    Some(Entity::from_bits(event.target_entity_bits));
-            }
-            Err(_rr) => {
-                warn!("Couldn't find standard_character_component belonging to entity of InputAttackEntity.");
-            }
-        }
-    }
-
-    for event in input_mouse_action_events.iter() {
-        match humanoids_query.get_component_mut::<ControllerInput>(event.entity) {
-            Ok(mut played_input_component) => {
-                played_input_component.is_mouse_action_pressed = event.pressed;
-
-                if !event.pressed {
-                    played_input_component.combat_targetted_entity = None;
-                    played_input_component.combat_targetted_cell = None;
-                }
-            }
-            Err(_rr) => {
-                warn!("Couldn't find standard_character_component belonging to entity of InputMouseAction.");
-            }
-        }
-    }
-
-    for event in input_toggle_auto_move.iter() {
-        match humanoids_query.get_component_mut::<ControllerInput>(event.entity) {
-            Ok(mut player_input_component) => {
-                player_input_component.auto_move_enabled =
-                    !player_input_component.auto_move_enabled;
-            }
-            Err(_rr) => {
-                warn!("Couldnt find PlayerInput entity for input_toggle_auto_move");
             }
         }
     }

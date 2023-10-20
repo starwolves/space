@@ -7,7 +7,7 @@ use networking::{
     server::{HandleToEntity, IncomingUnreliableClientMessage},
 };
 
-use crate::net::MouseMessage;
+use crate::net::UnreliableControllerClientMessage;
 
 /// Label for systems ordering.
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
@@ -17,7 +17,7 @@ pub enum LookTransformSet {
 
 pub(crate) fn client_sync_look_transform(
     mut look_transform_query: Query<&mut LookTransform>,
-    mut events: EventWriter<OutgoingUnreliableClientMessage<MouseMessage>>,
+    mut events: EventWriter<OutgoingUnreliableClientMessage<UnreliableControllerClientMessage>>,
     mut prev_target: Local<Vec3>,
     state: Res<ActiveCamera>,
     pawn_id: Res<PawnId>,
@@ -37,7 +37,9 @@ pub(crate) fn client_sync_look_transform(
         Ok(look_transform) => {
             if *prev_target != look_transform.target && !physics_loop.paused {
                 events.send(OutgoingUnreliableClientMessage {
-                    message: MouseMessage::SyncLookTransform(look_transform.target),
+                    message: UnreliableControllerClientMessage::SyncLookTransform(
+                        look_transform.target,
+                    ),
                 });
 
                 *prev_target = look_transform.target;
@@ -65,12 +67,12 @@ pub(crate) fn client_sync_look_transform(
 
 pub(crate) fn server_sync_look_transform(
     mut humanoids: Query<&mut LookTransform>,
-    mut messages: EventReader<IncomingUnreliableClientMessage<MouseMessage>>,
+    mut messages: EventReader<IncomingUnreliableClientMessage<UnreliableControllerClientMessage>>,
     handle_to_entity: Res<HandleToEntity>,
 ) {
     for msg in messages.iter() {
         match msg.message {
-            MouseMessage::SyncLookTransform(target) => {
+            UnreliableControllerClientMessage::SyncLookTransform(target) => {
                 match handle_to_entity.map.get(&msg.handle) {
                     Some(entity) => match humanoids.get_mut(*entity) {
                         Ok(mut look_transform) => {

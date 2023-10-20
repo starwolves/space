@@ -3,18 +3,14 @@ use std::time::Duration;
 use crate::connections::connections;
 use crate::input::{
     controller_input, create_input_map, get_client_input, get_peer_input, Controller,
-    InputAltItemAttack, InputAttackCell, InputAttackEntity, InputBuildGraphics, InputMouseAction,
-    InputMouseDirectionUpdate, InputMovementInput, InputSet, InputSprinting, InputToggleAutoMove,
-    InputToggleCombatMode,
+    InputMovementInput, InputSet, RecordedControllerInput,
 };
-use crate::net::{ControllerClientMessage, ControllerUnreliableClientMessage};
+use crate::net::ControllerClientMessage;
 use crate::networking::{incoming_messages, peer_replication, PeerReliableControllerMessage};
 use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, Startup};
 
 use bevy::time::common_conditions::on_fixed_timer;
-use networking::messaging::{
-    register_reliable_message, register_unreliable_message, MessageSender, MessagingSet,
-};
+use networking::messaging::{register_reliable_message, MessageSender, MessagingSet};
 use player::boarding::BoardingPlayer;
 use resources::is_server::is_server;
 use resources::sets::{MainSet, UpdateSet};
@@ -47,13 +43,15 @@ impl Plugin for ControllerPlugin {
                     .after(MessagingSet::DeserializeIncoming),
             );
         } else {
-            app.add_systems(Startup, create_input_map).add_systems(
-                FixedUpdate,
-                (get_client_input, get_peer_input)
-                    .in_set(InputSet::First)
-                    .before(UpdateSet::StandardCharacters)
-                    .in_set(MainSet::Update),
-            );
+            app.add_systems(Startup, create_input_map)
+                .add_systems(
+                    FixedUpdate,
+                    (get_client_input, get_peer_input)
+                        .in_set(InputSet::First)
+                        .before(UpdateSet::StandardCharacters)
+                        .in_set(MainSet::Update),
+                )
+                .init_resource::<RecordedControllerInput>();
         }
 
         app.add_systems(
@@ -64,22 +62,8 @@ impl Plugin for ControllerPlugin {
                 .in_set(MainSet::Update)
                 .in_set(Controller::Input),
         )
-        .add_event::<InputMovementInput>()
-        .add_event::<InputAttackCell>()
-        .add_event::<InputToggleCombatMode>()
-        .add_event::<InputToggleAutoMove>()
-        .add_event::<InputAttackEntity>()
-        .add_event::<InputAltItemAttack>()
-        .add_event::<InputMouseAction>()
-        .add_event::<InputSprinting>()
-        .add_event::<InputBuildGraphics>()
-        .add_event::<InputMouseDirectionUpdate>();
+        .add_event::<InputMovementInput>();
         register_reliable_message::<ControllerClientMessage>(app, MessageSender::Client);
         register_reliable_message::<PeerReliableControllerMessage>(app, MessageSender::Server);
-
-        register_unreliable_message::<ControllerUnreliableClientMessage>(
-            app,
-            MessageSender::Client,
-        );
     }
 }

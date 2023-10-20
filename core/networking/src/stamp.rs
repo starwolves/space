@@ -48,6 +48,9 @@ impl TickRateStamp {
         }
         d
     }
+    pub fn calculate_large(&self, input: u8) -> u64 {
+        self.large + self.get_difference(input) as u64
+    }
 }
 
 pub(crate) fn setup_client_tickrate_stamp(

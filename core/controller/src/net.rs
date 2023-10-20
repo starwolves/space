@@ -1,5 +1,5 @@
 use bevy::prelude::{EventWriter, Query};
-use networking::server::{OutgoingReliableServerMessage, UIInputAction};
+use networking::server::OutgoingReliableServerMessage;
 
 use player::net::PlayerServerMessage;
 
@@ -7,14 +7,6 @@ use networking::server::ConnectedPlayer;
 use serde::{Deserialize, Serialize};
 use typename::TypeName;
 
-use crate::networking::UIInputNodeClass;
-
-/// This message gets sent at high intervals.
-#[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
-
-pub enum ControllerUnreliableClientMessage {
-    MouseDirectionUpdate(f32, u64),
-}
 #[derive(Serialize, Deserialize, Clone, Debug, Default)]
 pub struct MovementInput {
     pub up: bool,
@@ -28,17 +20,7 @@ pub struct MovementInput {
 #[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
 
 pub enum ControllerClientMessage {
-    UIInput(UIInputNodeClass, UIInputAction, String, String),
-    UIInputTransmitData(String, String, String),
     MovementInput(MovementInput),
-    SprintInput(bool),
-    BuildGraphics,
-    ToggleCombatModeInput,
-    InputMouseAction(bool),
-    ToggleAutoMove,
-    AttackEntity(u64),
-    AltItemAttack,
-    AttackCell(i16, i16, i16),
 }
 /// Update player count info for clients.
 

@@ -1,5 +1,4 @@
 use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin};
-use controller::networking::InputUIInput;
 use networking::{
     client::is_client_connected,
     messaging::{register_reliable_message, MessageSender},
@@ -38,7 +37,6 @@ impl Plugin for SetupMenuPlugin {
                 )
                     .in_set(MainSet::Update),
             )
-            .add_event::<InputUIInput>()
             .init_resource::<SetupUiState>()
             .init_resource::<SetupUiUserDataSets>();
         } else {

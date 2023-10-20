@@ -114,19 +114,6 @@ pub fn done_boarding(
 
 pub struct SoftPlayer;
 
-/// Client input submitting text event.
-#[derive(Event)]
-pub struct InputUIInputTransmitText {
-    /// Handle of the connection that input this.
-    pub handle: u64,
-    /// The UI this input was submitted from.
-    pub ui_type: String,
-    /// The Godot node path of the input element.
-    pub node_path: String,
-    /// The input text from the client.
-    pub input_text: String,
-}
-
 /// A spawn point in which players will spawn.
 
 pub struct SpawnPoint {

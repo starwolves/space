@@ -1,6 +1,6 @@
 use crate::actions::{build_actions, examine, examine_prerequisite_check};
 use crate::camera::{client_sync_look_transform, server_sync_look_transform, LookTransformSet};
-use crate::net::MouseMessage;
+use crate::net::UnreliableControllerClientMessage;
 use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin};
 use networking::messaging::{register_unreliable_message, MessageSender};
 use resources::is_server::is_server;
@@ -34,6 +34,9 @@ impl Plugin for PawnPlugin {
                     .in_set(LookTransformSet::Sync),
             );
         }
-        register_unreliable_message::<MouseMessage>(app, MessageSender::Client);
+        register_unreliable_message::<UnreliableControllerClientMessage>(
+            app,
+            MessageSender::Client,
+        );
     }
 }
