@@ -1,5 +1,7 @@
 //! General physics logic.
 
+/// Cache physics data of previous ticks.
+pub mod cache;
 /// Decoupled phyisics entities.
 pub mod entity;
 /// Link rigid body transforms.
