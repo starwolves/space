@@ -8,11 +8,11 @@ use bevy_xpbd_3d::prelude::{
 use networking::stamp::TickRateStamp;
 
 use crate::entity::{RigidBodies, SFRigidBody};
-#[derive(Resource, Default)]
+#[derive(Resource, Default, Clone)]
 pub struct PhysicsCache {
     pub cache: HashMap<u64, Vec<Cache>>,
 }
-
+#[derive(Clone)]
 pub struct Cache {
     pub entity: Entity,
     pub rb_entity: Entity,

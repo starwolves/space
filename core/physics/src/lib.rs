@@ -2,6 +2,7 @@
 
 /// Cache physics data of previous ticks.
 pub mod cache;
+pub mod correction_mode;
 /// Decoupled phyisics entities.
 pub mod entity;
 /// Link rigid body transforms.

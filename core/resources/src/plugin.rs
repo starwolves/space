@@ -31,8 +31,8 @@ impl Plugin for ResourcesPlugin {
                 PhysicsSet::Prepare,
             )
                 .chain(),
-        );
-        app.configure_sets(
+        )
+        .configure_sets(
             Update,
             (
                 MainSet::PreUpdate,

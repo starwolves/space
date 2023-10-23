@@ -1,6 +1,7 @@
 //! Launcher and loop initializer.
 
 use std::env::current_dir;
+use std::sync::mpsc::SyncSender;
 
 use actions::plugin::ActionsPlugin;
 use airlocks::plugin::AirLocksPlugin;
@@ -42,6 +43,10 @@ use computers::plugin::ComputersPlugin;
 use console_commands::plugins::ConsoleCommandsPlugin;
 use construction_tool::plugin::ConstructionToolAdminPlugin;
 use controller::plugin::ControllerPlugin;
+use correction::CorrectionServerMessage;
+use correction::CorrectionServerPlugin;
+use correction::CorrectionServerReceiveMessage;
+use correction::CorrectionServerSendMessage;
 use counter_windows::plugin::CounterWindowsPlugin;
 use entity::plugin::EntityPlugin;
 use escape_menu::plugin::EscapeMenuPlugin;
@@ -76,9 +81,11 @@ use sounds::plugin::SoundsPlugin;
 use token::plugin::TokenPlugin;
 use ui::plugin::UiPlugin;
 
+pub mod correction;
+
 /// The function that launches the server on application start.
 fn main() {
-    configure_and_start();
+    start_app(AppMode::Standard);
 }
 
 /// Prints "Live." from main module for fancy text output.
@@ -88,15 +95,47 @@ fn live() {
 
 /// Version of this crate as defined in this Cargo.toml.
 const APP_VERSION: &'static str = env!("CARGO_PKG_VERSION");
-pub(crate) fn configure_and_start() {
+
+pub enum AppMode {
+    Standard,
+    Correction(
+        CorrectionServerReceiveMessage,
+        SyncSender<CorrectionServerMessage>,
+    ),
+}
+
+/// Start client or server. Optionally start client in simulation correction mode and return new data.
+pub(crate) fn start_app(mode: AppMode) {
     let binding = current_dir().unwrap();
     let mut test_path = binding.as_path();
     let binding = test_path.join("assets");
     test_path = binding.as_path();
     let mut app = App::new();
 
+    let correction_mode;
+
+    match mode {
+        AppMode::Standard => {
+            correction_mode = false;
+        }
+        AppMode::Correction(receiver, sender) => {
+            correction_mode = !is_server();
+            if is_server() {
+                app.insert_non_send_resource(receiver)
+                    .insert_resource(CorrectionServerSendMessage { sender });
+            }
+        }
+    }
+
+    let num_threads;
+    if correction_mode {
+        num_threads = 1;
+    } else {
+        num_threads = 4;
+    }
+
     let task_pool = TaskPoolPlugin {
-        task_pool_options: TaskPoolOptions::with_num_threads(4),
+        task_pool_options: TaskPoolOptions::with_num_threads(num_threads),
     };
 
     if is_server() {
@@ -123,6 +162,18 @@ pub(crate) fn configure_and_start() {
             .add_plugins(ScheduleRunnerPlugin::default())
             .add_plugins(task_pool);
     } else {
+        let render_plugin;
+        if correction_mode {
+            let mut wgpu_settings = WgpuSettings::default();
+            wgpu_settings.backends = None;
+            render_plugin = RenderPlugin {
+                wgpu_settings: wgpu_settings,
+            };
+            app.add_plugins(CorrectionServerPlugin);
+        } else {
+            render_plugin = RenderPlugin::default()
+        }
+
         app.add_plugins(
             DefaultPlugins
                 .set(WindowPlugin {
@@ -141,7 +192,8 @@ pub(crate) fn configure_and_start() {
                     ..Default::default()
                 })
                 .set(ImagePlugin::default_nearest())
-                .set(task_pool),
+                .set(task_pool)
+                .set(render_plugin),
         )
         .insert_resource(WinitSettings::game())
         .add_plugins(EguiPlugin)

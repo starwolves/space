@@ -108,13 +108,13 @@ pub(crate) fn create_input_map(mut map: ResMut<KeyBinds>) {
         },
     );
 }
-
+#[derive(Clone)]
 pub enum RecordedInput {
     Reliable(PeerReliableControllerMessage),
     Unreliable(PeerUnreliableControllerMessage),
 }
 
-#[derive(Resource, Default)]
+#[derive(Resource, Default, Clone)]
 pub struct RecordedControllerInput {
     pub input: HashMap<u64, Vec<RecordedInput>>,
 }
