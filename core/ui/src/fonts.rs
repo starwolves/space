@@ -4,7 +4,7 @@ use bevy::{
     prelude::{AssetServer, Handle, Res, ResMut, Resource},
     text::Font,
 };
-use resources::is_server::is_server;
+use resources::modes::is_server;
 
 pub const ARIZONE_FONT: &str = "fonts/ArizoneUnicaseRegular.ttf";
 pub const EMPIRE_FONT: &str = "fonts/AAbsoluteEmpire.ttf";

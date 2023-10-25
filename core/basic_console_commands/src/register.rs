@@ -1,5 +1,5 @@
 use console_commands::commands::ConsoleCommandsSet;
-use resources::{is_server::is_server, sets::BuildingSet};
+use resources::{modes::is_server, sets::BuildingSet};
 pub fn register_basic_console_commands_for_type<T: EntityType + Clone + Default + 'static>(
     app: &mut App,
 ) {

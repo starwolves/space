@@ -1,7 +1,7 @@
 use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, Update};
 use bevy_xpbd_3d::{prelude::PhysicsPlugins, resources::SubstepCount};
 use networking::{messaging::MessagingSet, stamp::step_tickrate_stamp};
-use resources::{core::TickRate, is_server::is_server, sets::MainSet};
+use resources::{core::TickRate, modes::is_server_mode, sets::MainSet};
 
 use crate::{
     cache::{cache_data, PhysicsCache},
@@ -17,7 +17,7 @@ use crate::{
 pub struct PhysicsPlugin;
 impl Plugin for PhysicsPlugin {
     fn build(&self, app: &mut App) {
-        if is_server() {
+        if is_server_mode(app) {
             app.add_systems(
                 FixedUpdate,
                 rigidbody_link_transform.in_set(MainSet::Update),
@@ -50,7 +50,6 @@ impl Plugin for PhysicsPlugin {
                     .in_set(MainSet::PreUpdate),
             )
             .init_resource::<FastForwarding>()
-            .init_resource::<PhysicsCache>()
             .add_event::<StartCorrection>()
             .init_resource::<CorrectionResource>()
             .add_event::<CorrectionResults>();
@@ -58,6 +57,7 @@ impl Plugin for PhysicsPlugin {
         app.add_plugins(PhysicsPlugins::new(FixedUpdate))
             .init_resource::<RigidBodies>()
             .add_systems(FixedUpdate, remove_links.in_set(MainSet::PostUpdate))
-            .insert_resource(SubstepCount(TickRate::default().physics_substep.into()));
+            .insert_resource(SubstepCount(TickRate::default().physics_substep.into()))
+            .init_resource::<PhysicsCache>();
     }
 }

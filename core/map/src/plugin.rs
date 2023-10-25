@@ -4,7 +4,7 @@ use networking::messaging::{
 };
 use player::{connections::process_response, plugin::ConfigurationLabel};
 use resources::{
-    is_server::is_server,
+    modes::is_server,
     sets::{MainSet, MapSet},
 };
 

@@ -22,7 +22,7 @@ use crate::{
         TextTreeInputSelection, UnfocusTextInput,
     },
 };
-use resources::{is_server::is_server, sets::MainSet, ui::TextInput};
+use resources::{modes::is_server, sets::MainSet, ui::TextInput};
 pub struct UiPlugin;
 impl Plugin for UiPlugin {
     fn build(&self, app: &mut App) {

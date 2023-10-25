@@ -5,7 +5,7 @@ use bevy_xpbd_3d::PhysicsSet;
 
 use crate::{
     input::{buffer_input, clear_buffer, InputBuffer, KeyBinds},
-    is_server::is_server,
+    modes::is_server_mode,
     sets::MainSet,
     ui::MainMenuState,
 };
@@ -14,7 +14,7 @@ pub struct ResourcesPlugin;
 
 impl Plugin for ResourcesPlugin {
     fn build(&self, app: &mut App) {
-        if !is_server() {
+        if !is_server_mode(app) {
             app.init_resource::<KeyBinds>()
                 .init_resource::<InputBuffer>()
                 .add_systems(PreUpdate, buffer_input)

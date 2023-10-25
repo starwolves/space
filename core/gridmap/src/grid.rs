@@ -26,7 +26,7 @@ use resources::{
 };
 use resources::{
     grid::{CellFace, Tile},
-    is_server::is_server,
+    modes::is_server,
 };
 use serde::{Deserialize, Serialize};
 

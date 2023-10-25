@@ -176,7 +176,7 @@ pub trait RigidBodyBuilder<Y>: Send + Sync {
     fn get_bundle(&self, spawn_data: &EntityBuildData, entity_data_option: Y) -> RigidBodyBundle;
 }
 use entity::spawn::{NoData, SpawnEntity};
-use resources::is_server::is_server;
+use resources::modes::is_server;
 
 /// Rigid body spawning.
 

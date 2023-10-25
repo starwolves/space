@@ -8,7 +8,7 @@ use bevy_renet::renet::{RenetClient, RenetServer};
 use networking::messaging::{register_reliable_message, MessageSender};
 use player::{connections::process_response, plugin::ConfigurationLabel};
 use resources::{
-    is_server::is_server,
+    modes::is_server_mode,
     sets::{ActionsSet, BuildingSet, MainSet, PostUpdateSet, StartupSet},
 };
 
@@ -98,7 +98,7 @@ pub struct GridmapPlugin;
 
 impl Plugin for GridmapPlugin {
     fn build(&self, app: &mut App) {
-        if is_server() {
+        if is_server_mode(app) {
             app.add_systems(
                 FixedUpdate,
                 (

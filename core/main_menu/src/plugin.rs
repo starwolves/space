@@ -1,6 +1,6 @@
 use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, SystemSet};
 use networking::client::token_assign_server;
-use resources::{is_server::is_server, sets::MainSet};
+use resources::{modes::is_server, sets::MainSet};
 use ui::{
     cursor::{grab_cursor, release_cursor},
     text_input::TextInputSet,

@@ -1,5 +1,5 @@
 use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin};
-use resources::{is_server::is_server, sets::MainSet};
+use resources::{modes::is_server, sets::MainSet};
 
 use crate::tick_asana_boarding_announcements::tick_asana_boarding_announcements;
 

@@ -7,7 +7,7 @@ use bevy::{
 use entity::{entity_data::InterpolationSet, entity_types::register_entity_type};
 use networking::messaging::{register_reliable_message, MessageSender};
 use resources::{
-    is_server::is_server,
+    modes::is_server,
     sets::{MainSet, PostUpdateSet},
 };
 

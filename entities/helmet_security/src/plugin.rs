@@ -14,7 +14,7 @@ use entity::{
 use inventory::spawn_item::build_inventory_items;
 use physics::spawn::build_rigid_bodies;
 use resources::{
-    is_server::is_server,
+    modes::is_server,
     sets::{CombatSet, MainSet},
 };
 

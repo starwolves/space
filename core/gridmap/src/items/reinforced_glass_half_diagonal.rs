@@ -9,7 +9,7 @@ use bevy::{
 };
 use bevy_xpbd_3d::prelude::Collider;
 use entity::examine::RichName;
-use resources::{grid::CellFace, is_server::is_server, math::Vec3Int};
+use resources::{grid::CellFace, math::Vec3Int, modes::is_server};
 
 use crate::{
     grid::{CellType, CellTypeName, FullCell, Gridmap, GroupTypeName, TileGroup, TileProperties},

@@ -19,7 +19,7 @@ use inventory::client::items::{
 };
 use inventory::spawn_item::build_inventory_items;
 use physics::spawn::build_rigid_bodies;
-use resources::is_server::is_server;
+use resources::modes::is_server;
 use resources::sets::{ActionsSet, BuildingSet, CombatSet, MainSet, UpdateSet};
 use ui::text_input::TextTree;
 

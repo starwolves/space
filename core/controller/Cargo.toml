@@ -24,7 +24,6 @@ bevy_xpbd_3d = { version = "0.2.0" , features = ["enhanced-determinism"], git = 
 player = { path = "../player" }
 networking = { path = "../networking" }
 pawn = { path = "../pawn" }
-combat = { path = "../combat"}
 resources = { path = "../resources"}
 entity = { path = "../entity"}
 physics = { path = "../physics"}

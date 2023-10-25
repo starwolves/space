@@ -4,7 +4,10 @@ use bevy_renet::{
     transport::{NetcodeClientPlugin, NetcodeServerPlugin},
     RenetClientPlugin, RenetServerPlugin,
 };
-use resources::{is_server::is_server, sets::MainSet};
+use resources::{
+    modes::{is_correction_mode, is_server_mode},
+    sets::MainSet,
+};
 
 use super::server::{souls, startup_server_listen_connections};
 use crate::{
@@ -32,12 +35,26 @@ pub struct NetworkingPlugin;
 
 impl Plugin for NetworkingPlugin {
     fn build(&self, app: &mut App) {
-        if is_server() {
-            let res = startup_server_listen_connections();
+        if is_server_mode(app) {
+            if !is_correction_mode(app) {
+                let res = startup_server_listen_connections();
+                app.insert_resource(res.0)
+                    .insert_resource(res.1)
+                    .add_systems(
+                        FixedUpdate,
+                        (
+                            receive_incoming_reliable_client_messages
+                                .in_set(TypenamesSet::SendRawEvents),
+                            receive_incoming_unreliable_client_messages
+                                .in_set(TypenamesSet::SendRawEvents)
+                                .after(receive_incoming_reliable_client_messages),
+                        )
+                            .in_set(MainSet::PreUpdate),
+                    );
+            }
+
             app.add_plugins(RenetServerPlugin)
                 .add_plugins(NetcodeServerPlugin)
-                .insert_resource(res.0)
-                .insert_resource(res.1)
                 .init_resource::<Latency>()
                 .init_resource::<SyncConfirmations>()
                 .add_systems(FixedUpdate, souls.in_set(MainSet::Update))
@@ -45,14 +62,8 @@ impl Plugin for NetworkingPlugin {
                 .add_event::<IncomingRawUnreliableClientMessage>()
                 .add_systems(
                     FixedUpdate,
-                    (
-                        receive_incoming_reliable_client_messages
-                            .in_set(TypenamesSet::SendRawEvents),
-                        receive_incoming_unreliable_client_messages
-                            .in_set(TypenamesSet::SendRawEvents)
-                            .after(receive_incoming_reliable_client_messages),
-                        adjust_clients.after(TypenamesSet::SendRawEvents),
-                    )
+                    adjust_clients
+                        .after(TypenamesSet::SendRawEvents)
                         .in_set(MainSet::PreUpdate),
                 );
         } else {

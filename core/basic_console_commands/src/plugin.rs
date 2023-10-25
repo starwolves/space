@@ -1,7 +1,7 @@
 use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, Startup};
 use console_commands::commands::ConsoleCommandsSet;
 use hud::communication::{console::console_input, input::ConsoleCommandsClientSet};
-use resources::{is_server::is_server, sets::MainSet};
+use resources::{modes::is_server, sets::MainSet};
 
 use crate::{
     commands::{coords, rcon_console_commands, GiveAllRCON},

@@ -6,7 +6,6 @@ use bevy::prelude::Res;
 use bevy::prelude::Vec2;
 use bevy::prelude::{Query, ResMut};
 use bevy_renet::renet::ServerEvent;
-use combat::health_ui::ClientHealthUICache;
 use networking::server::{ConnectedPlayer, HandleToEntity};
 use player::connections::ServerEventBuffer;
 
@@ -16,7 +15,6 @@ pub(crate) fn connections(
     mut handle_to_entity: ResMut<HandleToEntity>,
     buffer: Res<ServerEventBuffer>,
     mut connected_players: Query<(&mut ConnectedPlayer, &mut ControllerInput)>,
-    mut client_health_ui_cache: ResMut<ClientHealthUICache>,
 ) {
     for e in buffer.buffer.iter() {
         let event = e.renet_event();
@@ -49,7 +47,6 @@ pub(crate) fn connections(
                 match entity {
                     Some(ent) => {
                         handle_to_entity.inv_map.remove(&ent);
-                        client_health_ui_cache.cache.remove(&ent);
                     }
                     None => {}
                 }

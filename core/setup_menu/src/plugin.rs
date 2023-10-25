@@ -5,7 +5,7 @@ use networking::{
 };
 use player::{boarding::done_boarding, connections::process_response, plugin::ConfigurationLabel};
 use resources::{
-    is_server::is_server,
+    modes::is_server,
     sets::{BuildingSet, MainSet},
 };
 

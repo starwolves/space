@@ -115,7 +115,7 @@ pub fn register_reliable_message<
     }
 
     app.add_event::<OutgoingReliableServerMessage<T>>();
-    if server_is_sender && is_server() {
+    if server_is_sender && is_server() && !is_correction_mode(app) {
         app.add_systems(
             FixedUpdate,
             send_outgoing_reliable_server_messages::<T>
@@ -124,7 +124,7 @@ pub fn register_reliable_message<
         );
     }
     app.add_event::<IncomingReliableServerMessage<T>>();
-    if server_is_sender && !is_server() {
+    if server_is_sender && !is_server_mode(app) {
         app.add_systems(
             FixedUpdate,
             deserialize_incoming_reliable_server_message::<T>
@@ -135,7 +135,7 @@ pub fn register_reliable_message<
     }
     app.add_event::<OutgoingReliableClientMessage<T>>();
 
-    if client_is_sender && !is_server() {
+    if client_is_sender && !is_server_mode(app) {
         app.add_systems(
             FixedUpdate,
             send_outgoing_reliable_client_messages::<T>
@@ -146,7 +146,7 @@ pub fn register_reliable_message<
     app.add_event::<IncomingReliableClientMessage<T>>()
         .add_event::<IncomingEarlyReliableClientMessage<T>>();
 
-    if client_is_sender && is_server() {
+    if client_is_sender && is_server_mode(app) {
         app.add_systems(
             FixedUpdate,
             deserialize_incoming_reliable_client_message::<T>
@@ -156,7 +156,7 @@ pub fn register_reliable_message<
         );
     }
 }
-use resources::is_server::is_server;
+use resources::modes::{is_correction_mode, is_server, is_server_mode};
 
 /// All unreliable networking messages must be registered with this system.
 pub fn register_unreliable_message<
@@ -197,16 +197,18 @@ pub fn register_unreliable_message<
             server_is_sender = true;
         }
     }
-    if server_is_sender && is_server() {
-        app.add_event::<OutgoingUnreliableServerMessage<T>>()
-            .add_systems(
+    if server_is_sender && is_server_mode(app) {
+        app.add_event::<OutgoingUnreliableServerMessage<T>>();
+        if !is_correction_mode(app) {
+            app.add_systems(
                 FixedUpdate,
                 send_outgoing_unreliable_server_messages::<T>
                     .in_set(ServerMessageSet::Send)
                     .in_set(MainSet::PostUpdate),
             );
+        }
     }
-    if server_is_sender && !is_server() {
+    if server_is_sender && !is_server_mode(app) {
         app.add_event::<IncomingUnreliableServerMessage<T>>()
             .add_systems(
                 FixedUpdate,
@@ -216,7 +218,7 @@ pub fn register_unreliable_message<
                     .in_set(MainSet::PreUpdate),
             );
     }
-    if client_is_sender && !is_server() {
+    if client_is_sender && !is_server_mode(app) {
         app.add_event::<OutgoingUnreliableClientMessage<T>>()
             .add_systems(
                 FixedUpdate,
@@ -226,7 +228,7 @@ pub fn register_unreliable_message<
                     .before(step_buffer),
             );
     }
-    if client_is_sender && is_server() {
+    if client_is_sender && is_server_mode(app) {
         app.add_event::<IncomingUnreliableClientMessage<T>>()
             .add_event::<IncomingEarlyUnreliableClientMessage<T>>()
             .add_systems(

@@ -7,7 +7,7 @@ use entity::{
 };
 use networking::server::ConsoleArgVariant;
 use resources::{
-    is_server::is_server,
+    modes::is_server,
     sets::{BuildingSet, MainSet, StartupSet},
 };
 

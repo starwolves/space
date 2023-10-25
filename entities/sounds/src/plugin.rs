@@ -1,7 +1,7 @@
 use crate::ambience;
 use ambience::ambience_sfx::startup_ambience;
 use bevy::prelude::{App, Plugin, Startup};
-use resources::is_server::is_server;
+use resources::modes::is_server;
 
 pub struct SoundsPlugin;
 

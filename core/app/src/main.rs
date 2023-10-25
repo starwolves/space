@@ -43,6 +43,7 @@ use computers::plugin::ComputersPlugin;
 use console_commands::plugins::ConsoleCommandsPlugin;
 use construction_tool::plugin::ConstructionToolAdminPlugin;
 use controller::plugin::ControllerPlugin;
+use correction::CorrectionPlugin;
 use correction::CorrectionServerMessage;
 use correction::CorrectionServerPlugin;
 use correction::CorrectionServerReceiveMessage;
@@ -72,7 +73,10 @@ use player::plugin::PlayerPlugin;
 use point_light::plugin::PointLightPlugin;
 use resources::core::ClientInformation;
 use resources::core::TickRate;
-use resources::is_server::is_server;
+use resources::modes::is_correction_mode;
+use resources::modes::is_server;
+use resources::modes::is_server_mode;
+use resources::modes::Mode;
 use resources::plugin::ResourcesPlugin;
 use resources::sets::StartupSet;
 use setup_menu::plugin::SetupMenuPlugin;
@@ -112,23 +116,21 @@ pub(crate) fn start_app(mode: AppMode) {
     test_path = binding.as_path();
     let mut app = App::new();
 
-    let correction_mode;
-
     match mode {
         AppMode::Standard => {
-            correction_mode = false;
+            app.insert_resource(Mode::Standard);
         }
         AppMode::Correction(receiver, sender) => {
-            correction_mode = !is_server();
-            if is_server() {
+            if !is_server() {
                 app.insert_non_send_resource(receiver)
-                    .insert_resource(CorrectionServerSendMessage { sender });
+                    .insert_resource(CorrectionServerSendMessage { sender })
+                    .insert_resource(Mode::Correction);
             }
         }
     }
 
     let num_threads;
-    if correction_mode {
+    if is_correction_mode(&mut app) {
         num_threads = 1;
     } else {
         num_threads = 4;
@@ -138,12 +140,15 @@ pub(crate) fn start_app(mode: AppMode) {
         task_pool_options: TaskPoolOptions::with_num_threads(num_threads),
     };
 
-    if is_server() {
+    if is_server_mode(&mut app) {
         let mut wgpu_settings = WgpuSettings::default();
         wgpu_settings.backends = None;
 
-        app.add_plugins(LogPlugin::default())
-            .add_plugins(TypeRegistrationPlugin)
+        if !is_correction_mode(&mut app) {
+            app.add_plugins(LogPlugin::default());
+        }
+
+        app.add_plugins(TypeRegistrationPlugin)
             .add_plugins(FrameCountPlugin)
             .add_plugins(AssetPlugin {
                 asset_folder: test_path.to_str().unwrap().to_owned(),
@@ -162,18 +167,6 @@ pub(crate) fn start_app(mode: AppMode) {
             .add_plugins(ScheduleRunnerPlugin::default())
             .add_plugins(task_pool);
     } else {
-        let render_plugin;
-        if correction_mode {
-            let mut wgpu_settings = WgpuSettings::default();
-            wgpu_settings.backends = None;
-            render_plugin = RenderPlugin {
-                wgpu_settings: wgpu_settings,
-            };
-            app.add_plugins(CorrectionServerPlugin);
-        } else {
-            render_plugin = RenderPlugin::default()
-        }
-
         app.add_plugins(
             DefaultPlugins
                 .set(WindowPlugin {
@@ -192,65 +185,70 @@ pub(crate) fn start_app(mode: AppMode) {
                     ..Default::default()
                 })
                 .set(ImagePlugin::default_nearest())
-                .set(task_pool)
-                .set(render_plugin),
+                .set(task_pool),
         )
         .insert_resource(WinitSettings::game())
         .add_plugins(EguiPlugin)
-        .insert_resource(ClientInformation {
+        .add_plugins(GraphicsPlugin)
+        .add_plugins(CorrectionPlugin);
+        app.insert_resource(ClientInformation {
             version: APP_VERSION.to_string(),
-        })
-        .add_plugins(GraphicsPlugin);
+        });
     }
-    app.add_plugins(TokenPlugin)
-        .add_plugins(AsanaPlugin)
-        .add_plugins(GridmapPlugin)
+    app.add_plugins(GridmapPlugin)
         .add_plugins(ResourcesPlugin)
         .add_plugins(PawnPlugin)
-        .add_plugins(HumanMalePlugin)
-        .add_plugins(SfxPlugin)
         .add_plugins(EntityPlugin)
-        .add_plugins(ConsoleCommandsPlugin)
-        .add_plugins(ConstructionToolAdminPlugin)
-        .add_plugins(ActionsPlugin)
-        .add_plugins(MapPlugin)
-        .add_plugins(AirLocksPlugin)
-        .add_plugins(CounterWindowsPlugin)
-        .add_plugins(InventoryPlugin)
-        .add_plugins(NetworkingPlugin)
-        .add_plugins(HumanoidPlugin)
-        .add_plugins(ComputersPlugin)
-        .add_plugins(CombatPlugin)
-        .add_plugins(JumpsuitsPlugin)
-        .add_plugins(HelmetsPlugin)
-        .add_plugins(PistolL1Plugin)
-        .add_plugins(LineArrowPlugin)
-        .add_plugins(PointArrowPlugin)
-        .add_plugins(SoundsPlugin)
-        .add_plugins(ChatPlugin)
-        .add_plugins(UiPlugin)
-        .add_plugins(PlayerPlugin)
-        .add_plugins(SetupMenuPlugin)
         .add_plugins(PhysicsPlugin)
-        .add_plugins(PointLightPlugin)
-        .add_plugins(BallPlugin)
-        .add_plugins(BasicConsoleCommandsPlugin {
-            give_all_rcon: true,
-        })
-        .add_systems(
-            Startup,
-            live.in_set(StartupSet::ServerIsLive)
-                .after(StartupSet::InitAtmospherics),
-        )
-        .insert_resource(MOTD::new_default(APP_VERSION.to_string()))
-        .add_plugins(MainMenuPlugin)
-        .add_plugins(EscapeMenuPlugin)
+        .add_plugins(ActionsPlugin)
+        .add_plugins(NetworkingPlugin)
         .add_plugins(ControllerPlugin::default())
-        .add_plugins(HudPlugin)
         .insert_resource(FixedTime::new_from_secs(
             1. / TickRate::default().bevy_rate as f32,
         ))
-        .add_plugins(MetadataPlugin)
         .init_resource::<TickRate>()
-        .run();
+        .add_plugins(MetadataPlugin)
+        .add_plugins(PlayerPlugin);
+
+    if is_correction_mode(&mut app) {
+        app.add_plugins(CorrectionServerPlugin);
+    } else {
+        app.add_plugins(ConstructionToolAdminPlugin)
+            .add_plugins(AirLocksPlugin)
+            .add_plugins(CounterWindowsPlugin)
+            .add_plugins(InventoryPlugin)
+            .add_plugins(TokenPlugin)
+            .add_plugins(AsanaPlugin)
+            .add_plugins(HumanoidPlugin)
+            .add_plugins(HumanMalePlugin)
+            .add_plugins(SfxPlugin)
+            .add_plugins(ComputersPlugin)
+            .add_plugins(MapPlugin)
+            .add_plugins(ConsoleCommandsPlugin)
+            .add_plugins(CombatPlugin)
+            .add_plugins(JumpsuitsPlugin)
+            .add_plugins(HelmetsPlugin)
+            .add_plugins(PistolL1Plugin)
+            .add_plugins(LineArrowPlugin)
+            .add_plugins(PointArrowPlugin)
+            .add_plugins(SoundsPlugin)
+            .add_plugins(ChatPlugin)
+            .add_plugins(UiPlugin)
+            .add_plugins(SetupMenuPlugin)
+            .add_plugins(PointLightPlugin)
+            .add_plugins(BallPlugin)
+            .add_plugins(BasicConsoleCommandsPlugin {
+                give_all_rcon: true,
+            })
+            .add_systems(
+                Startup,
+                live.in_set(StartupSet::ServerIsLive)
+                    .after(StartupSet::InitAtmospherics),
+            )
+            .insert_resource(MOTD::new_default(APP_VERSION.to_string()))
+            .add_plugins(MainMenuPlugin)
+            .add_plugins(EscapeMenuPlugin)
+            .add_plugins(HudPlugin);
+    }
+    app.run();
 }

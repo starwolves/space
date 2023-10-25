@@ -7,7 +7,7 @@ use entity::{
 };
 use physics::spawn::build_rigid_bodies;
 use resources::{
-    is_server::is_server,
+    modes::is_server,
     sets::{BuildingSet, MainSet},
 };
 

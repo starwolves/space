@@ -5,15 +5,15 @@ use std::{
 };
 
 use bevy::prelude::{
-    warn, App, EventReader, EventWriter, FixedTime, FixedUpdate, IntoSystemConfigs, Local, NonSend,
-    Plugin, Res, ResMut, Resource, Startup, Update, World,
+    info, warn, App, EventReader, EventWriter, FixedTime, FixedUpdate, IntoSystemConfigs, Local,
+    NonSend, Plugin, Res, ResMut, Resource, Startup, Update, World,
 };
 use controller::input::RecordedControllerInput;
 use physics::{
     cache::PhysicsCache,
     correction_mode::{CorrectionResults, StartCorrection},
 };
-use resources::{is_server::is_server, sets::MainSet};
+use resources::{modes::is_server, sets::MainSet};
 
 use crate::{start_app, AppMode};
 
@@ -39,20 +39,19 @@ impl Plugin for CorrectionPlugin {
 pub struct CorrectionServerPlugin;
 impl Plugin for CorrectionServerPlugin {
     fn build(&self, app: &mut App) {
-        if !is_server() {
-            app.add_systems(
-                FixedUpdate,
-                (init_connection_server.in_set(MainSet::PreUpdate),),
-            )
-            .add_systems(Update, server_start_correcting.before(MainSet::PreUpdate))
-            .init_resource::<StartCorrection>()
-            .init_resource::<IsCorrecting>();
-        }
+        app.add_systems(
+            FixedUpdate,
+            (init_connection_server.in_set(MainSet::PreUpdate),),
+        )
+        .add_systems(Update, server_start_correcting.before(MainSet::PreUpdate))
+        .init_resource::<StartCorrection>()
+        .init_resource::<IsCorrecting>();
     }
 }
 #[derive(Resource, Default)]
 pub struct IsCorrecting(bool);
 
+/// Correction server system.
 pub(crate) fn server_start_correcting(
     queued_message_reciever: NonSend<CorrectionServerReceiveMessage>,
     mut cache: ResMut<PhysicsCache>,
@@ -131,6 +130,7 @@ pub(crate) fn start_correction_server(world: &mut World) {
     let (tx2, rx2) = mpsc::sync_channel(64);
 
     let app = std::thread::spawn(move || start_app(AppMode::Correction(message_receiver, tx2)));
+    info!("Physics correction server started.");
     world.insert_resource(CorrectionServerData {
         message_sender: tx,
         app_handle: app,

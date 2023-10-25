@@ -6,7 +6,7 @@ use bevy::prelude::{
 use bevy::time::common_conditions::on_fixed_timer;
 use bevy_renet::renet::{RenetClient, RenetServer};
 use networking::messaging::{register_reliable_message, MessageSender};
-use resources::is_server::is_server;
+use resources::modes::is_server_mode;
 use resources::sets::{ActionsSet, BuildingSet, MainSet, PostUpdateSet, StartupSet};
 
 use crate::despawn::{despawn_entities, DespawnEntity};
@@ -22,20 +22,11 @@ use crate::spawn::{ClientEntityServerEntity, PawnId};
 use crate::spawning_events::{despawn_entity, DespawnClientEntity, SpawnClientEntity};
 use crate::visible_checker::visible_checker;
 
-use super::entity_data::broadcast_position_updates;
-
 pub struct EntityPlugin;
 impl Plugin for EntityPlugin {
     fn build(&self, app: &mut App) {
-        if is_server() {
+        if is_server_mode(app) {
             app.add_systems(
-                FixedUpdate,
-                broadcast_position_updates
-                    .in_set(InterpolationSet::Main)
-                    .run_if(on_fixed_timer(Duration::from_secs_f32(1. / 2.)))
-                    .in_set(MainSet::Update),
-            )
-            .add_systems(
                 FixedUpdate,
                 (
                     despawn_entity.after(PostUpdateSet::VisibleChecker),

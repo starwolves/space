@@ -10,7 +10,7 @@ use networking::stamp::step_tickrate_stamp;
 use physics::spawn::build_rigid_bodies;
 use player::boarding::player_boarded;
 use resources::{
-    is_server::is_server,
+    modes::is_server,
     sets::{BuildingSet, CombatSet, MainSet},
 };
 

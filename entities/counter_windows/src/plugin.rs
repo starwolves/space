@@ -4,7 +4,7 @@ use entity::spawn::build_base_entities;
 use entity::{entity_types::register_entity_type, spawn::SpawnItemSet};
 use physics::spawn::build_rigid_bodies;
 use resources::{
-    is_server::is_server,
+    modes::is_server,
     sets::{ActionsSet, CombatSet, MainSet, PostUpdateSet},
 };
 

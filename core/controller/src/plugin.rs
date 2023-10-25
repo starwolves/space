@@ -17,7 +17,7 @@ use networking::messaging::{
     register_reliable_message, register_unreliable_message, MessageSender, MessagingSet,
 };
 use player::boarding::BoardingPlayer;
-use resources::is_server::is_server;
+use resources::modes::is_server_mode;
 use resources::sets::{MainSet, UpdateSet};
 
 use super::net::update_player_count;
@@ -29,7 +29,7 @@ pub struct ControllerPlugin {
 
 impl Plugin for ControllerPlugin {
     fn build(&self, app: &mut App) {
-        if is_server() {
+        if is_server_mode(app) {
             app.add_systems(
                 FixedUpdate,
                 (
@@ -56,8 +56,7 @@ impl Plugin for ControllerPlugin {
                         .before(UpdateSet::StandardCharacters)
                         .in_set(MainSet::Update),
                 )
-                .add_systems(FixedUpdate, clean_recorded_input.in_set(MainSet::PreUpdate))
-                .init_resource::<RecordedControllerInput>();
+                .add_systems(FixedUpdate, clean_recorded_input.in_set(MainSet::PreUpdate));
         }
 
         app.add_systems(
@@ -68,6 +67,7 @@ impl Plugin for ControllerPlugin {
                 .in_set(MainSet::Update)
                 .in_set(Controller::Input),
         )
+        .init_resource::<RecordedControllerInput>()
         .add_event::<InputMovementInput>();
         register_reliable_message::<ControllerClientMessage>(app, MessageSender::Client);
         register_reliable_message::<PeerReliableControllerMessage>(app, MessageSender::Server);

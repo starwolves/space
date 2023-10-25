@@ -5,7 +5,7 @@ use crate::{
     input::{broadcast_global_chat_message, chat_net_input, GlobalChatMessage},
     net::{ChatClientMessage, ChatServerMessage},
 };
-use resources::{is_server::is_server, sets::MainSet};
+use resources::{modes::is_server, sets::MainSet};
 pub struct ChatPlugin;
 
 impl Plugin for ChatPlugin {

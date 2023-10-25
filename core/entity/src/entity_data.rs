@@ -20,63 +20,6 @@ pub enum EntityWorldType {
 }
 
 use crate::init::RawEntityRon;
-use networking::server::HandleToEntity;
-use networking::server::OutgoingUnreliableServerMessage;
-
-/// Broadcast transforms of entities to players for interpolation.
-
-pub(crate) fn broadcast_position_updates(
-    time: Res<Time>,
-
-    mut net: EventWriter<OutgoingUnreliableServerMessage<UnreliableServerMessage>>,
-    handle_to_entity: Res<HandleToEntity>,
-    mut query_update_transform_entities: Query<(
-        Entity,
-        &Sensable,
-        &UpdateTransform,
-        &Transform,
-        &mut CachedBroadcastTransform,
-    )>,
-) {
-    let current_time_stamp = time.elapsed().as_millis();
-    for (
-        entity,
-        visible_component,
-        _update_transform_component,
-        static_transform_component,
-        mut cached_transform_component,
-    ) in query_update_transform_entities.iter_mut()
-    {
-        if cached_transform_component.transform == *static_transform_component {
-            continue;
-        }
-
-        cached_transform_component.transform = *static_transform_component;
-
-        let new_position = static_transform_component.translation;
-
-        for sensed_by_entity in visible_component.sensed_by.iter() {
-            let player_handle_option = handle_to_entity.inv_map.get(&sensed_by_entity);
-
-            match player_handle_option {
-                Some(handle) => {
-                    net.send(OutgoingUnreliableServerMessage {
-                        handle: *handle,
-                        message: UnreliableServerMessage::PositionUpdate(
-                            entity.to_bits(),
-                            new_position,
-                            current_time_stamp as u64,
-                        ),
-                    });
-                }
-                None => {
-                    continue;
-                }
-            }
-        }
-    }
-}
-
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
 pub enum InterpolationSet {
     Main,

@@ -5,7 +5,7 @@ use networking::{
     server::ServerMessageSet,
 };
 use resources::{
-    is_server::is_server,
+    modes::is_server,
     sets::{MainSet, PostUpdateSet},
 };
 

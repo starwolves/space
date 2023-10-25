@@ -6,7 +6,7 @@ use bevy::{
 };
 use bevy_xpbd_3d::prelude::Collider;
 use entity::examine::RichName;
-use resources::is_server::is_server;
+use resources::modes::is_server;
 
 use crate::{
     grid::{CellType, CellTypeName, TileProperties},

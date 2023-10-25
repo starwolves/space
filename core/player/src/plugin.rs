@@ -7,6 +7,7 @@ use crate::connections::{
     SendServerConfiguration, ServerEventBuffer,
 };
 use crate::debug_camera::{spawn_debug_camera, ActivateDebugCamera};
+use crate::names::UsedNames;
 use crate::net::PlayerServerMessage;
 use crate::{
     boarding::{done_boarding, BoardingAnnouncements},
@@ -19,7 +20,7 @@ use networking::{
     messaging::{register_reliable_message, MessageSender},
     server::HandleToEntity,
 };
-use resources::is_server::is_server;
+use resources::modes::{is_correction_mode, is_server_mode};
 use resources::sets::MainSet;
 use ui::cursor::CursorSet;
 
@@ -34,7 +35,20 @@ pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
-        if is_server() {
+        if is_server_mode(app) {
+            if !is_correction_mode(app) {
+                app.add_systems(
+                    FixedUpdate,
+                    (
+                        process_response,
+                        server_events
+                            .after(buffer_server_events)
+                            .before(ConfigurationLabel::SpawnEntity)
+                            .after(process_response),
+                    )
+                        .in_set(MainSet::Update),
+                );
+            }
             app.add_event::<SendServerConfiguration>()
                 .init_resource::<HandleToEntity>()
                 .add_systems(Update, buffer_server_events)
@@ -50,11 +64,6 @@ impl Plugin for PlayerPlugin {
                         finished_configuration
                             .after(ConfigurationLabel::Main)
                             .after(process_response),
-                        server_events
-                            .after(buffer_server_events)
-                            .before(ConfigurationLabel::SpawnEntity)
-                            .after(process_response),
-                        process_response,
                         player_boarded,
                     )
                         .in_set(MainSet::Update),
@@ -64,7 +73,8 @@ impl Plugin for PlayerPlugin {
                 .add_event::<PlayerAwaitingBoarding>()
                 .init_resource::<Accounts>()
                 .add_event::<PlayerBoarded>()
-                .init_resource::<ServerEventBuffer>();
+                .init_resource::<ServerEventBuffer>()
+                .init_resource::<UsedNames>();
         } else {
             app.add_systems(
                 FixedUpdate,

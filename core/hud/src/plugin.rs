@@ -4,7 +4,7 @@ use bevy::prelude::{
 use bevy_renet::renet::RenetClient;
 use console_commands::net::ClientSideConsoleInput;
 use inventory::client::items::ClientBuildInventoryLabel;
-use resources::{is_server::is_server, sets::MainSet};
+use resources::{modes::is_server, sets::MainSet};
 use ui::{
     cursor::CursorSet,
     text_input::{FocusTextSet, TextInputLabel},

@@ -2,9 +2,8 @@ use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin};
 use combat::{chat::attacked_by_chat, sfx::health_combat_hit_result_sfx};
 use controller::input::Controller;
 use pawn::camera::LookTransformSet;
-use player::names::UsedNames;
 use resources::{
-    is_server::is_server,
+    modes::is_server,
     sets::{ActionsSet, CombatSet, MainSet, UpdateSet},
 };
 
@@ -33,8 +32,7 @@ impl Plugin for HumanoidPlugin {
                         attacked_by_chat::<Humanoid>.after(CombatSet::Query),
                     )
                         .in_set(MainSet::Update),
-                )
-                .init_resource::<UsedNames>();
+                );
         }
         app.add_systems(
             FixedUpdate,

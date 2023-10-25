@@ -1,5 +1,5 @@
 use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin};
-use resources::is_server::is_server;
+use resources::modes::is_server;
 use resources::sets::{CombatSet, MainSet, PostUpdateSet};
 
 use crate::apply_damage::{finalize_apply_damage, ActiveApplyDamage};

@@ -3,13 +3,13 @@ use crate::camera::{client_sync_look_transform, server_sync_look_transform, Look
 use crate::net::UnreliableControllerClientMessage;
 use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin};
 use networking::messaging::{register_unreliable_message, MessageSender};
-use resources::is_server::is_server;
+use resources::modes::is_server_mode;
 use resources::sets::{ActionsSet, MainSet};
 pub struct PawnPlugin;
 
 impl Plugin for PawnPlugin {
     fn build(&self, app: &mut App) {
-        if is_server() {
+        if is_server_mode(app) {
             app.add_systems(
                 FixedUpdate,
                 (

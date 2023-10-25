@@ -1,7 +1,7 @@
 use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin};
 use networking::messaging::{register_reliable_message, MessageSender};
 use resources::{
-    is_server::is_server,
+    modes::is_server_mode,
     sets::{ActionsSet, MainSet},
 };
 
@@ -18,7 +18,7 @@ pub struct ActionsPlugin;
 
 impl Plugin for ActionsPlugin {
     fn build(&self, app: &mut App) {
-        if is_server() {
+        if is_server_mode(app) {
             app.add_systems(
                 FixedUpdate,
                 (
