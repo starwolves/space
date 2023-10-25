@@ -1,17 +1,11 @@
 use std::collections::HashMap;
 
-use bevy::{
-    prelude::{Changed, Component, Entity, Event, EventWriter, Query, Res, SystemSet, Transform},
-    time::Time,
-};
+use bevy::prelude::{Changed, Component, Event, Query, SystemSet, Transform};
 use entity_macros::Identity;
-use networking::server::{EntityUpdateData, UnreliableServerMessage};
+use networking::server::EntityUpdateData;
 use serde::{Deserialize, Serialize};
 
-use crate::{
-    entity_types::{BoxedEntityType, EntityType},
-    sensable::Sensable,
-};
+use crate::entity_types::{BoxedEntityType, EntityType};
 #[derive(Serialize, Deserialize, Debug, Clone)]
 
 pub enum EntityWorldType {
