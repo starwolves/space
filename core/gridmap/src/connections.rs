@@ -11,7 +11,7 @@ pub(crate) fn configure(
     mut server: EventWriter<OutgoingReliableServerMessage<GridmapServerMessage>>,
     gridmap_data: Res<Gridmap>,
 ) {
-    for event in config_events.iter() {
+    for event in config_events.read() {
         server.send(OutgoingReliableServerMessage {
             handle: event.handle,
             message: GridmapServerMessage::ConfigOrderedCellsMain(

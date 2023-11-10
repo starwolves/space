@@ -1,4 +1,7 @@
-use bevy::prelude::{Color, EventWriter, FixedTime, Query, Res, ResMut};
+use bevy::{
+    prelude::{Color, EventWriter, Query, Res, ResMut},
+    time::{Fixed, Time},
+};
 
 use chat::net::{ChatMessage, ChatServerMessage};
 use networking::server::{ConnectedPlayer, OutgoingReliableServerMessage};
@@ -14,7 +17,7 @@ pub(crate) fn tick_asana_boarding_announcements(
     mut net: EventWriter<OutgoingReliableServerMessage<ChatServerMessage>>,
     connected_players: Query<&ConnectedPlayer>,
     fonts: Res<Fonts>,
-    fixed_time: Res<FixedTime>,
+    fixed_time: Res<Time<Fixed>>,
 ) {
     let mut done_messages: Vec<usize> = vec![];
 
@@ -23,7 +26,7 @@ pub(crate) fn tick_asana_boarding_announcements(
     for (announcement_message, announcement_timer) in
         &mut asana_boarding_announcements.announcements
     {
-        if announcement_timer.tick(fixed_time.period).just_finished() {
+        if announcement_timer.tick(fixed_time.delta()).just_finished() {
             for player in connected_players.iter() {
                 if !player.connected {
                     continue;

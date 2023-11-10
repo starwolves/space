@@ -1,12 +1,14 @@
+use bevy::log::warn;
 use bevy::{
     prelude::{
-        warn, BuildChildren, Button, ButtonBundle, Changed, Color, Commands, Component, Entity,
+        BuildChildren, Button, ButtonBundle, Changed, Color, Commands, Component, Entity,
         EventReader, EventWriter, NodeBundle, Query, Res, ResMut, Resource, TextBundle, With,
         Without,
     },
     text::TextStyle,
     ui::{AlignItems, FlexDirection, Interaction, JustifyContent, Style, Val},
 };
+
 use entity::despawn::DespawnEntity;
 use networking::client::{IncomingReliableServerMessage, OutgoingReliableClientMessage};
 use resources::hud::HudState;
@@ -33,7 +35,7 @@ pub(crate) fn hide_text_tree_selection(
     mut state: ResMut<TextTreeInputSelectionState>,
     mut despawn: EventWriter<DespawnEntity>,
 ) {
-    for event in events.iter() {
+    for event in events.read() {
         if !event.expand {
             match state.entity {
                 Some(entity) => {
@@ -54,7 +56,7 @@ pub(crate) fn create_text_tree_selection(
     mut state: ResMut<TextTreeInputSelectionState>,
     mut despawn: EventWriter<DespawnEntity>,
 ) {
-    for message in events.iter() {
+    for message in events.read() {
         match &message.message {
             UiServerMessage::TextTreeSelection(selection) => {
                 let arizone_font = fonts.handles.get(ARIZONE_FONT).unwrap();

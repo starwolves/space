@@ -24,7 +24,7 @@ pub fn console_input(
     mut display: EventWriter<DisplayConsoleMessage>,
     fonts: Res<Fonts>,
 ) {
-    for input in events.iter() {
+    for input in events.read() {
         let source = fonts.handles.get(SOURCECODE_REGULAR_FONT).unwrap();
 
         let section = TextSection::new(
@@ -51,7 +51,7 @@ pub(crate) fn receive_console_message(
     fonts: Res<Fonts>,
     mut events: EventWriter<DisplayConsoleMessage>,
 ) {
-    for message in net.iter() {
+    for message in net.read() {
         match &message.message {
             ConsoleCommandsServerMessage::ConsoleWriteLine(message) => {
                 let mut sections = vec![];
@@ -90,7 +90,7 @@ pub(crate) fn display_console_message(
     mut commands: Commands,
     chat_state: Res<HudCommunicationState>,
 ) {
-    for event in events.iter() {
+    for event in events.read() {
         let mut sections = event.sections.clone();
         let first = sections.first_mut().unwrap();
         first.value = "> ".to_string() + &first.value;

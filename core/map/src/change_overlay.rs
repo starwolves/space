@@ -11,7 +11,7 @@ pub(crate) fn change_map_overlay(
     mut map_holders: Query<(&mut Map, &DataLink)>,
     mut display_atmos_state: ResMut<MapHolders>,
 ) {
-    for event in input_display_mode_changes.iter() {
+    for event in input_display_mode_changes.read() {
         let mut map_component;
         let data_link_component;
 

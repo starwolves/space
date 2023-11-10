@@ -99,7 +99,7 @@ pub(crate) fn show_main_menu(
         return;
     }
 
-    for event in enable_events.iter() {
+    for event in enable_events.read() {
         if !event.enable {
             continue;
         }
@@ -487,9 +487,10 @@ pub struct PlayMenuState {
     pub enabled: bool,
     pub root: Option<Entity>,
 }
-use bevy::prelude::{warn, Local, Resource};
+use bevy::log::warn;
 use bevy::prelude::{Added, Query};
 use bevy::prelude::{Event, With};
+use bevy::prelude::{Local, Resource};
 use bevy::ui::Interaction;
 
 use ui::button::HOVERED_BUTTON;
@@ -505,7 +506,7 @@ pub(crate) fn show_play_menu(
     root_node_query: Query<Entity, With<MainMainMenuRoot>>,
     token: Res<Token>,
 ) {
-    for event in show_events.iter() {
+    for event in show_events.read() {
         let mut root_node_option = None;
         for root in root_node_query.iter() {
             root_node_option = Some(root);
@@ -833,7 +834,7 @@ pub(crate) fn auto_fill_connect_menu(
     mut set_text: EventWriter<SetText>,
     server_address_input_query: Query<Entity, With<IpAddressInput>>,
 ) {
-    for _ in events.iter() {
+    for _ in events.read() {
         for entity in server_address_input_query.iter() {
             set_text.send(SetText {
                 entity,

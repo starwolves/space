@@ -1,7 +1,9 @@
+use bevy::log::warn;
 use bevy::prelude::{
-    warn, BuildChildren, Commands, Entity, Event, EventReader, EventWriter, Query, Res, ResMut,
+    BuildChildren, Commands, Entity, Event, EventReader, EventWriter, Query, Res, ResMut,
     SystemSet, Transform, Vec3, Visibility,
 };
+
 use bevy_xpbd_3d::prelude::Sleeping;
 use cameras::controllers::fps::ActiveCamera;
 use entity::{entity_data::EntityData, entity_types::EntityType, spawn::ClientEntityServerEntity};
@@ -16,7 +18,7 @@ pub(crate) fn client_item_added_to_slot(
     mut net: EventReader<IncomingReliableServerMessage<InventoryServerMessage>>,
     mut inventory: ResMut<Inventory>,
 ) {
-    for message in net.iter() {
+    for message in net.read() {
         match &message.message {
             InventoryServerMessage::ItemAddedToSlot(event) => {
                 match inventory.slots.get_mut(&event.slot_id) {
@@ -52,7 +54,7 @@ pub fn active_item_display_camera<T: Send + Sync + EntityType + Default + 'stati
     mut events: EventReader<ActiveItemCamera>,
     mut entity_type_query: Query<(&EntityData, &mut Transform)>,
 ) {
-    for event in events.iter() {
+    for event in events.read() {
         match entity_type_query.get_mut(event.client_entity) {
             Ok((data, mut transform)) => {
                 if data.entity_type.get_identity() != T::default().get_identity() {
@@ -87,7 +89,7 @@ pub fn set_active_item(
 
     mut events: EventWriter<ActiveItemCamera>,
 ) {
-    for event in net.iter() {
+    for event in net.read() {
         match event.message {
             InventoryServerMessage::SetActiveItem(entity) => {
                 match inventory.active_item {

@@ -15,7 +15,7 @@ pub(crate) fn entity_console_commands(
     mut commands: Commands,
     mut spawn_event: EventWriter<SpawnEntity<LineArrowType>>,
 ) {
-    for command in queue.iter() {
+    for command in queue.read() {
         if command.input.command == "pointArrow" && command.input.args.len() == 4 {
             let x;
             let y;

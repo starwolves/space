@@ -1,4 +1,5 @@
 use bevy::prelude::{Component, Entity, Event};
+use bevy_renet::renet::ClientId;
 use gridmap::grid::CellIds;
 use resources::grid::TargetCell;
 
@@ -14,7 +15,7 @@ pub struct ConstructionTool {
 #[derive(Event)]
 pub struct InputConstruct {
     /// Connection handle that fired this input.
-    pub handle_option: Option<u64>,
+    pub handle_option: Option<ClientId>,
     /// Build on gridmap cell:
     pub target_cell: TargetCell,
     /// Entity that requested to construct.
@@ -24,7 +25,7 @@ pub struct InputConstruct {
 #[derive(Event)]
 pub struct InputConstructionOptions {
     /// Connection handle that fired this input.
-    pub handle_option: Option<u64>,
+    pub handle_option: Option<ClientId>,
     /// Entity that requested to select construction option.
     pub entity: Entity,
 }
@@ -32,7 +33,7 @@ pub struct InputConstructionOptions {
 #[derive(Event)]
 pub struct InputDeconstruct {
     /// Connection handle that fired this input.
-    pub handle_option: Option<u64>,
+    pub handle_option: Option<ClientId>,
     pub target_cell_option: Option<TargetCell>,
     pub target_entity_option: Option<Entity>,
     /// Entity that requested to deconstruct.

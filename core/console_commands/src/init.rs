@@ -1,4 +1,4 @@
-use bevy::prelude::info;
+use bevy::log::info;
 use bevy::prelude::ResMut;
 use networking::server::ConsoleArgVariant;
 

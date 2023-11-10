@@ -1,5 +1,6 @@
 use actions::core::{Action, ActionData, ActionRequests, BuildingActions};
-use bevy::prelude::{warn, EventReader, EventWriter, Query, Res, ResMut, With};
+use bevy::log::warn;
+use bevy::prelude::{EventReader, EventWriter, Query, Res, ResMut, With};
 use gridmap::{
     grid::{CellIds, CellTypeName, Gridmap, GroupTypeName},
     net::GridmapServerMessage,
@@ -107,7 +108,7 @@ pub fn send_constructable_items(
     mut net: EventWriter<OutgoingReliableServerMessage<UiServerMessage>>,
     gridmap: Res<Gridmap>,
 ) {
-    for event in events.iter() {
+    for event in events.read() {
         match event.handle_option {
             Some(handle) => {
                 let mut names = vec![];
@@ -278,7 +279,7 @@ pub(crate) fn construction_tool_select_construction_option(
     mut net: EventWriter<OutgoingReliableServerMessage<GridmapServerMessage>>,
     gridmap: Res<Gridmap>,
 ) {
-    for event in input_events.iter() {
+    for event in input_events.read() {
         if event.id == CONSTRUCTION_OPTIONS_TEXT_LIST_ID {
             match query.get_mut(event.entity) {
                 Ok(mut c) => match gridmap

@@ -1,4 +1,5 @@
-use bevy::prelude::{warn, Commands, ResMut, Transform};
+use bevy::log::warn;
+use bevy::prelude::{Commands, ResMut, Transform};
 use rand::prelude::SliceRandom;
 use sfx::{builder::sfx_builder, entity_update::SfxAutoDestroyTimers};
 

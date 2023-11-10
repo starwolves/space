@@ -1,5 +1,7 @@
 use actions::core::{BuildingActions, ListActionDataRequests};
-use bevy::prelude::{warn, Entity, Event, EventReader, Query, Res, ResMut, Resource};
+use bevy::log::warn;
+use bevy::prelude::{Entity, Event, EventReader, Query, Res, ResMut, Resource};
+use bevy_renet::renet::ClientId;
 use entity::{
     examine::Examinable,
     health::HealthContainer,
@@ -292,14 +294,14 @@ pub fn finalize_grid_examine_input(
     mut gridmap_messages: ResMut<GridmapExamineMessages>,
     mut gridmap_examine_input: EventReader<InputExamineMap>,
 ) {
-    for input_event in gridmap_examine_input.iter() {
+    for input_event in gridmap_examine_input.read() {
         gridmap_messages.messages.push(input_event.clone());
     }
 }
 /// Examine map message event.
 #[derive(Clone, Event)]
 pub struct InputExamineMap {
-    pub handle: u64,
+    pub handle: ClientId,
     pub entity: Entity,
     pub gridmap_cell_id: Vec3Int,
     pub face: CellFace,
@@ -310,7 +312,7 @@ pub struct InputExamineMap {
 impl Default for InputExamineMap {
     fn default() -> Self {
         Self {
-            handle: 0,
+            handle: ClientId::from_raw(0),
             entity: Entity::from_bits(0),
             gridmap_cell_id: Vec3Int::default(),
             message: ASTRIX.to_string(),
@@ -406,7 +408,7 @@ pub(crate) fn incoming_messages(
     handle_to_entity: Res<HandleToEntity>,
     mut input_examine_map: EventWriter<InputExamineMap>,
 ) {
-    for message in server.iter() {
+    for message in server.read() {
         let client_message = message.message.clone();
 
         match client_message {

@@ -1,15 +1,17 @@
 use std::{collections::HashMap, f32::consts::PI};
 
+use bevy::log::warn;
 use bevy::{
     gltf::GltfMesh,
     pbr::{NotShadowCaster, NotShadowReceiver},
     prelude::{
-        warn, AlphaMode, AssetServer, Assets, Color, Commands, Component, Entity, Event,
-        EventReader, EventWriter, Handle, KeyCode, Local, MouseButton, PbrBundle, Quat, Query, Res,
-        ResMut, Resource, StandardMaterial, SystemSet, Transform, Vec3, Visibility, With,
+        AlphaMode, AssetServer, Assets, Color, Commands, Component, Entity, Event, EventReader,
+        EventWriter, Handle, KeyCode, Local, MouseButton, PbrBundle, Quat, Query, Res, ResMut,
+        Resource, StandardMaterial, SystemSet, Transform, Vec3, Visibility, With,
     },
     transform::TransformBundle,
 };
+
 use bevy_xpbd_3d::prelude::{
     Collider, CollisionLayers, RigidBody, SpatialQuery, SpatialQueryFilter,
 };
@@ -127,7 +129,7 @@ pub(crate) fn show_ylevel_plane(
     mut query: Query<&mut Visibility, With<SelectCellCameraYPlane>>,
     mut events2: EventWriter<SetYPlanePosition>,
 ) {
-    for event in events.iter() {
+    for event in events.read() {
         match query.get_mut(state.y_plane) {
             Ok(mut visibility) => {
                 let visibility2;
@@ -206,7 +208,7 @@ pub(crate) fn set_yplane_position(
     mut state: ResMut<GridmapConstructionState>,
     mut query: Query<&mut Transform, With<SelectCellCameraYPlane>>,
 ) {
-    for event in events.iter() {
+    for event in events.read() {
         state.y_level = event.y;
         match query.get_mut(state.y_plane) {
             Ok(mut transform) => {
@@ -348,7 +350,7 @@ pub(crate) fn update_ghost_cell(
     if !state.is_constructing {
         return;
     }
-    for changed in events.iter() {
+    for changed in events.read() {
         for (_, tile) in state.ghost_items.iter() {
             match tile.ghost_entity_option {
                 Some(ghost_entity) => {
@@ -961,7 +963,7 @@ pub(crate) fn change_ghost_tile_request(
     mut events: EventWriter<ConstructionCellSelectionChanged>,
     mut select_state: ResMut<GridmapConstructionState>,
 ) {
-    for message in net.iter() {
+    for message in net.read() {
         match &message.message {
             GridmapServerMessage::GhostCellType(type_id) => {
                 match type_id {

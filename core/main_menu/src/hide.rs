@@ -14,7 +14,7 @@ pub(crate) fn hide_main_menu(
     mut state: ResMut<MainMenuState>,
     mut despawn: EventWriter<DespawnEntity>,
 ) {
-    for event in enable_events.iter() {
+    for event in enable_events.read() {
         if event.enable == false {
             if !state.enabled {
                 return;
@@ -39,7 +39,7 @@ pub(crate) fn confirm_connection(
     mut client2: EventReader<IncomingReliableServerMessage<PlayerServerMessage>>,
     mut enable_menu_events: EventWriter<EnableMainMenu>,
 ) {
-    for message in client2.iter() {
+    for message in client2.read() {
         match &message.message {
             PlayerServerMessage::InitGame => {
                 enable_menu_events.send(EnableMainMenu { enable: false });

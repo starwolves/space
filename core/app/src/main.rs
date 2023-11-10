@@ -10,11 +10,10 @@ use ball::plugin::BallPlugin;
 use basic_console_commands::plugin::BasicConsoleCommandsPlugin;
 use bevy::app::ScheduleRunnerPlugin;
 use bevy::diagnostic::DiagnosticsPlugin;
+use bevy::log::info;
 use bevy::log::LogPlugin;
-use bevy::prelude::info;
 use bevy::prelude::App;
 use bevy::prelude::AssetPlugin;
-use bevy::prelude::FixedTime;
 use bevy::prelude::FrameCountPlugin;
 use bevy::prelude::HierarchyPlugin;
 use bevy::prelude::ImagePlugin;
@@ -24,9 +23,12 @@ use bevy::prelude::Startup;
 use bevy::prelude::TaskPoolOptions;
 use bevy::prelude::TaskPoolPlugin;
 use bevy::prelude::TypeRegistrationPlugin;
+use bevy::render::settings::RenderCreation;
 use bevy::render::settings::WgpuSettings;
 use bevy::render::RenderPlugin;
 use bevy::scene::ScenePlugin;
+use bevy::time::Fixed;
+use bevy::time::Time;
 use bevy::time::TimePlugin;
 use bevy::transform::TransformPlugin;
 use bevy::window::PresentMode;
@@ -151,7 +153,7 @@ pub(crate) fn start_app(mode: AppMode) {
         app.add_plugins(TypeRegistrationPlugin)
             .add_plugins(FrameCountPlugin)
             .add_plugins(AssetPlugin {
-                asset_folder: test_path.to_str().unwrap().to_owned(),
+                file_path: test_path.to_str().unwrap().to_owned(),
                 ..Default::default()
             })
             .add_plugins(WindowPlugin::default())
@@ -161,7 +163,7 @@ pub(crate) fn start_app(mode: AppMode) {
             .add_plugins(DiagnosticsPlugin::default())
             .add_plugins(ScenePlugin::default())
             .add_plugins(RenderPlugin {
-                wgpu_settings: wgpu_settings,
+                render_creation: RenderCreation::Automatic(wgpu_settings),
             })
             .add_plugins(ImagePlugin::default())
             .add_plugins(ScheduleRunnerPlugin::default())
@@ -181,7 +183,7 @@ pub(crate) fn start_app(mode: AppMode) {
                     ..Default::default()
                 })
                 .set(AssetPlugin {
-                    asset_folder: test_path.to_str().unwrap().to_owned(),
+                    file_path: test_path.to_str().unwrap().to_owned(),
                     ..Default::default()
                 })
                 .set(ImagePlugin::default_nearest())
@@ -203,8 +205,8 @@ pub(crate) fn start_app(mode: AppMode) {
         .add_plugins(ActionsPlugin)
         .add_plugins(NetworkingPlugin)
         .add_plugins(ControllerPlugin::default())
-        .insert_resource(FixedTime::new_from_secs(
-            1. / TickRate::default().bevy_rate as f32,
+        .insert_resource(Time::<Fixed>::from_seconds(
+            1. / TickRate::default().bevy_rate as f64,
         ))
         .init_resource::<TickRate>()
         .add_plugins(MetadataPlugin)

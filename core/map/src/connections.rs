@@ -11,7 +11,7 @@ pub(crate) fn configure(
     map_data: Res<MapData>,
     mut server: EventWriter<OutgoingReliableServerMessage<MapServerMessage>>,
 ) {
-    for event in config_events.iter() {
+    for event in config_events.read() {
         for add in map_data.to_net() {
             server.send(OutgoingReliableServerMessage {
                 handle: event.handle,

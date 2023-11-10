@@ -1,13 +1,15 @@
 use std::collections::HashMap;
 
+use bevy::log::warn;
 use bevy::{
     prelude::{
-        warn, BuildChildren, Color, Commands, Component, Entity, Event, EventReader, EventWriter,
+        BuildChildren, Color, Commands, Component, Entity, Event, EventReader, EventWriter,
         NodeBundle, Query, Res, ResMut, Resource, SystemSet, TextBundle, Visibility, With,
     },
     text::{Text, TextStyle},
     ui::{AlignItems, FlexDirection, JustifyContent, Style, UiRect, Val},
 };
+
 use player::configuration::Boarded;
 use resources::{hud::HudState, input::InputBuffer, ui::TextInput};
 use ui::fonts::{Fonts, ARIZONE_FONT};
@@ -142,7 +144,7 @@ pub(crate) fn open_inventory_hud(
 
     mut root_node: Query<&mut Visibility, With<InventoryHudRootNode>>,
 ) {
-    for event in events.iter() {
+    for event in events.read() {
         if !boarded.boarded {
             continue;
         }
@@ -182,7 +184,7 @@ pub fn open_hud(
     mut events: EventReader<OpenHud>,
     mut state: ResMut<HudState>,
 ) {
-    for event in events.iter() {
+    for event in events.read() {
         if !boarded.boarded {
             continue;
         }

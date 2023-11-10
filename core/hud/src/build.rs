@@ -1,10 +1,12 @@
+use bevy::log::warn;
 use bevy::{
     prelude::{
-        warn, BuildChildren, Commands, Component, Entity, Event, EventReader, NodeBundle, Query,
-        Res, With,
+        BuildChildren, Commands, Component, Entity, Event, EventReader, NodeBundle, Query, Res,
+        With,
     },
     ui::{Display, FlexDirection, Style, Val},
 };
+
 use networking::client::IncomingReliableServerMessage;
 use player::net::PlayerServerMessage;
 use resources::hud::HudState;
@@ -196,7 +198,7 @@ pub(crate) fn show_hud(
     mut query: Query<&mut Style, With<HudRootNode>>,
     hud: Res<HudState>,
 ) {
-    for message in client2.iter() {
+    for message in client2.read() {
         match &message.message {
             PlayerServerMessage::InitGame => match query.get_mut(hud.root_entity) {
                 Ok(mut style) => {

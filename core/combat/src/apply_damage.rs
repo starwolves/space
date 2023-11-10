@@ -1,4 +1,5 @@
-use bevy::prelude::{warn, Entity, Event, EventReader, EventWriter, Query, Res, ResMut, Resource};
+use bevy::log::warn;
+use bevy::prelude::{Entity, Event, EventReader, EventWriter, Query, Res, ResMut, Resource};
 use entity::health::{HealthComponent, HealthContainer};
 use inventory::server::combat::{DamageModel, MeleeCombat, ProjectileCombat};
 use resources::math::Vec3Int;
@@ -73,7 +74,7 @@ pub(crate) fn start_apply_damage(
     attackers: Query<&MeleeCombat>,
     mut active_applydamage: ResMut<ActiveApplyDamage>,
 ) {
-    for hit_result in query_hit_results.iter() {
+    for hit_result in query_hit_results.read() {
         let attack_cache;
 
         match combat_storage.map.get(&hit_result.incremented_id) {

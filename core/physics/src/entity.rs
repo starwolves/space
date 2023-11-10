@@ -1,12 +1,14 @@
 use std::collections::{hash_map::Entry, HashMap};
 
+use bevy::log::warn;
 use bevy::{
     prelude::{
-        warn, Component, CubicGenerator, Entity, Event, EventReader, EventWriter, FixedTime,
-        Hermite, Local, Query, Res, ResMut, Resource, Transform, Vec3, With, Without,
+        Component, CubicGenerator, CubicHermite, Entity, Event, EventReader, EventWriter, Local,
+        Query, Res, ResMut, Resource, Transform, Vec3, With, Without,
     },
-    time::Time,
+    time::{Fixed, Time},
 };
+
 use bevy_xpbd_3d::prelude::LinearVelocity;
 use entity::{
     despawn::DespawnEntity,
@@ -98,7 +100,7 @@ pub(crate) fn remove_links(
     mut rigidbodies: ResMut<RigidBodies>,
     mut events: EventReader<DespawnEntity>,
 ) {
-    for event in events.iter() {
+    for event in events.read() {
         rigidbodies.remove_linked_entity(&event.entity);
         rigidbodies.remove_linked_tile(&event.entity);
         rigidbodies.remove_entity_rigidbody(&event.entity);
@@ -155,7 +157,7 @@ pub(crate) fn client_mirror_link_target_transform(
     mut target_transforms: Query<(&mut RigidBodyLink, &WorldMode), Without<Tile>>,
     rigidbodies: Res<RigidBodies>,
     mut reset: EventWriter<ResetLerp>,
-    fixed_time: Res<FixedTime>,
+    fixed_time: Res<Time<Fixed>>,
 ) {
     for (rigidbody, links) in rigidbodies.entity_map.iter() {
         let rbt;
@@ -188,7 +190,7 @@ pub(crate) fn client_mirror_link_target_transform(
                     link.origin_velocity = link.target_velocity.clone();
 
                     link.target_transform = fin_transform;
-                    link.target_velocity = velocity.0 / (1. / fixed_time.period.as_secs_f32());
+                    link.target_velocity = velocity.0 / (1. / fixed_time.delta().as_secs_f32());
                 }
                 Err(_) => {
                     warn!("Couldnt find link entity transform.");
@@ -209,7 +211,7 @@ pub(crate) fn client_interpolate_link_transform(
     mut resets: EventReader<ResetLerp>,
 ) {
     let mut reset = false;
-    for _ in resets.iter() {
+    for _ in resets.read() {
         reset = true;
         break;
     }
@@ -232,7 +234,7 @@ pub(crate) fn client_interpolate_link_transform(
                         continue;
                     }
 
-                    let hermite = Hermite::new(
+                    let hermite = CubicHermite::new(
                         vec![
                             link_component.origin_transfom.translation,
                             link_component.target_transform.translation,

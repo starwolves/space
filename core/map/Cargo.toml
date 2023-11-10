@@ -12,13 +12,14 @@ edition = "2021"
 
 
 [dependencies.bevy]
-version = "0.11.3"
+version = "0.12"
 
 default-features = false
 
 [dependencies]
 serde = "1.0.177"
 typename = "0.1.2"
+bevy_renet = {version = "0.0.9", git="https://github.com/lucaspoffo/renet.git", branch="master" }
 
 networking = { path = "../networking" }
 resources = { path = "../resources" }

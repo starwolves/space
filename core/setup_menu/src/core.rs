@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use bevy::prelude::{Added, Commands, EventReader, EventWriter, Query, Res, Resource};
+use bevy_renet::renet::ClientId;
 use networking::server::HandleToEntity;
 use player::connections::PlayerAwaitingBoarding;
 
@@ -45,7 +46,7 @@ pub(crate) fn initialize_setupui(
         );
     }
 }
-use bevy::prelude::warn;
+use bevy::log::warn;
 use player::boarding::BoardingPlayer;
 
 use bevy::prelude::ResMut;
@@ -53,7 +54,7 @@ use bevy::prelude::ResMut;
 
 /// Each stored [SetupUiState] for the connected handles.
 pub struct SetupUiUserDataSets {
-    pub list: HashMap<u64, SetupUiUserData>,
+    pub list: HashMap<ClientId, SetupUiUserData>,
 }
 
 pub struct SetupUiUserData {
@@ -64,7 +65,7 @@ pub(crate) fn receive_input_character_name(
     mut server: EventReader<IncomingReliableClientMessage<SetupUiClientMessage>>,
     mut datas: ResMut<SetupUiUserDataSets>,
 ) {
-    for message in server.iter() {
+    for message in server.read() {
         match message.message.clone() {
             SetupUiClientMessage::InputCharacterName(name) => {
                 match datas.list.get_mut(&message.handle) {
@@ -90,7 +91,7 @@ pub(crate) fn ui_input_boarding(
     mut query: Query<&ConnectedPlayer>,
     setupui_datas: Res<SetupUiUserDataSets>,
 ) {
-    for new_event in event.iter() {
+    for new_event in event.read() {
         let player_entity = handle_to_entity
             .map
             .get(&new_event.handle)
@@ -133,7 +134,7 @@ pub(crate) fn configure(
     mut config_events: EventReader<SendServerConfiguration>,
     mut server1: EventWriter<OutgoingReliableServerMessage<SetupUiServerMessage>>,
 ) {
-    for event in config_events.iter() {
+    for event in config_events.read() {
         server1.send(OutgoingReliableServerMessage {
             handle: event.handle,
             message: SetupUiServerMessage::InitSetupUi,
@@ -145,7 +146,7 @@ pub(crate) fn configure(
 
 #[derive(Resource, Default)]
 pub struct SetupUiState {
-    pub enabled: HashMap<u64, bool>,
+    pub enabled: HashMap<ClientId, bool>,
 }
 
 /// Show setup_ui to newly connected clients.
@@ -154,7 +155,7 @@ pub(crate) fn new_clients_enable_setupui(
     mut player_awaiting_boarding: EventReader<PlayerAwaitingBoarding>,
     mut state: ResMut<SetupUiState>,
 ) {
-    for awaiting in player_awaiting_boarding.iter() {
+    for awaiting in player_awaiting_boarding.read() {
         if !state.enabled.contains_key(&awaiting.handle) {
             state.enabled.insert(awaiting.handle, true);
         }
@@ -170,7 +171,7 @@ pub(crate) fn client_setup_ui(
     mut incoming_setupui_messages: EventReader<IncomingReliableServerMessage<SetupUiServerMessage>>,
     mut outgoing_setupui_messages: EventWriter<OutgoingReliableClientMessage<SetupUiClientMessage>>,
 ) {
-    for message in incoming_setupui_messages.iter() {
+    for message in incoming_setupui_messages.read() {
         let player_message = message.message.clone();
         match player_message {
             SetupUiServerMessage::SuggestedCharacterName(name) => {
@@ -199,7 +200,7 @@ pub fn setupui_loaded(
     handle_to_entity: Res<HandleToEntity>,
     mut commands: Commands,
 ) {
-    for new_event in event.iter() {
+    for new_event in event.read() {
         match new_event.message {
             SetupUiClientMessage::SetupUiLoaded => {
                 let player_entity = handle_to_entity.map.get(&new_event.handle)

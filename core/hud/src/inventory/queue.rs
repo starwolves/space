@@ -14,10 +14,10 @@ pub(crate) fn queue_inventory_updates(
     mut queue: ResMut<InventoryUpdatesQueue>,
     mut added_slot_events: EventReader<AddedSlot>,
 ) {
-    for event in added_slot_events.iter() {
+    for event in added_slot_events.read() {
         queue.slot_updates.push(event.clone());
     }
-    for message in net.iter() {
+    for message in net.read() {
         match &message.message {
             InventoryServerMessage::ItemAddedToSlot(item) => {
                 queue.item_updates.push(item.clone());
@@ -61,7 +61,7 @@ pub(crate) fn inventory_net_updates(
         queue.slot_updates.clear();
     }
 
-    for event in added_slot_events.iter() {
+    for event in added_slot_events.read() {
         if to_be_added_slot_ids.contains(&event.id) {
             continue;
         }
@@ -70,7 +70,7 @@ pub(crate) fn inventory_net_updates(
         });
     }
 
-    for message in net.iter() {
+    for message in net.read() {
         match &message.message {
             InventoryServerMessage::ItemAddedToSlot(item) => {
                 let mut found = false;

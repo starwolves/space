@@ -1,5 +1,7 @@
+use bevy::log::info;
+use bevy::log::warn;
 use bevy::math::{Quat, Vec3};
-use bevy::prelude::{info, warn, Local};
+use bevy::prelude::Local;
 
 use serde::{Deserialize, Serialize};
 /// ron entity.

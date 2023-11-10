@@ -1,5 +1,6 @@
 use bevy::prelude::{Entity, SystemSet};
 use bevy::prelude::{Event, Resource};
+use bevy_renet::renet::ClientId;
 use networking::server::ConsoleArgVariant;
 use serde::{Deserialize, Serialize};
 
@@ -29,7 +30,7 @@ pub enum ConsoleCommandsSet {
 #[derive(Event)]
 pub struct InputConsoleCommand {
     /// The connection handle tied to the entity performing the command.
-    pub handle_option: Option<u64>,
+    pub handle_option: Option<ClientId>,
     /// The entity performing the command.
     pub entity: Entity,
     pub input: ClientSideConsoleInput,

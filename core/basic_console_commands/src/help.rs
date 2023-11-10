@@ -25,7 +25,7 @@ pub(crate) fn help_command(
     commands: Res<AllConsoleCommands>,
     fonts: Res<Fonts>,
 ) {
-    for input in queue.iter() {
+    for input in queue.read() {
         if input.command != "help" {
             continue;
         }

@@ -1,5 +1,8 @@
-use bevy::prelude::{EventReader, Res, ResMut, Resource};
-use bevy_xpbd_3d::prelude::PhysicsLoop;
+use bevy::{
+    prelude::{EventReader, Res, ResMut, Resource},
+    time::Time,
+};
+use bevy_xpbd_3d::prelude::{Physics, PhysicsTime};
 use serde::{Deserialize, Serialize};
 
 use crate::{client::IncomingReliableServerMessage, server::NetworkingServerMessage};
@@ -65,7 +68,7 @@ pub(crate) fn setup_client_tickrate_stamp(
     mut client: EventReader<IncomingReliableServerMessage<NetworkingServerMessage>>,
     mut stamp: ResMut<TickRateStamp>,
 ) {
-    for event in client.iter() {
+    for event in client.read() {
         match &event.message {
             NetworkingServerMessage::Awoo(sync) => {
                 let mut m_stamp = sync.stamp.clone();
@@ -81,10 +84,10 @@ pub struct PauseTickStep(pub bool);
 
 pub fn step_tickrate_stamp(
     mut stamp: ResMut<TickRateStamp>,
-    physics_loop: Res<PhysicsLoop>,
+    physics_loop: Res<Time<Physics>>,
     p: Res<PauseTickStep>,
 ) {
-    if !physics_loop.paused && !p.0 {
+    if !physics_loop.is_paused() && !p.0 {
         stamp.step();
     }
 }

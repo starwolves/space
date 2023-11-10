@@ -1,4 +1,5 @@
-use bevy::prelude::{warn, Component, Entity, EventReader, EventWriter, Query, Res, Transform};
+use bevy::log::warn;
+use bevy::prelude::{Component, Entity, EventReader, EventWriter, Query, Res, Transform};
 use entity::examine::Examinable;
 use entity::health::HealthComponent;
 use entity::health::HealthContainer;
@@ -37,7 +38,7 @@ pub fn attacked_by_chat<T: Component>(
     target_entities: Query<(&HealthComponent, &Examinable, &Transform)>,
     attacker_criteria: Query<&T>,
 ) {
-    for query_hit_result in query_hit_results.iter() {
+    for query_hit_result in query_hit_results.read() {
         let attack_cache;
 
         match cached_attacks.map.get(&query_hit_result.incremented_id) {
@@ -428,7 +429,7 @@ pub fn hit_query_chat_cells(
     _gridmap_main: Res<Gridmap>,
     mut _server: EventWriter<OutgoingReliableServerMessage<NetworkingChatServerMessage>>,
 ) {
-    for query_hit_result in query_hit_results.iter() {
+    for query_hit_result in query_hit_results.read() {
         let attack_cache;
 
         match cached_attacks.map.get(&query_hit_result.incremented_id) {

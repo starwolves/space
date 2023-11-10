@@ -1,4 +1,6 @@
-use bevy::prelude::{warn, Event, EventReader, Resource, With};
+use bevy::log::warn;
+use bevy::prelude::{Event, EventReader, Resource, With};
+use bevy_renet::renet::ClientId;
 use console_commands::commands::InputConsoleCommand;
 
 use bevy::prelude::{Commands, EventWriter, Res};
@@ -23,7 +25,7 @@ pub fn coords(
     fonts: Res<Fonts>,
     connected_players: Query<&Transform, With<ConnectedPlayer>>,
 ) {
-    for console_command_event in queue.iter() {
+    for console_command_event in queue.read() {
         if console_command_event.input.command != "coords" {
             continue;
         }
@@ -69,7 +71,7 @@ pub fn rcon_entity_console_commands<T: EntityType + Default + Send + Sync + 'sta
     mut rcon_spawn_event: EventWriter<RconSpawnEntity<T>>,
     fonts: Res<Fonts>,
 ) {
-    for console_command_event in queue.iter() {
+    for console_command_event in queue.read() {
         let player_entity;
         match connected_players.get(console_command_event.entity) {
             Ok(s) => {
@@ -144,7 +146,7 @@ pub struct RconSpawnEntity<T: EntityType + Send + Sync + 'static> {
     pub entity_type: T,
     pub target_selector: String,
     pub spawn_amount: i64,
-    pub command_executor_handle_option: Option<u64>,
+    pub command_executor_handle_option: Option<ClientId>,
     pub command_executor_entity: Entity,
 }
 use entity::entity_types::EntityType;
@@ -164,7 +166,7 @@ pub fn rcon_spawn_entity<T: EntityType + Clone + Send + Sync + 'static>(
     mut default_spawner: EventWriter<SpawnEntity<T>>,
     fonts: Res<Fonts>,
 ) {
-    for event in rcon_spawn_events.iter() {
+    for event in rcon_spawn_events.read() {
         let mut spawn_amount = event.spawn_amount;
 
         if spawn_amount > 5 {
@@ -299,7 +301,7 @@ pub(crate) fn rcon_console_commands(
     mut server: EventWriter<OutgoingReliableServerMessage<ConsoleCommandsServerMessage>>,
     fonts: Res<Fonts>,
 ) {
-    for console_command_event in console_commands_events.iter() {
+    for console_command_event in console_commands_events.read() {
         if console_command_event.input.command == "rcon"
             && console_command_event.input.args.len() == 1
             && console_command_event.handle_option.is_some()
@@ -333,7 +335,7 @@ pub(crate) fn rcon_console_commands(
 pub(crate) fn rcon_authorization(
     bruteforce_protection: &mut Local<BruteforceProtection>,
     connected_players: &mut Query<&mut ConnectedPlayer>,
-    client_handle: u64,
+    client_handle: ClientId,
     client_entity: Entity,
     server: &mut EventWriter<OutgoingReliableServerMessage<ConsoleCommandsServerMessage>>,
     input_password: String,
@@ -416,7 +418,7 @@ pub(crate) fn rcon_authorization(
 
 pub(crate) fn rcon_status(
     connected_players: &mut Query<&mut ConnectedPlayer>,
-    client_handle: u64,
+    client_handle: ClientId,
     client_entity: Entity,
     server: &mut EventWriter<OutgoingReliableServerMessage<ConsoleCommandsServerMessage>>,
     fonts: &Res<Fonts>,
@@ -474,7 +476,7 @@ use std::collections::HashMap;
 #[derive(Default)]
 pub(crate) struct BruteforceProtection {
     /// Wrong password attempts by handle.
-    pub tracking_data: HashMap<u64, u8>,
+    pub tracking_data: HashMap<ClientId, u8>,
     /// Blacklisted handles.
-    pub blacklist: Vec<u64>,
+    pub blacklist: Vec<ClientId>,
 }

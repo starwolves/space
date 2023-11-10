@@ -1,4 +1,5 @@
-use bevy::prelude::{warn, Commands, EventReader, EventWriter, Query, Res};
+use bevy::log::warn;
+use bevy::prelude::{Commands, EventReader, EventWriter, Query, Res};
 use entity::spawn::ClientEntityServerEntity;
 use gridmap::{
     construction::{GridmapConstructionState, ShowYLevelPlane},
@@ -55,7 +56,7 @@ pub(crate) fn mouse_click_input(
     mut remove_events: EventWriter<RemoveTile>,
     mut commands: Commands,
 ) {
-    for message in net.iter() {
+    for message in net.read() {
         let client_entity;
         match handle_to_entity.map.get(&message.handle) {
             Some(entity) => {

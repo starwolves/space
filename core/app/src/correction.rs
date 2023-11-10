@@ -1,12 +1,16 @@
 use std::{
     sync::mpsc::{self, Receiver, SyncSender},
     thread::JoinHandle,
-    time::Duration,
 };
 
-use bevy::prelude::{
-    info, warn, App, EventReader, EventWriter, FixedTime, FixedUpdate, IntoSystemConfigs, Local,
-    NonSend, Plugin, Res, ResMut, Resource, Startup, Update, World,
+use bevy::log::info;
+use bevy::log::warn;
+use bevy::{
+    prelude::{
+        App, EventReader, EventWriter, FixedUpdate, IntoSystemConfigs, Local, NonSend, Plugin, Res,
+        ResMut, Resource, Startup, Update, World,
+    },
+    time::{Fixed, Time},
 };
 use controller::input::RecordedControllerInput;
 use physics::{
@@ -55,7 +59,7 @@ pub struct IsCorrecting(bool);
 pub(crate) fn server_start_correcting(
     queued_message_reciever: NonSend<CorrectionServerReceiveMessage>,
     mut cache: ResMut<PhysicsCache>,
-    mut fixed: ResMut<FixedTime>,
+    mut fixed: ResMut<Time<Fixed>>,
     mut correction: ResMut<StartCorrection>,
     mut correcting: ResMut<IsCorrecting>,
     mut input_cache: ResMut<RecordedControllerInput>,
@@ -72,7 +76,7 @@ pub(crate) fn server_start_correcting(
                         input,
                     ) => {
                         *cache = new_cache;
-                        fixed.period = Duration::from_secs_f32(0.);
+                        fixed.set_timestep_seconds(0.);
                         *correction = start_correction_data;
                         *input_cache = input;
                         correcting.0 = true;
@@ -87,14 +91,14 @@ pub(crate) fn server_start_correcting(
     }
 }
 
-pub(crate) fn init_connection_server(mut first: Local<bool>, mut fixed: ResMut<FixedTime>) {
+pub(crate) fn init_connection_server(mut first: Local<bool>, mut fixed: ResMut<Time<Fixed>>) {
     if !*first {
         *first = true;
     } else {
         return;
     }
 
-    fixed.period = Duration::from_secs_f32(1.);
+    fixed.set_timestep_seconds(1.);
 }
 
 #[derive(Default)]
@@ -145,7 +149,7 @@ pub(crate) fn start_correction(
     //mut iterative_i: ResMut<CorrectionResource>,
     correction_server: Res<CorrectionServerData>,
 ) {
-    for event in events.iter() {
+    for event in events.read() {
         match correction_server
             .message_sender
             .send(ClientCorrectionMessage::StartCorrecting(

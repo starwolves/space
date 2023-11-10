@@ -1,10 +1,12 @@
 use std::collections::BTreeMap;
 
 use super::resources::Airlock;
+use bevy::log::warn;
 use bevy::{
     math::Vec3,
-    prelude::{warn, Commands, EventReader, Transform},
+    prelude::{Commands, EventReader, Transform},
 };
+
 use bevy_xpbd_3d::prelude::{CoefficientCombine, Collider, Friction};
 use const_format::concatcp;
 use entity::{
@@ -125,7 +127,7 @@ pub fn build_airlocks<T: Send + Sync + 'static>(
     mut commands: Commands,
     mut airlock_spawns: EventReader<SpawnEntity<T>>,
 ) {
-    for spawn_event in airlock_spawns.iter() {
+    for spawn_event in airlock_spawns.read() {
         commands
             .entity(spawn_event.spawn_data.entity)
             .insert(Airlock {

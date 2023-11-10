@@ -116,7 +116,7 @@ pub fn ui_events(
         }
     }
 }
-use bevy::prelude::warn;
+use bevy::log::warn;
 use bevy::prelude::Children;
 use bevy::prelude::Res;
 use bevy::prelude::{Input, KeyCode};
@@ -150,7 +150,7 @@ pub(crate) fn focus_events(
     mut input_query: Query<(&mut BackgroundColor, &TextInputNode, &Children)>,
     mut text_query: Query<&mut Text>,
 ) {
-    for unfocus in unfocus_events.iter() {
+    for unfocus in unfocus_events.read() {
         match text_input.focused_input {
             Some(entity) => {
                 let mut should_unfocus = false;
@@ -216,7 +216,7 @@ pub(crate) fn focus_events(
         text_input.old_focus = text_input.focused_input.clone();
         text_input.focused_input = None;
     }
-    for focus in focus_events.iter() {
+    for focus in focus_events.read() {
         match text_input.focused_input {
             Some(entity) => {
                 if entity != focus.entity {
@@ -252,6 +252,7 @@ use bevy::time::Time;
 use bevy::time::TimerMode;
 use bevy::{prelude::Local, time::Timer};
 use bevy_egui::EguiClipboard;
+use bevy_renet::renet::ClientId;
 use resources::input::{KeyBind, KeyBinds, KeyCodeEnum};
 use resources::ui::TextInput;
 use std::time::Duration;
@@ -418,7 +419,7 @@ pub(crate) fn input_characters(
                                 None => {}
                             }
                         } else {
-                            for ev in char_evr.iter() {
+                            for ev in char_evr.read() {
                                 if input_node.placeholder_active {
                                     input_node.placeholder_active = false;
                                     text.value = "".to_string();
@@ -524,7 +525,7 @@ pub(crate) fn set_text_input_node_text(
     mut text_input_node_query: Query<(&mut TextInputNode, &Children)>,
     mut text_query: Query<&mut Text>,
 ) {
-    for event in events.iter() {
+    for event in events.read() {
         match text_input_node_query.get_mut(event.entity) {
             Ok((mut text_input_node, children)) => {
                 text_input_node.input = event.text.clone();
@@ -582,7 +583,7 @@ pub(crate) fn incoming_messages(
     mut server: EventReader<IncomingReliableClientMessage<UiClientMessage>>,
     mut text_tree_input_selection: EventWriter<TextTreeInputSelection>,
 ) {
-    for message in server.iter() {
+    for message in server.read() {
         let client_message = message.message.clone();
 
         match client_message {
@@ -601,7 +602,7 @@ pub(crate) fn incoming_messages(
 #[derive(Event)]
 pub struct TextTreeInputSelection {
     /// Handle of the submitter of the selection.
-    pub handle: u64,
+    pub handle: ClientId,
     /// Menu ID.
     pub id: String,
     /// The selection on the menu.
@@ -619,7 +620,7 @@ pub(crate) fn input_mouse_press_unfocus(
 ) {
     if buttons.just_pressed(MouseButton::Left) {
         let mut new_focus = None;
-        for f in focus.iter() {
+        for f in focus.read() {
             new_focus = Some(f.entity);
         }
         let focus;

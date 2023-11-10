@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use bevy::prelude::{Changed, Component, Event, Query, SystemSet, Transform};
+use bevy_renet::renet::ClientId;
 use entity_macros::Identity;
 use networking::server::EntityUpdateData;
 use serde::{Deserialize, Serialize};
@@ -114,7 +115,7 @@ pub struct EntityUpdates {
     pub updates: HashMap<String, HashMap<String, EntityUpdateData>>,
     pub updates_difference: Vec<HashMap<String, HashMap<String, EntityUpdateData>>>,
     pub changed_parameters: Vec<String>,
-    pub excluded_handles: HashMap<String, Vec<u64>>,
+    pub excluded_handles: HashMap<String, Vec<ClientId>>,
 }
 
 impl Default for EntityUpdates {
@@ -249,7 +250,7 @@ pub fn entity_data_is_matching(data1: &EntityUpdateData, data2: &EntityUpdateDat
 
 pub fn personalise(
     updates_data: &mut HashMap<String, HashMap<String, EntityUpdateData>>,
-    player_handle: u64,
+    player_handle: ClientId,
     entity_updates_component: &EntityUpdates,
 ) {
     let mut to_be_removed_parameters = vec![];

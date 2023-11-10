@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
-use bevy::prelude::{warn, Component, Entity, EventReader, Query, Res, ResMut};
+use bevy::log::warn;
+use bevy::prelude::{Component, Entity, EventReader, Query, Res, ResMut};
 use bevy::prelude::{Event, Resource};
-
 /// Resource with a list of actions being built this frame.
 
 #[derive(Default, Resource)]
@@ -215,7 +215,7 @@ pub(crate) fn init_action_data_listing(
     mut action_data_i: ResMut<ActionIncremented>,
     mut action_data_requests: ResMut<ListActionDataRequests>,
 ) {
-    for event in entity_events.iter() {
+    for event in entity_events.read() {
         building_action.list.push(BuildingAction {
             incremented_i: action_data_i.get_i_it(),
             actions: vec![],
@@ -294,7 +294,7 @@ pub(crate) fn init_action_request_building(
     mut action_data_i: ResMut<ActionIncremented>,
     mut actions_requests: ResMut<ActionRequests>,
 ) {
-    for event in action_events.iter() {
+    for event in action_events.read() {
         let mut examined_cell = None;
 
         match event.target_cell_option.clone() {

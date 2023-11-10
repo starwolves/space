@@ -42,7 +42,7 @@ pub fn grab_mouse_hud_expand(
     mut grab: EventWriter<GrabCursor>,
     mut release: EventWriter<ReleaseCursor>,
 ) {
-    for event in events.iter() {
+    for event in events.read() {
         if event.open {
             release.send(ReleaseCursor);
         } else {
@@ -67,7 +67,7 @@ pub(crate) fn mouse_press_hud_unfocus(
     }
     if buttons.just_pressed(MouseButton::Left) {
         let mut new_focus = None;
-        for f in focus.iter() {
+        for f in focus.read() {
             new_focus = Some(f.entity);
         }
 

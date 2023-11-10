@@ -1,15 +1,17 @@
+use bevy::log::warn;
 use bevy::{
     a11y::{
         accesskit::{NodeBuilder, Role},
         AccessibilityNode,
     },
     prelude::{
-        warn, BuildChildren, ButtonBundle, Changed, Color, Commands, Component, Entity,
-        EventWriter, Local, NodeBundle, Query, Res, ResMut, Resource, TextBundle, With,
+        BuildChildren, ButtonBundle, Changed, Color, Commands, Component, Entity, EventWriter,
+        Local, NodeBundle, Query, Res, ResMut, Resource, TextBundle, With,
     },
     text::{TextSection, TextStyle},
     ui::{Display, FlexDirection, Interaction, Overflow, Style, Val},
 };
+
 use metadata::MetadataResource;
 use resources::{hud::HudState, input::InputBuffer, ui::TextInput};
 use ui::{

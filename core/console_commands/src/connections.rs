@@ -11,7 +11,7 @@ pub(crate) fn configure(
     mut server: EventWriter<OutgoingReliableServerMessage<ConsoleCommandsServerMessage>>,
     console_commands: Res<AllConsoleCommands>,
 ) {
-    for event in config_events.iter() {
+    for event in config_events.read() {
         let console_commands = console_commands.list.clone();
 
         server.send(OutgoingReliableServerMessage {

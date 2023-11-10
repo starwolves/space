@@ -1,6 +1,8 @@
 use std::{fs, path::Path};
 
-use bevy::prelude::{info, warn, App, Commands, Plugin, Resource, Startup};
+use bevy::log::info;
+use bevy::log::warn;
+use bevy::prelude::{App, Commands, Plugin, Resource, Startup};
 use cargo_metadata::Metadata;
 
 #[derive(Resource)]

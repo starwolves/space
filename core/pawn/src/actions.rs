@@ -1,5 +1,6 @@
 use actions::core::{ActionRequests, BuildingActions};
-use bevy::prelude::{warn, Res, ResMut};
+use bevy::log::warn;
+use bevy::prelude::{Res, ResMut};
 use entity::examine::ExamineEntityMessages;
 
 /// Pawn examine action prerequisite check.

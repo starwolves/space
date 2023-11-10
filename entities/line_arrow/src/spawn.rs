@@ -70,7 +70,7 @@ pub fn build_line_arrows<T: LinerArrowBuilder + 'static>(
     mut commands: Commands,
     mut spawn_events: EventReader<SpawnEntity<T>>,
 ) {
-    for spawn_event in spawn_events.iter() {
+    for spawn_event in spawn_events.read() {
         commands.entity(spawn_event.spawn_data.entity).insert((
             spawn_event.spawn_data.entity_transform,
             LineArrow,

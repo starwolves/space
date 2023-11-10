@@ -1,5 +1,5 @@
-use bevy::prelude::info;
-use bevy::prelude::warn;
+use bevy::log::info;
+use bevy::log::warn;
 use bevy::prelude::Commands;
 use bevy::prelude::EventReader;
 use bevy::prelude::EventWriter;
@@ -24,7 +24,7 @@ pub fn load_entity<T: Send + Sync + 'static + Default + EntityType>(
     mut commands: Commands,
     mut map: ResMut<ClientEntityServerEntity>,
 ) {
-    for message in client.iter() {
+    for message in client.read() {
         match &message.message {
             EntityServerMessage::LoadEntity(load_entity) => {
                 let index = types

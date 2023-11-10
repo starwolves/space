@@ -5,6 +5,7 @@ use bevy::prelude::EventReader;
 use bevy::prelude::EventWriter;
 use bevy::prelude::Query;
 use bevy::prelude::Res;
+use bevy_renet::renet::ClientId;
 use networking::server::HandleToEntity;
 
 use crate::net::EntityServerMessage;
@@ -21,7 +22,7 @@ use networking::server::OutgoingReliableServerMessage;
 #[derive(Event)]
 pub struct SpawnClientEntity {
     pub entity: Entity,
-    pub loader_handle: u64,
+    pub loader_handle: ClientId,
 }
 /// Executes despawn logic for Sensable components.
 /// Shouldn't be called from the same stage visible_checker.system() runs in.
@@ -33,7 +34,7 @@ pub(crate) fn despawn_entity(
     mut commands: Commands,
     mut net: EventWriter<OutgoingReliableServerMessage<EntityServerMessage>>,
 ) {
-    for event in despawn_event.iter() {
+    for event in despawn_event.read() {
         match sensable_query.get_mut(event.entity) {
             Ok(mut sensable_component) => {
                 for sensed_by_entity in sensable_component.sensed_by.iter() {

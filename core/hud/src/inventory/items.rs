@@ -1,12 +1,15 @@
 use actions::net::{ActionsClientMessage, TabData};
+use bevy::log::info;
+use bevy::log::warn;
 use bevy::{
     prelude::{
-        info, warn, AssetServer, BuildChildren, Button, ButtonBundle, Changed, Color, Commands,
-        Component, Entity, Event, EventReader, EventWriter, ImageBundle, NodeBundle, Query, Res,
-        ResMut, Resource, With,
+        AssetServer, BuildChildren, Button, ButtonBundle, Changed, Color, Commands, Component,
+        Entity, Event, EventReader, EventWriter, ImageBundle, NodeBundle, Query, Res, ResMut,
+        Resource, With,
     },
     ui::{BackgroundColor, Interaction, PositionType, Style, UiImage, Val},
 };
+
 use entity::{
     entity_types::{EntityType, EntityTypes},
     spawn::EntityBuildData,
@@ -27,7 +30,7 @@ pub(crate) fn requeue_hud_add_item_to_slot(
     mut i_events: EventReader<RequeueHudAddItemToSlot>,
     mut o_events: EventWriter<HudAddItemToSlot>,
 ) {
-    for event in i_events.iter() {
+    for event in i_events.read() {
         o_events.send(event.queued.clone());
     }
 }
@@ -55,7 +58,7 @@ pub fn update_inventory_hud_add_item_to_slot<
     inventory: Res<Inventory>,
     asset_server: Res<AssetServer>,
 ) {
-    for event in update_item.iter() {
+    for event in update_item.read() {
         let slot_entity;
         match state.slots.get(&event.item.slot_id) {
             Some(ent) => {
@@ -269,7 +272,7 @@ pub fn change_active_item(
     inventory: Res<InventoryHudState>,
     mut node_query: Query<&mut BackgroundColor, With<SlotItemHud>>,
 ) {
-    for event in net.iter() {
+    for event in net.read() {
         match event.message {
             InventoryServerMessage::SetActiveItem(entity) => {
                 match inventory.active_item {

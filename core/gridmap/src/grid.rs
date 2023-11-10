@@ -1,13 +1,16 @@
 use std::{collections::HashMap, f32::consts::PI, ops::Deref};
 
+use bevy::log::warn;
 use bevy::{
     gltf::GltfMesh,
     prelude::{
-        warn, Commands, Component, Entity, Event, EventWriter, Handle, Mat3, Quat, Query, Res,
-        Resource, StandardMaterial, SystemSet, Transform, Vec3, Without,
+        Commands, Component, Entity, Event, EventWriter, Handle, Mat3, Quat, Query, Res, Resource,
+        StandardMaterial, SystemSet, Transform, Vec3, Without,
     },
     transform::TransformBundle,
 };
+
+use bevy_renet::renet::ClientId;
 use bevy_xpbd_3d::prelude::{CoefficientCombine, Collider, CollisionLayers, Friction, RigidBody};
 use entity::{despawn::DespawnEntity, examine::RichName, health::Health};
 use networking::{
@@ -242,7 +245,7 @@ impl GridmapChunk {
 #[derive(Clone)]
 pub struct AddedUpdate {
     pub cell: GridmapUpdate,
-    pub players_received: Vec<u64>,
+    pub players_received: Vec<ClientId>,
 }
 #[derive(Clone)]
 pub enum GridmapUpdate {
@@ -633,7 +636,7 @@ pub(crate) fn removed_tile(
     mut despawn: EventWriter<DespawnEntity>,
     gridmap: Res<Gridmap>,
 ) {
-    for e in events.iter() {
+    for e in events.read() {
         match gridmap.get_cell(e.cell.clone()) {
             Some(cell) => {
                 despawn.send(DespawnEntity {
@@ -734,7 +737,7 @@ pub(crate) fn remove_tile(
     mut gridmap: ResMut<Gridmap>,
     mut despawn: EventWriter<DespawnEntity>,
 ) {
-    for event in events.iter() {
+    for event in events.read() {
         let strict_cell = gridmap.get_strict_cell(event.cell.clone());
         let indexes = gridmap.get_indexes(strict_cell.id);
         match gridmap.grid.get_mut(indexes.chunk) {
@@ -828,7 +831,7 @@ pub(crate) fn add_tile_net(
     mut net: EventWriter<OutgoingReliableServerMessage<GridmapServerMessage>>,
     mut gridmap: ResMut<Gridmap>,
 ) {
-    for event in events.iter() {
+    for event in events.read() {
         let mut received = vec![];
 
         let target = TargetCell {
@@ -897,7 +900,7 @@ pub(crate) fn remove_tile_net(
     mut net: EventWriter<OutgoingReliableServerMessage<GridmapServerMessage>>,
     mut gridmap: ResMut<Gridmap>,
 ) {
-    for event in events.iter() {
+    for event in events.read() {
         let mut received = vec![];
 
         for connected_player in connected_players.iter() {
@@ -947,7 +950,7 @@ pub(crate) fn add_cell_client(
     mut event: EventWriter<AddTile>,
     mut commands: Commands,
 ) {
-    for message in net.iter() {
+    for message in net.read() {
         match &message.message {
             GridmapServerMessage::AddCell(new) => {
                 event.send(AddTile {
@@ -971,7 +974,7 @@ pub(crate) fn remove_cell_client(
     mut net: EventReader<IncomingReliableServerMessage<GridmapServerMessage>>,
     mut event: EventWriter<RemoveTile>,
 ) {
-    for message in net.iter() {
+    for message in net.read() {
         match &message.message {
             GridmapServerMessage::RemoveCell(new) => event.send(RemoveTile { cell: new.clone() }),
             _ => (),
@@ -986,7 +989,7 @@ pub(crate) fn add_tile_collision(
     mut rigidbodies: ResMut<RigidBodies>,
     app_mode: Res<Mode>,
 ) {
-    for event in events.iter() {
+    for event in events.read() {
         let cell_properties;
         match gridmap_data.tile_properties.get(&event.tile_type) {
             Some(x) => {
@@ -1046,7 +1049,7 @@ pub(crate) fn add_tile(
     mut gridmap_main: ResMut<Gridmap>,
     mut commands: Commands,
 ) {
-    for add_tile_event in events.iter() {
+    for add_tile_event in events.read() {
         commands.entity(add_tile_event.entity).insert(Tile);
         let strict = gridmap_main.get_strict_cell(TargetCell {
             id: add_tile_event.id,
@@ -1246,7 +1249,7 @@ pub(crate) fn spawn_group(
     mut set_tile: EventWriter<AddTile>,
     mut commands: Commands,
 ) {
-    for add_group_event in events.iter() {
+    for add_group_event in events.read() {
         match gridmap_main.groups.get(&add_group_event.group_id) {
             Some(tiles) => {
                 let mut i = 0;

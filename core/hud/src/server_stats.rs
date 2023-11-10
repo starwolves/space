@@ -83,7 +83,7 @@ pub(crate) fn update_server_stats(
     fonts: Res<Fonts>,
     client: Res<RenetClient>,
 ) {
-    for message in net.iter() {
+    for message in net.read() {
         let mut update = false;
         match &message.message {
             PlayerServerMessage::ConnectedPlayers(amount) => {

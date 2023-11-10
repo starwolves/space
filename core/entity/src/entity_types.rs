@@ -19,7 +19,7 @@ pub fn store_entity_type<T: EntityType + 'static>(mut types: ResMut<EntityTypes>
         .insert(T::new().get_identity(), Box::new(T::new()));
 }
 
-use bevy::prelude::info;
+use bevy::log::info;
 
 pub(crate) fn finalize_register_entity_types(mut types: ResMut<EntityTypes>) {
     types.startup_types.sort();
@@ -85,7 +85,7 @@ pub fn build_raw_entities<T: EntityType + Default + Send + Sync + 'static>(
     mut builder_computer: EventWriter<SpawnEntity<T>>,
     mut commands: Commands,
 ) {
-    for spawn_event in spawn_events.iter() {
+    for spawn_event in spawn_events.read() {
         if spawn_event.raw_entity.entity_type != T::default().get_identity() {
             continue;
         }

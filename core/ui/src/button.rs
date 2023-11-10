@@ -30,7 +30,7 @@ impl Default for SFButton {
         }
     }
 }
-use bevy::prelude::warn;
+use bevy::log::warn;
 use bevy::prelude::{Button, Parent, Query, With};
 use bevy::ui::BackgroundColor;
 use bevy::{

@@ -26,7 +26,7 @@ pub fn grab_cursor(
     if !state.focused {
         return;
     }
-    for _ in events.iter() {
+    for _ in events.read() {
         let mut primary = primary_query.get_single_mut().unwrap();
         primary.cursor.grab_mode = CursorGrabMode::Locked;
         primary.cursor.visible = false;
@@ -39,7 +39,7 @@ pub fn release_cursor(
     mut events: EventReader<ReleaseCursor>,
     mut primary_query: Query<&mut Window, With<PrimaryWindow>>,
 ) {
-    for _ in events.iter() {
+    for _ in events.read() {
         let mut primary = primary_query.get_single_mut().unwrap();
         primary.cursor.grab_mode = CursorGrabMode::None;
         primary.cursor.visible = true;
@@ -60,7 +60,7 @@ pub(crate) fn window_focus_buffer(
     mut events: EventReader<WindowFocused>,
     mut res: ResMut<WindowFocusBuffer>,
 ) {
-    for e in events.iter() {
+    for e in events.read() {
         res.buffer.push(e.clone());
     }
 }

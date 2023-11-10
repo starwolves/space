@@ -1,4 +1,4 @@
-use bevy::prelude::warn;
+use bevy::log::warn;
 
 use crate::commands::InputConsoleCommand;
 use bevy::prelude::{EventWriter, Res};
@@ -15,7 +15,7 @@ pub(crate) fn incoming_messages(
     handle_to_entity: Res<HandleToEntity>,
     mut console_commands_queue: EventWriter<InputConsoleCommand>,
 ) {
-    for message in server.iter() {
+    for message in server.read() {
         let client_message = message.message.clone();
 
         match client_message {

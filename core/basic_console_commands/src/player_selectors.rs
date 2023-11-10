@@ -1,5 +1,7 @@
-use bevy::prelude::{warn, Entity, Res, ResMut};
+use bevy::log::warn;
+use bevy::prelude::{Entity, Res, ResMut};
 
+use bevy_renet::renet::ClientId;
 use player::names::UsedNames;
 
 use bevy::prelude::EventWriter;
@@ -14,7 +16,7 @@ use ui::{
 
 pub(crate) fn player_selector_to_entities(
     command_executor_entity: Entity,
-    command_executor_handle_option: Option<u64>,
+    command_executor_handle_option: Option<ClientId>,
     mut player_selector: &str,
     used_names: &mut ResMut<UsedNames>,
     server: &mut EventWriter<OutgoingReliableServerMessage<ConsoleCommandsServerMessage>>,

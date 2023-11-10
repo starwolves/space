@@ -24,7 +24,7 @@ pub(crate) fn receive_chat_message(
     fonts: Res<Fonts>,
     mut events: EventWriter<DisplayChatMessage>,
 ) {
-    for message in net.iter() {
+    for message in net.read() {
         match &message.message {
             ChatServerMessage::ChatMessage(message) => {
                 let mut sections = vec![];
@@ -58,7 +58,7 @@ pub(crate) fn display_chat_message(
     mut commands: Commands,
     chat_state: Res<HudCommunicationState>,
 ) {
-    for event in events.iter() {
+    for event in events.read() {
         let text_section = commands
             .spawn(NodeBundle {
                 style: Style {

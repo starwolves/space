@@ -1,4 +1,5 @@
-use bevy::prelude::{warn, Commands, EventWriter, KeyCode, Query, Res, ResMut, Transform, With};
+use bevy::log::warn;
+use bevy::prelude::{Commands, EventWriter, KeyCode, Query, Res, ResMut, Transform, With};
 use cameras::LookTransform;
 use entity::spawn::{EntityBuildData, SpawnEntity};
 use pawn::pawn::Pawn;

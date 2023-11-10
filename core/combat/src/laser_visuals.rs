@@ -1,4 +1,5 @@
-use bevy::prelude::{warn, Component, EventReader, EventWriter, Query, Res, Transform, Vec3};
+use bevy::log::warn;
+use bevy::prelude::{Component, EventReader, EventWriter, Query, Res, Transform, Vec3};
 use gridmap::fov::ProjectileFOV;
 use inventory::server::combat::ProjectileCombat;
 
@@ -20,7 +21,7 @@ pub fn projectile_laser_visuals<T: Component>(
 ) {
     use gridmap::net::ProjectileData;
 
-    for blank in blanks.iter() {
+    for blank in blanks.read() {
         let active_attack;
 
         match active_attacks.map.get(&blank.incremented_id) {
@@ -103,7 +104,7 @@ pub fn projectile_laser_visuals<T: Component>(
         }
     }
 
-    for hit in hits.iter() {
+    for hit in hits.read() {
         for entity_hit in hit.entities_hits.iter() {
             let active_attack;
 

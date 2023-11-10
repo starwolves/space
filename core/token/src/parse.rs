@@ -1,6 +1,7 @@
 use std::{env, fs, path::Path};
 
-use bevy::prelude::{warn, Commands, Resource};
+use bevy::log::warn;
+use bevy::prelude::{Commands, Resource};
 use directories::BaseDirs;
 use serde::{Deserialize, Serialize};
 

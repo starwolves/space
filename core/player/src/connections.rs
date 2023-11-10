@@ -1,15 +1,17 @@
 use std::collections::HashMap;
 use std::net::SocketAddr;
 
-use bevy::prelude::{error, Commands, Entity, Event, EventReader, EventWriter, Query, Res, ResMut};
+use bevy::prelude::{Commands, Entity, Event, EventReader, EventWriter, Query, Res, ResMut};
 #[derive(Event)]
 pub struct PlayerAwaitingBoarding {
-    pub handle: u64,
+    pub handle: ClientId,
 }
-use bevy::prelude::info;
-use bevy::prelude::warn;
+use bevy::log::error;
+use bevy::log::info;
+use bevy::log::warn;
+
 use bevy::tasks::{AsyncComputeTaskPool, Task};
-use bevy_renet::renet::ServerEvent;
+use bevy_renet::renet::{ClientId, ServerEvent};
 use bevy_renet::renet::{DisconnectReason, RenetServer};
 
 /// Networking connect and disconnect events.
@@ -17,7 +19,7 @@ use bevy_renet::renet::{DisconnectReason, RenetServer};
 #[derive(Component)]
 pub struct VerifyToken {
     pub task: Task<ehttp::Response>,
-    pub handle: u64,
+    pub handle: ClientId,
 }
 #[derive(Resource, Default)]
 pub struct ServerEventBuffer {
@@ -26,10 +28,10 @@ pub struct ServerEventBuffer {
 
 pub enum SFServerEvent {
     ClientConnected {
-        client_id: u64,
+        client_id: ClientId,
     },
     ClientDisconnected {
-        client_id: u64,
+        client_id: ClientId,
         reason: DisconnectReason,
     },
 }
@@ -67,7 +69,7 @@ pub(crate) fn buffer_server_events(
     mut server_events: EventReader<ServerEvent>,
     mut buffer: ResMut<ServerEventBuffer>,
 ) {
-    for event in server_events.iter() {
+    for event in server_events.read() {
         buffer.buffer.push(SFServerEvent::new(event));
     }
 }
@@ -176,7 +178,7 @@ struct Response {
 #[derive(Default, Resource)]
 
 pub struct Accounts {
-    pub list: HashMap<u64, String>,
+    pub list: HashMap<ClientId, String>,
 }
 pub fn process_response(
     mut query: Query<(Entity, &mut VerifyToken)>,
@@ -255,7 +257,7 @@ pub struct OnBoard;
 /// Event for sending server configuration to newly connected client. Done after client account is verified.
 #[derive(Event)]
 pub struct SendServerConfiguration {
-    pub handle: u64,
+    pub handle: ClientId,
 }
 /// Resource with the current incremented authentication ID.
 #[derive(Default, Resource)]

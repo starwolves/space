@@ -2,7 +2,7 @@ use std::time::Duration;
 
 use bevy::{
     prelude::{resource_exists, App, Condition, FixedUpdate, IntoSystemConfigs, Plugin, Startup},
-    time::common_conditions::on_fixed_timer,
+    time::common_conditions::on_timer,
 };
 use bevy_renet::renet::{RenetClient, RenetServer};
 use networking::messaging::{register_reliable_message, MessageSender};
@@ -163,7 +163,7 @@ impl Plugin for GridmapPlugin {
                         select_cell_in_front_camera
                             .in_set(ConstructionSelection::Changed)
                             .run_if(resource_exists::<GridmapConstructionState>())
-                            .run_if(on_fixed_timer(Duration::from_secs_f32(1. / 8.))),
+                            .run_if(on_timer(Duration::from_secs_f32(1. / 8.))),
                         apply_ghost_rotation
                             .after(ConstructionSelection::Changed)
                             .run_if(resource_exists::<GridmapConstructionState>())

@@ -1,4 +1,5 @@
-use bevy::prelude::{warn, Commands, Component, EventReader, Query, Res, ResMut, Transform};
+use bevy::log::warn;
+use bevy::prelude::{Commands, Component, EventReader, Query, Res, ResMut, Transform};
 use resources::math::cell_id_to_world;
 use sfx::entity_update::SfxAutoDestroyTimers;
 use sounds::shared::CombatSoundSet;
@@ -19,7 +20,7 @@ pub fn health_combat_hit_result_sfx<T: Component>(
     transforms: Query<&Transform>,
     attacker_criteria: Query<&T>,
 ) {
-    for health_combat_hit_result in combat_hit_results.iter() {
+    for health_combat_hit_result in combat_hit_results.read() {
         match cached_attacks
             .map
             .get(&health_combat_hit_result.incremented_id)
@@ -117,7 +118,7 @@ pub(crate) fn health_combat_hit_result_sfx_cells(
     mut sfx_auto_destroy_timers: ResMut<SfxAutoDestroyTimers>,
     mut commands: Commands,
 ) {
-    for health_combat_hit_result in combat_hit_results.iter() {
+    for health_combat_hit_result in combat_hit_results.read() {
         match cached_attacks
             .map
             .get(&health_combat_hit_result.incremented_id)
@@ -201,7 +202,7 @@ pub fn attack_sfx<T: Component>(
     cached_attacks: Res<ActiveAttacks>,
     weapon_criteria: Query<&T>,
 ) {
-    for attack in attack_events.iter() {
+    for attack in attack_events.read() {
         let attack_cache;
 
         match cached_attacks.map.get(&attack.incremented_id) {

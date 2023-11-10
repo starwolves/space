@@ -180,7 +180,7 @@ pub fn build_pistols_l1<T: Send + Sync + 'static>(
     mut commands: Commands,
     mut spawn_events: EventReader<SpawnEntity<T>>,
 ) {
-    for spawn_event in spawn_events.iter() {
+    for spawn_event in spawn_events.read() {
         commands
             .entity(spawn_event.spawn_data.entity)
             .insert(PistolL1);

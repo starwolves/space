@@ -12,7 +12,7 @@ use crate::networking::{
 };
 use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, Startup};
 
-use bevy::time::common_conditions::on_fixed_timer;
+use bevy::time::common_conditions::on_timer;
 use networking::messaging::{
     register_reliable_message, register_unreliable_message, MessageSender, MessagingSet,
 };
@@ -33,7 +33,7 @@ impl Plugin for ControllerPlugin {
             app.add_systems(
                 FixedUpdate,
                 (
-                    update_player_count.run_if(on_fixed_timer(Duration::from_secs_f32(5.))),
+                    update_player_count.run_if(on_timer(Duration::from_secs_f32(5.))),
                     connections,
                     peer_replication,
                 )

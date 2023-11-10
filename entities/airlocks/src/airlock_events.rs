@@ -1,7 +1,10 @@
+use bevy::log::warn;
 use bevy::{
     hierarchy::Children,
-    prelude::{warn, Commands, Entity, Event, EventReader, Query, ResMut, Transform},
+    prelude::{Commands, Entity, Event, EventReader, Query, ResMut, Transform},
 };
+
+use bevy_renet::renet::ClientId;
 use entity::{entity_data::EntityGroup, examine::Examinable};
 use pawn::pawn::{Pawn, ShipAuthorization};
 use resources::math::{world_to_cell_id, Vec2Int};
@@ -48,7 +51,7 @@ pub(crate) fn airlock_events(
     let mut close_requests = vec![];
     let mut open_requests = vec![];
 
-    for event in unlock_events.iter() {
+    for event in unlock_events.read() {
         match airlock_query.get_mut(event.locked) {
             Ok((mut airlock_component, _airlock_entity, mut examinable_component, _children)) => {
                 airlock_component.locked_status = LockedStatus::None;
@@ -85,7 +88,7 @@ pub(crate) fn airlock_events(
         }
     }
 
-    for event in airlock_lock_open_event.iter() {
+    for event in airlock_lock_open_event.read() {
         match airlock_query.get_mut(event.locked) {
             Ok((mut airlock_component, _airlock_entity, mut examinable_component, _children)) => {
                 airlock_component.locked_status = LockedStatus::Open;
@@ -125,7 +128,7 @@ pub(crate) fn airlock_events(
             Err(_rr) => {}
         }
     }
-    for event in airlock_lock_close_event.iter() {
+    for event in airlock_lock_close_event.read() {
         match airlock_query.get_mut(event.locked) {
             Ok((mut airlock_component, _airlock_entity, mut examinable_component, _children)) => {
                 airlock_component.locked_status = LockedStatus::Closed;
@@ -243,7 +246,7 @@ pub(crate) fn airlock_events(
         }
     }
 
-    for event in toggle_open_action.iter() {
+    for event in toggle_open_action.read() {
         match airlock_query.get(event.opened) {
             Ok((airlock_component, _airlock_entity, _examinable_component, _children)) => {
                 match airlock_component.status {
@@ -265,7 +268,7 @@ pub(crate) fn airlock_events(
         }
     }
 
-    for collision_event in airlock_collisions.iter() {
+    for collision_event in airlock_collisions.read() {
         if collision_event.started == false {
             continue;
         }
@@ -488,7 +491,7 @@ pub struct AirlockCollision {
 /// Air lock toggle open event.
 #[derive(Event)]
 pub struct InputAirlockToggleOpen {
-    pub handle_option: Option<u64>,
+    pub handle_option: Option<ClientId>,
 
     pub opener: Entity,
     pub opened: Entity,
@@ -496,7 +499,7 @@ pub struct InputAirlockToggleOpen {
 /// Air lock , lock the door to open event.
 #[derive(Event)]
 pub struct AirLockLockOpen {
-    pub handle_option: Option<u64>,
+    pub handle_option: Option<ClientId>,
 
     pub locked: Entity,
     pub locker: Entity,
@@ -504,7 +507,7 @@ pub struct AirLockLockOpen {
 /// Air lock , lock the door to closed event.
 #[derive(Event)]
 pub struct AirlockLockClosed {
-    pub handle_option: Option<u64>,
+    pub handle_option: Option<ClientId>,
 
     pub locked: Entity,
     pub locker: Entity,
@@ -512,7 +515,7 @@ pub struct AirlockLockClosed {
 /// Unlock the air lock event.
 #[derive(Event)]
 pub struct AirlockUnlock {
-    pub handle_option: Option<u64>,
+    pub handle_option: Option<ClientId>,
     pub locked: Entity,
     pub locker: Entity,
 }

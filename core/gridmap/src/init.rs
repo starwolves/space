@@ -1,6 +1,8 @@
 use std::{fs, path::Path};
 
-use bevy::prelude::{info, warn, Commands, EventWriter, Local, Res, ResMut, Resource};
+use bevy::log::info;
+use bevy::log::warn;
+use bevy::prelude::{Commands, EventWriter, Local, Res, ResMut, Resource};
 use resources::grid::CellFace;
 use resources::math::Vec3Int;
 

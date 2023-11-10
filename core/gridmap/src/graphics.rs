@@ -6,7 +6,7 @@ use bevy::prelude::Commands;
 use bevy::prelude::Component;
 use bevy::prelude::EventReader;
 
-use bevy::prelude::warn;
+use bevy::log::warn;
 use bevy::prelude::PbrBundle;
 use bevy::prelude::Res;
 use bevy::prelude::ResMut;
@@ -42,7 +42,7 @@ pub(crate) fn set_cell_graphics(
     assets_gltfmesh: Res<Assets<GltfMesh>>,
     mut buffer: ResMut<CellGraphicsBuffer>,
 ) {
-    for set_cell in events.iter() {
+    for set_cell in events.read() {
         buffer.buffer.insert(
             BufferId {
                 id: set_cell.id,

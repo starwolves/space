@@ -1,11 +1,11 @@
-use bevy::{
-    prelude::{warn, AssetServer, Commands, EventReader, Res, Visibility},
-    scene::SceneBundle,
-};
-
 use crate::{
     entity_types::EntityType,
     spawn::{ClientEntityServerEntity, PawnId, SpawnEntity},
+};
+use bevy::log::warn;
+use bevy::{
+    prelude::{AssetServer, Commands, EventReader, Res, Visibility},
+    scene::SceneBundle,
 };
 
 pub fn link_base_mesh<T: Send + Sync + 'static + EntityType + Default>(
@@ -15,7 +15,7 @@ pub fn link_base_mesh<T: Send + Sync + 'static + EntityType + Default>(
     id: Res<PawnId>,
     map: Res<ClientEntityServerEntity>,
 ) {
-    for spawn in spawner.iter() {
+    for spawn in spawner.read() {
         let entity_type = T::default();
 
         if !spawn.entity_type.is_type(entity_type.get_identity()) {

@@ -7,7 +7,7 @@ use networking::server::{ConnectedPlayer, HandleToEntity};
 use player::connections::Accounts;
 use player::names::UsedNames;
 
-use bevy::prelude::warn;
+use bevy::log::warn;
 use bevy::prelude::Res;
 use pawn::pawn::Spawning;
 use pawn::pawn::{PawnDesignation, SpawnPawnData};

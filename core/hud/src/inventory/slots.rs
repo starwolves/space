@@ -1,7 +1,8 @@
+use bevy::log::warn;
 use bevy::{
     prelude::{
-        warn, BuildChildren, Color, Commands, Component, Event, EventReader, NodeBundle, Query,
-        Res, ResMut, SystemSet, TextBundle, With,
+        BuildChildren, Color, Commands, Component, Event, EventReader, NodeBundle, Query, Res,
+        ResMut, SystemSet, TextBundle, With,
     },
     text::TextStyle,
     ui::{FlexDirection, Node, Style, Val},
@@ -65,7 +66,7 @@ pub(crate) fn update_inventory_hud_slot(
     mut commands: Commands,
     fonts: Res<Fonts>,
 ) {
-    for event in update_slot.iter() {
+    for event in update_slot.read() {
         let empire_font = fonts.handles.get(EMPIRE_FONT).unwrap();
 
         commands.entity(state.slots_node).with_children(|parent| {

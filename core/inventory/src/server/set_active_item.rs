@@ -1,4 +1,5 @@
-use bevy::prelude::{warn, EventReader, EventWriter, Query, Res};
+use bevy::log::warn;
+use bevy::prelude::{EventReader, EventWriter, Query, Res};
 use networking::server::{
     HandleToEntity, IncomingReliableClientMessage, OutgoingReliableServerMessage,
 };
@@ -13,7 +14,7 @@ pub(crate) fn process_request_set_active_item(
     mut inventory_query: Query<&mut Inventory>,
     handle_to_entity: Res<HandleToEntity>,
 ) {
-    for event in net.iter() {
+    for event in net.read() {
         match event.message {
             InventoryClientMessage::RequestSetActiveItem(requested_active_item) => {
                 match handle_to_entity.map.get(&event.handle) {

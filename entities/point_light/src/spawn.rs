@@ -60,7 +60,7 @@ pub fn build_point_lights<T: PointLightBuilder + 'static>(
     mut spawn_events: EventReader<SpawnEntity<T>>,
     mut commands: Commands,
 ) {
-    for spawn_event in spawn_events.iter() {
+    for spawn_event in spawn_events.read() {
         spawn_event
             .entity_type
             .spawn(&spawn_event.spawn_data, &mut commands);

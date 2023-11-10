@@ -1,7 +1,8 @@
+use bevy::log::warn;
 use bevy::{
     prelude::{
-        warn, Added, BuildChildren, ButtonBundle, Changed, Color, Commands, Component, Entity,
-        Event, EventReader, EventWriter, Parent, Query, Res, ResMut, Resource, TextBundle, With,
+        Added, BuildChildren, ButtonBundle, Changed, Color, Commands, Component, Entity, Event,
+        EventReader, EventWriter, Parent, Query, Res, ResMut, Resource, TextBundle, With,
     },
     text::{TextSection, TextStyle},
     ui::{BackgroundColor, Interaction, Style},
@@ -152,7 +153,7 @@ pub(crate) fn freeze_button(
     mut bg_query: Query<&mut BackgroundColor>,
     mut hlist_query: Query<&mut HList>,
 ) {
-    for event in events.iter() {
+    for event in events.read() {
         match query.get_mut(event.entity) {
             Ok((mut b, parent)) => {
                 b.frozen = event.frozen;

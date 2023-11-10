@@ -42,7 +42,7 @@ pub fn projectile_attack_handler<T: Component>(
     mut attacks: EventReader<Attack>,
     mut projectile_attack: EventWriter<ProjectileQuery>,
 ) {
-    for attack in attacks.iter() {
+    for attack in attacks.read() {
         let combat_component;
         let weapon_entity;
 

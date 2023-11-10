@@ -12,12 +12,12 @@ edition = "2021"
 
 
 [dependencies.bevy]
-version = "0.11.3"
+version = "0.12"
 
 default-features = false
 
 [dependencies]
-bevy_renet = "0.0.9"
+bevy_renet = {version = "0.0.9", git="https://github.com/lucaspoffo/renet.git", branch="master" }
 
 resources = { path = "../resources"}
 player = { path = "../player"}

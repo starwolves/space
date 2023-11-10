@@ -64,7 +64,7 @@ pub fn melee_attack_handler<T: Component>(
     mut attacks: EventReader<Attack>,
     mut melee_attack: EventWriter<MeleeDirectQuery>,
 ) {
-    for attack in attacks.iter() {
+    for attack in attacks.read() {
         let combat_component;
         let projectile_combat_component_option;
         let weapon_entity;

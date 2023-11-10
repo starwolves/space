@@ -64,7 +64,7 @@ pub fn build_inventory_items<T: InventoryItemBuilder + 'static>(
     mut spawn_events: EventReader<SpawnEntity<T>>,
     mut commands: Commands,
 ) {
-    for spawn_event in spawn_events.iter() {
+    for spawn_event in spawn_events.read() {
         let inventory_item_bundle = spawn_event.entity_type.get_bundle(&spawn_event.spawn_data);
 
         inventory_item_builder(
@@ -80,7 +80,7 @@ pub fn build_inventory_items<T: InventoryItemBuilder + 'static>(
     }
 }
 
-use bevy::prelude::warn;
+use bevy::log::warn;
 use bevy::prelude::Transform;
 use entity::entity_data::personalise;
 use entity::entity_data::WorldModes;
@@ -105,7 +105,7 @@ pub(crate) fn spawn_entity_for_client(
     mut server: EventWriter<OutgoingReliableServerMessage<EntityServerMessage>>,
     types: Res<EntityTypes>,
 ) {
-    for load_entity_event in load_entity_events.iter() {
+    for load_entity_event in load_entity_events.read() {
         match entity_query.get(load_entity_event.entity) {
             Ok((
                 entity_data,

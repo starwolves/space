@@ -1,10 +1,12 @@
 use std::collections::BTreeMap;
 
+use bevy::log::warn;
 use bevy::{
     hierarchy::BuildChildren,
     math::Vec3,
-    prelude::{warn, Commands, EventReader, GlobalTransform, Transform},
+    prelude::{Commands, EventReader, GlobalTransform, Transform},
 };
+
 use bevy_xpbd_3d::prelude::{
     CoefficientCombine, Collider, CollisionLayers, Friction, RigidBody, Sensor,
 };
@@ -122,7 +124,7 @@ pub fn build_counter_windows<T: Send + Sync + 'static>(
 ) {
     use entity::entity_data::BlankEntityType;
 
-    for spawn_event in spawn_events.iter() {
+    for spawn_event in spawn_events.read() {
         commands
             .entity(spawn_event.spawn_data.entity)
             .insert(CounterWindow {

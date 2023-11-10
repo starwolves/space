@@ -1,7 +1,10 @@
-use std::time::Duration;
+use bevy::log::info;
+use bevy::{
+    prelude::{EventReader, EventWriter, Local, Res, ResMut, Resource},
+    time::{Fixed, Time},
+};
 
-use bevy::prelude::{info, EventReader, EventWriter, FixedTime, Local, Res, ResMut, Resource};
-use bevy_xpbd_3d::prelude::PhysicsLoop;
+use bevy_xpbd_3d::prelude::{Physics, PhysicsTime};
 use networking::{
     client::{
         IncomingReliableServerMessage, NetworkingClientMessage, OutgoingReliableClientMessage,
@@ -27,19 +30,19 @@ pub struct SyncPause {
 
 pub(crate) fn sync_loop(
     mut net: EventReader<IncomingReliableServerMessage<NetworkingServerMessage>>,
-    mut physics_loop: ResMut<PhysicsLoop>,
+    mut physics_loop: ResMut<Time<Physics>>,
     mut paused: ResMut<SyncPause>,
     mut sync_queue: Local<Vec<AdjustSync>>,
     mut out: EventWriter<OutgoingReliableClientMessage<NetworkingClientMessage>>,
-    mut fixed_time: ResMut<FixedTime>,
+    mut fixed_time: ResMut<Time<Fixed>>,
     mut fast_forwarding: ResMut<FastForwarding>,
     mut p: ResMut<PauseTickStep>,
     stamp: Res<TickRateStamp>,
 ) {
-    if physics_loop.paused {
+    if physics_loop.is_paused() {
         paused.i += 1;
         if paused.i >= paused.duration {
-            physics_loop.resume();
+            physics_loop.unpause();
             out.send(OutgoingReliableClientMessage {
                 message: NetworkingClientMessage::SyncConfirmation,
             });
@@ -48,7 +51,7 @@ pub(crate) fn sync_loop(
         fast_forwarding.i += 1;
         if fast_forwarding.i >= fast_forwarding.advance {
             fast_forwarding.forwarding = false;
-            fixed_time.period = Duration::from_secs_f32(1. / TickRate::default().bevy_rate as f32);
+            fixed_time.set_timestep_seconds(1. / TickRate::default().bevy_rate as f64);
             out.send(OutgoingReliableClientMessage {
                 message: NetworkingClientMessage::SyncConfirmation,
             });
@@ -70,7 +73,7 @@ pub(crate) fn sync_loop(
         }
     }
 
-    for message in net.iter() {
+    for message in net.read() {
         match &message.message {
             NetworkingServerMessage::AdjustSync(adjustment) => {
                 if !process_queue && adjustment_option.is_none() {
@@ -87,7 +90,7 @@ pub(crate) fn sync_loop(
 
     match adjustment_option {
         Some(adjustment) => {
-            if !physics_loop.paused {
+            if !physics_loop.is_paused() {
                 let delta = (((stamp.iteration as i128 - adjustment.iteration as i128)
                     * u8::MAX as i128)
                     + adjustment.tick as i128) as i16;
@@ -109,8 +112,8 @@ pub(crate) fn sync_loop(
                         info!("+ {} ticks", delta.abs());
                     }
 
-                    fixed_time.period = Duration::from_secs_f32(
-                        (1. / TickRate::default().bevy_rate as f32) / (delta.abs() + 1) as f32,
+                    fixed_time.set_timestep_seconds(
+                        (1. / TickRate::default().bevy_rate as f64) / (delta.abs() + 1) as f64,
                     );
                     fast_forwarding.forwarding = true;
                     fast_forwarding.i = 0;

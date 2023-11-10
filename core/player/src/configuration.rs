@@ -22,7 +22,7 @@ pub(crate) fn server_new_client_configuration(
 ) {
     use resources::content::SF_CONTENT_PREFIX;
 
-    for event in config_events.iter() {
+    for event in config_events.read() {
         server1.send(OutgoingReliableServerMessage {
             handle: event.handle,
             message: PlayerServerMessage::ConfigTickRate(tick_rate.physics_rate),
@@ -82,7 +82,7 @@ pub(crate) fn server_new_client_configuration(
 use crate::connections::PlayerAwaitingBoarding;
 use networking::client::IncomingReliableServerMessage;
 
-use bevy::prelude::info;
+use bevy::log::info;
 
 #[derive(Resource, Default)]
 pub struct Boarded {
@@ -94,7 +94,7 @@ pub(crate) fn client_receive_pawnid(
     mut id: ResMut<PawnId>,
     mut boarded: ResMut<Boarded>,
 ) {
-    for message in client.iter() {
+    for message in client.read() {
         match message.message {
             PlayerServerMessage::PawnId(entity_bits) => {
                 id.server = Some(entity_bits);
@@ -114,7 +114,7 @@ pub(crate) fn finished_configuration(
     mut server: EventWriter<OutgoingReliableServerMessage<PlayerServerMessage>>,
     mut player_awaiting_event: EventWriter<PlayerAwaitingBoarding>,
 ) {
-    for event in config_events.iter() {
+    for event in config_events.read() {
         server.send(OutgoingReliableServerMessage {
             handle: event.handle,
             message: PlayerServerMessage::ConfigFinished,

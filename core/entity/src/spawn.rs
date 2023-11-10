@@ -140,7 +140,7 @@ pub fn build_base_entities<T: BaseEntityBuilder<NoData> + 'static>(
     mut server: EventWriter<OutgoingReliableServerMessage<EntityServerMessage>>,
     types: Res<EntityTypes>,
 ) {
-    for spawn_event in spawn_events.iter() {
+    for spawn_event in spawn_events.read() {
         let base_entity_bundle = spawn_event
             .entity_type
             .get_bundle(&spawn_event.spawn_data, NoData);

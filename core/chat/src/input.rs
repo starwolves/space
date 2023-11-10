@@ -1,4 +1,6 @@
-use bevy::prelude::{warn, Color, Event, EventReader, EventWriter, Query, Res};
+use bevy::log::warn;
+use bevy::prelude::{Color, Event, EventReader, EventWriter, Query, Res};
+use bevy_renet::renet::ClientId;
 use networking::server::{
     ConnectedPlayer, IncomingReliableClientMessage, OutgoingReliableServerMessage,
 };
@@ -12,14 +14,14 @@ use crate::net::{ChatClientMessage, ChatMessage, ChatServerMessage};
 #[derive(Event)]
 pub struct GlobalChatMessage {
     pub message: String,
-    pub sender: u64,
+    pub sender: ClientId,
 }
 
 pub(crate) fn chat_net_input(
     mut net: EventReader<IncomingReliableClientMessage<ChatClientMessage>>,
     mut events: EventWriter<GlobalChatMessage>,
 ) {
-    for message in net.iter() {
+    for message in net.read() {
         match &message.message {
             ChatClientMessage::InputChatMessage(input) => {
                 events.send(GlobalChatMessage {
@@ -38,7 +40,7 @@ pub(crate) fn broadcast_global_chat_message(
     fonts: Res<Fonts>,
     connected_players: Query<&ConnectedPlayer>,
 ) {
-    for event in events.iter() {
+    for event in events.read() {
         let sender_name;
 
         match accounts.list.get(&event.sender) {

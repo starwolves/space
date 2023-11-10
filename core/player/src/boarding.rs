@@ -3,13 +3,14 @@ use bevy::{
     prelude::{Commands, Component, Entity, EventReader, ResMut, Resource},
     time::Timer,
 };
+use bevy_renet::renet::ClientId;
 use networking::client::IncomingReliableServerMessage;
 use ui::cursor::GrabCursor;
 
 /// Component with boarding data.
 #[derive(Event)]
 pub struct BoardingPlayer {
-    pub player_handle: u64,
+    pub player_handle: ClientId,
     pub player_character_name: String,
     pub entity: Entity,
 }
@@ -31,12 +32,12 @@ use pawn::pawn::Spawning;
 /// Event that fires when a player has successfully boarded.
 #[derive(Event)]
 pub struct PlayerBoarded {
-    pub handle: u64,
+    pub handle: ClientId,
     pub entity: Entity,
     pub character_name: String,
     pub account_name: String,
 }
-use bevy::prelude::info;
+use bevy::log::info;
 
 /// Do some logic when a player has successfully boarded.
 
@@ -44,7 +45,7 @@ pub fn player_boarded(
     mut events: EventReader<PlayerBoarded>,
     mut server: EventWriter<OutgoingReliableServerMessage<PlayerServerMessage>>,
 ) {
-    for boarded_player in events.iter() {
+    for boarded_player in events.read() {
         info!(
             "{} has boarded as \"{}\". [{}][{:?}]",
             boarded_player.account_name,
@@ -74,7 +75,7 @@ pub fn done_boarding(
 
     mut asana_boarding_announcements: ResMut<BoardingAnnouncements>,
 ) {
-    for boarding_player in boarding_player_event.iter() {
+    for boarding_player in boarding_player_event.read() {
         let player_character_name = boarding_player.player_character_name.clone();
         let player_handle = boarding_player.player_handle;
         let entity_id = boarding_player.entity;
@@ -171,7 +172,7 @@ pub(crate) fn grab_mouse_on_board(
     mut net: EventReader<IncomingReliableServerMessage<PlayerServerMessage>>,
     mut grab: EventWriter<GrabCursor>,
 ) {
-    for message in net.iter() {
+    for message in net.read() {
         match &message.message {
             PlayerServerMessage::Boarded => {
                 grab.send(GrabCursor);

@@ -18,7 +18,7 @@ pub struct Typenames {
     pub unreliable_net_types: HashMap<String, u8>,
 }
 
-use bevy::prelude::warn;
+use bevy::log::warn;
 
 /// Generic startup system that registers reliable netcode message types. All reliable netcode types sent over the net must be registered with this system.
 
@@ -30,7 +30,7 @@ pub(crate) fn reliable_message<T: TypeName>(mut typenames: ResMut<Typenames>) {
 pub(crate) fn unreliable_message<T: TypeName>(mut typenames: ResMut<Typenames>) {
     typenames.unreliable_types.push(T::type_name());
 }
-use bevy::prelude::info;
+use bevy::log::info;
 
 /// Order and generate typenames.
 

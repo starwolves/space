@@ -5,7 +5,7 @@ use serde::Serialize;
 
 use crate::core::InputAction;
 use crate::core::InputListActions;
-use bevy::prelude::warn;
+use bevy::log::warn;
 use networking::server::HandleToEntity;
 
 use crate::net::ActionsClientMessage;
@@ -22,7 +22,7 @@ pub(crate) fn incoming_messages(
     mut action_data_entity: EventWriter<InputListActions>,
     mut input_action: EventWriter<InputAction>,
 ) {
-    for message in server.iter() {
+    for message in server.read() {
         let client_message = message.message.clone();
         match client_message {
             ActionsClientMessage::RequestTabData(tab_data) => {

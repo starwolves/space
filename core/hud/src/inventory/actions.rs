@@ -39,7 +39,7 @@ pub(crate) fn slot_item_actions(
     if !inventory_state.open || !hud_state.expanded {
         return;
     }
-    for message in net.iter() {
+    for message in net.read() {
         match &message.message {
             ActionsServerMessage::TabData(data) => {
                 match children_query.get(hud_state.left_content_node) {
@@ -219,7 +219,7 @@ pub(crate) fn hide_actions(
     hud: Res<HudState>,
     mut despawn: EventWriter<DespawnEntity>,
 ) {
-    for event in events.iter() {
+    for event in events.read() {
         if !boarded.boarded {
             continue;
         }

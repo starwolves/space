@@ -3,10 +3,13 @@ use std::{
     time::SystemTime,
 };
 
+use bevy::log::error;
+use bevy::log::info;
 use bevy::{
-    prelude::{error, info, Event, Resource},
+    prelude::{Event, Resource},
     tasks::{AsyncComputeTaskPool, Task},
 };
+
 use bevy_renet::renet::{
     transport::{ClientAuthentication, ConnectToken, NetcodeClientTransport},
     ConnectionConfig, DefaultChannel, RenetClient,
@@ -39,7 +42,7 @@ pub struct AssignTokenToServer;
 pub struct ConnectToServer;
 
 use crate::server::SERVER_PORT;
-use bevy::prelude::warn;
+use bevy::log::warn;
 use bevy::prelude::Commands;
 use bevy::prelude::EventReader;
 use bevy::prelude::Res;
@@ -61,7 +64,7 @@ pub fn token_assign_server(
     preferences: Res<ConnectionPreferences>,
     mut state: ResMut<AssigningServerToken>,
 ) {
-    for _ in events.iter() {
+    for _ in events.read() {
         if state.bool {
             continue;
         }
@@ -147,7 +150,7 @@ pub(crate) fn connect_to_server(
     mut connection_state: ResMut<Connection>,
     token: Res<Token>,
 ) {
-    for _ in event.iter() {
+    for _ in event.read() {
         match connection_state.status {
             ConnectionStatus::None => {
                 info!("Initializing connection with server.");
@@ -342,7 +345,7 @@ pub(crate) fn send_outgoing_reliable_client_messages<T: TypeName + Send + Sync +
     mut client: ResMut<OutgoingBuffer>,
     typenames: Res<Typenames>,
 ) {
-    for message in events.iter() {
+    for message in events.read() {
         let net;
         match typenames
             .reliable_net_types
@@ -381,7 +384,7 @@ pub(crate) fn send_outgoing_unreliable_client_messages<T: TypeName + Send + Sync
     mut client: ResMut<OutgoingBuffer>,
     typenames: Res<Typenames>,
 ) {
-    for message in events.iter() {
+    for message in events.read() {
         let net;
 
         match typenames
@@ -422,7 +425,7 @@ pub(crate) fn deserialize_incoming_unreliable_server_message<
     mut outgoing: EventWriter<IncomingUnreliableServerMessage<T>>,
     typenames: Res<Typenames>,
 ) {
-    for event in incoming_raw.iter() {
+    for event in incoming_raw.read() {
         for message in event.message.messages.iter() {
             match get_unreliable_message::<T>(&typenames, message.typename_net, &message.serialized)
             {
@@ -446,7 +449,7 @@ pub(crate) fn deserialize_incoming_reliable_server_message<
     mut outgoing: EventWriter<IncomingReliableServerMessage<T>>,
     typenames: Res<Typenames>,
 ) {
-    for event in incoming_raw.iter() {
+    for event in incoming_raw.read() {
         for message in event.message.messages.iter() {
             match get_reliable_message::<T>(&typenames, message.typename_net, &message.serialized) {
                 Some(data) => {
@@ -568,7 +571,7 @@ pub(crate) fn confirm_connection(
     mut client1: EventReader<IncomingReliableServerMessage<NetworkingServerMessage>>,
     mut connected_state: ResMut<Connection>,
 ) {
-    for message in client1.iter() {
+    for message in client1.read() {
         let player_message = message.message.clone();
         match player_message {
             NetworkingServerMessage::Awoo(_) => {

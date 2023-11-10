@@ -8,7 +8,7 @@ pub(crate) fn hands_attack_handler(
     mut attacks: EventReader<Attack>,
     mut melee_attack: EventWriter<MeleeDirectQuery>,
 ) {
-    for attack in attacks.iter() {
+    for attack in attacks.read() {
         if attack.weapon_option.is_none() {
             melee_attack.send(MeleeDirectQuery {
                 attacker_entity: attack.attacker,

@@ -27,7 +27,7 @@ pub(crate) fn export_map(
     mut net: EventWriter<OutgoingReliableServerMessage<ConsoleCommandsServerMessage>>,
     fonts: Res<Fonts>,
 ) {
-    for command in queue.iter() {
+    for command in queue.read() {
         if command.input.command == "exportMap" {
             let mut i = 0;
 

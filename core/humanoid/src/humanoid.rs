@@ -1,10 +1,12 @@
 use std::collections::HashMap;
 
+use bevy::log::warn;
 use bevy::{
-    prelude::{warn, Component, Entity, Query, Res, ResMut, Vec2, Vec3, With},
-    time::{Timer, TimerMode},
+    prelude::{Component, Entity, Query, Res, ResMut, Vec2, Vec3, With},
+    time::{Time, Timer, TimerMode},
 };
-use bevy_xpbd_3d::prelude::{LinearVelocity, PhysicsLoop};
+
+use bevy_xpbd_3d::prelude::{LinearVelocity, Physics, PhysicsTime};
 use cameras::LookTransform;
 use controller::controller::ControllerInput;
 use entity::health::DamageFlag;
@@ -84,9 +86,9 @@ pub(crate) fn humanoid_movement(
     humanoids: Query<(Entity, &Humanoid, &ControllerInput, &LookTransform)>,
     rigidbodies: Res<RigidBodies>,
     mut rigidbodies_query: Query<&mut LinearVelocity, With<SFRigidBody>>,
-    physics_loop: Res<PhysicsLoop>,
+    physics_loop: Res<Time<Physics>>,
 ) {
-    if physics_loop.paused {
+    if physics_loop.is_paused() {
         return;
     }
     for (entity, _humanoid, input, look_transform) in humanoids.iter() {

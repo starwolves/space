@@ -1,5 +1,10 @@
-use bevy::prelude::{warn, EventReader, EventWriter, Local, Query, Res, SystemSet, Vec3};
-use bevy_xpbd_3d::prelude::PhysicsLoop;
+use bevy::log::warn;
+use bevy::{
+    prelude::{EventReader, EventWriter, Local, Query, Res, SystemSet, Vec3},
+    time::Time,
+};
+
+use bevy_xpbd_3d::prelude::{Physics, PhysicsTime};
 use cameras::{controllers::fps::ActiveCamera, LookTransform};
 use entity::spawn::PawnId;
 use networking::{
@@ -21,7 +26,7 @@ pub(crate) fn client_sync_look_transform(
     mut prev_target: Local<Vec3>,
     state: Res<ActiveCamera>,
     pawn_id: Res<PawnId>,
-    physics_loop: Res<PhysicsLoop>,
+    physics_loop: Res<Time<Physics>>,
 ) {
     let camera_entity;
     match state.option {
@@ -35,7 +40,7 @@ pub(crate) fn client_sync_look_transform(
     let lk;
     match look_transform_query.get(camera_entity) {
         Ok(look_transform) => {
-            if *prev_target != look_transform.target && !physics_loop.paused {
+            if *prev_target != look_transform.target && !physics_loop.is_paused() {
                 events.send(OutgoingUnreliableClientMessage {
                     message: UnreliableControllerClientMessage::SyncLookTransform(
                         look_transform.target,
@@ -70,7 +75,7 @@ pub(crate) fn server_sync_look_transform(
     mut messages: EventReader<IncomingUnreliableClientMessage<UnreliableControllerClientMessage>>,
     handle_to_entity: Res<HandleToEntity>,
 ) {
-    for msg in messages.iter() {
+    for msg in messages.read() {
         match msg.message {
             UnreliableControllerClientMessage::SyncLookTransform(target) => {
                 match handle_to_entity.map.get(&msg.handle) {

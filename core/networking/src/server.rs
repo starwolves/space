@@ -1,7 +1,9 @@
+use bevy::log::info;
 use bevy::{
     math::{Vec2, Vec3},
-    prelude::{info, Component, Entity, Event, Local, Quat, Resource, SystemSet},
+    prelude::{Component, Entity, Event, Local, Quat, Resource, SystemSet},
 };
+
 use resources::core::TickRate;
 use serde::{Deserialize, Serialize};
 use typename::TypeName;
@@ -10,7 +12,7 @@ use std::{collections::HashMap, net::UdpSocket, time::SystemTime};
 
 use bevy_renet::renet::{
     transport::{NetcodeServerTransport, ServerAuthentication, ServerConfig},
-    ConnectionConfig, DefaultChannel, RenetServer,
+    ClientId, ConnectionConfig, DefaultChannel, RenetServer,
 };
 
 /// The network port the server will listen use for connections.
@@ -38,20 +40,21 @@ pub(crate) fn startup_server_listen_connections() -> (RenetServer, NetcodeServer
 
         ..Default::default()
     });
-
-    let server_config = ServerConfig {
-        max_clients: 128,
-        protocol_id: PROTOCOL_ID,
-        public_addr,
-        authentication: ServerAuthentication::Secure {
-            private_key: PRIV_KEY,
-        },
-    };
     let current_time = SystemTime::now()
         .duration_since(SystemTime::UNIX_EPOCH)
         .unwrap();
 
-    let transport = NetcodeServerTransport::new(current_time, server_config, socket).unwrap();
+    let server_config = ServerConfig {
+        max_clients: 128,
+        protocol_id: PROTOCOL_ID,
+        authentication: ServerAuthentication::Secure {
+            private_key: PRIV_KEY,
+        },
+        public_addresses: vec![public_addr],
+        current_time,
+    };
+
+    let transport = NetcodeServerTransport::new(server_config, socket).unwrap();
 
     info!("Listening to connections on [{}].", public_addr);
 
@@ -75,7 +78,7 @@ use crate::{
 pub(crate) fn souls(
     mut server: EventReader<IncomingReliableClientMessage<NetworkingClientMessage>>,
 ) {
-    for message in server.iter() {
+    for message in server.read() {
         let client_message = message.message.clone();
         match client_message {
             //                                          |
@@ -153,15 +156,15 @@ pub enum EntityUpdateData {
 #[derive(Default, Resource)]
 
 pub struct HandleToEntity {
-    pub map: HashMap<u64, Entity>,
-    pub inv_map: HashMap<Entity, u64>,
+    pub map: HashMap<ClientId, Entity>,
+    pub inv_map: HashMap<Entity, ClientId>,
 }
 
 /// The component for an entity controlled by a connected player.
 #[derive(Component, Clone)]
 
 pub struct ConnectedPlayer {
-    pub handle: u64,
+    pub handle: ClientId,
     pub authid: u16,
     pub rcon: bool,
     pub connected: bool,
@@ -170,7 +173,7 @@ pub struct ConnectedPlayer {
 impl Default for ConnectedPlayer {
     fn default() -> Self {
         Self {
-            handle: 0,
+            handle: ClientId::from_raw(0),
             authid: 0,
             rcon: false,
             connected: true,
@@ -186,7 +189,7 @@ pub enum NetworkingChatServerMessage {
     ChatMessage(String),
 }
 
-use bevy::prelude::warn;
+use bevy::log::warn;
 
 /// Serializes and sends the outgoing unreliable server messages.
 pub(crate) fn send_outgoing_unreliable_server_messages<T: TypeName + Send + Sync + Serialize>(
@@ -195,8 +198,8 @@ pub(crate) fn send_outgoing_unreliable_server_messages<T: TypeName + Send + Sync
     typenames: Res<Typenames>,
     stamp: Res<TickRateStamp>,
 ) {
-    let mut messages: HashMap<u64, Vec<UnreliableMessage>> = HashMap::default();
-    for message in events.iter() {
+    let mut messages: HashMap<ClientId, Vec<UnreliableMessage>> = HashMap::default();
+    for message in events.read() {
         let net;
         match typenames
             .unreliable_net_types
@@ -266,9 +269,9 @@ pub fn send_outgoing_reliable_server_messages<T: TypeName + Send + Sync + Serial
     typenames: Res<Typenames>,
     stamp: Res<TickRateStamp>,
 ) {
-    let mut messages: HashMap<u64, Vec<ReliableMessage>> = HashMap::default();
+    let mut messages: HashMap<ClientId, Vec<ReliableMessage>> = HashMap::default();
 
-    for message in events.iter() {
+    for message in events.read() {
         let net;
         match typenames
             .reliable_net_types
@@ -338,7 +341,7 @@ pub(crate) fn deserialize_incoming_unreliable_client_message<
     stamp: Res<TickRateStamp>,
     mut queue: Local<HashMap<u8, Vec<IncomingUnreliableClientMessage<T>>>>,
 ) {
-    for event in incoming_raw.iter() {
+    for event in incoming_raw.read() {
         for message in event.message.messages.iter() {
             match get_unreliable_message::<T>(&typenames, message.typename_net, &message.serialized)
             {
@@ -394,7 +397,7 @@ pub(crate) fn deserialize_incoming_reliable_client_message<
     stamp: Res<TickRateStamp>,
     mut queue: Local<HashMap<u8, Vec<IncomingReliableClientMessage<T>>>>,
 ) {
-    for event in incoming_raw.iter() {
+    for event in incoming_raw.read() {
         for message in event.message.messages.iter() {
             match get_reliable_message::<T>(&typenames, message.typename_net, &message.serialized) {
                 Some(data) => {
@@ -441,36 +444,36 @@ pub(crate) fn deserialize_incoming_reliable_client_message<
 ///  Messages that you receive with this event must be initiated from a plugin builder with [crate::messaging::init_reliable_message].
 #[derive(Event, Clone)]
 pub struct IncomingReliableClientMessage<T: TypeName + Send + Sync + Serialize> {
-    pub handle: u64,
+    pub handle: ClientId,
     pub message: T,
     pub stamp: u8,
 }
 ///  Messages that you receive with this event must be initiated from a plugin builder with [crate::messaging::init_unreliable_message].
 #[derive(Event, Clone)]
 pub struct IncomingUnreliableClientMessage<T: TypeName + Send + Sync + Serialize + Clone> {
-    pub handle: u64,
+    pub handle: ClientId,
     pub message: T,
     pub stamp: u8,
 }
 ///  Messages that you receive with this event must be initiated from a plugin builder with [crate::messaging::init_reliable_message].
 #[derive(Event, Clone)]
 pub struct IncomingEarlyReliableClientMessage<T: TypeName + Send + Sync + Serialize> {
-    pub handle: u64,
+    pub handle: ClientId,
     pub message: T,
     pub stamp: u8,
 }
 ///  Messages that you receive with this event must be initiated from a plugin builder with [crate::messaging::init_unreliable_message].
 #[derive(Event, Clone)]
 pub struct IncomingEarlyUnreliableClientMessage<T: TypeName + Send + Sync + Serialize + Clone> {
-    pub handle: u64,
+    pub handle: ClientId,
     pub message: T,
     pub stamp: u8,
 }
 
 #[derive(Resource, Default)]
 pub struct SyncConfirmations {
-    pub incremental: HashMap<u64, u64>,
-    pub server_sync: HashMap<u64, u64>,
+    pub incremental: HashMap<ClientId, u64>,
+    pub server_sync: HashMap<ClientId, u64>,
 }
 #[derive(Debug)]
 pub struct LatencyReport {
@@ -481,7 +484,7 @@ pub struct LatencyReport {
 /// Vectors containing adjustment iteration and tick difference linked by connection handle.
 #[derive(Resource, Default)]
 pub struct Latency {
-    pub tickrate_differences: HashMap<u64, Vec<LatencyReport>>,
+    pub tickrate_differences: HashMap<ClientId, Vec<LatencyReport>>,
 }
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct AdjustSync {
@@ -707,25 +710,25 @@ pub(crate) fn receive_incoming_reliable_client_messages(
 /// Event to send reliable messages from server to client. Messages that you use with this event must be initiated from a plugin builder with [crate::messaging::init_reliable_message].
 #[derive(Event)]
 pub struct OutgoingReliableServerMessage<T: TypeName + Send + Sync + 'static> {
-    pub handle: u64,
+    pub handle: ClientId,
     pub message: T,
 }
 
 /// Event to send unreliable messages from server to client. Messages that you use with this event must be initiated from a plugin builder with [crate::messaging::init_unreliable_message].
 #[derive(Event)]
 pub struct OutgoingUnreliableServerMessage<T: TypeName + Send + Sync + 'static> {
-    pub handle: u64,
+    pub handle: ClientId,
     pub message: T,
 }
 /// Event to when received reliable message from client.  Messages that you use with this event must be initiated from a plugin builder with [crate::messaging::init_reliable_message].
 #[derive(Event)]
 pub(crate) struct IncomingRawReliableClientMessage {
-    pub handle: u64,
+    pub handle: ClientId,
     pub message: ReliableClientMessageBatch,
 }
 /// Event to when received reliable message from client.  Messages that you use with this event must be initiated from a plugin builder with [crate::messaging::init_unreliable_message].
 #[derive(Event)]
 pub(crate) struct IncomingRawUnreliableClientMessage {
-    pub handle: u64,
+    pub handle: ClientId,
     pub message: UnreliableServerMessageBatch,
 }

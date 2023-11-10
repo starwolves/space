@@ -17,7 +17,7 @@ pub(crate) fn client_slot_added(
     mut inventory: ResMut<Inventory>,
     mut event: EventWriter<AddedSlot>,
 ) {
-    for message in net.iter() {
+    for message in net.read() {
         match &message.message {
             InventoryServerMessage::AddedSlot(slot) => {
                 let index = inventory.slots.len();

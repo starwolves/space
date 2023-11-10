@@ -1,4 +1,4 @@
-use bevy::prelude::warn;
+use bevy::log::warn;
 use bevy::prelude::Entity;
 use bevy::prelude::EventWriter;
 use bevy::prelude::Quat;
@@ -77,7 +77,7 @@ pub(crate) fn peer_replication(
     rigidbodies: Res<RigidBodies>,
     stamp: Res<TickRateStamp>,
 ) {
-    for message in server.iter() {
+    for message in server.read() {
         for (entity, connected) in players.iter() {
             if !connected.connected {
                 continue;
@@ -103,7 +103,7 @@ pub(crate) fn peer_replication(
                         handle: connected.handle,
                         message: PeerReliableControllerMessage {
                             message: message.message.clone(),
-                            peer_handle: message.handle as u16,
+                            peer_handle: message.handle.raw() as u16,
                             client_stamp: message.stamp,
                             data: EarlyTickData {
                                 position: transform.translation,
@@ -121,7 +121,7 @@ pub(crate) fn peer_replication(
             }
         }
     }
-    for message in u_server.iter() {
+    for message in u_server.read() {
         for (entity, connected) in players.iter() {
             if !connected.connected {
                 continue;
@@ -147,7 +147,7 @@ pub(crate) fn peer_replication(
                         handle: connected.handle,
                         message: PeerUnreliableControllerMessage {
                             message: message.message.clone(),
-                            peer_handle: message.handle as u16,
+                            peer_handle: message.handle.raw() as u16,
                             client_stamp: message.stamp,
                             data: EarlyTickData {
                                 position: transform.translation,
@@ -174,7 +174,7 @@ pub(crate) fn incoming_messages(
     mut movement_input_event: EventWriter<InputMovementInput>,
     handle_to_entity: Res<HandleToEntity>,
 ) {
-    for message in server.iter() {
+    for message in server.read() {
         let client_message = message.message.clone();
 
         match client_message {

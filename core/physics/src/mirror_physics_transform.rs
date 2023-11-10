@@ -1,7 +1,8 @@
 use entity::showcase::Showcase;
 use std::collections::HashMap;
 
-use bevy::prelude::{warn, Component, Entity, Query, Transform, Without};
+use bevy::log::warn;
+use bevy::prelude::{Component, Entity, Query, Transform, Without};
 
 /// Manage and link rigid body transform.
 

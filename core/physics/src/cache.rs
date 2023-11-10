@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
-use bevy::prelude::{warn, Entity, Query, Res, ResMut, Resource, Transform, With};
+use bevy::log::warn;
+use bevy::prelude::{Entity, Query, Res, ResMut, Resource, Transform, With};
 use bevy_xpbd_3d::prelude::{
     AngularDamping, AngularVelocity, ExternalAngularImpulse, ExternalForce, ExternalImpulse,
     ExternalTorque, LinearDamping, LinearVelocity, RigidBody,

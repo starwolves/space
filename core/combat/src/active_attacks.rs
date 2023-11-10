@@ -45,7 +45,7 @@ pub fn cache_attacks(
     mut cached_attacks: ResMut<ActiveAttacks>,
 ) {
     cached_attacks.map.clear();
-    for attack in attack_events.iter() {
+    for attack in attack_events.read() {
         cached_attacks.map.insert(
             attack.incremented_id,
             ActiveAttack {

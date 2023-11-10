@@ -1,7 +1,9 @@
 use crate::build::MainMenuPlayButton;
 use crate::build::{MainMenuExitButton, MainMenuSettingsButton};
-use bevy::prelude::{info, warn, EventReader, Res};
+use bevy::log::info;
+use bevy::log::warn;
 use bevy::prelude::{Changed, Color};
+use bevy::prelude::{EventReader, Res};
 use bevy::ui::{Display, Style};
 use bevy::{
     prelude::{Button, Query, With},
@@ -111,7 +113,7 @@ pub(crate) fn toggle_esc_menu(
     state: Res<MainMenuState>,
     mut cursor: EventWriter<ReleaseCursor>,
 ) {
-    for event in events.iter() {
+    for event in events.read() {
         match state.root {
             Some(r) => match style_query.get_mut(r) {
                 Ok(mut style) => {

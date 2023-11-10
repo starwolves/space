@@ -1,11 +1,13 @@
 use airlocks::airlock_events::{AirlockCloseRequest, LockedStatus};
+use bevy::log::info;
+use bevy::log::warn;
 use bevy::{
     hierarchy::Children,
-    prelude::{
-        info, warn, Commands, Component, Entity, Event, EventReader, Query, ResMut, Transform, With,
-    },
+    prelude::{Commands, Component, Entity, Event, EventReader, Query, ResMut, Transform, With},
     time::Timer,
 };
+
+use bevy_renet::renet::ClientId;
 use bevy_xpbd_3d::prelude::{Collider, CollisionLayers};
 use entity::{entity_data::EntityGroup, examine::Examinable};
 use networking::server::NetworkingChatServerMessage;
@@ -56,7 +58,7 @@ pub(crate) fn counter_window_events(
     let mut close_requests = vec![];
     let mut open_requests = vec![];
 
-    for event in unlock_events.iter() {
+    for event in unlock_events.read() {
         match counter_window_query.get_mut(event.locked) {
             Ok((
                 mut counter_window_component,
@@ -100,7 +102,7 @@ pub(crate) fn counter_window_events(
         }
     }
 
-    for event in counter_window_lock_open_events.iter() {
+    for event in counter_window_lock_open_events.read() {
         match counter_window_query.get_mut(event.locked) {
             Ok((
                 mut counter_window_component,
@@ -147,7 +149,7 @@ pub(crate) fn counter_window_events(
             Err(_rr) => {}
         }
     }
-    for event in counter_window_lock_close_events.iter() {
+    for event in counter_window_lock_close_events.read() {
         match counter_window_query.get_mut(event.locked) {
             Ok((
                 mut counter_window_component,
@@ -313,7 +315,7 @@ pub(crate) fn counter_window_events(
         }
     }
 
-    for collision_event in counter_window_sensor_collisions.iter() {
+    for collision_event in counter_window_sensor_collisions.read() {
         if collision_event.started == false {
             continue;
         }
@@ -350,7 +352,7 @@ pub(crate) fn counter_window_events(
         });
     }
 
-    for event in counter_window_toggle_open_action.iter() {
+    for event in counter_window_toggle_open_action.read() {
         let opened_entity = event.opened;
 
         info!("Toggle open action from {:?}", opened_entity);
@@ -698,7 +700,7 @@ pub struct CounterWindowSensorCollision {
 /// Counter window toggle open event.
 #[derive(Event)]
 pub struct InputCounterWindowToggleOpen {
-    pub handle_option: Option<u64>,
+    pub handle_option: Option<ClientId>,
 
     pub opener: Entity,
     pub opened: Entity,
@@ -706,7 +708,7 @@ pub struct InputCounterWindowToggleOpen {
 /// Counter window lock open event.
 #[derive(Event)]
 pub struct CounterWindowLockOpen {
-    pub handle_option: Option<u64>,
+    pub handle_option: Option<ClientId>,
 
     pub locked: Entity,
     pub locker: Entity,
@@ -715,7 +717,7 @@ pub struct CounterWindowLockOpen {
 /// Counter window lock closed event.
 #[derive(Event)]
 pub struct CounterWindowLockClosed {
-    pub handle_option: Option<u64>,
+    pub handle_option: Option<ClientId>,
 
     pub locked: Entity,
     pub locker: Entity,
@@ -724,7 +726,7 @@ pub struct CounterWindowLockClosed {
 /// Counter window unlock event.
 #[derive(Event)]
 pub struct CounterWindowUnlock {
-    pub handle_option: Option<u64>,
+    pub handle_option: Option<ClientId>,
 
     pub locked: Entity,
     pub locker: Entity,

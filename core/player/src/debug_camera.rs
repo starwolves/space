@@ -53,7 +53,7 @@ pub(crate) fn spawn_debug_camera(
         state.option = Some(id);
     }
 
-    for _ in ativates.iter() {
+    for _ in ativates.read() {
         *spawning = true;
     }
 }

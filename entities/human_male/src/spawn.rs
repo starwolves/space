@@ -1,12 +1,15 @@
 use std::collections::{BTreeMap, HashMap};
 
+use bevy::log::info;
+use bevy::log::warn;
 use bevy::{
     core_pipeline::{fxaa::Fxaa, tonemapping::Tonemapping, Skybox},
     prelude::{
-        info, warn, BuildChildren, Camera, Camera3dBundle, Commands, EventReader, EventWriter,
-        ResMut, Resource, Transform, Vec3, VisibilityBundle,
+        BuildChildren, Camera, Camera3dBundle, Commands, EventReader, EventWriter, ResMut,
+        Resource, Transform, Vec3, VisibilityBundle,
     },
 };
+
 use bevy_xpbd_3d::prelude::{CoefficientCombine, Collider, ExternalForce, Friction, LockedAxes};
 use cameras::{
     controllers::fps::{ActiveCamera, FpsCameraController},
@@ -101,7 +104,7 @@ pub fn build_base_human_males<T: BaseEntityBuilder<HumanMaleBuildData> + 'static
     mut server: EventWriter<OutgoingReliableServerMessage<EntityServerMessage>>,
     types: Res<EntityTypes>,
 ) {
-    for spawn_event in spawn_events.iter() {
+    for spawn_event in spawn_events.read() {
         let base_entity_bundle = spawn_event
             .entity_type
             .get_bundle(&spawn_event.spawn_data, HumanMaleBuildData);
@@ -221,7 +224,7 @@ pub fn attach_human_male_camera(
     settings: Res<GraphicsSettings>,
     handle: Res<SkyboxHandle>,
 ) {
-    for spawn_event in spawn_events.iter() {
+    for spawn_event in spawn_events.read() {
         let mut is_player_pawn = false;
 
         match pawn_id.server {
@@ -289,7 +292,7 @@ pub fn build_human_males(
     mut pawn_id: ResMut<PawnId>,
     mut add_slot: ResMut<AddSlotBuffer>,
 ) {
-    for spawn_event in spawn_events.iter() {
+    for spawn_event in spawn_events.read() {
         match pawn_id.server {
             Some(server_id) => match spawn_event.spawn_data.server_entity {
                 Some(ent) => {
@@ -419,7 +422,7 @@ pub fn spawn_held_item<T: Send + Sync + Default + 'static>(
     mut add_slot_item: ResMut<AddItemToSlotBuffer>,
     types: Res<EntityTypes>,
 ) {
-    for spawn_event in spawn_events.iter() {
+    for spawn_event in spawn_events.read() {
         let spawn_pawn_data = spawn_event.entity_type.get_spawn_pawn_data();
 
         let mut slot_entities = vec![];

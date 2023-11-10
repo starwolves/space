@@ -7,7 +7,7 @@ pub struct DespawnEntity {
 }
 
 pub(crate) fn despawn_entities(mut events: EventReader<DespawnEntity>, mut commands: Commands) {
-    for event in events.iter() {
+    for event in events.read() {
         commands.entity(event.entity).despawn_recursive();
     }
 }

@@ -1,7 +1,9 @@
+use bevy::log::warn;
 use bevy::{
-    prelude::{warn, Entity, Event, EventReader, Query, ResMut, With},
+    prelude::{Entity, Event, EventReader, Query, ResMut, With},
     ui::{Display, Style, Val},
 };
+
 use resources::hud::HudState;
 
 use crate::{
@@ -27,7 +29,7 @@ pub(crate) fn expand_inventory_hud(
     mut expand_event: EventReader<ExpandedLeftContentHud>,
     text_query: Query<Entity, With<CommunicationTextBundle>>,
 ) {
-    for event in expand_event.iter() {
+    for event in expand_event.read() {
         if event.expanded {
             for ent in text_query.iter() {
                 match style_query.get_mut(ent) {
@@ -133,7 +135,7 @@ pub(crate) fn expand_inventory_hud(
         }
     }
 
-    for event in events.iter() {
+    for event in events.read() {
         state.expanded = event.expand;
     }
 }

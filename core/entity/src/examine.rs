@@ -4,11 +4,13 @@ use crate::sensable::Sensable;
 use crate::senser::Senser;
 use std::collections::BTreeMap;
 
+use bevy::log::warn;
 use bevy::prelude::Entity;
 use bevy::prelude::Event;
 use bevy::prelude::Resource;
-use bevy::prelude::{warn, Query, Res};
 use bevy::prelude::{Component, EventReader, ResMut, SystemSet};
+use bevy::prelude::{Query, Res};
+use bevy_renet::renet::ClientId;
 use text_api::core::FURTHER_ITALIC_FONT;
 use text_api::core::HEALTHY_COLOR;
 use text_api::core::UNHEALTHY_COLOR;
@@ -154,7 +156,7 @@ pub fn finalize_entity_examine_input(
     mut examine_messages: ResMut<ExamineEntityMessages>,
     mut entity_examine_input: EventReader<InputExamineEntity>,
 ) {
-    for input_event in entity_examine_input.iter() {
+    for input_event in entity_examine_input.read() {
         examine_messages.messages.push(input_event.clone());
     }
 }
@@ -589,7 +591,7 @@ pub(crate) fn examine_entity_health(
 #[derive(Clone, Event)]
 
 pub struct InputExamineEntity {
-    pub handle: u64,
+    pub handle: ClientId,
     pub examine_entity: Entity,
     pub entity: Entity,
     /// Examine message that is being built and returned to the client.
@@ -599,7 +601,7 @@ pub struct InputExamineEntity {
 impl Default for InputExamineEntity {
     fn default() -> Self {
         Self {
-            handle: 0,
+            handle: ClientId::from_raw(0),
             examine_entity: Entity::from_bits(0),
             entity: Entity::from_bits(0),
             message: ASTRIX.to_string(),
@@ -617,7 +619,7 @@ pub(crate) fn incoming_messages(
     handle_to_entity: Res<HandleToEntity>,
     mut input_examine_entity: EventWriter<InputExamineEntity>,
 ) {
-    for message in server.iter() {
+    for message in server.read() {
         let client_message = message.message.clone();
 
         match client_message {

@@ -1,6 +1,6 @@
 use crate::controller::ControllerInput;
 
-use bevy::prelude::warn;
+use bevy::log::warn;
 use bevy::prelude::Res;
 
 use bevy::prelude::Vec2;

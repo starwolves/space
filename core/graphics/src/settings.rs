@@ -4,15 +4,17 @@ use std::{
     path::Path,
 };
 
+use bevy::log::warn;
 use bevy::{
     core_pipeline::fxaa::{Fxaa, Sensitivity},
     prelude::{
-        warn, AmbientLight, Commands, DetectChanges, DirectionalLight, DirectionalLightBundle,
-        Event, EventReader, EventWriter, Local, Msaa, Quat, Query, Res, ResMut, Resource,
-        SystemSet, Transform, With,
+        AmbientLight, Commands, DetectChanges, DirectionalLight, DirectionalLightBundle, Event,
+        EventReader, EventWriter, Local, Msaa, Quat, Query, Res, ResMut, Resource, SystemSet,
+        Transform, With,
     },
     window::{PresentMode, PrimaryWindow, Window, WindowMode, WindowResolution},
 };
+
 use num_derive::FromPrimitive;
 use ron::ser::PrettyConfig;
 use serde::{Deserialize, Serialize};
@@ -178,7 +180,7 @@ pub(crate) fn set_resolution(
     mut primary_query: Query<&mut Window, With<PrimaryWindow>>,
     mut settings: ResMut<GraphicsSettings>,
 ) {
-    for event in events.iter() {
+    for event in events.read() {
         let mut primary = primary_query.get_single_mut().unwrap();
         primary
             .resolution
@@ -196,7 +198,7 @@ pub fn set_vsync(
     mut primary_query: Query<&mut Window, With<PrimaryWindow>>,
     mut settings: ResMut<GraphicsSettings>,
 ) {
-    for event in events.iter() {
+    for event in events.read() {
         let mut primary = primary_query.get_single_mut().unwrap();
         if event.enabled {
             primary.present_mode = PresentMode::AutoVsync;
@@ -222,7 +224,7 @@ pub(crate) fn set_window_mode(
     mut primary_query: Query<&mut Window, With<PrimaryWindow>>,
     mut settings: ResMut<GraphicsSettings>,
 ) {
-    for event in events.iter() {
+    for event in events.read() {
         let mut primary = primary_query.get_single_mut().unwrap();
 
         primary.mode = event.window_mode.to_window_mode();
@@ -239,7 +241,7 @@ pub(crate) fn set_fxaa(
     mut settings: ResMut<GraphicsSettings>,
     mut query: Query<&mut Fxaa>,
 ) {
-    for event in events.iter() {
+    for event in events.read() {
         settings.fxaa = event.mode.clone();
 
         for mut fxaa in &mut query {
@@ -262,7 +264,7 @@ pub(crate) fn set_msaa(
     mut settings: ResMut<GraphicsSettings>,
     mut msaa: ResMut<Msaa>,
 ) {
-    for event in events.iter() {
+    for event in events.read() {
         settings.msaa = event.mode.clone();
         *msaa = settings.msaa.to_msaa();
     }

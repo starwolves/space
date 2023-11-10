@@ -187,7 +187,7 @@ pub fn build_rigid_bodies<T: RigidBodyBuilder<NoData> + 'static>(
     mut rigidbodies: ResMut<RigidBodies>,
     app_mode: Res<Mode>,
 ) {
-    for spawn_event in spawn_events.iter() {
+    for spawn_event in spawn_events.read() {
         let rigidbody_bundle = spawn_event
             .entity_type
             .get_bundle(&spawn_event.spawn_data, NoData);

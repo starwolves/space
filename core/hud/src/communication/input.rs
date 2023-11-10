@@ -1,11 +1,12 @@
+use bevy::log::warn;
 use bevy::{
     prelude::{
-        warn, Children, Event, EventReader, EventWriter, Input, KeyCode, Query, Res, ResMut,
-        SystemSet,
+        Children, Event, EventReader, EventWriter, Input, KeyCode, Query, Res, ResMut, SystemSet,
     },
     text::Text,
     ui::{Display, Style},
 };
+
 use chat::net::ChatClientMessage;
 use console_commands::net::ClientSideConsoleInput;
 use networking::client::OutgoingReliableClientMessage;
@@ -113,7 +114,7 @@ pub(crate) fn communication_input_toggle(
     if esc_state.visible || inv_state.open || main_mnu_state.enabled {
         return;
     }
-    for _ in events.iter() {
+    for _ in events.read() {
         let is_focused = hud_state.expanded;
 
         if is_focused {

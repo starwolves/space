@@ -1,11 +1,14 @@
+use bevy::log::info;
+use bevy::log::warn;
 use bevy::{
     app::AppExit,
     prelude::{
-        info, warn, Button, Changed, Entity, Event, EventReader, EventWriter, KeyCode, Parent,
-        Query, Res, ResMut, With,
+        Button, Changed, Entity, Event, EventReader, EventWriter, KeyCode, Parent, Query, Res,
+        ResMut, With,
     },
     ui::{Display, Interaction, Style},
 };
+
 use graphics::settings::{SetFxaa, SetMsaa, SetResolution, SetVsync, SetWindowMode};
 use hud::inventory::build::{InventoryHudState, OpenHud};
 use num_traits::FromPrimitive;
@@ -67,7 +70,7 @@ pub fn toggle_escape_menu(
     mut toggle_controls: EventWriter<ToggleControlsSection>,
     inventory_state: Res<InventoryHudState>,
 ) {
-    for toggle in events.iter() {
+    for toggle in events.read() {
         state.visible = toggle.enabled;
 
         let visible_state;
@@ -122,7 +125,7 @@ pub(crate) fn toggle_general_menu_section(
     mut control_events: EventWriter<ToggleControlsSection>,
     mut graphics_events: EventWriter<ToggleGraphicsSection>,
 ) {
-    for toggle in events.iter() {
+    for toggle in events.read() {
         let mut style = general_style.get_single_mut().unwrap();
         if toggle.enabled {
             style.display = Display::Flex;
@@ -140,7 +143,7 @@ pub(crate) fn toggle_graphics_menu_section(
     mut control_events: EventWriter<ToggleControlsSection>,
     mut general_events: EventWriter<ToggleGeneralSection>,
 ) {
-    for toggle in events.iter() {
+    for toggle in events.read() {
         let mut style = general_style.get_single_mut().unwrap();
         if toggle.enabled {
             style.display = Display::Flex;
@@ -157,7 +160,7 @@ pub(crate) fn toggle_controls_menu_section(
     mut general_events: EventWriter<ToggleGeneralSection>,
     mut graphics_events: EventWriter<ToggleGraphicsSection>,
 ) {
-    for toggle in events.iter() {
+    for toggle in events.read() {
         let mut style = general_style.get_single_mut().unwrap();
         if toggle.enabled {
             style.display = Display::Flex;

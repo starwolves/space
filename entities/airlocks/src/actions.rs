@@ -1,5 +1,6 @@
 use actions::core::{Action, ActionData, ActionRequests, BuildingActions};
-use bevy::prelude::{warn, EventWriter, Query, Res, ResMut, Transform};
+use bevy::log::warn;
+use bevy::prelude::{EventWriter, Query, Res, ResMut, Transform};
 use pawn::pawn::{DataLink, DataLinkType};
 use resources::math::{cell_id_to_world, Vec3Int};
 

@@ -1,8 +1,10 @@
 use std::collections::HashMap;
 
+use bevy::log::warn;
 use bevy::prelude::{
-    warn, Component, Entity, Event, EventReader, EventWriter, Query, Resource, SystemSet,
+    Component, Entity, Event, EventReader, EventWriter, Query, Resource, SystemSet,
 };
+
 use networking::server::{ConnectedPlayer, OutgoingReliableServerMessage};
 use resources::math::Vec2Int;
 use serde::{Deserialize, Serialize};
@@ -79,7 +81,7 @@ pub(crate) fn add_slot_to_inventory(
     mut inventory_query: Query<(&mut Inventory, Option<&ConnectedPlayer>)>,
     mut net: EventWriter<OutgoingReliableServerMessage<InventoryServerMessage>>,
 ) {
-    for event in events.iter() {
+    for event in events.read() {
         match inventory_query.get_mut(event.inventory_entity) {
             Ok((mut inventory, connection_option)) => {
                 let index = inventory.slots.len();
@@ -107,7 +109,7 @@ pub(crate) fn add_item_to_slot(
     mut inventory_query: Query<&mut Inventory>,
     inventory_item_query: Query<&InventoryItem>,
 ) {
-    for event in events.iter() {
+    for event in events.read() {
         match inventory_item_query.get(event.item_entity) {
             Ok(inventory_item_component) => match inventory_query.get_mut(event.inventory_entity) {
                 Ok(mut inventory_component) => {
@@ -233,7 +235,7 @@ pub(crate) fn added_item_to_slot(
     connected_players: Query<&ConnectedPlayer>,
     mut net: EventWriter<OutgoingReliableServerMessage<InventoryServerMessage>>,
 ) {
-    for event in events.iter() {
+    for event in events.read() {
         match connected_players.get(event.inventory_entity) {
             Ok(player) => {
                 net.send(OutgoingReliableServerMessage {

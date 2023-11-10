@@ -12,7 +12,7 @@ edition = "2021"
 
 
 [dependencies.bevy]
-version = "0.11.3"
+version = "0.12"
 
 default-features = false
 
@@ -21,7 +21,7 @@ serde = "1.0.177"
 typename = "0.1.2"
 ron = "0.8.0"
 dyn-clone = "1.0.12"
-bevy_renet = "0.0.9"
+bevy_renet = {version = "0.0.9", git="https://github.com/lucaspoffo/renet.git", branch="master" }
 
 doryen_fov = { path = "../doryen_fov" }
 networking = { path = "../networking" }

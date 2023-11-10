@@ -3,6 +3,7 @@ use bevy::{
     math::Vec2,
     prelude::{Entity, Event, EventReader, Query, Resource},
 };
+use bevy_renet::renet::ClientId;
 use entity::senser::WORLD_WIDTH_CELLS;
 use resources::math::Vec2Int;
 
@@ -13,7 +14,7 @@ pub(crate) fn map_input(
     mut input_view_range_change_events: EventReader<InputMap>,
     mut map_holders: Query<&mut Map>,
 ) {
-    for event in input_view_range_change_events.iter() {
+    for event in input_view_range_change_events.read() {
         match map_holders.get_mut(event.entity) {
             Ok(mut map_component) => match event.input {
                 MapInput::Range(range_x) => {
@@ -47,7 +48,7 @@ pub(crate) fn request_map_overlay(
     map_holders: Query<&Map>,
     mut server: EventWriter<OutgoingReliableServerMessage<MapServerMessage>>,
 ) {
-    for event in events.iter() {
+    for event in events.read() {
         let map_component;
 
         match map_holders.get(event.entity) {
@@ -90,7 +91,7 @@ impl MapData {
 /// Client input change display mode mini-map event.
 #[derive(Event)]
 pub struct InputMapChangeDisplayMode {
-    pub handle: u64,
+    pub handle: ClientId,
     pub entity: Entity,
     pub display_mode: String,
 }
@@ -106,7 +107,7 @@ pub enum MapInput {
 /// Client map input event.
 #[derive(Event)]
 pub struct InputMap {
-    pub handle: u64,
+    pub handle: ClientId,
     pub entity: Entity,
     pub input: MapInput,
 }
@@ -114,7 +115,7 @@ pub struct InputMap {
 /// Client map request display modes event.
 #[derive(Event)]
 pub struct InputMapRequestOverlay {
-    pub handle: u64,
+    pub handle: ClientId,
     pub entity: Entity,
 }
 use crate::net::{MapReliableClientMessage, MapUnreliableClientMessage};
@@ -129,7 +130,7 @@ pub(crate) fn incoming_messages(
     mut input_map_request_display_modes: EventWriter<InputMapRequestOverlay>,
     mut input_map_view_range: EventWriter<InputMap>,
 ) {
-    for message in server.iter() {
+    for message in server.read() {
         let client_message = message.message.clone();
 
         match client_message {
@@ -178,7 +179,7 @@ pub(crate) fn incoming_messages(
             }
         }
 
-        for message in u_server.iter() {
+        for message in u_server.read() {
             let client_message = message.message.clone();
             match client_message {
                 MapUnreliableClientMessage::MapViewRange(range_x) => {
@@ -219,4 +220,4 @@ use networking::server::HandleToEntity;
 
 use networking::server::{IncomingReliableClientMessage, IncomingUnreliableClientMessage};
 
-use bevy::prelude::warn;
+use bevy::log::warn;

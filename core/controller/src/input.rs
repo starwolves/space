@@ -5,10 +5,11 @@ use crate::{
     net::{ControllerClientMessage, MovementInput},
     networking::{PeerReliableControllerMessage, PeerUnreliableControllerMessage},
 };
+use bevy::log::warn;
 use bevy::prelude::{
-    warn, Entity, Event, EventReader, EventWriter, KeyCode, Query, Res, ResMut, Resource,
-    SystemSet, Vec2,
+    Entity, Event, EventReader, EventWriter, KeyCode, Query, Res, ResMut, Resource, SystemSet, Vec2,
 };
+
 use entity::spawn::PawnId;
 use networking::{
     client::{
@@ -127,7 +128,7 @@ pub(crate) fn get_peer_input(
     mut record: ResMut<RecordedControllerInput>,
     stamp: Res<TickRateStamp>,
 ) {
-    for message in peer.iter() {
+    for message in peer.read() {
         let large_stamp = stamp.calculate_large(message.stamp);
         let msg = RecordedInput::Reliable(message.message.clone());
         match record.input.get_mut(&large_stamp) {
@@ -139,7 +140,7 @@ pub(crate) fn get_peer_input(
             }
         }
     }
-    for message in unreliable_peer.iter() {
+    for message in unreliable_peer.read() {
         let large_stamp = stamp.calculate_large(message.stamp);
         let msg = RecordedInput::Unreliable(message.message.clone());
         match record.input.get_mut(&large_stamp) {
@@ -319,7 +320,7 @@ pub(crate) fn controller_input(
 
     mut movement_input_event: EventReader<InputMovementInput>,
 ) {
-    for new_event in movement_input_event.iter() {
+    for new_event in movement_input_event.read() {
         let player_entity = new_event.player_entity;
 
         let player_input_component_result = humanoids_query.get_mut(player_entity);

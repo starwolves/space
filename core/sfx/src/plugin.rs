@@ -2,7 +2,7 @@ use std::time::Duration;
 
 use bevy::{
     prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin},
-    time::common_conditions::on_fixed_timer,
+    time::common_conditions::on_timer,
 };
 use entity::{entity_data::InterpolationSet, entity_types::register_entity_type};
 use networking::messaging::{register_reliable_message, MessageSender};
@@ -32,7 +32,7 @@ impl Plugin for SfxPlugin {
                 FixedUpdate,
                 tick_timers_slowed
                     .in_set(InterpolationSet::Main)
-                    .run_if(on_fixed_timer(Duration::from_secs_f32(1. / 2.)))
+                    .run_if(on_timer(Duration::from_secs_f32(1. / 2.)))
                     .in_set(MainSet::Update),
             )
             .add_systems(
