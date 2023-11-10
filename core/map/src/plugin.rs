@@ -4,7 +4,7 @@ use networking::messaging::{
 };
 use player::{connections::process_response, plugin::ConfigurationLabel};
 use resources::{
-    modes::is_server,
+    modes::is_server_mode,
     sets::{MainSet, MapSet},
 };
 
@@ -25,7 +25,7 @@ pub struct MapPlugin;
 
 impl Plugin for MapPlugin {
     fn build(&self, app: &mut App) {
-        if is_server() {
+        if is_server_mode(app) {
             app.init_resource::<MapData>()
                 .add_systems(
                     FixedUpdate,

@@ -1,7 +1,7 @@
 use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, Startup};
 use console_commands::commands::ConsoleCommandsSet;
 use hud::communication::{console::console_input, input::ConsoleCommandsClientSet};
-use resources::{modes::is_server, sets::MainSet};
+use resources::{modes::is_server_mode, sets::MainSet};
 
 use crate::{
     commands::{coords, rcon_console_commands, GiveAllRCON},
@@ -16,7 +16,7 @@ pub struct BasicConsoleCommandsPlugin {
 
 impl Plugin for BasicConsoleCommandsPlugin {
     fn build(&self, app: &mut App) {
-        if is_server() {
+        if is_server_mode(app) {
             app.add_systems(
                 FixedUpdate,
                 (rcon_console_commands, export_map, coords)

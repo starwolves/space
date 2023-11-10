@@ -23,6 +23,7 @@ use player::boarding::SoftPlayer;
 use resources::{
     grid::TargetCell,
     math::{cell_id_to_world, Vec3Int},
+    modes::Mode,
 };
 use resources::{
     grid::{CellFace, Tile},
@@ -983,6 +984,7 @@ pub(crate) fn add_tile_collision(
     mut commands: Commands,
     gridmap_data: Res<Gridmap>,
     mut rigidbodies: ResMut<RigidBodies>,
+    app_mode: Res<Mode>,
 ) {
     for event in events.iter() {
         let cell_properties;
@@ -1033,7 +1035,7 @@ pub(crate) fn add_tile_collision(
         let mut entity_builder = commands.entity(event.entity);
         entity_builder.insert((Cell { id: event.id }, RigidBodyLink::default()));
 
-        if is_server() {
+        if is_server() || matches!(*app_mode, Mode::Correction) {
             entity_builder.insert(TransformBundle::from(world_position));
         }
     }

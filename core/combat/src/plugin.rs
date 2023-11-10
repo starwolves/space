@@ -1,5 +1,5 @@
 use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin};
-use resources::modes::is_server;
+use resources::modes::is_server_mode;
 use resources::sets::{CombatSet, MainSet, PostUpdateSet};
 
 use crate::apply_damage::{finalize_apply_damage, ActiveApplyDamage};
@@ -20,7 +20,7 @@ pub struct CombatPlugin;
 
 impl Plugin for CombatPlugin {
     fn build(&self, app: &mut App) {
-        if is_server() {
+        if is_server_mode(app) {
             /*app.add_system(
                 melee_direct
                     .after(CombatLabels::WeaponHandler)

@@ -5,12 +5,12 @@ use crate::{
     input::{broadcast_global_chat_message, chat_net_input, GlobalChatMessage},
     net::{ChatClientMessage, ChatServerMessage},
 };
-use resources::{modes::is_server, sets::MainSet};
+use resources::{modes::is_server_mode, sets::MainSet};
 pub struct ChatPlugin;
 
 impl Plugin for ChatPlugin {
     fn build(&self, app: &mut App) {
-        if is_server() {
+        if is_server_mode(app) {
             app.add_systems(
                 FixedUpdate,
                 (

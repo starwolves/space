@@ -1,5 +1,5 @@
 use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin};
-use resources::{modes::is_server, sets::MainSet};
+use resources::{modes::is_server_mode, sets::MainSet};
 
 use crate::tick_asana_boarding_announcements::tick_asana_boarding_announcements;
 
@@ -7,7 +7,7 @@ pub struct AsanaPlugin;
 
 impl Plugin for AsanaPlugin {
     fn build(&self, app: &mut App) {
-        if is_server() {
+        if is_server_mode(app) {
             app.add_systems(
                 FixedUpdate,
                 tick_asana_boarding_announcements.in_set(MainSet::Update),

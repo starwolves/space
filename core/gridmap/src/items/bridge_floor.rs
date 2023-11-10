@@ -4,7 +4,7 @@ use bevy::{
 };
 use bevy_xpbd_3d::prelude::Collider;
 use entity::examine::RichName;
-use resources::modes::is_server;
+use resources::modes::{is_server, Mode};
 
 use crate::{
     grid::{CellType, CellTypeName, TileProperties},
@@ -87,11 +87,12 @@ pub(crate) fn init_filled_bridge_floor(
     mut init: ResMut<InitTileProperties>,
     meshes: Res<GenericMeshes>,
     mat: Res<BridgeFloorMaterial>,
+    app_mode: Res<Mode>,
 ) {
     let mesh_option: Option<Handle<GltfMesh>>;
     let material_option;
 
-    if !is_server() {
+    if !is_server() || matches!(*app_mode, Mode::Correction) {
         mesh_option = Some(meshes.floor.clone());
         material_option = Some(mat.filled_handle.clone());
     } else {
@@ -121,11 +122,12 @@ pub(crate) fn init_half_bridge_floor(
     mut init: ResMut<InitTileProperties>,
     meshes: Res<GenericMeshes>,
     mat: Res<BridgeFloorMaterial>,
+    app_mode: Res<Mode>,
 ) {
     let mesh_option: Option<Handle<GltfMesh>>;
     let material_option;
 
-    if !is_server() {
+    if !is_server() || matches!(*app_mode, Mode::Correction) {
         mesh_option = Some(meshes.floor.clone());
         material_option = Some(mat.half_handle.clone());
     } else {
@@ -155,11 +157,12 @@ pub(crate) fn init_corner_bridge_floor(
     mut init: ResMut<InitTileProperties>,
     meshes: Res<GenericMeshes>,
     mat: Res<BridgeFloorMaterial>,
+    app_mode: Res<Mode>,
 ) {
     let mesh_option: Option<Handle<GltfMesh>>;
     let material_option;
 
-    if !is_server() {
+    if !is_server() || matches!(*app_mode, Mode::Correction) {
         mesh_option = Some(meshes.floor.clone());
         material_option = Some(mat.corner_handle.clone());
     } else {
@@ -188,11 +191,12 @@ pub(crate) fn init_corner2_bridge_floor(
     mut init: ResMut<InitTileProperties>,
     meshes: Res<GenericMeshes>,
     mat: Res<BridgeFloorMaterial>,
+    app_mode: Res<Mode>,
 ) {
     let mesh_option: Option<Handle<GltfMesh>>;
     let material_option;
 
-    if !is_server() {
+    if !is_server() || matches!(*app_mode, Mode::Correction) {
         mesh_option = Some(meshes.floor.clone());
         material_option = Some(mat.corner2_handle.clone());
     } else {

@@ -16,7 +16,7 @@ use entity::{
 use inventory::spawn_item::build_inventory_items;
 use physics::spawn::build_rigid_bodies;
 use resources::{
-    modes::is_server,
+    modes::is_server_mode,
     sets::{CombatSet, MainSet},
 };
 
@@ -28,7 +28,7 @@ pub struct PistolL1Plugin;
 
 impl Plugin for PistolL1Plugin {
     fn build(&self, app: &mut App) {
-        if is_server() {
+        if is_server_mode(app) {
             app.add_systems(
                 FixedUpdate,
                 (

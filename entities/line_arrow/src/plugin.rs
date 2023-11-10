@@ -7,7 +7,7 @@ use entity::{
 };
 use networking::server::ConsoleArgVariant;
 use resources::{
-    modes::is_server,
+    modes::is_server_mode,
     sets::{BuildingSet, MainSet, StartupSet},
 };
 
@@ -22,7 +22,7 @@ pub struct LineArrowPlugin;
 
 impl Plugin for LineArrowPlugin {
     fn build(&self, app: &mut App) {
-        if is_server() {
+        if is_server_mode(app) {
             app.add_systems(
                 FixedUpdate,
                 entity_console_commands
@@ -54,7 +54,7 @@ pub struct PointArrowPlugin;
 
 impl Plugin for PointArrowPlugin {
     fn build(&self, app: &mut App) {
-        if is_server() {
+        if is_server_mode(app) {
             app.add_systems(
                 FixedUpdate,
                 (

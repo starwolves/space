@@ -2,7 +2,7 @@ use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, Startup};
 use networking::messaging::{register_reliable_message, MessageSender};
 use player::{connections::process_response, plugin::ConfigurationLabel};
 use resources::{
-    modes::is_server,
+    modes::is_server_mode,
     sets::{BuildingSet, MainSet, StartupSet},
 };
 
@@ -19,7 +19,7 @@ pub struct ConsoleCommandsPlugin;
 
 impl Plugin for ConsoleCommandsPlugin {
     fn build(&self, app: &mut App) {
-        if is_server() {
+        if is_server_mode(app) {
             app.add_systems(
                 FixedUpdate,
                 incoming_messages

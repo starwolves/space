@@ -212,43 +212,43 @@ pub(crate) fn start_app(mode: AppMode) {
 
     if is_correction_mode(&mut app) {
         app.add_plugins(CorrectionServerPlugin);
-    } else {
-        app.add_plugins(ConstructionToolAdminPlugin)
-            .add_plugins(AirLocksPlugin)
-            .add_plugins(CounterWindowsPlugin)
-            .add_plugins(InventoryPlugin)
-            .add_plugins(TokenPlugin)
-            .add_plugins(AsanaPlugin)
-            .add_plugins(HumanoidPlugin)
-            .add_plugins(HumanMalePlugin)
-            .add_plugins(SfxPlugin)
-            .add_plugins(ComputersPlugin)
-            .add_plugins(MapPlugin)
-            .add_plugins(ConsoleCommandsPlugin)
-            .add_plugins(CombatPlugin)
-            .add_plugins(JumpsuitsPlugin)
-            .add_plugins(HelmetsPlugin)
-            .add_plugins(PistolL1Plugin)
-            .add_plugins(LineArrowPlugin)
-            .add_plugins(PointArrowPlugin)
-            .add_plugins(SoundsPlugin)
-            .add_plugins(ChatPlugin)
-            .add_plugins(UiPlugin)
-            .add_plugins(SetupMenuPlugin)
-            .add_plugins(PointLightPlugin)
-            .add_plugins(BallPlugin)
-            .add_plugins(BasicConsoleCommandsPlugin {
-                give_all_rcon: true,
-            })
-            .add_systems(
-                Startup,
-                live.in_set(StartupSet::ServerIsLive)
-                    .after(StartupSet::InitAtmospherics),
-            )
-            .insert_resource(MOTD::new_default(APP_VERSION.to_string()))
-            .add_plugins(MainMenuPlugin)
-            .add_plugins(EscapeMenuPlugin)
-            .add_plugins(HudPlugin);
     }
+    app.add_plugins(ConstructionToolAdminPlugin)
+        .add_plugins(AirLocksPlugin)
+        .add_plugins(CounterWindowsPlugin)
+        .add_plugins(InventoryPlugin)
+        .add_plugins(TokenPlugin)
+        .add_plugins(AsanaPlugin)
+        .add_plugins(HumanoidPlugin)
+        .add_plugins(HumanMalePlugin)
+        .add_plugins(SfxPlugin)
+        .add_plugins(ComputersPlugin)
+        .add_plugins(MapPlugin)
+        .add_plugins(ConsoleCommandsPlugin)
+        .add_plugins(CombatPlugin)
+        .add_plugins(JumpsuitsPlugin)
+        .add_plugins(HelmetsPlugin)
+        .add_plugins(PistolL1Plugin)
+        .add_plugins(LineArrowPlugin)
+        .add_plugins(PointArrowPlugin)
+        .add_plugins(SoundsPlugin)
+        .add_plugins(ChatPlugin)
+        .add_plugins(UiPlugin)
+        .add_plugins(SetupMenuPlugin)
+        .add_plugins(PointLightPlugin)
+        .add_plugins(BallPlugin)
+        .add_plugins(BasicConsoleCommandsPlugin {
+            give_all_rcon: true,
+        })
+        .add_systems(
+            Startup,
+            live.in_set(StartupSet::ServerIsLive)
+                .after(StartupSet::InitAtmospherics),
+        )
+        .insert_resource(MOTD::new_default(APP_VERSION.to_string()))
+        .add_plugins(MainMenuPlugin)
+        .add_plugins(EscapeMenuPlugin)
+        .add_plugins(HudPlugin);
+
     app.run();
 }

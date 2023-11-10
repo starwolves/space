@@ -1,6 +1,6 @@
 use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, SystemSet};
 use networking::client::token_assign_server;
-use resources::{modes::is_server, sets::MainSet};
+use resources::{modes::is_server_mode, sets::MainSet};
 use ui::{
     cursor::{grab_cursor, release_cursor},
     text_input::TextInputSet,
@@ -29,7 +29,7 @@ pub struct MainMenuPlugin;
 
 impl Plugin for MainMenuPlugin {
     fn build(&self, app: &mut App) {
-        if !is_server() {
+        if !is_server_mode(app) {
             app.add_systems(
                 FixedUpdate,
                 (

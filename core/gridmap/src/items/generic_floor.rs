@@ -4,7 +4,7 @@ use bevy::{
 };
 use bevy_xpbd_3d::prelude::Collider;
 use entity::examine::RichName;
-use resources::modes::is_server;
+use resources::modes::{is_server, Mode};
 
 use crate::{
     grid::{CellType, CellTypeName, TileProperties},
@@ -42,11 +42,12 @@ pub(crate) fn init_generic_floor(
     mut init: ResMut<InitTileProperties>,
     meshes: Res<GenericMeshes>,
     mat: Res<GenericFloorMaterial>,
+    app_mode: Res<Mode>,
 ) {
     let mesh_option: Option<Handle<GltfMesh>>;
     let material_option;
 
-    if !is_server() {
+    if !is_server() || matches!(*app_mode, Mode::Correction) {
         mesh_option = Some(meshes.floor.clone());
         material_option = Some(mat.material_handle.clone());
     } else {

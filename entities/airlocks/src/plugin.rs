@@ -3,7 +3,7 @@ use combat::sfx::health_combat_hit_result_sfx;
 use entity::entity_types::register_entity_type;
 use entity::spawn::{build_base_entities, SpawnItemSet};
 use physics::spawn::build_rigid_bodies;
-use resources::modes::is_server;
+use resources::modes::is_server_mode;
 use resources::sets::{ActionsSet, CombatSet, MainSet, PostUpdateSet};
 
 use crate::{
@@ -33,7 +33,7 @@ pub struct AirLocksPlugin;
 
 impl Plugin for AirLocksPlugin {
     fn build(&self, app: &mut App) {
-        if is_server() {
+        if is_server_mode(app) {
             app.add_event::<AirlockCollision>()
                 .add_event::<InputAirlockToggleOpen>()
                 .add_event::<AirLockLockOpen>()

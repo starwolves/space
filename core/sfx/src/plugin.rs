@@ -7,7 +7,7 @@ use bevy::{
 use entity::{entity_data::InterpolationSet, entity_types::register_entity_type};
 use networking::messaging::{register_reliable_message, MessageSender};
 use resources::{
-    modes::is_server,
+    modes::is_server_mode,
     sets::{MainSet, PostUpdateSet},
 };
 
@@ -27,7 +27,7 @@ pub struct SfxPlugin;
 
 impl Plugin for SfxPlugin {
     fn build(&self, app: &mut App) {
-        if is_server() {
+        if is_server_mode(app) {
             app.add_systems(
                 FixedUpdate,
                 tick_timers_slowed

@@ -5,7 +5,7 @@ use networking::{
     server::ServerMessageSet,
 };
 use resources::{
-    modes::is_server,
+    modes::is_server_mode,
     sets::{MainSet, PostUpdateSet},
 };
 
@@ -33,7 +33,7 @@ pub struct InventoryPlugin;
 
 impl Plugin for InventoryPlugin {
     fn build(&self, app: &mut App) {
-        if is_server() {
+        if is_server_mode(app) {
             app.add_systems(
                 FixedUpdate,
                 (

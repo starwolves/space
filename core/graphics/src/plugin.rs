@@ -1,5 +1,5 @@
 use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, Startup};
-use resources::{modes::is_server, sets::MainSet};
+use resources::{modes::is_server_mode, sets::MainSet};
 
 use crate::{
     settings::{
@@ -15,7 +15,7 @@ pub struct GraphicsPlugin;
 
 impl Plugin for GraphicsPlugin {
     fn build(&self, app: &mut App) {
-        if !is_server() {
+        if !is_server_mode(app) {
             app.add_systems(
                 FixedUpdate,
                 (

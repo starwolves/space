@@ -7,7 +7,7 @@ use entity::{
 };
 use physics::spawn::build_rigid_bodies;
 use resources::{
-    modes::is_server,
+    modes::is_server_mode,
     sets::{BuildingSet, MainSet},
 };
 
@@ -30,7 +30,7 @@ impl Plugin for BallPlugin {
                 .in_set(MainSet::Update),
         );
 
-        if !is_server() {
+        if !is_server_mode(app) {
             app.add_systems(Startup, register_input);
             app.add_systems(
                 FixedUpdate,

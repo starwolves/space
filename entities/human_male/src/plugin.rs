@@ -10,7 +10,7 @@ use networking::stamp::step_tickrate_stamp;
 use physics::spawn::build_rigid_bodies;
 use player::boarding::player_boarded;
 use resources::{
-    modes::is_server,
+    modes::is_server_mode,
     sets::{BuildingSet, CombatSet, MainSet},
 };
 
@@ -28,7 +28,7 @@ pub struct HumanMalePlugin;
 
 impl Plugin for HumanMalePlugin {
     fn build(&self, app: &mut App) {
-        if is_server() {
+        if is_server_mode(app) {
             app.add_systems(
                 FixedUpdate,
                 (

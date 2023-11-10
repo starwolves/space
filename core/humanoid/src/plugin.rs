@@ -3,7 +3,7 @@ use combat::{chat::attacked_by_chat, sfx::health_combat_hit_result_sfx};
 use controller::input::Controller;
 use pawn::camera::LookTransformSet;
 use resources::{
-    modes::is_server,
+    modes::is_server_mode,
     sets::{ActionsSet, CombatSet, MainSet, UpdateSet},
 };
 
@@ -16,7 +16,7 @@ pub struct HumanoidPlugin;
 
 impl Plugin for HumanoidPlugin {
     fn build(&self, app: &mut App) {
-        if is_server() {
+        if is_server_mode(app) {
             app /*.add_system(
                     humanoid_core
                         .label(UpdateLabels::StandardCharacters)

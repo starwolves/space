@@ -4,7 +4,7 @@ use crate::{
     rigid_body::RigidBodyData,
 };
 use bevy::{
-    prelude::{Commands, Entity, EventReader, ResMut, Transform},
+    prelude::{Commands, Entity, EventReader, Res, ResMut, Transform},
     transform::TransformBundle,
 };
 use bevy_xpbd_3d::prelude::{
@@ -82,6 +82,7 @@ pub fn rigidbody_builder(
     entity: Entity,
     is_showcase: bool,
     rigidbodies: &mut ResMut<RigidBodies>,
+    app_mode: &Res<Mode>,
 ) {
     let rigidbody;
     let masks;
@@ -131,7 +132,7 @@ pub fn rigidbody_builder(
 
     let mut builder = commands.entity(entity);
 
-    if !is_server() {
+    if !(is_server() || matches!(**app_mode, Mode::Correction)) {
         t.local.translation += rigidbody_spawn_data.mesh_offset.translation;
         t.local.scale = rigidbody_spawn_data.mesh_offset.scale;
         t.local.rotation *= rigidbody_spawn_data.mesh_offset.rotation;
@@ -176,7 +177,7 @@ pub trait RigidBodyBuilder<Y>: Send + Sync {
     fn get_bundle(&self, spawn_data: &EntityBuildData, entity_data_option: Y) -> RigidBodyBundle;
 }
 use entity::spawn::{NoData, SpawnEntity};
-use resources::modes::is_server;
+use resources::modes::{is_server, Mode};
 
 /// Rigid body spawning.
 
@@ -184,6 +185,7 @@ pub fn build_rigid_bodies<T: RigidBodyBuilder<NoData> + 'static>(
     mut spawn_events: EventReader<SpawnEntity<T>>,
     mut commands: Commands,
     mut rigidbodies: ResMut<RigidBodies>,
+    app_mode: Res<Mode>,
 ) {
     for spawn_event in spawn_events.iter() {
         let rigidbody_bundle = spawn_event
@@ -207,6 +209,7 @@ pub fn build_rigid_bodies<T: RigidBodyBuilder<NoData> + 'static>(
             spawn_event.spawn_data.entity,
             spawn_event.spawn_data.showcase_data_option.is_some(),
             &mut rigidbodies,
+            &app_mode,
         );
     }
 }

@@ -1,7 +1,7 @@
 use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, PostStartup, Startup, Update};
 use graphics::settings::SettingsSet;
 use hud::{inventory::build::OpenHudSet, mouse::grab_mouse_hud_expand};
-use resources::{modes::is_server, sets::MainSet};
+use resources::{modes::is_server_mode, sets::MainSet};
 use ui::fonts::init_fonts;
 
 use crate::{
@@ -20,7 +20,7 @@ pub struct EscapeMenuPlugin;
 
 impl Plugin for EscapeMenuPlugin {
     fn build(&self, app: &mut App) {
-        if !is_server() {
+        if !is_server_mode(app) {
             app.add_systems(
                 Startup,
                 (build_escape_menu.after(init_fonts), register_input),

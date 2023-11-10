@@ -1,9 +1,9 @@
 use console_commands::commands::ConsoleCommandsSet;
-use resources::{modes::is_server, sets::BuildingSet};
+use resources::{modes::is_server_mode, sets::BuildingSet};
 pub fn register_basic_console_commands_for_type<T: EntityType + Clone + Default + 'static>(
     app: &mut App,
 ) {
-    if is_server() {
+    if is_server_mode(app) {
         app.add_event::<RconSpawnEntity<T>>()
             .add_systems(FixedUpdate, rcon_entity_console_commands::<T>);
     }
@@ -20,7 +20,7 @@ pub fn register_basic_console_commands_for_inventory_item_type<
 >(
     app: &mut App,
 ) {
-    if is_server() {
+    if is_server_mode(app) {
         app.add_event::<RconSpawnEntity<T>>()
             .add_systems(
                 FixedUpdate,

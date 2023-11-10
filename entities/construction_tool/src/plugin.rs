@@ -19,7 +19,7 @@ use inventory::client::items::{
 };
 use inventory::spawn_item::build_inventory_items;
 use physics::spawn::build_rigid_bodies;
-use resources::modes::is_server;
+use resources::modes::is_server_mode;
 use resources::sets::{ActionsSet, BuildingSet, CombatSet, MainSet, UpdateSet};
 use ui::text_input::TextTree;
 
@@ -42,7 +42,7 @@ pub struct ConstructionToolAdminPlugin;
 
 impl Plugin for ConstructionToolAdminPlugin {
     fn build(&self, app: &mut App) {
-        if is_server() {
+        if is_server_mode(app) {
             app.add_event::<InputConstruct>()
                 .add_event::<InputDeconstruct>()
                 .add_event::<InputConstructionOptions>()

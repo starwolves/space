@@ -3,10 +3,8 @@ use combat::sfx::health_combat_hit_result_sfx;
 use entity::spawn::build_base_entities;
 use entity::{entity_types::register_entity_type, spawn::SpawnItemSet};
 use physics::spawn::build_rigid_bodies;
-use resources::{
-    modes::is_server,
-    sets::{ActionsSet, CombatSet, MainSet, PostUpdateSet},
-};
+use resources::modes::is_server_mode;
+use resources::sets::{ActionsSet, CombatSet, MainSet, PostUpdateSet};
 
 use crate::{
     actions::{
@@ -31,7 +29,7 @@ pub struct CounterWindowsPlugin;
 
 impl Plugin for CounterWindowsPlugin {
     fn build(&self, app: &mut App) {
-        if is_server() {
+        if is_server_mode(app) {
             app.add_event::<CounterWindowSensorCollision>()
                 .add_systems(
                     FixedUpdate,

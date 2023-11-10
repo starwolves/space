@@ -8,7 +8,11 @@ use bevy::{
 };
 use bevy_xpbd_3d::prelude::Collider;
 use entity::examine::RichName;
-use resources::{grid::CellFace, math::Vec3Int, modes::is_server};
+use resources::{
+    grid::CellFace,
+    math::Vec3Int,
+    modes::{is_server, Mode},
+};
 
 use crate::{
     grid::{CellType, CellTypeName, FullCell, Gridmap, GroupTypeName, TileGroup, TileProperties},
@@ -61,11 +65,12 @@ pub(crate) fn init_bridge_half_diagonal_ceiling_low(
     mut init: ResMut<InitTileProperties>,
     meshes: Res<GenericMeshes>,
     mat: Res<BridgeHalfDiagonalCeilingMaterial>,
+    app_mode: Res<Mode>,
 ) {
     let mesh_option: Option<Handle<GltfMesh>>;
     let material_option;
 
-    if !is_server() {
+    if !is_server() || matches!(*app_mode, Mode::Correction) {
         mesh_option = Some(meshes.half_diagonal_template_low.clone());
         material_option = Some(mat.low_material_handle.clone());
     } else {
@@ -104,11 +109,12 @@ pub(crate) fn init_bridge_half_diagonal_ceiling_high(
     mut init: ResMut<InitTileProperties>,
     meshes: Res<GenericMeshes>,
     mat: Res<BridgeHalfDiagonalCeilingMaterial>,
+    app_mode: Res<Mode>,
 ) {
     let mesh_option: Option<Handle<GltfMesh>>;
     let material_option;
 
-    if !is_server() {
+    if !is_server() || matches!(*app_mode, Mode::Correction) {
         mesh_option = Some(meshes.half_diagonal_template_high.clone());
         material_option = Some(mat.high_material_handle.clone());
     } else {

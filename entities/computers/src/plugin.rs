@@ -3,10 +3,8 @@ use combat::sfx::health_combat_hit_result_sfx;
 use entity::spawn::build_base_entities;
 use entity::{entity_types::register_entity_type, spawn::SpawnItemSet};
 use physics::spawn::build_rigid_bodies;
-use resources::{
-    modes::is_server,
-    sets::{CombatSet, MainSet},
-};
+use resources::modes::is_server_mode;
+use resources::sets::{CombatSet, MainSet};
 
 use crate::computer::Computer;
 
@@ -19,7 +17,7 @@ pub struct ComputersPlugin;
 
 impl Plugin for ComputersPlugin {
     fn build(&self, app: &mut App) {
-        if is_server() {
+        if is_server_mode(app) {
             app.add_systems(
                 FixedUpdate,
                 (

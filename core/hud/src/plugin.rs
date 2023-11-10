@@ -4,7 +4,7 @@ use bevy::prelude::{
 use bevy_renet::renet::RenetClient;
 use console_commands::net::ClientSideConsoleInput;
 use inventory::client::items::ClientBuildInventoryLabel;
-use resources::{modes::is_server, sets::MainSet};
+use resources::{modes::is_server_mode, sets::MainSet};
 use ui::{
     cursor::CursorSet,
     text_input::{FocusTextSet, TextInputLabel},
@@ -56,7 +56,7 @@ pub struct HudPlugin;
 
 impl Plugin for HudPlugin {
     fn build(&self, app: &mut App) {
-        if !is_server() {
+        if !is_server_mode(app) {
             app.add_event::<ToggleCommunication>()
                 .add_event::<ExpandInventoryHud>()
                 .add_systems(
