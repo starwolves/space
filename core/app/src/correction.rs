@@ -47,7 +47,7 @@ impl Plugin for CorrectionServerPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             FixedUpdate,
-            (init_connection_server.in_set(MainSet::PreUpdate),),
+            (init_correction_server.in_set(MainSet::PreUpdate),),
         )
         .add_systems(Update, server_start_correcting.before(MainSet::PreUpdate))
         .init_resource::<StartCorrection>()
@@ -99,7 +99,7 @@ pub(crate) fn server_start_correcting(
     }
 }
 
-pub(crate) fn init_connection_server(mut first: Local<bool>, mut fixed: ResMut<Time<Fixed>>) {
+pub(crate) fn init_correction_server(mut first: Local<bool>, mut fixed: ResMut<Time<Fixed>>) {
     if !*first {
         *first = true;
     } else {
