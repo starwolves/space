@@ -521,7 +521,7 @@ pub(crate) fn adjust_clients(
         }
         let average_latency = accumulative as f32 / length as f32;
 
-        let max_latency = 3. * (tickrate.bevy_rate as f32 / 32.);
+        let max_latency = 3. * (tickrate.fixed_rate as f32 / 32.);
 
         if length >= 16 {
             if average_latency < 1. {

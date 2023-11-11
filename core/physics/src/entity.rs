@@ -220,7 +220,7 @@ pub(crate) fn client_interpolate_link_transform(
         *local_delta = 0.;
     }
 
-    let total_time = 1. / rate.physics_rate as f32;
+    let total_time = 1. / rate.fixed_rate as f32;
     let dt = time.delta_seconds();
     let relative_delta = *local_delta / total_time;
 

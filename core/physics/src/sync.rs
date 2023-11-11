@@ -51,7 +51,7 @@ pub(crate) fn sync_loop(
         fast_forwarding.i += 1;
         if fast_forwarding.i >= fast_forwarding.advance {
             fast_forwarding.forwarding = false;
-            fixed_time.set_timestep_seconds(1. / TickRate::default().bevy_rate as f64);
+            fixed_time.set_timestep_seconds(1. / TickRate::default().fixed_rate as f64);
             out.send(OutgoingReliableClientMessage {
                 message: NetworkingClientMessage::SyncConfirmation,
             });
@@ -113,7 +113,7 @@ pub(crate) fn sync_loop(
                     }
 
                     fixed_time.set_timestep_seconds(
-                        (1. / TickRate::default().bevy_rate as f64) / (delta.abs() + 1) as f64,
+                        (1. / TickRate::default().fixed_rate as f64) / (delta.abs() + 1) as f64,
                     );
                     fast_forwarding.forwarding = true;
                     fast_forwarding.i = 0;

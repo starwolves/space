@@ -25,7 +25,7 @@ pub(crate) fn server_new_client_configuration(
     for event in config_events.read() {
         server1.send(OutgoingReliableServerMessage {
             handle: event.handle,
-            message: PlayerServerMessage::ConfigTickRate(tick_rate.physics_rate),
+            message: PlayerServerMessage::ConfigTickRate(tick_rate.fixed_rate),
         });
         server1.send(OutgoingReliableServerMessage {
             handle: event.handle,

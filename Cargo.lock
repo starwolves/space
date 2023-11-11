@@ -239,6 +239,7 @@ dependencies = [
  "basic_console_commands",
  "bevy",
  "bevy_egui",
+ "bevy_xpbd_3d",
  "chat",
  "combat",
  "computers",
@@ -321,6 +322,7 @@ name = "asana"
 version = "0.0.3"
 dependencies = [
  "bevy",
+ "bevy_xpbd_3d",
  "chat",
  "networking",
  "player",

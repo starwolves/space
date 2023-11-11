@@ -39,6 +39,7 @@ use bevy::window::WindowPosition;
 use bevy::winit::WinitSettings;
 use bevy::DefaultPlugins;
 use bevy_egui::EguiPlugin;
+use bevy_xpbd_3d::prelude::Physics;
 use chat::plugin::ChatPlugin;
 use combat::plugin::CombatPlugin;
 use computers::plugin::ComputersPlugin;
@@ -205,9 +206,12 @@ pub(crate) fn start_app(mode: AppMode) {
         .add_plugins(ActionsPlugin)
         .add_plugins(NetworkingPlugin)
         .add_plugins(ControllerPlugin::default())
-        .insert_resource(Time::<Fixed>::from_seconds(
-            1. / TickRate::default().bevy_rate as f64,
+        .insert_resource(Time::<Fixed>::from_hz(
+            TickRate::default().fixed_rate as f64,
         ))
+        .insert_resource(Time::new_with(Physics::fixed_once_hz(
+            TickRate::default().fixed_rate as f64,
+        )))
         .init_resource::<TickRate>()
         .add_plugins(MetadataPlugin)
         .add_plugins(PlayerPlugin);

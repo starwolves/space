@@ -18,6 +18,8 @@ version = "0.12"
 default-features = false
 
 [dependencies]
+bevy_xpbd_3d = { version = "0.3.2" , features = ["enhanced-determinism"], git = "https://github.com/Jondolf/bevy_xpbd.git", branch="main"}
+
 chat = { path = "../../core/chat" }
 player = { path = "../../core/player" }
 resources = { path = "../../core/resources"}

@@ -5,15 +5,13 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Resource, Serialize, Deserialize, Debug, Clone)]
 pub struct TickRate {
-    pub physics_rate: u8,
+    pub fixed_rate: u8,
     pub physics_substep: u8,
-    pub bevy_rate: u8,
 }
 
 pub const DEFAULT_TICKRATE: TickRate = TickRate {
-    physics_rate: 64,
+    fixed_rate: 60,
     physics_substep: 2,
-    bevy_rate: 64,
 };
 
 impl Default for TickRate {

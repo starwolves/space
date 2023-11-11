@@ -84,6 +84,9 @@ pub(crate) fn server_start_correcting(
                         *input_cache = input;
                         correcting.0 = true;
                         gridmap.updates_cache = gridmap_cache;
+
+                        // Now decide how many ticks forward or back compared to current correction server tick.
+                        // Sync all data with the right tick and start simulation and stop until sim is done.
                     }
                 },
                 Err(_) => {
