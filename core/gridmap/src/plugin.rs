@@ -29,9 +29,9 @@ use crate::{
     fov::ProjectileFOV,
     graphics::{set_cell_graphics, CellGraphicsBuffer},
     grid::{
-        add_cell_client, add_tile, add_tile_collision, add_tile_net, remove_cell_client,
-        remove_tile, remove_tile_net, removed_tile, spawn_group, AddGroup, AddTile, EditTileSet,
-        Gridmap, RemoveTile,
+        add_cell_client, add_tile, add_tile_collision, add_tile_net, cache_updates,
+        remove_cell_client, remove_tile, remove_tile_net, removed_tile, spawn_group, AddGroup,
+        AddTile, EditTileSet, Gridmap, RemoveTile,
     },
     init::{
         init_tile_groups, init_tile_properties, load_ron_gridmap, startup_misc_resources,
@@ -139,6 +139,9 @@ impl Plugin for GridmapPlugin {
                 .add_systems(
                     FixedUpdate,
                     (
+                        add_cell_client.before(EditTileSet::Add),
+                        remove_cell_client.in_set(EditTileSet::Remove),
+                        removed_tile.after(EditTileSet::Remove),
                         set_cell_graphics.after(EditTileSet::Add),
                         create_select_cell_cam_state,
                         set_yplane_position
@@ -176,15 +179,7 @@ impl Plugin for GridmapPlugin {
                 )
                 .add_event::<SetYPlanePosition>()
                 .add_event::<ConstructionCellSelectionChanged>()
-                .add_systems(
-                    FixedUpdate,
-                    (
-                        add_cell_client.before(EditTileSet::Add),
-                        remove_cell_client.in_set(EditTileSet::Remove),
-                        removed_tile.after(EditTileSet::Remove),
-                    )
-                        .in_set(MainSet::Update),
-                )
+                .add_systems(FixedUpdate, cache_updates.in_set(MainSet::PostUpdate))
                 .add_systems(
                     Startup,
                     (

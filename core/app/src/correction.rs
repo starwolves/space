@@ -13,6 +13,7 @@ use bevy::{
     time::{Fixed, Time},
 };
 use controller::input::RecordedControllerInput;
+use gridmap::grid::{Gridmap, GridmapCache};
 use physics::{
     cache::PhysicsCache,
     correction_mode::{CorrectionResults, StartCorrection},
@@ -63,6 +64,7 @@ pub(crate) fn server_start_correcting(
     mut correction: ResMut<StartCorrection>,
     mut correcting: ResMut<IsCorrecting>,
     mut input_cache: ResMut<RecordedControllerInput>,
+    mut gridmap: ResMut<Gridmap>,
 ) {
     match &queued_message_reciever.receiver_option {
         Some(receiver) => loop {
@@ -74,12 +76,14 @@ pub(crate) fn server_start_correcting(
                         start_correction_data,
                         new_cache,
                         input,
+                        gridmap_cache,
                     ) => {
                         *cache = new_cache;
                         fixed.set_timestep_seconds(0.);
                         *correction = start_correction_data;
                         *input_cache = input;
                         correcting.0 = true;
+                        gridmap.updates_cache = gridmap_cache;
                     }
                 },
                 Err(_) => {
@@ -118,7 +122,12 @@ pub struct CorrectionServerMessageReceiver {
     pub receiver: Receiver<CorrectionServerMessage>,
 }
 pub enum ClientCorrectionMessage {
-    StartCorrecting(StartCorrection, PhysicsCache, RecordedControllerInput),
+    StartCorrecting(
+        StartCorrection,
+        PhysicsCache,
+        RecordedControllerInput,
+        GridmapCache,
+    ),
 }
 pub enum CorrectionServerMessage {
     Results(CorrectionResults),
@@ -148,6 +157,7 @@ pub(crate) fn start_correction(
     physics_cache: Res<PhysicsCache>,
     //mut iterative_i: ResMut<CorrectionResource>,
     correction_server: Res<CorrectionServerData>,
+    grid: Res<Gridmap>,
 ) {
     for event in events.read() {
         match correction_server
@@ -156,6 +166,7 @@ pub(crate) fn start_correction(
                 event.clone(),
                 physics_cache.clone(),
                 input_cache.clone(),
+                grid.updates_cache.clone(),
             )) {
             Ok(_) => {}
             Err(rr) => {

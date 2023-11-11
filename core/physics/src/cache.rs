@@ -103,7 +103,7 @@ pub(crate) fn cache_data(
     // Clean cache.
     let mut to_remove = vec![];
     for recorded_stamp in cache.cache.keys() {
-        if stamp.large >= 1000 && recorded_stamp < &(stamp.large - 1000) {
+        if stamp.large >= 256 && recorded_stamp < &(stamp.large - 256) {
             to_remove.push(*recorded_stamp);
         }
     }
