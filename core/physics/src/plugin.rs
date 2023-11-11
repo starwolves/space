@@ -5,7 +5,7 @@ use resources::{core::TickRate, modes::is_server_mode, sets::MainSet};
 
 use crate::{
     cache::{cache_data, PhysicsCache},
-    correction_mode::{CorrectionResource, CorrectionResults, StartCorrection},
+    correction_mode::{CorrectionResults, StartCorrection},
     entity::{
         client_interpolate_link_transform, client_mirror_link_target_transform, remove_links,
         server_mirror_link_transform, ResetLerp, RigidBodies,
@@ -51,7 +51,6 @@ impl Plugin for PhysicsPlugin {
             )
             .init_resource::<FastForwarding>()
             .add_event::<StartCorrection>()
-            .init_resource::<CorrectionResource>()
             .add_event::<CorrectionResults>();
         }
         app.add_plugins(PhysicsPlugins::new(FixedUpdate))

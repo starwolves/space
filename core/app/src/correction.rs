@@ -35,7 +35,8 @@ impl Plugin for CorrectionPlugin {
                 ),
             )
             .add_systems(Startup, start_correction_server)
-            .init_non_send_resource::<CorrectionServerReceiveMessage>();
+            .init_non_send_resource::<CorrectionServerReceiveMessage>()
+            .init_resource::<CorrectionEnabled>();
         }
     }
 }
@@ -153,6 +154,8 @@ pub(crate) fn start_correction_server(world: &mut World) {
     });
     world.insert_non_send_resource(CorrectionServerMessageReceiver { receiver: rx2 });
 }
+#[derive(Default, Resource)]
+pub struct CorrectionEnabled(pub bool);
 
 pub(crate) fn start_correction(
     mut events: EventReader<StartCorrection>,
@@ -161,20 +164,38 @@ pub(crate) fn start_correction(
     //mut iterative_i: ResMut<CorrectionResource>,
     correction_server: Res<CorrectionServerData>,
     grid: Res<Gridmap>,
+    mut enabled: ResMut<CorrectionEnabled>,
 ) {
+    let mut lowest_start = 0;
+    let mut one_event = false;
     for event in events.read() {
-        match correction_server
-            .message_sender
-            .send(ClientCorrectionMessage::StartCorrecting(
-                event.clone(),
-                physics_cache.clone(),
-                input_cache.clone(),
-                grid.updates_cache.clone(),
-            )) {
-            Ok(_) => {}
-            Err(rr) => {
-                warn!("Couldnt start correction: {}", rr);
+        if !one_event {
+            lowest_start = event.start_tick;
+        } else {
+            if event.start_tick < lowest_start {
+                lowest_start = event.start_tick
             }
+        }
+        one_event = true;
+    }
+    if !one_event {
+        return;
+    }
+    match correction_server
+        .message_sender
+        .send(ClientCorrectionMessage::StartCorrecting(
+            StartCorrection {
+                start_tick: lowest_start,
+            },
+            physics_cache.clone(),
+            input_cache.clone(),
+            grid.updates_cache.clone(),
+        )) {
+        Ok(_) => {
+            enabled.0 = true;
+        }
+        Err(rr) => {
+            warn!("Couldnt start correction: {}", rr);
         }
     }
 }
@@ -182,17 +203,18 @@ pub(crate) fn start_correction(
 pub(crate) fn receive_correction_server_messages(
     receiver: NonSend<CorrectionServerMessageReceiver>,
     mut send: EventWriter<CorrectionResults>,
+    mut waiting: ResMut<CorrectionEnabled>,
 ) {
-    loop {
-        let queued_message_result = receiver.receiver.try_recv();
-        match queued_message_result {
+    if waiting.0 {
+        match receiver.receiver.recv() {
             Ok(correction_server_message) => match correction_server_message {
                 CorrectionServerMessage::Results(results) => {
                     send.send(results);
+                    waiting.0 = false;
                 }
             },
-            Err(_) => {
-                break;
+            Err(rr) => {
+                warn!("recv() error: {:?}", rr);
             }
         }
     }
