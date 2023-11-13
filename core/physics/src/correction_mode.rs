@@ -1,6 +1,6 @@
 use bevy::prelude::{Event, Resource, SystemSet};
 
-use crate::cache::Cache;
+use crate::cache::PhysicsCache;
 
 #[derive(Event, Clone, Resource, Default)]
 pub struct StartCorrection {
@@ -9,7 +9,7 @@ pub struct StartCorrection {
 }
 #[derive(Event, Clone)]
 pub struct CorrectionResults {
-    pub data: Vec<Cache>,
+    pub data: PhysicsCache,
 }
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]

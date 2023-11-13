@@ -251,34 +251,44 @@ pub(crate) fn apply_correction_results(
         ),
         With<SFRigidBody>,
     >,
+    stamp: Res<TickRateStamp>,
+    mut cache: ResMut<PhysicsCache>,
 ) {
     for event in events.read() {
-        for cache in event.data.iter() {
-            match query.get_mut(cache.rb_entity) {
-                Ok((
-                    mut transform,
-                    mut linear_velocity,
-                    mut linear_damping,
-                    mut angular_damping,
-                    mut angular_velocity,
-                    mut external_torque,
-                    mut external_angular_impulse,
-                    mut external_impulse,
-                    mut external_force,
-                )) => {
-                    *transform = cache.transform;
-                    *linear_velocity = cache.linear_velocity;
-                    *linear_damping = cache.linear_damping;
-                    *angular_damping = cache.angular_damping;
-                    *angular_velocity = cache.angular_velocity;
-                    *external_torque = cache.external_torque;
-                    *external_angular_impulse = cache.external_angular_impulse;
-                    *external_impulse = cache.external_impulse;
-                    *external_force = cache.external_force;
+        *cache = event.data.clone();
+        match event.data.cache.get(&stamp.large) {
+            Some(cache_vec) => {
+                for cache in cache_vec {
+                    match query.get_mut(cache.rb_entity) {
+                        Ok((
+                            mut transform,
+                            mut linear_velocity,
+                            mut linear_damping,
+                            mut angular_damping,
+                            mut angular_velocity,
+                            mut external_torque,
+                            mut external_angular_impulse,
+                            mut external_impulse,
+                            mut external_force,
+                        )) => {
+                            *transform = cache.transform;
+                            *linear_velocity = cache.linear_velocity;
+                            *linear_damping = cache.linear_damping;
+                            *angular_damping = cache.angular_damping;
+                            *angular_velocity = cache.angular_velocity;
+                            *external_torque = cache.external_torque;
+                            *external_angular_impulse = cache.external_angular_impulse;
+                            *external_impulse = cache.external_impulse;
+                            *external_force = cache.external_force;
+                        }
+                        Err(_rr) => {
+                            warn!("Couldnt find entity: {:?}", cache.rb_entity);
+                        }
+                    }
                 }
-                Err(_rr) => {
-                    warn!("Couldnt find entity: {:?}", cache.rb_entity);
-                }
+            }
+            None => {
+                warn!("Couldnt find the right tickrate: {}", stamp.large);
             }
         }
     }
