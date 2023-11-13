@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use bevy::ecs::schedule::SystemSet;
 use bevy::log::warn;
 use bevy::prelude::{Entity, Query, Res, ResMut, Resource, Transform, With};
 use bevy_xpbd_3d::prelude::{
@@ -27,6 +28,12 @@ pub struct Cache {
     pub external_angular_impulse: ExternalAngularImpulse,
     pub rigidbody: RigidBody,
     pub transform: Transform,
+}
+
+/// Label for systems ordering.
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
+pub enum CacheData {
+    Cache,
 }
 
 pub(crate) fn cache_data(

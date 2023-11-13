@@ -3,8 +3,12 @@ use std::{
     thread::JoinHandle,
 };
 
-use bevy::log::info;
 use bevy::log::warn;
+use bevy::{
+    ecs::{query::With, system::Query},
+    log::info,
+    transform::components::Transform,
+};
 use bevy::{
     prelude::{
         App, EventReader, EventWriter, FixedUpdate, IntoSystemConfigs, Local, NonSend, Plugin, Res,
@@ -12,11 +16,17 @@ use bevy::{
     },
     time::{Fixed, Time},
 };
+use bevy_xpbd_3d::components::{
+    AngularDamping, AngularVelocity, ExternalAngularImpulse, ExternalForce, ExternalImpulse,
+    ExternalTorque, LinearDamping, LinearVelocity,
+};
 use controller::input::RecordedControllerInput;
 use gridmap::grid::{Gridmap, GridmapCache};
+use networking::stamp::TickRateStamp;
 use physics::{
-    cache::PhysicsCache,
+    cache::{CacheData, PhysicsCache},
     correction_mode::{CorrectionResults, StartCorrection},
+    entity::SFRigidBody,
 };
 use resources::{modes::is_server, sets::MainSet};
 
@@ -31,7 +41,10 @@ impl Plugin for CorrectionPlugin {
                 FixedUpdate,
                 (
                     start_correction.in_set(MainSet::Update),
-                    receive_correction_server_messages.in_set(MainSet::PreUpdate),
+                    receive_correction_server_messages.after(MainSet::PostUpdate),
+                    apply_correction_results
+                        .after(receive_correction_server_messages)
+                        .before(CacheData::Cache),
                 ),
             )
             .add_systems(Startup, start_correction_server)
@@ -165,6 +178,7 @@ pub(crate) fn start_correction(
     correction_server: Res<CorrectionServerData>,
     grid: Res<Gridmap>,
     mut enabled: ResMut<CorrectionEnabled>,
+    stamp: Res<TickRateStamp>,
 ) {
     let mut lowest_start = 0;
     let mut one_event = false;
@@ -186,6 +200,7 @@ pub(crate) fn start_correction(
         .send(ClientCorrectionMessage::StartCorrecting(
             StartCorrection {
                 start_tick: lowest_start,
+                last_tick: stamp.large,
             },
             physics_cache.clone(),
             input_cache.clone(),
@@ -215,6 +230,55 @@ pub(crate) fn receive_correction_server_messages(
             },
             Err(rr) => {
                 warn!("recv() error: {:?}", rr);
+            }
+        }
+    }
+}
+
+pub(crate) fn apply_correction_results(
+    mut events: EventReader<CorrectionResults>,
+    mut query: Query<
+        (
+            &mut Transform,
+            &mut LinearVelocity,
+            &mut LinearDamping,
+            &mut AngularDamping,
+            &mut AngularVelocity,
+            &mut ExternalTorque,
+            &mut ExternalAngularImpulse,
+            &mut ExternalImpulse,
+            &mut ExternalForce,
+        ),
+        With<SFRigidBody>,
+    >,
+) {
+    for event in events.read() {
+        for cache in event.data.iter() {
+            match query.get_mut(cache.rb_entity) {
+                Ok((
+                    mut transform,
+                    mut linear_velocity,
+                    mut linear_damping,
+                    mut angular_damping,
+                    mut angular_velocity,
+                    mut external_torque,
+                    mut external_angular_impulse,
+                    mut external_impulse,
+                    mut external_force,
+                )) => {
+                    *transform = cache.transform;
+                    *linear_velocity = cache.linear_velocity;
+                    *linear_damping = cache.linear_damping;
+                    *angular_damping = cache.angular_damping;
+                    *angular_velocity = cache.angular_velocity;
+                    *external_torque = cache.external_torque;
+                    *external_angular_impulse = cache.external_angular_impulse;
+                    *external_impulse = cache.external_impulse;
+                    *external_force = cache.external_force;
+                }
+                Err(_rr) => {
+                    warn!("Couldnt find entity: {:?}", cache.rb_entity);
+                }
             }
         }
     }

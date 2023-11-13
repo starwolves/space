@@ -4,7 +4,7 @@ use networking::{messaging::MessagingSet, stamp::step_tickrate_stamp};
 use resources::{core::TickRate, modes::is_server_mode, sets::MainSet};
 
 use crate::{
-    cache::{cache_data, PhysicsCache},
+    cache::{cache_data, CacheData, PhysicsCache},
     correction_mode::{CorrectionResults, StartCorrection},
     entity::{
         client_interpolate_link_transform, client_mirror_link_target_transform, remove_links,
@@ -31,7 +31,9 @@ impl Plugin for PhysicsPlugin {
                 FixedUpdate,
                 (
                     client_mirror_link_target_transform.in_set(MainSet::PreUpdate),
-                    cache_data.in_set(MainSet::PostUpdate),
+                    cache_data
+                        .after(MainSet::PostUpdate)
+                        .in_set(CacheData::Cache),
                 ),
             )
             .add_systems(
