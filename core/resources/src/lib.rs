@@ -9,6 +9,7 @@ pub mod sets;
 pub mod content;
 /// Convert data, mainly used for old  Godot prototype.
 pub mod converters;
+pub mod correction;
 pub mod grid;
 pub mod hud;
 pub mod input;

@@ -15,6 +15,7 @@ use cameras::{
     controllers::fps::{ActiveCamera, FpsCameraController},
     LookTransform, LookTransformBundle, Smoother,
 };
+use entity::net::PhysicsData;
 use entity::{
     entity_data::{WorldMode, WorldModes},
     entity_macros::Identity,
@@ -130,9 +131,13 @@ pub fn build_base_human_males<T: BaseEntityBuilder<HumanMaleBuildData> + 'static
                     message: EntityServerMessage::LoadEntity(LoadEntity {
                         type_id: *types.netcode_types.get(&entity_type).unwrap(),
                         entity: spawn_event.spawn_data.entity,
-                        translation: spawn_event.spawn_data.entity_transform.translation,
-                        scale: spawn_event.spawn_data.entity_transform.scale,
-                        rotation: spawn_event.spawn_data.entity_transform.rotation,
+                        physics_data: PhysicsData {
+                            translation: spawn_event.spawn_data.entity_transform.translation,
+                            scale: spawn_event.spawn_data.entity_transform.scale,
+                            rotation: spawn_event.spawn_data.entity_transform.rotation,
+                            velocity: Vec3::ZERO,
+                            angular_velocity: Vec3::ZERO,
+                        },
                         holder_entity: spawn_event.spawn_data.holder_entity_option,
                     }),
                 });

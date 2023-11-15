@@ -4,6 +4,7 @@ use bevy::prelude::{
 use bevy_xpbd_3d::PhysicsSet;
 
 use crate::{
+    correction::StartCorrection,
     input::{buffer_input, clear_buffer, InputBuffer, KeyBinds},
     modes::is_server_mode,
     sets::MainSet,
@@ -19,7 +20,8 @@ impl Plugin for ResourcesPlugin {
                 .init_resource::<InputBuffer>()
                 .add_systems(PreUpdate, buffer_input)
                 .add_systems(FixedUpdate, clear_buffer.in_set(MainSet::PostUpdate))
-                .init_resource::<MainMenuState>();
+                .init_resource::<MainMenuState>()
+                .add_event::<StartCorrection>();
         }
 
         app.configure_sets(

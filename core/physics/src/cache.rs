@@ -32,7 +32,8 @@ pub struct Cache {
 
 /// Label for systems ordering.
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
-pub enum CacheData {
+pub enum PhysicsSet {
+    Correct,
     Cache,
 }
 

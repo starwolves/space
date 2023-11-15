@@ -24,11 +24,15 @@ use controller::input::RecordedControllerInput;
 use gridmap::grid::{Gridmap, GridmapCache};
 use networking::stamp::TickRateStamp;
 use physics::{
-    cache::{CacheData, PhysicsCache},
-    correction_mode::{CorrectionResults, StartCorrection},
+    cache::{PhysicsCache, PhysicsSet},
+    correction_mode::CorrectionResults,
     entity::SFRigidBody,
 };
-use resources::{modes::is_server, sets::MainSet};
+use resources::{
+    correction::{CorrectionSet, StartCorrection},
+    modes::is_server,
+    sets::MainSet,
+};
 
 use crate::{start_app, AppMode};
 
@@ -40,11 +44,14 @@ impl Plugin for CorrectionPlugin {
             app.add_systems(
                 FixedUpdate,
                 (
-                    start_correction.in_set(MainSet::Update),
+                    start_correction
+                        .in_set(MainSet::Update)
+                        .after(CorrectionSet::Start),
                     receive_correction_server_messages.after(MainSet::PostUpdate),
                     apply_correction_results
                         .after(receive_correction_server_messages)
-                        .before(CacheData::Cache),
+                        .before(PhysicsSet::Cache)
+                        .in_set(PhysicsSet::Correct),
                 ),
             )
             .add_systems(Startup, start_correction_server)

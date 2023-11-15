@@ -1,9 +1,12 @@
+use bevy::ecs::query::With;
 use bevy::prelude::{Commands, Entity, EventReader};
 use bevy::prelude::{EventWriter, Query, Res};
+use bevy_xpbd_3d::components::{AngularVelocity, LinearVelocity};
 use bevy_xpbd_3d::prelude::RigidBody;
-use entity::net::{EntityServerMessage, LoadEntity};
+use entity::net::{EntityServerMessage, LoadEntity, PhysicsData};
 use entity::spawn::{EntityBuildData, SpawnEntity};
 use entity::spawning_events::SpawnClientEntity;
+use physics::entity::{RigidBodies, SFRigidBody};
 use physics::mirror_physics_transform::MirrorPhysicsTransform;
 
 use crate::server::combat::{MeleeCombat, ProjectileCombat};
@@ -83,13 +86,11 @@ pub fn build_inventory_items<T: InventoryItemBuilder + 'static>(
 use bevy::log::warn;
 use bevy::prelude::Transform;
 use entity::entity_data::personalise;
-use entity::entity_data::WorldModes;
 
 use entity::entity_types::EntityTypes;
-use std::collections::HashMap;
 
-use entity::entity_data::{EntityData, EntityUpdates, WorldMode};
-use networking::server::{EntityUpdateData, OutgoingReliableServerMessage};
+use entity::entity_data::{EntityData, EntityUpdates};
+use networking::server::OutgoingReliableServerMessage;
 /// Load an entity in for the client. Does not only apply to inventory items or holders.
 /// Belongs in crate/entity but cyclic issues.
 pub(crate) fn spawn_entity_for_client(
@@ -98,12 +99,13 @@ pub(crate) fn spawn_entity_for_client(
         &EntityUpdates,
         &Transform,
         Option<&RigidBody>,
-        Option<&WorldMode>,
         Option<&InventoryItem>,
     )>,
     mut load_entity_events: EventReader<SpawnClientEntity>,
     mut server: EventWriter<OutgoingReliableServerMessage<EntityServerMessage>>,
     types: Res<EntityTypes>,
+    rigidbodies: Res<RigidBodies>,
+    rigid_query: Query<(&LinearVelocity, &AngularVelocity), With<SFRigidBody>>,
 ) {
     for load_entity_event in load_entity_events.read() {
         match entity_query.get(load_entity_event.entity) {
@@ -112,30 +114,25 @@ pub(crate) fn spawn_entity_for_client(
                 entity_update,
                 transform,
                 rigid_body_component_option,
-                entity_world_mode_option,
                 inventory_item_option,
             )) => {
-                let mut is_interpolated = false;
+                let mut linear_velocity = LinearVelocity::default();
+                let mut angular_velocity = AngularVelocity::default();
 
                 match rigid_body_component_option {
-                    Some(rigid_body_component) => match rigid_body_component {
-                        RigidBody::Dynamic => match entity_world_mode_option {
-                            Some(entity_world_mode) => {
-                                if matches!(entity_world_mode.mode, WorldModes::Held)
-                                    || matches!(entity_world_mode.mode, WorldModes::Worn)
-                                {
-                                    is_interpolated = false;
-                                } else {
-                                    is_interpolated = true;
-                                }
+                    Some(_) => match rigidbodies.get_entity_rigidbody(&load_entity_event.entity) {
+                        Some(rb_entity) => match rigid_query.get(*rb_entity) {
+                            Ok((linear_velocity2, angular_velocity2)) => {
+                                linear_velocity = *linear_velocity2;
+                                angular_velocity = *angular_velocity2;
                             }
-                            None => {
-                                is_interpolated = false;
+                            Err(_) => {
+                                warn!("Couldnt find rb_entity");
+                                continue;
                             }
                         },
-                        RigidBody::Static => {}
-                        _ => {
-                            warn!("Unexpected rigidbody type.");
+                        None => {
+                            warn!("Couldnt find get_entity_rigidbody().");
                             continue;
                         }
                     },
@@ -152,37 +149,6 @@ pub(crate) fn spawn_entity_for_client(
                     entity_update,
                 );
 
-                let transform_entity_update = EntityUpdateData::Transform(
-                    transform.translation,
-                    transform.rotation,
-                    transform.scale,
-                );
-
-                match is_interpolated {
-                    true => {
-                        let mut transform_hash_map = HashMap::new();
-                        transform_hash_map.insert("transform".to_string(), transform_entity_update);
-
-                        hash_map.insert("rawTransform".to_string(), transform_hash_map);
-                    }
-                    false => {
-                        let root_map_option = hash_map.get_mut(&".".to_string());
-
-                        match root_map_option {
-                            Some(root_map) => {
-                                root_map.insert("transform".to_string(), transform_entity_update);
-                            }
-                            None => {
-                                let mut transform_hash_map = HashMap::new();
-                                transform_hash_map
-                                    .insert("transform".to_string(), transform_entity_update);
-
-                                hash_map.insert(".".to_string(), transform_hash_map);
-                            }
-                        }
-                    }
-                }
-
                 let mut holder_option = None;
 
                 match inventory_item_option {
@@ -198,9 +164,13 @@ pub(crate) fn spawn_entity_for_client(
                             .get(&entity_data.entity_type.get_identity())
                             .unwrap(),
                         entity: load_entity_event.entity,
-                        translation: transform.translation,
-                        scale: transform.scale,
-                        rotation: transform.rotation,
+                        physics_data: PhysicsData {
+                            translation: transform.translation,
+                            scale: transform.scale,
+                            rotation: transform.rotation,
+                            velocity: *linear_velocity,
+                            angular_velocity: *angular_velocity,
+                        },
                         holder_entity: holder_option,
                     }),
                 });

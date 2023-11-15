@@ -10,6 +10,7 @@ use networking::stamp::step_tickrate_stamp;
 use physics::spawn::build_rigid_bodies;
 use player::boarding::player_boarded;
 use resources::{
+    correction::CorrectionSet,
     modes::is_server_mode,
     sets::{BuildingSet, CombatSet, MainSet},
 };
@@ -53,7 +54,8 @@ impl Plugin for HumanMalePlugin {
                     link_base_mesh::<HumanMaleType>.after(SpawnItemSet::SpawnHeldItem),
                     load_entity::<HumanMaleType>
                         .before(SpawnItemSet::SpawnHeldItem)
-                        .in_set(BuildingSet::TriggerBuild),
+                        .in_set(BuildingSet::TriggerBuild)
+                        .in_set(CorrectionSet::Start),
                     attach_human_male_camera,
                 )
                     .in_set(MainSet::Update),

@@ -19,6 +19,7 @@ use inventory::client::items::{
 };
 use inventory::spawn_item::build_inventory_items;
 use physics::spawn::build_rigid_bodies;
+use resources::correction::CorrectionSet;
 use resources::modes::is_server_mode;
 use resources::sets::{ActionsSet, BuildingSet, CombatSet, MainSet, UpdateSet};
 use ui::text_input::TextTree;
@@ -92,7 +93,8 @@ impl Plugin for ConstructionToolAdminPlugin {
                         .after(ClientBuildInventoryLabel::Net),
                     load_entity::<ConstructionToolType>
                         .before(SpawnItemSet::SpawnHeldItem)
-                        .in_set(BuildingSet::TriggerBuild),
+                        .in_set(BuildingSet::TriggerBuild)
+                        .in_set(CorrectionSet::Start),
                     link_base_mesh::<ConstructionToolType>.after(SpawnItemSet::SpawnHeldItem),
                     construction_tool_enable_select_cell_in_front_camera
                         .run_if(resource_exists::<GridmapConstructionState>())

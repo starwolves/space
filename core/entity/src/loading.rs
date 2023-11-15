@@ -8,6 +8,8 @@ use bevy::prelude::Transform;
 use networking::client::IncomingReliableServerMessage;
 
 use bevy::prelude::Res;
+use networking::stamp::TickRateStamp;
+use resources::correction::StartCorrection;
 
 use crate::entity_types::EntityType;
 use crate::entity_types::EntityTypes;
@@ -23,6 +25,8 @@ pub fn load_entity<T: Send + Sync + 'static + Default + EntityType>(
     mut spawn_events: EventWriter<SpawnEntity<T>>,
     mut commands: Commands,
     mut map: ResMut<ClientEntityServerEntity>,
+    mut correction: EventWriter<StartCorrection>,
+    stamp: Res<TickRateStamp>,
 ) {
     for message in client.read() {
         match &message.message {
@@ -43,9 +47,9 @@ pub fn load_entity<T: Send + Sync + 'static + Default + EntityType>(
                 }
 
                 let transform = Transform {
-                    translation: load_entity.translation,
-                    scale: load_entity.scale,
-                    rotation: load_entity.rotation,
+                    translation: load_entity.physics_data.translation,
+                    scale: load_entity.physics_data.scale,
+                    rotation: load_entity.physics_data.rotation,
                 };
 
                 let entity_default = T::default();
@@ -69,6 +73,10 @@ pub fn load_entity<T: Send + Sync + 'static + Default + EntityType>(
                             ..Default::default()
                         },
                         entity_type: entity_default,
+                    });
+                    correction.send(StartCorrection {
+                        start_tick: stamp.calculate_large(message.stamp),
+                        last_tick: stamp.large,
                     });
                 }
             }

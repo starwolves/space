@@ -4,8 +4,8 @@ use networking::{messaging::MessagingSet, stamp::step_tickrate_stamp};
 use resources::{core::TickRate, modes::is_server_mode, sets::MainSet};
 
 use crate::{
-    cache::{cache_data, CacheData, PhysicsCache},
-    correction_mode::{CorrectionResults, StartCorrection},
+    cache::{cache_data, PhysicsCache, PhysicsSet},
+    correction_mode::CorrectionResults,
     entity::{
         client_interpolate_link_transform, client_mirror_link_target_transform, remove_links,
         server_mirror_link_transform, ResetLerp, RigidBodies,
@@ -30,17 +30,19 @@ impl Plugin for PhysicsPlugin {
             app.add_systems(
                 FixedUpdate,
                 (
-                    client_mirror_link_target_transform.in_set(MainSet::PreUpdate),
+                    client_mirror_link_target_transform
+                        .after(MainSet::PostUpdate)
+                        .after(PhysicsSet::Correct),
                     cache_data
                         .after(MainSet::PostUpdate)
-                        .in_set(CacheData::Cache),
+                        .in_set(PhysicsSet::Cache),
                 ),
             )
             .add_systems(
                 Update,
                 client_interpolate_link_transform
                     .after(client_mirror_link_target_transform)
-                    .in_set(MainSet::PreUpdate),
+                    .after(MainSet::PostUpdate),
             )
             .add_event::<ResetLerp>()
             .init_resource::<SyncPause>()
@@ -52,7 +54,6 @@ impl Plugin for PhysicsPlugin {
                     .in_set(MainSet::PreUpdate),
             )
             .init_resource::<FastForwarding>()
-            .add_event::<StartCorrection>()
             .add_event::<CorrectionResults>();
         }
         app.add_plugins(PhysicsPlugins::new(FixedUpdate))

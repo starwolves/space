@@ -3,11 +3,12 @@ use std::collections::HashMap;
 use crate::{
     entity_data::BlankEntityType,
     entity_types::{BoxedEntityType, EntityType},
-    net::LoadEntity,
+    net::{LoadEntity, PhysicsData},
     showcase::{Showcase, ShowcaseData},
 };
-use bevy::prelude::{
-    Commands, Entity, Event, EventReader, EventWriter, Resource, SystemSet, Transform,
+use bevy::{
+    math::Vec3,
+    prelude::{Commands, Entity, Event, EventReader, EventWriter, Resource, SystemSet, Transform},
 };
 use serde::Deserialize;
 
@@ -168,9 +169,14 @@ pub fn build_base_entities<T: BaseEntityBuilder<NoData> + 'static>(
                     message: EntityServerMessage::LoadEntity(LoadEntity {
                         type_id: *types.netcode_types.get(&entity_type).unwrap(),
                         entity: spawn_event.spawn_data.entity,
-                        translation: spawn_event.spawn_data.entity_transform.translation,
-                        scale: spawn_event.spawn_data.entity_transform.scale,
-                        rotation: spawn_event.spawn_data.entity_transform.rotation,
+
+                        physics_data: PhysicsData {
+                            translation: spawn_event.spawn_data.entity_transform.translation,
+                            scale: spawn_event.spawn_data.entity_transform.scale,
+                            rotation: spawn_event.spawn_data.entity_transform.rotation,
+                            velocity: Vec3::ZERO,
+                            angular_velocity: Vec3::ZERO,
+                        },
                         holder_entity: spawn_event.spawn_data.holder_entity_option,
                     }),
                 });

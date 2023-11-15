@@ -35,8 +35,14 @@ pub enum EntityServerMessage {
 pub struct LoadEntity {
     pub type_id: u16,
     pub entity: Entity,
-    pub translation: Vec3,
+    pub holder_entity: Option<Entity>,
+    pub physics_data: PhysicsData,
+}
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct PhysicsData {
     pub scale: Vec3,
     pub rotation: Quat,
-    pub holder_entity: Option<Entity>,
+    pub velocity: Vec3,
+    pub translation: Vec3,
+    pub angular_velocity: Vec3,
 }
