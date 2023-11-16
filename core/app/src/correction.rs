@@ -168,7 +168,6 @@ pub(crate) fn server_start_correcting(
 
                         rebuild.rebuild = true;
                         rebuild.second_tick = false;
-                        rebuild.sync_to_tick = start_correction_data.start_tick;
                         *stamp = TickRateStamp::new(start_correction_data.start_tick);
                     }
                 },

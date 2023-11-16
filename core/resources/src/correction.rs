@@ -17,7 +17,6 @@ pub enum CorrectionSet {
 pub struct SyncWorld {
     pub rebuild: bool,
     pub second_tick: bool,
-    pub sync_to_tick: u64,
 }
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]

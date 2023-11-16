@@ -25,7 +25,7 @@ use networking::{
     stamp::{PauseTickStep, TickRateStamp},
 };
 use resources::core::TickRate;
-use resources::correction::SyncWorld;
+use resources::correction::{StartCorrection, SyncWorld};
 use resources::modes::Mode;
 
 use crate::cache::PhysicsCache;
@@ -173,9 +173,10 @@ pub(crate) fn sync_physics_data(
     sync: Res<SyncWorld>,
     link: ResMut<CorrectionServerRigidBodyLink>,
     cache: Res<PhysicsCache>,
+    correction: Res<StartCorrection>,
 ) {
     if sync.second_tick {
-        match cache.cache.get(&sync.sync_to_tick) {
+        match cache.cache.get(&correction.start_tick) {
             Some(sync_tick_cache) => {
                 for cache in sync_tick_cache.iter() {
                     for (k, v) in &link.map {
@@ -237,9 +238,10 @@ pub(crate) fn sync_entities(
     mut rigid_bodies: ResMut<RigidBodies>,
     app_mode: Res<Mode>,
     mut link: ResMut<CorrectionServerRigidBodyLink>,
+    correction: Res<StartCorrection>,
 ) {
     if sync.rebuild {
-        match cache.cache.get(&sync.sync_to_tick) {
+        match cache.cache.get(&correction.start_tick) {
             Some(sync_tick_cache) => {
                 // Despawn remainder entities.
                 for q in query.iter() {
@@ -306,7 +308,11 @@ pub(crate) fn sync_entities(
                 }
             }
             None => {
-                warn!("Cache didnt contain sync tick data.");
+                warn!(
+                    "Cache didnt contain sync tick data. {}, length {}",
+                    correction.start_tick,
+                    cache.cache.len()
+                );
             }
         }
 
