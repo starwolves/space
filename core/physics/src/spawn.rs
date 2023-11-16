@@ -41,17 +41,15 @@ pub struct RigidBodyBuildData {
     pub rigidbody_dynamic: bool,
     pub rigid_transform: Transform,
     pub external_force: ExternalForce,
-    pub velocity: LinearVelocity,
+    pub linear_velocity: LinearVelocity,
     pub sleeping: Sleeping,
     pub entity_is_stored_item: bool,
     pub collider: Collider,
     pub collider_friction: Friction,
-    pub collider_collision_groups: CollisionLayers,
+    pub collider_collision_layers: CollisionLayers,
     pub collision_events: bool,
     pub mesh_offset: Transform,
     pub locked_axes: LockedAxes,
-    // Temporarily not used.
-    pub collider_transform: Transform,
 }
 
 impl Default for RigidBodyBuildData {
@@ -61,13 +59,12 @@ impl Default for RigidBodyBuildData {
             rigidbody_dynamic: false,
             rigid_transform: Transform::default(),
             external_force: ExternalForce::default(),
-            velocity: LinearVelocity::default(),
+            linear_velocity: LinearVelocity::default(),
             sleeping: Sleeping::default(),
             entity_is_stored_item: false,
             collider: Collider::cuboid(0.2, 0.2, 0.2),
-            collider_transform: Transform::default(),
             collider_friction: Friction::default(),
-            collider_collision_groups: CollisionLayers::from_bits(masks.0, masks.1),
+            collider_collision_layers: CollisionLayers::from_bits(masks.0, masks.1),
             collision_events: false,
             locked_axes: LockedAxes::new(),
             mesh_offset: Transform::default(),
@@ -99,19 +96,19 @@ pub fn rigidbody_builder(
                 masks = CollisionLayers::from_bits(m.0, m.1);
             }
             false => {
-                masks = rigidbody_spawn_data.collider_collision_groups;
+                masks = rigidbody_spawn_data.collider_collision_layers;
             }
         }
     } else {
         rigidbody = RigidBody::Static;
-        masks = rigidbody_spawn_data.collider_collision_groups;
+        masks = rigidbody_spawn_data.collider_collision_layers;
     }
     let mut t = TransformBundle::from(rigidbody_spawn_data.rigid_transform);
     let mut builder = commands.spawn((
         t.clone(),
         rigidbody,
         rigidbody_spawn_data.external_force,
-        rigidbody_spawn_data.velocity,
+        rigidbody_spawn_data.linear_velocity,
         RigidBodyData {
             dynamic_friction: rigidbody_spawn_data.collider_friction.dynamic_coefficient,
             static_friction: rigidbody_spawn_data.collider_friction.static_coefficient,
@@ -180,7 +177,6 @@ use entity::spawn::{NoData, SpawnEntity};
 use resources::modes::{is_server, Mode};
 
 /// Rigid body spawning.
-
 pub fn build_rigid_bodies<T: RigidBodyBuilder<NoData> + 'static>(
     mut spawn_events: EventReader<SpawnEntity<T>>,
     mut commands: Commands,
@@ -199,7 +195,6 @@ pub fn build_rigid_bodies<T: RigidBodyBuilder<NoData> + 'static>(
                 rigid_transform: spawn_event.spawn_data.entity_transform,
                 entity_is_stored_item: spawn_event.spawn_data.holder_entity_option.is_some(),
                 collider: rigidbody_bundle.collider,
-                collider_transform: rigidbody_bundle.collider_transform,
                 collider_friction: rigidbody_bundle.collider_friction,
                 collision_events: rigidbody_bundle.collision_events,
                 locked_axes: rigidbody_bundle.locked_axes,

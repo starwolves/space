@@ -9,5 +9,19 @@ pub struct StartCorrection {
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
 
 pub enum CorrectionSet {
+    SyncData,
     Start,
+}
+
+#[derive(Resource, Default)]
+pub struct SyncWorld {
+    pub rebuild: bool,
+    pub second_tick: bool,
+    pub sync_to_tick: u64,
+}
+
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
+pub enum CorrectionServerSet {
+    TriggerSync,
+    SyncClear,
 }

@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use bevy::ecs::schedule::SystemSet;
 use bevy::log::warn;
 use bevy::prelude::{Entity, Query, Res, ResMut, Resource, Transform, With};
+use bevy_xpbd_3d::components::{Collider, CollisionLayers, Friction, LockedAxes, Sleeping};
 use bevy_xpbd_3d::prelude::{
     AngularDamping, AngularVelocity, ExternalAngularImpulse, ExternalForce, ExternalImpulse,
     ExternalTorque, LinearDamping, LinearVelocity, RigidBody,
@@ -28,6 +29,11 @@ pub struct Cache {
     pub external_angular_impulse: ExternalAngularImpulse,
     pub rigidbody: RigidBody,
     pub transform: Transform,
+    pub collider: Collider,
+    pub sleeping: Sleeping,
+    pub collision_layers: CollisionLayers,
+    pub locked_axes: LockedAxes,
+    pub collider_friction: Friction,
 }
 
 /// Label for systems ordering.
@@ -40,17 +46,24 @@ pub enum PhysicsSet {
 pub(crate) fn cache_data(
     query: Query<
         (
-            Entity,
-            &Transform,
-            &LinearVelocity,
-            &LinearDamping,
-            &AngularDamping,
-            &AngularVelocity,
-            &ExternalTorque,
-            &ExternalAngularImpulse,
-            &ExternalImpulse,
-            &ExternalForce,
-            &RigidBody,
+            (
+                Entity,
+                &Transform,
+                &LinearVelocity,
+                &LinearDamping,
+                &AngularDamping,
+                &AngularVelocity,
+                &ExternalTorque,
+                &ExternalAngularImpulse,
+                &ExternalImpulse,
+                &ExternalForce,
+                &RigidBody,
+                &Collider,
+                &Sleeping,
+                &LockedAxes,
+                &CollisionLayers,
+            ),
+            &Friction,
         ),
         With<SFRigidBody>,
     >,
@@ -58,20 +71,25 @@ pub(crate) fn cache_data(
     mut cache: ResMut<PhysicsCache>,
     rigidbodies: Res<RigidBodies>,
 ) {
-    for (
-        rb_entity,
-        transform,
-        linear_velocity,
-        linear_damping,
-        angular_damping,
-        angular_velocity,
-        external_torque,
-        external_angular_impulse,
-        external_impulse,
-        external_force,
-        rigidbody,
-    ) in query.iter()
-    {
+    for (t0, collider_friction) in query.iter() {
+        let (
+            rb_entity,
+            transform,
+            linear_velocity,
+            linear_damping,
+            angular_damping,
+            angular_velocity,
+            external_torque,
+            external_angular_impulse,
+            external_impulse,
+            external_force,
+            rigidbody,
+            collider,
+            sleeping,
+            locked_axes,
+            collision_layers,
+        ) = t0;
+
         let entity;
         match rigidbodies.get_entity_rigidbody(&rb_entity) {
             Some(e) => {
@@ -96,6 +114,11 @@ pub(crate) fn cache_data(
             external_impulse: *external_impulse,
             external_angular_impulse: *external_angular_impulse,
             rigidbody: *rigidbody,
+            collider: collider.clone(),
+            sleeping: *sleeping,
+            collision_layers: *collision_layers,
+            locked_axes: *locked_axes,
+            collider_friction: *collider_friction,
         };
 
         match cache.cache.get_mut(&stamp.large) {

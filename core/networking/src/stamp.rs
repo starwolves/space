@@ -15,6 +15,15 @@ pub struct TickRateStamp {
 }
 
 impl TickRateStamp {
+    pub fn new(large: u64) -> Self {
+        let iteration = large / u8::MAX as u64;
+        let tick = (large - (iteration * u8::MAX as u64)) as u8;
+        Self {
+            tick,
+            iteration,
+            large,
+        }
+    }
     pub fn step(&mut self) {
         self.large += 1;
         if self.tick == u8::MAX {

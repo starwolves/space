@@ -1,7 +1,12 @@
 use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, Update};
 use bevy_xpbd_3d::{prelude::PhysicsPlugins, resources::SubstepCount};
 use networking::{messaging::MessagingSet, stamp::step_tickrate_stamp};
-use resources::{core::TickRate, modes::is_server_mode, sets::MainSet};
+use resources::{
+    core::TickRate,
+    correction::CorrectionSet,
+    modes::{is_correction_mode, is_server_mode},
+    sets::MainSet,
+};
 
 use crate::{
     cache::{cache_data, PhysicsCache, PhysicsSet},
@@ -11,7 +16,10 @@ use crate::{
         server_mirror_link_transform, ResetLerp, RigidBodies,
     },
     mirror_physics_transform::rigidbody_link_transform,
-    sync::{sync_loop, FastForwarding, SyncPause},
+    sync::{
+        sync_entities, sync_loop, sync_physics_data, CorrectionServerRigidBodyLink, FastForwarding,
+        SyncPause,
+    },
 };
 
 pub struct PhysicsPlugin;
@@ -26,6 +34,20 @@ impl Plugin for PhysicsPlugin {
                 FixedUpdate,
                 server_mirror_link_transform.in_set(MainSet::PreUpdate),
             );
+            if is_correction_mode(app) {
+                app.add_systems(
+                    FixedUpdate,
+                    (
+                        sync_entities
+                            .after(CorrectionSet::Start)
+                            .in_set(MainSet::Update),
+                        sync_physics_data
+                            .in_set(MainSet::PreUpdate)
+                            .in_set(CorrectionSet::SyncData),
+                    ),
+                )
+                .init_resource::<CorrectionServerRigidBodyLink>();
+            }
         } else {
             app.add_systems(
                 FixedUpdate,

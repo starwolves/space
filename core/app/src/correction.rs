@@ -3,7 +3,7 @@ use std::{
     thread::JoinHandle,
 };
 
-use bevy::log::warn;
+use bevy::{ecs::entity::Entity, log::warn};
 use bevy::{
     ecs::{query::With, system::Query},
     log::info,
@@ -17,19 +17,20 @@ use bevy::{
     time::{Fixed, Time},
 };
 use bevy_xpbd_3d::components::{
-    AngularDamping, AngularVelocity, ExternalAngularImpulse, ExternalForce, ExternalImpulse,
-    ExternalTorque, LinearDamping, LinearVelocity,
+    AngularDamping, AngularVelocity, Collider, CollisionLayers, ExternalAngularImpulse,
+    ExternalForce, ExternalImpulse, ExternalTorque, Friction, LinearDamping, LinearVelocity,
+    LockedAxes, RigidBody, Sleeping,
 };
 use controller::input::RecordedControllerInput;
 use gridmap::grid::{Gridmap, GridmapCache};
-use networking::stamp::TickRateStamp;
+use networking::stamp::{step_tickrate_stamp, TickRateStamp};
 use physics::{
-    cache::{PhysicsCache, PhysicsSet},
+    cache::{Cache, PhysicsCache, PhysicsSet},
     correction_mode::CorrectionResults,
     entity::SFRigidBody,
 };
 use resources::{
-    correction::{CorrectionSet, StartCorrection},
+    correction::{CorrectionServerSet, CorrectionSet, StartCorrection, SyncWorld},
     modes::is_server,
     sets::MainSet,
 };
@@ -67,17 +68,74 @@ impl Plugin for CorrectionServerPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             FixedUpdate,
-            (init_correction_server.in_set(MainSet::PreUpdate),),
+            (
+                init_correction_server.in_set(MainSet::PreUpdate),
+                finish_correction.in_set(MainSet::PostUpdate),
+                store_tick_data.in_set(MainSet::Update),
+                clear_sync_world.in_set(MainSet::PostUpdate),
+            ),
         )
-        .add_systems(Update, server_start_correcting.before(MainSet::PreUpdate))
+        .add_systems(
+            Update,
+            server_start_correcting
+                .before(MainSet::PreUpdate)
+                .in_set(CorrectionServerSet::TriggerSync)
+                .after(step_tickrate_stamp),
+        )
         .init_resource::<StartCorrection>()
-        .init_resource::<IsCorrecting>();
+        .init_resource::<IsCorrecting>()
+        .init_resource::<SyncWorld>()
+        .init_resource::<SimulationStorage>();
     }
 }
 #[derive(Resource, Default)]
 pub struct IsCorrecting(bool);
 
+pub enum ConsoleCommandsSet {
+    Input,
+    Finalize,
+}
+
+pub(crate) fn finish_correction(
+    stamp: Res<TickRateStamp>,
+    mut correcting: ResMut<IsCorrecting>,
+    start: Res<StartCorrection>,
+    send: Res<CorrectionServerSendMessage>,
+    mut fixed: ResMut<Time<Fixed>>,
+    mut storage: ResMut<SimulationStorage>,
+) {
+    if correcting.0 && stamp.large >= start.last_tick {
+        correcting.0 = false;
+
+        match send
+            .sender
+            .send(CorrectionServerMessage::Results(CorrectionResults {
+                data: storage.0.clone(),
+            })) {
+            Ok(_) => {
+                fixed.set_timestep_seconds(1.);
+                storage.0 = PhysicsCache::default();
+            }
+            Err(_) => {
+                warn!("Couldnt send finish correction message.");
+            }
+        }
+    }
+}
+
+pub(crate) fn clear_sync_world(mut sync: ResMut<SyncWorld>) {
+    if sync.rebuild && !sync.second_tick {
+        sync.second_tick = true;
+    }
+    if !sync.rebuild {
+        sync.second_tick = false;
+    }
+
+    sync.rebuild = false;
+}
+
 /// Correction server system.
+/// Messages get created when client spawns in an entity and when new peer input has been received.
 pub(crate) fn server_start_correcting(
     queued_message_reciever: NonSend<CorrectionServerReceiveMessage>,
     mut cache: ResMut<PhysicsCache>,
@@ -86,6 +144,8 @@ pub(crate) fn server_start_correcting(
     mut correcting: ResMut<IsCorrecting>,
     mut input_cache: ResMut<RecordedControllerInput>,
     mut gridmap: ResMut<Gridmap>,
+    mut rebuild: ResMut<SyncWorld>,
+    mut stamp: ResMut<TickRateStamp>,
 ) {
     match &queued_message_reciever.receiver_option {
         Some(receiver) => loop {
@@ -100,14 +160,16 @@ pub(crate) fn server_start_correcting(
                         gridmap_cache,
                     ) => {
                         *cache = new_cache;
-                        fixed.set_timestep_seconds(0.);
-                        *correction = start_correction_data;
+                        fixed.set_timestep_seconds(0.000000001);
+                        *correction = start_correction_data.clone();
                         *input_cache = input;
                         correcting.0 = true;
                         gridmap.updates_cache = gridmap_cache;
 
-                        // Now decide how many ticks forward or back compared to current correction server tick.
-                        // Sync all data with the right tick and start simulation and stop until sim is done.
+                        rebuild.rebuild = true;
+                        rebuild.second_tick = false;
+                        rebuild.sync_to_tick = start_correction_data.start_tick;
+                        *stamp = TickRateStamp::new(start_correction_data.start_tick);
                     }
                 },
                 Err(_) => {
@@ -185,16 +247,20 @@ pub(crate) fn start_correction(
     correction_server: Res<CorrectionServerData>,
     grid: Res<Gridmap>,
     mut enabled: ResMut<CorrectionEnabled>,
-    stamp: Res<TickRateStamp>,
 ) {
     let mut lowest_start = 0;
+    let mut highest_end = 1;
     let mut one_event = false;
     for event in events.read() {
         if !one_event {
             lowest_start = event.start_tick;
+            highest_end = event.last_tick;
         } else {
             if event.start_tick < lowest_start {
                 lowest_start = event.start_tick
+            }
+            if event.last_tick > highest_end {
+                highest_end = event.last_tick
             }
         }
         one_event = true;
@@ -207,7 +273,7 @@ pub(crate) fn start_correction(
         .send(ClientCorrectionMessage::StartCorrecting(
             StartCorrection {
                 start_tick: lowest_start,
-                last_tick: stamp.large,
+                last_tick: highest_end,
             },
             physics_cache.clone(),
             input_cache.clone(),
@@ -241,6 +307,78 @@ pub(crate) fn receive_correction_server_messages(
         }
     }
 }
+#[derive(Resource, Default)]
+pub(crate) struct SimulationStorage(PhysicsCache);
+
+pub(crate) fn store_tick_data(
+    query: Query<
+        (
+            (
+                Entity,
+                &Transform,
+                &LinearVelocity,
+                &LinearDamping,
+                &AngularDamping,
+                &AngularVelocity,
+                &ExternalTorque,
+                &ExternalAngularImpulse,
+                &ExternalImpulse,
+                &ExternalForce,
+                &RigidBody,
+                &Collider,
+                &Sleeping,
+                &LockedAxes,
+                &CollisionLayers,
+            ),
+            &Friction,
+        ),
+        With<SFRigidBody>,
+    >,
+    mut storage: ResMut<SimulationStorage>,
+    stamp: Res<TickRateStamp>,
+) {
+    storage.0.cache.insert(stamp.large, vec![]);
+
+    for (t0, collider_friction) in query.iter() {
+        let (
+            rb_entity,
+            transform,
+            linear_velocity,
+            linear_damping,
+            angular_damping,
+            angular_velocity,
+            external_torque,
+            external_angular_impulse,
+            external_impulse,
+            external_force,
+            rigidbody,
+            collider,
+            sleeping,
+            locked_axes,
+            collision_layers,
+        ) = t0;
+        let tick_cache = storage.0.cache.get_mut(&stamp.large).unwrap();
+        tick_cache.push(Cache {
+            entity: rb_entity,
+            rb_entity,
+            linear_velocity: *linear_velocity,
+            transform: *transform,
+            external_torque: *external_torque,
+            linear_damping: *linear_damping,
+            angular_damping: *angular_damping,
+            angular_velocity: *angular_velocity,
+            external_force: *external_force,
+            external_impulse: *external_impulse,
+            external_angular_impulse: *external_angular_impulse,
+            rigidbody: *rigidbody,
+            collider: collider.clone(),
+            sleeping: *sleeping,
+            collision_layers: *collision_layers,
+            locked_axes: *locked_axes,
+            collider_friction: *collider_friction,
+        });
+    }
+}
 
 pub(crate) fn apply_correction_results(
     mut events: EventReader<CorrectionResults>,
@@ -255,6 +393,10 @@ pub(crate) fn apply_correction_results(
             &mut ExternalAngularImpulse,
             &mut ExternalImpulse,
             &mut ExternalForce,
+            &mut Sleeping,
+            &mut LockedAxes,
+            &mut CollisionLayers,
+            &mut Friction,
         ),
         With<SFRigidBody>,
     >,
@@ -277,6 +419,10 @@ pub(crate) fn apply_correction_results(
                             mut external_angular_impulse,
                             mut external_impulse,
                             mut external_force,
+                            mut sleeping,
+                            mut locked_axes,
+                            mut collision_layers,
+                            mut friction,
                         )) => {
                             *transform = cache.transform;
                             *linear_velocity = cache.linear_velocity;
@@ -287,6 +433,10 @@ pub(crate) fn apply_correction_results(
                             *external_angular_impulse = cache.external_angular_impulse;
                             *external_impulse = cache.external_impulse;
                             *external_force = cache.external_force;
+                            *sleeping = cache.sleeping;
+                            *locked_axes = cache.locked_axes;
+                            *collision_layers = cache.collision_layers;
+                            *friction = cache.collider_friction;
                         }
                         Err(_rr) => {
                             warn!("Couldnt find entity: {:?}", cache.rb_entity);
