@@ -56,7 +56,7 @@ impl Plugin for HumanMalePlugin {
                         .before(SpawnItemSet::SpawnHeldItem)
                         .in_set(BuildingSet::TriggerBuild)
                         .in_set(CorrectionSet::Start),
-                    attach_human_male_camera,
+                    attach_human_male_camera.after(BuildingSet::TriggerBuild),
                 )
                     .in_set(MainSet::Update),
             );
