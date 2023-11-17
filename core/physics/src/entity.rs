@@ -128,7 +128,9 @@ pub(crate) fn server_mirror_link_transform(
         for link in links.iter() {
             match links_query.get(*link) {
                 Ok(world_mode) => {
-                    if !matches!(world_mode.mode, WorldModes::Physics) {
+                    if !matches!(world_mode.mode, WorldModes::Physics)
+                        && !matches!(world_mode.mode, WorldModes::Kinematic)
+                    {
                         continue;
                     }
                 }

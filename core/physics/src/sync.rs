@@ -229,6 +229,7 @@ pub struct CorrectionServerRigidBodyLink {
     pub map: HashMap<Entity, Entity>,
 }
 
+/// Sync entities on the correction server.
 pub(crate) fn sync_entities(
     cache: Res<PhysicsCache>,
     sync: Res<SyncWorld>,
