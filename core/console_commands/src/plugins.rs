@@ -48,7 +48,7 @@ impl Plugin for ConsoleCommandsPlugin {
             ),
         )
         .init_resource::<AllConsoleCommands>();
-        register_reliable_message::<ConsoleCommandsClientMessage>(app, MessageSender::Client);
-        register_reliable_message::<ConsoleCommandsServerMessage>(app, MessageSender::Server);
+        register_reliable_message::<ConsoleCommandsClientMessage>(app, MessageSender::Client, true);
+        register_reliable_message::<ConsoleCommandsServerMessage>(app, MessageSender::Server, true);
     }
 }

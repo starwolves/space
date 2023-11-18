@@ -48,7 +48,7 @@ impl Plugin for SetupMenuPlugin {
             );
         }
 
-        register_reliable_message::<SetupUiServerMessage>(app, MessageSender::Server);
-        register_reliable_message::<SetupUiClientMessage>(app, MessageSender::Client);
+        register_reliable_message::<SetupUiServerMessage>(app, MessageSender::Server, true);
+        register_reliable_message::<SetupUiClientMessage>(app, MessageSender::Client, true);
     }
 }

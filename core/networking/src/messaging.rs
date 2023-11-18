@@ -13,8 +13,10 @@ pub struct Typenames {
     pub reliable_incremental_id: u16,
     pub unreliable_incremental_id: u8,
     pub reliable_types: Vec<String>,
+    pub reliable_unordered_types: Vec<String>,
     pub unreliable_types: Vec<String>,
     pub reliable_net_types: HashMap<String, u16>,
+    pub reliable_unordered_net_types: HashMap<String, u16>,
     pub unreliable_net_types: HashMap<String, u8>,
 }
 
@@ -24,6 +26,9 @@ use bevy::log::warn;
 
 pub(crate) fn reliable_message<T: TypeName>(mut typenames: ResMut<Typenames>) {
     typenames.reliable_types.push(T::type_name());
+}
+pub(crate) fn reliable_unordered_message<T: TypeName>(mut typenames: ResMut<Typenames>) {
+    typenames.reliable_unordered_types.push(T::type_name());
 }
 /// Generic startup system that registers unreliable netcode message types. All unreliable netcode types sent over the net must be registered with this system.
 
@@ -92,11 +97,19 @@ pub fn register_reliable_message<
 >(
     app: &mut App,
     sender: MessageSender,
+    ordered: bool,
 ) {
     app.add_systems(
         Startup,
         reliable_message::<T>.in_set(TypenamesSet::Generate),
     );
+
+    if !ordered {
+        app.add_systems(
+            Startup,
+            reliable_unordered_message::<T>.in_set(TypenamesSet::Generate),
+        );
+    }
 
     let mut client_is_sender = false;
     let mut server_is_sender = false;

@@ -3887,6 +3887,8 @@ dependencies = [
  "entity",
  "networking",
  "resources",
+ "serde",
+ "typename",
 ]
 
 [[package]]

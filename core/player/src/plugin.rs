@@ -91,6 +91,6 @@ impl Plugin for PlayerPlugin {
             .add_event::<ActivateDebugCamera>();
         }
         app.init_resource::<SpawnPoints>();
-        register_reliable_message::<PlayerServerMessage>(app, MessageSender::Server);
+        register_reliable_message::<PlayerServerMessage>(app, MessageSender::Server, true);
     }
 }

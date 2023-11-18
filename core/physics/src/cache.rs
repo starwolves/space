@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use bevy::ecs::schedule::SystemSet;
 use bevy::log::warn;
+use bevy::math::{Quat, Vec3};
 use bevy::prelude::{Entity, Query, Res, ResMut, Resource, Transform, With};
 use bevy_xpbd_3d::components::{Collider, CollisionLayers, Friction, LockedAxes, Sleeping};
 use bevy_xpbd_3d::prelude::{
@@ -9,6 +10,7 @@ use bevy_xpbd_3d::prelude::{
     ExternalTorque, LinearDamping, LinearVelocity, RigidBody,
 };
 use networking::stamp::TickRateStamp;
+use serde::{Deserialize, Serialize};
 
 use crate::entity::{RigidBodies, SFRigidBody};
 #[derive(Resource, Default, Clone)]
@@ -34,6 +36,14 @@ pub struct Cache {
     pub collision_layers: CollisionLayers,
     pub locked_axes: LockedAxes,
     pub collider_friction: Friction,
+}
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct SmallCache {
+    pub entity: Entity,
+    pub linear_velocity: Vec3,
+    pub angular_velocity: Vec3,
+    pub translation: Vec3,
+    pub rotation: Quat,
 }
 
 /// Label for systems ordering.

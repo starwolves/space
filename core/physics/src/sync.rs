@@ -17,6 +17,7 @@ use bevy_xpbd_3d::components::{
 };
 use bevy_xpbd_3d::prelude::{Physics, PhysicsTime};
 use entity::despawn::DespawnEntity;
+use networking::server::OutgoingReliableServerMessage;
 use networking::{
     client::{
         IncomingReliableServerMessage, NetworkingClientMessage, OutgoingReliableClientMessage,
@@ -30,6 +31,7 @@ use resources::modes::Mode;
 
 use crate::cache::PhysicsCache;
 use crate::entity::{RigidBodies, SFRigidBody};
+use crate::net::PhysicsServerMessage;
 use crate::spawn::{rigidbody_builder, RigidBodyBuildData};
 #[derive(Resource, Default)]
 pub(crate) struct FastForwarding {
@@ -230,7 +232,7 @@ pub struct CorrectionServerRigidBodyLink {
 }
 
 /// Sync entities on the correction server.
-pub(crate) fn sync_entities(
+pub(crate) fn sync_correction_world_entities(
     cache: Res<PhysicsCache>,
     sync: Res<SyncWorld>,
     query: Query<Entity, With<SFRigidBody>>,
@@ -319,4 +321,13 @@ pub(crate) fn sync_entities(
 
         // Correct the data of still existing physics entities now.
     }
+}
+
+/// Send low frequency rigidbody data to clients for transform and velocities desync checks.
+pub(crate) fn desync_check(
+    query: Query<(Entity, &Transform, &LinearVelocity, &AngularVelocity), With<SFRigidBody>>,
+    rigid_bodies: Res<RigidBodies>,
+    cache: Res<PhysicsCache>,
+    mut net: EventWriter<OutgoingReliableServerMessage<PhysicsServerMessage>>,
+) {
 }

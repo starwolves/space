@@ -46,7 +46,7 @@ impl Plugin for SfxPlugin {
             .add_systems(FixedUpdate, free_sfx.in_set(MainSet::Update))
             .init_resource::<SfxAutoDestroyTimers>();
         }
-        register_reliable_message::<SfxServerMessage>(app, MessageSender::Server);
+        register_reliable_message::<SfxServerMessage>(app, MessageSender::Server, true);
         register_entity_type::<AmbienceSfxEntityType>(app);
         register_entity_type::<RepeatingSfxEntityType>(app);
         register_entity_type::<SfxEntityType>(app);

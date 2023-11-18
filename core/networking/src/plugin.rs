@@ -122,13 +122,13 @@ impl Plugin for NetworkingPlugin {
             .add_systems(FixedUpdate, step_tickrate_stamp.in_set(MainSet::PreUpdate))
             .init_resource::<Typenames>()
             .add_systems(Startup, generate_typenames.after(TypenamesSet::Generate));
-        register_reliable_message::<NetworkingClientMessage>(app, MessageSender::Client);
+        register_reliable_message::<NetworkingClientMessage>(app, MessageSender::Client, true);
         register_unreliable_message::<UnreliableServerMessage>(app, MessageSender::Server);
-        register_reliable_message::<NetworkingChatServerMessage>(app, MessageSender::Server);
-        register_reliable_message::<NetworkingServerMessage>(app, MessageSender::Server);
+        register_reliable_message::<NetworkingChatServerMessage>(app, MessageSender::Server, true);
+        register_reliable_message::<NetworkingServerMessage>(app, MessageSender::Server, true);
     }
 }
 
 pub const RENET_UNRELIABLE_CHANNEL_ID: u8 = 0;
-pub const RENET_RELIABLE_UNORDERED_CHANNEL_ID: u8 = 1;
+pub const RENET_RELIABLE_UNORDERED_ID: u8 = 1;
 pub const RENET_RELIABLE_ORDERED_ID: u8 = 2;

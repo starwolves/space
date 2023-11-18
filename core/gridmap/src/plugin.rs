@@ -348,7 +348,7 @@ impl Plugin for GridmapPlugin {
             .init_resource::<InitTileProperties>()
             .init_resource::<InitTileGroups>();
 
-        register_reliable_message::<GridmapClientMessage>(app, MessageSender::Client);
-        register_reliable_message::<GridmapServerMessage>(app, MessageSender::Server);
+        register_reliable_message::<GridmapClientMessage>(app, MessageSender::Client, true);
+        register_reliable_message::<GridmapServerMessage>(app, MessageSender::Server, true);
     }
 }

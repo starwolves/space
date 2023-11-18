@@ -46,8 +46,8 @@ impl Plugin for MapPlugin {
                 .add_event::<InputMapRequestOverlay>()
                 .init_resource::<MapHolders>();
         }
-        register_reliable_message::<MapServerMessage>(app, MessageSender::Server);
+        register_reliable_message::<MapServerMessage>(app, MessageSender::Server, true);
         register_unreliable_message::<MapUnreliableClientMessage>(app, MessageSender::Client);
-        register_reliable_message::<MapReliableClientMessage>(app, MessageSender::Client);
+        register_reliable_message::<MapReliableClientMessage>(app, MessageSender::Client, true);
     }
 }

@@ -84,7 +84,7 @@ impl Plugin for EntityPlugin {
                     despawn_entities.in_set(MainSet::PostUpdate),
                 ),
             );
-        register_reliable_message::<EntityServerMessage>(app, MessageSender::Server);
-        register_reliable_message::<EntityClientMessage>(app, MessageSender::Client);
+        register_reliable_message::<EntityServerMessage>(app, MessageSender::Server, true);
+        register_reliable_message::<EntityClientMessage>(app, MessageSender::Client, true);
     }
 }

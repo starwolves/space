@@ -22,7 +22,7 @@ use crate::{
         ReliableClientMessageBatch, ReliableMessage, UnreliableClientMessageBatch,
         UnreliableMessage,
     },
-    plugin::RENET_RELIABLE_ORDERED_ID,
+    plugin::{RENET_RELIABLE_ORDERED_ID, RENET_RELIABLE_UNORDERED_ID},
     server::PROTOCOL_ID,
     stamp::TickRateStamp,
 };
@@ -291,6 +291,7 @@ use typename::TypeName;
 #[derive(Resource, Default)]
 pub(crate) struct OutgoingBuffer {
     pub reliable: Vec<ReliableMessage>,
+    pub reliable_unordered: Vec<ReliableMessage>,
     pub unreliable: Vec<UnreliableMessage>,
 }
 
@@ -316,7 +317,23 @@ pub(crate) fn step_buffer(
 
         client.send_message(RENET_RELIABLE_ORDERED_ID, bin);
     }
+    if res.reliable_unordered.len() > 0 {
+        let bin;
+        match bincode::serialize(&ReliableClientMessageBatch {
+            messages: res.reliable_unordered.clone(),
+            stamp: stamp.tick,
+        }) {
+            Ok(b) => {
+                bin = b;
+            }
+            Err(_) => {
+                warn!("Couldnt serialize step_buffer message");
+                return;
+            }
+        }
 
+        client.send_message(RENET_RELIABLE_UNORDERED_ID, bin);
+    }
     if res.unreliable.len() > 0 {
         let bin;
         match bincode::serialize(&UnreliableClientMessageBatch {
@@ -337,6 +354,7 @@ pub(crate) fn step_buffer(
 
     res.reliable.clear();
     res.unreliable.clear();
+    res.reliable_unordered.clear();
 }
 
 /// Serializes and sends the outgoing reliable client messages.
@@ -369,11 +387,25 @@ pub(crate) fn send_outgoing_reliable_client_messages<T: TypeName + Send + Sync +
                 continue;
             }
         }
+        let mut unordered = false;
+        for x in &typenames.reliable_unordered_types {
+            if x == &message.message.type_name_of() {
+                unordered = true;
+                break;
+            }
+        }
 
-        client.reliable.push(ReliableMessage {
-            serialized: bin,
-            typename_net: *net,
-        });
+        if unordered {
+            client.reliable_unordered.push(ReliableMessage {
+                serialized: bin,
+                typename_net: *net,
+            });
+        } else {
+            client.reliable.push(ReliableMessage {
+                serialized: bin,
+                typename_net: *net,
+            });
+        }
     }
 }
 use crate::messaging::UnreliableServerMessageBatch;
@@ -501,6 +533,16 @@ pub(crate) fn receive_incoming_reliable_server_messages(
     mut client: ResMut<RenetClient>,
 ) {
     while let Some(message) = client.receive_message(RENET_RELIABLE_ORDERED_ID) {
+        match bincode::deserialize::<ReliableServerMessageBatch>(&message) {
+            Ok(msg) => {
+                events.send(IncomingRawReliableServerMessage { message: msg });
+            }
+            Err(_) => {
+                warn!("Received an invalid message.");
+            }
+        }
+    }
+    while let Some(message) = client.receive_message(RENET_RELIABLE_UNORDERED_ID) {
         match bincode::deserialize::<ReliableServerMessageBatch>(&message) {
             Ok(msg) => {
                 events.send(IncomingRawReliableServerMessage { message: msg });

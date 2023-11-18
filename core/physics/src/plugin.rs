@@ -1,10 +1,18 @@
-use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, Update};
+use std::time::Duration;
+
+use bevy::{
+    prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, Update},
+    time::common_conditions::on_timer,
+};
 use bevy_xpbd_3d::{prelude::PhysicsPlugins, resources::SubstepCount};
-use networking::{messaging::MessagingSet, stamp::step_tickrate_stamp};
+use networking::{
+    messaging::{register_reliable_message, MessageSender, MessagingSet},
+    stamp::step_tickrate_stamp,
+};
 use resources::{
     core::TickRate,
     correction::CorrectionSet,
-    modes::{is_correction_mode, is_server_mode},
+    modes::{is_correction_mode, is_server, is_server_mode},
     sets::MainSet,
 };
 
@@ -16,9 +24,10 @@ use crate::{
         server_mirror_link_transform, ResetLerp, RigidBodies,
     },
     mirror_physics_transform::rigidbody_link_transform,
+    net::PhysicsServerMessage,
     sync::{
-        sync_entities, sync_loop, sync_physics_data, CorrectionServerRigidBodyLink, FastForwarding,
-        SyncPause,
+        desync_check, sync_correction_world_entities, sync_loop, sync_physics_data,
+        CorrectionServerRigidBodyLink, FastForwarding, SyncPause,
     },
 };
 
@@ -38,7 +47,7 @@ impl Plugin for PhysicsPlugin {
                 app.add_systems(
                     FixedUpdate,
                     (
-                        sync_entities
+                        sync_correction_world_entities
                             .after(CorrectionSet::Start)
                             .in_set(MainSet::Update),
                         sync_physics_data
@@ -47,6 +56,14 @@ impl Plugin for PhysicsPlugin {
                     ),
                 )
                 .init_resource::<CorrectionServerRigidBodyLink>();
+            }
+            if is_server() {
+                app.add_systems(
+                    FixedUpdate,
+                    (desync_check
+                        .in_set(MainSet::Update)
+                        .run_if(on_timer(Duration::from_secs_f32(0.25))),),
+                );
             }
         } else {
             app.add_systems(
@@ -83,5 +100,6 @@ impl Plugin for PhysicsPlugin {
             .add_systems(FixedUpdate, remove_links.in_set(MainSet::PostUpdate))
             .insert_resource(SubstepCount(TickRate::default().physics_substep.into()))
             .init_resource::<PhysicsCache>();
+        register_reliable_message::<PhysicsServerMessage>(app, MessageSender::Server, false);
     }
 }

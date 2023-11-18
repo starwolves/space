@@ -22,7 +22,7 @@ impl Plugin for ChatPlugin {
             .add_event::<GlobalChatMessage>();
         }
 
-        register_reliable_message::<ChatClientMessage>(app, MessageSender::Client);
-        register_reliable_message::<ChatServerMessage>(app, MessageSender::Server);
+        register_reliable_message::<ChatClientMessage>(app, MessageSender::Client, true);
+        register_reliable_message::<ChatServerMessage>(app, MessageSender::Server, true);
     }
 }

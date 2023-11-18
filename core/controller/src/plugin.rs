@@ -69,8 +69,12 @@ impl Plugin for ControllerPlugin {
         )
         .init_resource::<RecordedControllerInput>()
         .add_event::<InputMovementInput>();
-        register_reliable_message::<ControllerClientMessage>(app, MessageSender::Client);
-        register_reliable_message::<PeerReliableControllerMessage>(app, MessageSender::Server);
+        register_reliable_message::<ControllerClientMessage>(app, MessageSender::Client, true);
+        register_reliable_message::<PeerReliableControllerMessage>(
+            app,
+            MessageSender::Server,
+            true,
+        );
         register_unreliable_message::<PeerUnreliableControllerMessage>(app, MessageSender::Server);
     }
 }

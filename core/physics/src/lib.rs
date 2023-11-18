@@ -7,6 +7,7 @@ pub mod correction_mode;
 pub mod entity;
 /// Link rigid body transforms.
 pub mod mirror_physics_transform;
+pub mod net;
 /// Physics resources.
 pub mod physics;
 pub mod plugin;

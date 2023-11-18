@@ -78,8 +78,8 @@ impl Plugin for InventoryPlugin {
                 Startup,
                 initialize_console_commands.before(ConsoleCommandsSet::Finalize),
             );
-        register_reliable_message::<InventoryServerMessage>(app, MessageSender::Server);
-        register_reliable_message::<InventoryClientMessage>(app, MessageSender::Client);
+        register_reliable_message::<InventoryServerMessage>(app, MessageSender::Server, true);
+        register_reliable_message::<InventoryClientMessage>(app, MessageSender::Client, true);
     }
 }
 use networking::server::ConsoleArgVariant;

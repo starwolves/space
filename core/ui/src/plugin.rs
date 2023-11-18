@@ -94,7 +94,7 @@ impl Plugin for UiPlugin {
         }
         app.init_resource::<Fonts>()
             .add_systems(Startup, init_fonts);
-        register_reliable_message::<UiClientMessage>(app, MessageSender::Client);
-        register_reliable_message::<UiServerMessage>(app, MessageSender::Server);
+        register_reliable_message::<UiClientMessage>(app, MessageSender::Client, true);
+        register_reliable_message::<UiServerMessage>(app, MessageSender::Server, true);
     }
 }

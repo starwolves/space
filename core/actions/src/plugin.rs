@@ -48,7 +48,7 @@ impl Plugin for ActionsPlugin {
             .add_event::<InputAction>();
         }
 
-        register_reliable_message::<ActionsClientMessage>(app, MessageSender::Client);
-        register_reliable_message::<ActionsServerMessage>(app, MessageSender::Server);
+        register_reliable_message::<ActionsClientMessage>(app, MessageSender::Client, true);
+        register_reliable_message::<ActionsServerMessage>(app, MessageSender::Server, true);
     }
 }

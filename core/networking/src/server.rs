@@ -269,7 +269,8 @@ pub fn send_outgoing_reliable_server_messages<T: TypeName + Send + Sync + Serial
     typenames: Res<Typenames>,
     stamp: Res<TickRateStamp>,
 ) {
-    let mut messages: HashMap<ClientId, Vec<ReliableMessage>> = HashMap::default();
+    let mut messages_ordered: HashMap<ClientId, Vec<ReliableMessage>> = HashMap::default();
+    let mut messages_unordered: HashMap<ClientId, Vec<ReliableMessage>> = HashMap::default();
 
     for message in events.read() {
         let net;
@@ -298,22 +299,40 @@ pub fn send_outgoing_reliable_server_messages<T: TypeName + Send + Sync + Serial
                 continue;
             }
         }
-
         let z = ReliableMessage {
             serialized: bin,
             typename_net: *net,
         };
 
-        match messages.get_mut(&message.handle) {
-            Some(m) => {
-                m.push(z);
+        let mut unordered = false;
+        for x in &typenames.reliable_unordered_types {
+            if x == &message.message.type_name_of() {
+                unordered = true;
+                break;
             }
-            None => {
-                messages.insert(message.handle, vec![z]);
+        }
+
+        if unordered {
+            match messages_unordered.get_mut(&message.handle) {
+                Some(m) => {
+                    m.push(z);
+                }
+                None => {
+                    messages_ordered.insert(message.handle, vec![z]);
+                }
+            }
+        } else {
+            match messages_ordered.get_mut(&message.handle) {
+                Some(m) => {
+                    m.push(z);
+                }
+                None => {
+                    messages_ordered.insert(message.handle, vec![z]);
+                }
             }
         }
     }
-    for (handle, msgs) in messages {
+    for (handle, msgs) in messages_ordered {
         match bincode::serialize(&ReliableServerMessageBatch {
             messages: msgs,
             stamp: stamp.tick,
@@ -322,7 +341,21 @@ pub fn send_outgoing_reliable_server_messages<T: TypeName + Send + Sync + Serial
                 server.send_message(handle, RENET_RELIABLE_ORDERED_ID, bits);
             }
             Err(_) => {
-                warn!("Failed to serialize unreliable message.");
+                warn!("Failed to serialize reliable message.");
+                return;
+            }
+        }
+    }
+    for (handle, msgs) in messages_unordered {
+        match bincode::serialize(&ReliableServerMessageBatch {
+            messages: msgs,
+            stamp: stamp.tick,
+        }) {
+            Ok(bits) => {
+                server.send_message(handle, RENET_RELIABLE_UNORDERED_ID, bits);
+            }
+            Err(_) => {
+                warn!("Failed to serialize reliable message.");
                 return;
             }
         }
@@ -635,7 +668,7 @@ pub(crate) fn receive_incoming_unreliable_client_messages(
         }
     }
 }
-use crate::plugin::RENET_UNRELIABLE_CHANNEL_ID;
+use crate::plugin::{RENET_RELIABLE_UNORDERED_ID, RENET_UNRELIABLE_CHANNEL_ID};
 
 /// Deserializes header of incoming client messages and writes to event.
 
@@ -649,6 +682,64 @@ pub(crate) fn receive_incoming_reliable_client_messages(
 ) {
     for handle in server.clients_id().into_iter() {
         while let Some(message) = server.receive_message(handle, RENET_RELIABLE_ORDERED_ID) {
+            match bincode::deserialize::<ReliableClientMessageBatch>(&message) {
+                Ok(msg) => {
+                    events.send(IncomingRawReliableClientMessage {
+                        message: msg.clone(),
+                        handle,
+                    });
+
+                    for m in msg.messages.iter() {
+                        if m.typename_net
+                            == *typenames
+                                .reliable_net_types
+                                .get(&NetworkingClientMessage::type_name())
+                                .unwrap()
+                        {
+                            match confirmations.incremental.get_mut(&handle) {
+                                Some(a) => {
+                                    *a += 1;
+                                }
+                                None => {
+                                    confirmations.incremental.insert(handle, 1);
+                                }
+                            }
+                        }
+                    }
+
+                    let c: u64;
+                    match confirmations.incremental.get(&handle) {
+                        Some(x) => {
+                            c = *x;
+                        }
+                        None => {
+                            c = 0;
+                        }
+                    }
+                    match sync.tickrate_differences.get_mut(&handle) {
+                        Some(v) => {
+                            v.push(LatencyReport {
+                                client_sync_iteration: c,
+                                tick_difference: stamp.get_difference(msg.stamp),
+                            });
+                        }
+                        None => {
+                            sync.tickrate_differences.insert(
+                                handle,
+                                vec![LatencyReport {
+                                    client_sync_iteration: c,
+                                    tick_difference: stamp.get_difference(msg.stamp),
+                                }],
+                            );
+                        }
+                    }
+                }
+                Err(_) => {
+                    warn!("Received an invalid message.");
+                }
+            }
+        }
+        while let Some(message) = server.receive_message(handle, RENET_RELIABLE_UNORDERED_ID) {
             match bincode::deserialize::<ReliableClientMessageBatch>(&message) {
                 Ok(msg) => {
                     events.send(IncomingRawReliableClientMessage {
