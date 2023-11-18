@@ -2,7 +2,7 @@ use bevy::log::warn;
 use bevy::prelude::{Commands, EventWriter, KeyCode, Query, Res, ResMut, Transform, With};
 use cameras::LookTransform;
 use entity::spawn::{EntityBuildData, SpawnEntity};
-use pawn::pawn::{ClientPawn, Pawn};
+use pawn::pawn::ClientPawn;
 use resources::{
     hud::{EscapeMenuState, HudState},
     input::{InputBuffer, KeyBind, KeyBinds, KeyCodeEnum},
