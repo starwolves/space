@@ -406,9 +406,11 @@ pub(crate) fn deserialize_incoming_reliable_client_message<
                         handle: event.handle,
                         stamp: event.message.stamp,
                     };
-
-                    if stamp.tick > event.message.stamp || (event.message.stamp - stamp.tick) > 182
-                    {
+                    let b = stamp.get_difference(event.message.stamp);
+                    if b <= 0 {
+                        if b < 0 {
+                            warn!("message {} ticks late ({})", b.abs(), event.handle);
+                        }
                         outgoing.send(r);
                         continue;
                     }
