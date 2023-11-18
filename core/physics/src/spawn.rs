@@ -21,6 +21,7 @@ pub struct RigidBodyBundle {
     pub rigidbody_dynamic: bool,
     pub collision_events: bool,
     pub external_force: ExternalForce,
+    pub mesh_offset: Transform,
 }
 
 impl Default for RigidBodyBundle {
@@ -33,6 +34,7 @@ impl Default for RigidBodyBundle {
             collision_events: false,
             locked_axes: LockedAxes::new(),
             external_force: ExternalForce::default(),
+            mesh_offset: Transform::default(),
         }
     }
 }
@@ -199,6 +201,7 @@ pub fn build_rigid_bodies<T: RigidBodyBuilder<NoData> + 'static>(
                 collision_events: rigidbody_bundle.collision_events,
                 locked_axes: rigidbody_bundle.locked_axes,
                 external_force: rigidbody_bundle.external_force,
+                mesh_offset: rigidbody_bundle.mesh_offset,
                 ..Default::default()
             },
             spawn_event.spawn_data.entity,

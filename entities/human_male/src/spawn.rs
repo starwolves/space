@@ -186,6 +186,7 @@ impl RigidBodyBuilder<NoData> for HumanMaleType {
                 .lock_rotation_z()
                 .lock_rotation_y(),
             external_force: ext_f,
+            mesh_offset: Transform::from_translation(Vec3::new(0., -R, 0.)),
             ..Default::default()
         }
     }
@@ -215,8 +216,8 @@ pub(crate) fn process_add_slot_buffer(
 
 fn default_look_transform() -> LookTransform {
     LookTransform::new(
-        Vec3::new(0., 1.8 - R - R, 0.),
-        Vec3::new(0., 1.8 - R - R, -2.),
+        Vec3::new(0., 1.8 - R, 0.),
+        Vec3::new(0., 1.8 - R, -2.),
         Vec3::Y,
     )
 }
@@ -258,11 +259,9 @@ pub fn attach_human_male_camera(
                     let id = parent
                         .spawn((
                             Camera3dBundle {
-                                transform: Transform::from_translation(Vec3::new(
-                                    0.,
-                                    1.8 - R - R,
-                                    0.,
-                                )),
+                                transform: Transform::from_translation(
+                                    default_look_transform().eye,
+                                ),
                                 camera: Camera {
                                     msaa_writeback: settings.msaa.is_enabled(),
                                     ..Default::default()
