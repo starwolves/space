@@ -2,7 +2,7 @@ use bevy::log::warn;
 use bevy::prelude::{Commands, EventWriter, KeyCode, Query, Res, ResMut, Transform, With};
 use cameras::LookTransform;
 use entity::spawn::{EntityBuildData, SpawnEntity};
-use pawn::pawn::Pawn;
+use pawn::pawn::{ClientPawn, Pawn};
 use resources::{
     hud::{EscapeMenuState, HudState},
     input::{InputBuffer, KeyBind, KeyBinds, KeyCodeEnum},
@@ -31,7 +31,7 @@ pub(crate) fn shoot_ball(
     hud_state: Res<HudState>,
     esc_state: Res<EscapeMenuState>,
     mut commands: Commands,
-    camera_query: Query<(&LookTransform, &Transform), With<Pawn>>,
+    camera_query: Query<(&LookTransform, &Transform), With<ClientPawn>>,
     mut spawner: EventWriter<SpawnEntity<BallType>>,
 ) {
     if main_menu.enabled || hud_state.expanded || esc_state.visible {
