@@ -169,7 +169,7 @@ pub fn rigidbody_builder(
         builder.insert(Sleeping);
     }
 
-    rigidbodies.link_entity(&entity, &rigid_entity)
+    rigidbodies.link_entity(entity, rigid_entity)
 }
 
 pub trait RigidBodyBuilder<Y>: Send + Sync {

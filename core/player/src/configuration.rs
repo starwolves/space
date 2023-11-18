@@ -1,8 +1,8 @@
-use crate::boarding::SoftPlayer;
 use bevy::prelude::{Commands, EventReader, Res, ResMut, Resource};
 
 use bevy::prelude::EventWriter;
 use entity::spawn::PawnId;
+use resources::player::SoftPlayer;
 
 use crate::connections::{AuthidI, SendServerConfiguration};
 use crate::net::PlayerServerMessage;

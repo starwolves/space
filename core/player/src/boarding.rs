@@ -1,10 +1,11 @@
 use bevy::math::Quat;
 use bevy::{
-    prelude::{Commands, Component, Entity, EventReader, ResMut, Resource},
+    prelude::{Commands, Entity, EventReader, ResMut, Resource},
     time::Timer,
 };
 use bevy_renet::renet::ClientId;
 use networking::client::IncomingReliableServerMessage;
+use resources::player::SoftPlayer;
 use ui::cursor::GrabCursor;
 
 /// Component with boarding data.
@@ -109,11 +110,6 @@ pub fn done_boarding(
         ));
     }
 }
-
-/// The component for players that haven't yet boarded.
-#[derive(Component)]
-
-pub struct SoftPlayer;
 
 /// A spawn point in which players will spawn.
 

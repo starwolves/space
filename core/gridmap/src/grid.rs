@@ -23,7 +23,7 @@ use physics::{
     physics::{get_bit_masks, ColliderGroup},
     rigid_body::STANDARD_BODY_FRICTION,
 };
-use player::boarding::SoftPlayer;
+use resources::player::SoftPlayer;
 use resources::{
     grid::TargetCell,
     math::{cell_id_to_world, Vec3Int},

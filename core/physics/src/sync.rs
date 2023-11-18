@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use bevy::ecs::entity::Entity;
-use bevy::ecs::query::With;
+use bevy::ecs::query::{With, Without};
 use bevy::ecs::system::{Commands, Query};
 use bevy::log::{info, warn};
 use bevy::transform::components::Transform;
@@ -17,7 +17,8 @@ use bevy_xpbd_3d::components::{
 };
 use bevy_xpbd_3d::prelude::{Physics, PhysicsTime};
 use entity::despawn::DespawnEntity;
-use networking::server::OutgoingReliableServerMessage;
+use entity::spawn::ClientEntityServerEntity;
+use networking::server::{ConnectedPlayer, OutgoingReliableServerMessage};
 use networking::{
     client::{
         IncomingReliableServerMessage, NetworkingClientMessage, OutgoingReliableClientMessage,
@@ -28,8 +29,9 @@ use networking::{
 use resources::core::TickRate;
 use resources::correction::{StartCorrection, SyncWorld};
 use resources::modes::Mode;
+use resources::player::SoftPlayer;
 
-use crate::cache::PhysicsCache;
+use crate::cache::{PhysicsCache, SmallCache};
 use crate::entity::{RigidBodies, SFRigidBody};
 use crate::net::PhysicsServerMessage;
 use crate::spawn::{rigidbody_builder, RigidBodyBuildData};
@@ -324,10 +326,87 @@ pub(crate) fn sync_correction_world_entities(
 }
 
 /// Send low frequency rigidbody data to clients for transform and velocities desync checks.
-pub(crate) fn desync_check(
+pub(crate) fn send_desync_check(
     query: Query<(Entity, &Transform, &LinearVelocity, &AngularVelocity), With<SFRigidBody>>,
     rigid_bodies: Res<RigidBodies>,
-    cache: Res<PhysicsCache>,
     mut net: EventWriter<OutgoingReliableServerMessage<PhysicsServerMessage>>,
+    players: Query<&ConnectedPlayer, Without<SoftPlayer>>,
 ) {
+    let mut small_cache = vec![];
+    for (rb_entity, transform, linear_velocity, angular_velocity) in query.iter() {
+        match rigid_bodies.get_rigidbody_entity(&rb_entity) {
+            Some(entity) => {
+                small_cache.push(SmallCache {
+                    entity: *entity,
+                    linear_velocity: linear_velocity.0,
+                    angular_velocity: angular_velocity.0,
+                    translation: transform.translation,
+                    rotation: transform.rotation,
+                });
+            }
+            None => {
+                //warn!("Couldnt find rigidbody entity. {:?}", rb_entity);
+            }
+        }
+    }
+    if small_cache.len() > 0 {
+        for c in players.iter() {
+            if c.connected {
+                net.send(OutgoingReliableServerMessage {
+                    message: PhysicsServerMessage::DesyncCheck(small_cache.clone()),
+                    handle: c.handle,
+                });
+            }
+        }
+    }
+}
+pub(crate) fn desync_check_correction(
+    mut messages: EventReader<IncomingReliableServerMessage<PhysicsServerMessage>>,
+    mut cache: ResMut<PhysicsCache>,
+    mut correction: EventWriter<StartCorrection>,
+    stamp: Res<TickRateStamp>,
+    server_client_entity: Res<ClientEntityServerEntity>,
+) {
+    for message in messages.read() {
+        let t = (stamp.large as i128 + stamp.get_difference(message.stamp) as i128) as u64;
+
+        match &message.message {
+            PhysicsServerMessage::DesyncCheck(caches) => match cache.cache.get_mut(&t) {
+                Some(physics_cache) => {
+                    for s in caches {
+                        match server_client_entity.map.get(&s.entity) {
+                            Some(entity) => {
+                                for c in physics_cache.iter_mut() {
+                                    if c.entity == *entity {
+                                        c.angular_velocity = AngularVelocity(s.angular_velocity);
+                                        c.linear_velocity = LinearVelocity(s.linear_velocity);
+                                        c.transform = Transform {
+                                            translation: s.translation,
+                                            rotation: s.rotation,
+                                            ..Default::default()
+                                        };
+                                        break;
+                                    }
+                                }
+                            }
+                            None => {
+                                warn!("Couldnt find server client entity.");
+                            }
+                        }
+                    }
+                    correction.send(StartCorrection {
+                        start_tick: t,
+                        last_tick: stamp.large,
+                    });
+                }
+                None => {
+                    warn!(
+                        "Couldnt find desync cache tick: {}. Cache len: {}",
+                        t,
+                        cache.cache.len()
+                    );
+                }
+            },
+        }
+    }
 }

@@ -26,8 +26,8 @@ use crate::{
     mirror_physics_transform::rigidbody_link_transform,
     net::PhysicsServerMessage,
     sync::{
-        desync_check, sync_correction_world_entities, sync_loop, sync_physics_data,
-        CorrectionServerRigidBodyLink, FastForwarding, SyncPause,
+        desync_check_correction, send_desync_check, sync_correction_world_entities, sync_loop,
+        sync_physics_data, CorrectionServerRigidBodyLink, FastForwarding, SyncPause,
     },
 };
 
@@ -60,7 +60,7 @@ impl Plugin for PhysicsPlugin {
             if is_server() {
                 app.add_systems(
                     FixedUpdate,
-                    (desync_check
+                    (send_desync_check
                         .in_set(MainSet::Update)
                         .run_if(on_timer(Duration::from_secs_f32(0.25))),),
                 );
@@ -75,6 +75,9 @@ impl Plugin for PhysicsPlugin {
                     cache_data
                         .after(MainSet::PostUpdate)
                         .in_set(PhysicsSet::Cache),
+                    desync_check_correction
+                        .in_set(MainSet::Update)
+                        .in_set(CorrectionSet::Start),
                 ),
             )
             .add_systems(
