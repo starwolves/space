@@ -19,7 +19,7 @@
 
 **[Support and try today (link).](https://store.starwolves.io/)**
 
-**There are gameplay videos of the new prototype on [YouTube](https://youtu.be/Qr_in7tUxAM).**
+**There are gameplay videos of the new prototype on [YouTube](https://youtu.be/jZk0tcqmpIs).**
 
 ![Screenshot of new Space Frontiers gridmap](/data/project/sfss.png?raw=true)
 
