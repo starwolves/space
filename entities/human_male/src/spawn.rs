@@ -186,7 +186,7 @@ impl RigidBodyBuilder<NoData> for HumanMaleType {
                 .lock_rotation_z()
                 .lock_rotation_y(),
             external_force: ext_f,
-            mesh_offset: Transform::from_translation(Vec3::new(0., -R, 0.)),
+            mesh_offset: Transform::from_translation(Vec3::new(0., -R + 0.1, 0.)),
             ..Default::default()
         }
     }
