@@ -3,7 +3,10 @@ use std::{
     thread::JoinHandle,
 };
 
-use bevy::{ecs::entity::Entity, log::warn};
+use bevy::{
+    ecs::{entity::Entity, system::Commands},
+    log::warn,
+};
 use bevy::{
     ecs::{query::With, system::Query},
     log::info,
@@ -28,6 +31,7 @@ use physics::{
     cache::{Cache, PhysicsCache, PhysicsSet},
     correction_mode::CorrectionResults,
     entity::SFRigidBody,
+    sync::CorrectionServerRigidBodyLink,
 };
 use resources::{
     correction::{CorrectionServerSet, CorrectionSet, StartCorrection, SyncWorld},
@@ -103,17 +107,37 @@ pub(crate) fn finish_correction(
     send: Res<CorrectionServerSendMessage>,
     mut fixed: ResMut<Time<Fixed>>,
     mut storage: ResMut<SimulationStorage>,
+    link: Res<CorrectionServerRigidBodyLink>,
 ) {
     if correcting.0 && stamp.large >= start.last_tick {
         correcting.0 = false;
 
+        let mut new_storage = storage.0.clone();
+
+        for ncache in new_storage.cache.iter_mut() {
+            for cache in ncache.1 {
+                match link.map.get(&cache.entity) {
+                    Some(l) => {
+                        cache.entity = *l;
+                    }
+                    None => {
+                        warn!(
+                            "Couldnt find CorrectionServerRigidBodyLink link: {:?}, len: {}",
+                            cache.entity,
+                            link.map.len()
+                        );
+                    }
+                }
+            }
+        }
+
         match send
             .sender
             .send(CorrectionServerMessage::Results(CorrectionResults {
-                data: storage.0.clone(),
+                data: new_storage,
             })) {
             Ok(_) => {
-                fixed.set_timestep_seconds(1.);
+                fixed.set_timestep_seconds(100000.);
                 storage.0 = PhysicsCache::default();
             }
             Err(_) => {
@@ -146,6 +170,7 @@ pub(crate) fn server_start_correcting(
     mut gridmap: ResMut<Gridmap>,
     mut rebuild: ResMut<SyncWorld>,
     mut stamp: ResMut<TickRateStamp>,
+    link: Res<CorrectionServerRigidBodyLink>,
 ) {
     match &queued_message_reciever.receiver_option {
         Some(receiver) => loop {
@@ -159,7 +184,18 @@ pub(crate) fn server_start_correcting(
                         input,
                         gridmap_cache,
                     ) => {
-                        *cache = new_cache;
+                        let mut fixed_cache = new_cache.clone();
+                        for t in fixed_cache.cache.iter_mut() {
+                            for cache in t.1 {
+                                for (k, v) in link.map.iter() {
+                                    if *v == cache.entity {
+                                        cache.entity = *k;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        *cache = fixed_cache;
                         fixed.set_timestep_seconds(0.000000001);
                         *correction = start_correction_data.clone();
                         *input_cache = input;
@@ -187,7 +223,7 @@ pub(crate) fn init_correction_server(mut first: Local<bool>, mut fixed: ResMut<T
         return;
     }
 
-    fixed.set_timestep_seconds(1.);
+    fixed.set_timestep_seconds(100000.);
 }
 
 #[derive(Default)]
@@ -267,6 +303,7 @@ pub(crate) fn start_correction(
     if !one_event {
         return;
     }
+    info!("Starting correction ({}-{}).", lowest_start, highest_end);
     match correction_server
         .message_sender
         .send(ClientCorrectionMessage::StartCorrecting(
@@ -309,6 +346,7 @@ pub(crate) fn receive_correction_server_messages(
 #[derive(Resource, Default)]
 pub(crate) struct SimulationStorage(PhysicsCache);
 
+/// Correction server system.
 pub(crate) fn store_tick_data(
     query: Query<
         (
@@ -325,7 +363,7 @@ pub(crate) fn store_tick_data(
                 &ExternalForce,
                 &RigidBody,
                 &Collider,
-                &Sleeping,
+                Option<&Sleeping>,
                 &LockedAxes,
                 &CollisionLayers,
             ),
@@ -371,7 +409,7 @@ pub(crate) fn store_tick_data(
             external_angular_impulse: *external_angular_impulse,
             rigidbody: *rigidbody,
             collider: collider.clone(),
-            sleeping: *sleeping,
+            sleeping: sleeping.copied(),
             collision_layers: *collision_layers,
             locked_axes: *locked_axes,
             collider_friction: *collider_friction,
@@ -392,7 +430,7 @@ pub(crate) fn apply_correction_results(
             &mut ExternalAngularImpulse,
             &mut ExternalImpulse,
             &mut ExternalForce,
-            &mut Sleeping,
+            Option<&Sleeping>,
             &mut LockedAxes,
             &mut CollisionLayers,
             &mut Friction,
@@ -401,6 +439,7 @@ pub(crate) fn apply_correction_results(
     >,
     stamp: Res<TickRateStamp>,
     mut cache: ResMut<PhysicsCache>,
+    mut commands: Commands,
 ) {
     for event in events.read() {
         *cache = event.data.clone();
@@ -418,7 +457,7 @@ pub(crate) fn apply_correction_results(
                             mut external_angular_impulse,
                             mut external_impulse,
                             mut external_force,
-                            mut sleeping,
+                            sleeping,
                             mut locked_axes,
                             mut collision_layers,
                             mut friction,
@@ -432,10 +471,14 @@ pub(crate) fn apply_correction_results(
                             *external_angular_impulse = cache.external_angular_impulse;
                             *external_impulse = cache.external_impulse;
                             *external_force = cache.external_force;
-                            *sleeping = cache.sleeping;
                             *locked_axes = cache.locked_axes;
                             *collision_layers = cache.collision_layers;
                             *friction = cache.collider_friction;
+                            if sleeping.is_some() {
+                                commands.entity(cache.rb_entity).insert(Sleeping);
+                            } else {
+                                commands.entity(cache.rb_entity).remove::<Sleeping>();
+                            }
                         }
                         Err(_rr) => {
                             warn!("Couldnt find entity: {:?}", cache.rb_entity);

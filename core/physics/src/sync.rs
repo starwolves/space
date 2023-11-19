@@ -155,6 +155,7 @@ pub(crate) fn sync_loop(
     }
 }
 
+/// Correction server system.
 pub(crate) fn sync_physics_data(
     mut query: Query<
         (
@@ -167,7 +168,7 @@ pub(crate) fn sync_physics_data(
             &mut ExternalAngularImpulse,
             &mut ExternalImpulse,
             &mut ExternalForce,
-            &mut Sleeping,
+            Option<&Sleeping>,
             &mut LockedAxes,
             &mut CollisionLayers,
             &mut Friction,
@@ -175,9 +176,10 @@ pub(crate) fn sync_physics_data(
         With<SFRigidBody>,
     >,
     sync: Res<SyncWorld>,
-    link: ResMut<CorrectionServerRigidBodyLink>,
+    link: Res<CorrectionServerRigidBodyLink>,
     cache: Res<PhysicsCache>,
     correction: Res<StartCorrection>,
+    mut commands: Commands,
 ) {
     if sync.second_tick {
         match cache.cache.get(&correction.start_tick) {
@@ -196,7 +198,7 @@ pub(crate) fn sync_physics_data(
                                     mut external_angular_impulse,
                                     mut external_impulse,
                                     mut external_force,
-                                    mut sleeping,
+                                    sleeping,
                                     mut locked_axes,
                                     mut collision_layers,
                                     mut friction,
@@ -210,10 +212,14 @@ pub(crate) fn sync_physics_data(
                                     *external_angular_impulse = cache.external_angular_impulse;
                                     *external_impulse = cache.external_impulse;
                                     *external_force = cache.external_force;
-                                    *sleeping = cache.sleeping;
                                     *locked_axes = cache.locked_axes;
                                     *collision_layers = cache.collision_layers;
                                     *friction = cache.collider_friction;
+                                    if sleeping.is_some() {
+                                        commands.entity(*k).insert(Sleeping);
+                                    } else {
+                                        commands.entity(*k).remove::<Sleeping>();
+                                    }
                                 }
                                 Err(_) => {
                                     warn!("Couldnt find entity in query.");
@@ -267,7 +273,7 @@ pub(crate) fn sync_correction_world_entities(
                 for c in sync_tick_cache.iter() {
                     let mut found = false;
                     for q in query.iter() {
-                        if c.rb_entity == q {
+                        if c.entity == q {
                             found = true;
                             break;
                         }
@@ -277,6 +283,7 @@ pub(crate) fn sync_correction_world_entities(
                         // Try to manually call rigidbodybuilder and spawn function. Dont use SpawnEntity.
 
                         let entity = commands.spawn(()).id();
+                        info!("Link {:?},{:?}", entity, c.entity);
                         link.map.insert(entity, c.entity);
                         let dynamic;
                         match c.rigidbody {
@@ -298,11 +305,17 @@ pub(crate) fn sync_correction_world_entities(
                                 sleeping: c.sleeping,
                                 entity_is_stored_item: false,
                                 collider: c.collider.clone(),
-                                collider_friction: c.collider_friction,
+                                friction: c.collider_friction,
                                 collider_collision_layers: c.collision_layers,
                                 collision_events: false,
                                 mesh_offset: Transform::default(),
                                 locked_axes: c.locked_axes,
+                                linear_damping: c.linear_damping,
+                                angular_damping: c.angular_damping,
+                                angular_velocity: c.angular_velocity,
+                                external_torque: c.external_torque,
+                                external_angular_impulse: c.external_angular_impulse,
+                                external_impulse: c.external_impulse,
                             },
                             entity,
                             false,

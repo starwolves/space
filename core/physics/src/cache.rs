@@ -32,7 +32,7 @@ pub struct Cache {
     pub rigidbody: RigidBody,
     pub transform: Transform,
     pub collider: Collider,
-    pub sleeping: Sleeping,
+    pub sleeping: Option<Sleeping>,
     pub collision_layers: CollisionLayers,
     pub locked_axes: LockedAxes,
     pub collider_friction: Friction,
@@ -69,7 +69,7 @@ pub(crate) fn cache_data(
                 &ExternalForce,
                 &RigidBody,
                 &Collider,
-                &Sleeping,
+                Option<&Sleeping>,
                 &LockedAxes,
                 &CollisionLayers,
             ),
@@ -101,7 +101,7 @@ pub(crate) fn cache_data(
         ) = t0;
 
         let entity;
-        match rigidbodies.get_entity_rigidbody(&rb_entity) {
+        match rigidbodies.get_rigidbody_entity(&rb_entity) {
             Some(e) => {
                 entity = *e;
             }
@@ -125,7 +125,7 @@ pub(crate) fn cache_data(
             external_angular_impulse: *external_angular_impulse,
             rigidbody: *rigidbody,
             collider: collider.clone(),
-            sleeping: *sleeping,
+            sleeping: sleeping.copied(),
             collision_layers: *collision_layers,
             locked_axes: *locked_axes,
             collider_friction: *collider_friction,
@@ -140,7 +140,7 @@ pub(crate) fn cache_data(
             }
         }
     }
-
+    return;
     // Clean cache.
     let mut to_remove = vec![];
     for recorded_stamp in cache.cache.keys() {

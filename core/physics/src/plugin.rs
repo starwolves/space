@@ -38,11 +38,13 @@ impl Plugin for PhysicsPlugin {
             app.add_systems(
                 FixedUpdate,
                 rigidbody_link_transform.in_set(MainSet::Update),
-            )
-            .add_systems(
-                FixedUpdate,
-                server_mirror_link_transform.in_set(MainSet::PreUpdate),
             );
+            if !is_correction_mode(app) {
+                app.add_systems(
+                    FixedUpdate,
+                    server_mirror_link_transform.in_set(MainSet::PreUpdate),
+                );
+            }
             if is_correction_mode(app) {
                 app.add_systems(
                     FixedUpdate,

@@ -7,9 +7,15 @@ use bevy::{
     prelude::{Commands, Entity, EventReader, Res, ResMut, Transform},
     transform::TransformBundle,
 };
-use bevy_xpbd_3d::prelude::{
-    Collider, CollisionLayers, ExternalForce, Friction, LinearVelocity, LockedAxes, RigidBody,
-    Sleeping,
+use bevy_xpbd_3d::{
+    components::{
+        AngularDamping, AngularVelocity, ExternalAngularImpulse, ExternalImpulse, ExternalTorque,
+        LinearDamping,
+    },
+    prelude::{
+        Collider, CollisionLayers, ExternalForce, Friction, LinearVelocity, LockedAxes, RigidBody,
+        Sleeping,
+    },
 };
 use entity::spawn::EntityBuildData;
 
@@ -44,14 +50,20 @@ pub struct RigidBodyBuildData {
     pub rigid_transform: Transform,
     pub external_force: ExternalForce,
     pub linear_velocity: LinearVelocity,
-    pub sleeping: Sleeping,
+    pub sleeping: Option<Sleeping>,
     pub entity_is_stored_item: bool,
     pub collider: Collider,
-    pub collider_friction: Friction,
+    pub friction: Friction,
     pub collider_collision_layers: CollisionLayers,
     pub collision_events: bool,
     pub mesh_offset: Transform,
     pub locked_axes: LockedAxes,
+    pub linear_damping: LinearDamping,
+    pub angular_damping: AngularDamping,
+    pub angular_velocity: AngularVelocity,
+    pub external_torque: ExternalTorque,
+    pub external_angular_impulse: ExternalAngularImpulse,
+    pub external_impulse: ExternalImpulse,
 }
 
 impl Default for RigidBodyBuildData {
@@ -62,14 +74,20 @@ impl Default for RigidBodyBuildData {
             rigid_transform: Transform::default(),
             external_force: ExternalForce::default(),
             linear_velocity: LinearVelocity::default(),
-            sleeping: Sleeping::default(),
+            sleeping: None,
             entity_is_stored_item: false,
             collider: Collider::cuboid(0.2, 0.2, 0.2),
-            collider_friction: Friction::default(),
+            friction: Friction::default(),
             collider_collision_layers: CollisionLayers::from_bits(masks.0, masks.1),
             collision_events: false,
             locked_axes: LockedAxes::new(),
             mesh_offset: Transform::default(),
+            linear_damping: LinearDamping::default(),
+            angular_damping: AngularDamping::default(),
+            angular_velocity: AngularVelocity::default(),
+            external_torque: ExternalTorque::default(),
+            external_angular_impulse: ExternalAngularImpulse::default(),
+            external_impulse: ExternalImpulse::default(),
         }
     }
 }
@@ -83,6 +101,7 @@ pub fn rigidbody_builder(
     rigidbodies: &mut ResMut<RigidBodies>,
     app_mode: &Res<Mode>,
 ) {
+    let correction_mode = matches!(**app_mode, Mode::Correction);
     let rigidbody;
     let masks;
 
@@ -106,22 +125,34 @@ pub fn rigidbody_builder(
         masks = rigidbody_spawn_data.collider_collision_layers;
     }
     let mut t = TransformBundle::from(rigidbody_spawn_data.rigid_transform);
-    let mut builder = commands.spawn((
+    let mut builder;
+    if correction_mode {
+        builder = commands.entity(entity);
+    } else {
+        builder = commands.spawn(());
+    }
+    builder.insert((
         t.clone(),
         rigidbody,
         rigidbody_spawn_data.external_force,
         rigidbody_spawn_data.linear_velocity,
         RigidBodyData {
-            dynamic_friction: rigidbody_spawn_data.collider_friction.dynamic_coefficient,
-            static_friction: rigidbody_spawn_data.collider_friction.static_coefficient,
-            friction_combine_rule: rigidbody_spawn_data.collider_friction.combine_rule,
+            dynamic_friction: rigidbody_spawn_data.friction.dynamic_coefficient,
+            static_friction: rigidbody_spawn_data.friction.static_coefficient,
+            friction_combine_rule: rigidbody_spawn_data.friction.combine_rule,
         },
         rigidbody_spawn_data.collider,
-        rigidbody_spawn_data.collider_friction,
+        rigidbody_spawn_data.friction,
         masks,
         SFRigidBody,
         rigidbody_spawn_data.locked_axes,
+        rigidbody_spawn_data.linear_damping,
+        rigidbody_spawn_data.angular_damping,
+        rigidbody_spawn_data.angular_velocity,
+        rigidbody_spawn_data.external_torque,
+        rigidbody_spawn_data.external_angular_impulse,
     ));
+    builder.insert((rigidbody_spawn_data.external_impulse,));
 
     let rigid_entity = builder.id();
 
@@ -129,22 +160,25 @@ pub fn rigidbody_builder(
         builder.insert(Sleeping);
     }
 
-    let mut builder = commands.entity(entity);
-
-    if !(is_server() || matches!(**app_mode, Mode::Correction)) {
+    if !(is_server() || correction_mode) {
         t.local.translation += rigidbody_spawn_data.mesh_offset.translation;
         t.local.scale = rigidbody_spawn_data.mesh_offset.scale;
         t.local.rotation *= rigidbody_spawn_data.mesh_offset.rotation;
     }
-    builder.insert((
-        t.clone(),
-        RigidBodyLink {
-            offset: rigidbody_spawn_data.mesh_offset,
-            target_transform: t.local.clone(),
-            origin_transfom: t.local,
-            ..Default::default()
-        },
-    ));
+
+    if !correction_mode {
+        builder = commands.entity(entity);
+        builder.insert((
+            t.clone(),
+            RigidBodyLink {
+                offset: rigidbody_spawn_data.mesh_offset,
+                target_transform: t.local.clone(),
+                origin_transfom: t.local,
+                ..Default::default()
+            },
+        ));
+    }
+
     let mut rigidbody_enabled = true;
 
     match rigidbody_spawn_data.entity_is_stored_item {
@@ -163,8 +197,9 @@ pub fn rigidbody_builder(
             false => {}
         },
     }
-
-    let mut builder = commands.entity(rigid_entity);
+    if !correction_mode {
+        builder = commands.entity(rigid_entity);
+    }
     if !rigidbody_enabled {
         builder.insert(Sleeping);
     }
@@ -197,7 +232,7 @@ pub fn build_rigid_bodies<T: RigidBodyBuilder<NoData> + 'static>(
                 rigid_transform: spawn_event.spawn_data.entity_transform,
                 entity_is_stored_item: spawn_event.spawn_data.holder_entity_option.is_some(),
                 collider: rigidbody_bundle.collider,
-                collider_friction: rigidbody_bundle.collider_friction,
+                friction: rigidbody_bundle.collider_friction,
                 collision_events: rigidbody_bundle.collision_events,
                 locked_axes: rigidbody_bundle.locked_axes,
                 external_force: rigidbody_bundle.external_force,
