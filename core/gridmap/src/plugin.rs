@@ -8,7 +8,7 @@ use bevy_renet::renet::{RenetClient, RenetServer};
 use networking::messaging::{register_reliable_message, MessageSender};
 use player::{connections::process_response, plugin::ConfigurationLabel};
 use resources::{
-    modes::is_server_mode,
+    modes::{is_correction_mode, is_server_mode},
     sets::{ActionsSet, BuildingSet, MainSet, PostUpdateSet, StartupSet},
 };
 
@@ -222,8 +222,19 @@ impl Plugin for GridmapPlugin {
             .init_resource::<ReinforcedGlassFloorMaterial>()
             .init_resource::<HalfDiagonalReinforcedGlassMaterial>()
             .init_resource::<BridgeWallMaterial>()
-            .init_resource::<BridgeHalfDiagonalCeilingMaterial>()
-            .add_systems(
+            .init_resource::<BridgeHalfDiagonalCeilingMaterial>();
+
+        if is_correction_mode(app) {
+            app.add_systems(
+                FixedUpdate,
+                load_ron_gridmap
+                    .before(EditTileSet::Add)
+                    .in_set(StartupSet::BuildGridmap)
+                    .in_set(MainSet::PreUpdate)
+                    .after(StartupSet::InitDefaultGridmapData),
+            );
+        } else {
+            app.add_systems(
                 FixedUpdate,
                 load_ron_gridmap
                     .before(EditTileSet::Add)
@@ -233,120 +244,121 @@ impl Plugin for GridmapPlugin {
                     .run_if(
                         resource_exists::<RenetClient>().or_else(resource_exists::<RenetServer>()),
                     ),
-            )
-            .add_systems(
-                Startup,
+            );
+        }
+        app.add_systems(
+            Startup,
+            (
                 (
-                    (
-                        startup_misc_resources.in_set(StartupSet::MiscResources),
-                        init_tile_properties
-                            .in_set(StartupSet::InitDefaultGridmapData)
-                            .in_set(BuildingSet::TriggerBuild)
-                            .after(StartupSet::MiscResources),
-                        init_tile_groups.after(init_tile_properties),
-                        init_generic_floor
-                            .before(init_tile_properties)
-                            .after(init_generic_meshes),
-                        init_generic_wall_group
-                            .after(init_tile_properties)
-                            .after(init_generic_meshes)
-                            .before(init_tile_groups),
-                        init_bridge_wall_group
-                            .after(init_tile_properties)
-                            .after(init_generic_meshes)
-                            .before(init_tile_groups),
-                        init_generic_half_diagonal_ceiling_group
-                            .after(init_tile_properties)
-                            .after(init_generic_meshes)
-                            .before(init_tile_groups),
-                        init_bridge_half_diagonal_ceiling_group
-                            .after(init_tile_properties)
-                            .after(init_generic_meshes)
-                            .before(init_tile_groups),
-                        init_reinforced_glass_half_diagonal_ceiling_group
-                            .after(init_tile_properties)
-                            .after(init_generic_meshes)
-                            .before(init_tile_groups),
-                        init_generic_half_diagonal_floor_group
-                            .after(init_tile_properties)
-                            .after(init_generic_meshes)
-                            .before(init_tile_groups),
-                        init_generic_wall
-                            .before(init_tile_properties)
-                            .after(init_generic_meshes),
-                        init_bridge_wall
-                            .before(init_tile_properties)
-                            .after(init_generic_meshes),
-                        init_reinforced_glass_wall
-                            .before(init_tile_properties)
-                            .after(init_generic_meshes),
-                        init_reinforced_glass_floor
-                            .before(init_tile_properties)
-                            .after(init_generic_meshes),
-                        init_generic_diagonal_floor
-                            .before(init_tile_properties)
-                            .after(init_generic_meshes),
-                        init_generic_diagonal_ceiling
-                            .before(init_tile_properties)
-                            .after(init_generic_meshes),
-                        init_generic_half_diagonal_ceiling_low
-                            .before(init_tile_properties)
-                            .after(init_generic_meshes),
-                        init_bridge_half_diagonal_ceiling_low
-                            .before(init_tile_properties)
-                            .after(init_generic_meshes),
-                        init_reinforced_glass_half_diagonal_ceiling_low
-                            .before(init_tile_properties)
-                            .after(init_generic_meshes),
-                        init_generic_half_diagonal_floor_low
-                            .before(init_tile_properties)
-                            .after(init_generic_meshes),
-                    ),
-                    (
-                        init_generic_half_diagonal_ceiling_high
-                            .before(init_tile_properties)
-                            .after(init_generic_meshes),
-                        init_bridge_half_diagonal_ceiling_high
-                            .before(init_tile_properties)
-                            .after(init_generic_meshes),
-                        init_reinforced_glass_half_diagonal_ceiling_high
-                            .before(init_tile_properties)
-                            .after(init_generic_meshes),
-                        init_generic_half_diagonal_floor_high
-                            .before(init_tile_properties)
-                            .after(init_generic_meshes),
-                        init_filled_bridge_floor
-                            .before(init_tile_properties)
-                            .after(init_generic_meshes),
-                        init_half_bridge_floor
-                            .before(init_tile_properties)
-                            .after(init_generic_meshes),
-                        init_corner_bridge_floor
-                            .before(init_tile_properties)
-                            .after(init_generic_meshes),
-                        init_corner2_bridge_floor
-                            .before(init_tile_properties)
-                            .after(init_generic_meshes),
-                    ),
+                    startup_misc_resources.in_set(StartupSet::MiscResources),
+                    init_tile_properties
+                        .in_set(StartupSet::InitDefaultGridmapData)
+                        .in_set(BuildingSet::TriggerBuild)
+                        .after(StartupSet::MiscResources),
+                    init_tile_groups.after(init_tile_properties),
+                    init_generic_floor
+                        .before(init_tile_properties)
+                        .after(init_generic_meshes),
+                    init_generic_wall_group
+                        .after(init_tile_properties)
+                        .after(init_generic_meshes)
+                        .before(init_tile_groups),
+                    init_bridge_wall_group
+                        .after(init_tile_properties)
+                        .after(init_generic_meshes)
+                        .before(init_tile_groups),
+                    init_generic_half_diagonal_ceiling_group
+                        .after(init_tile_properties)
+                        .after(init_generic_meshes)
+                        .before(init_tile_groups),
+                    init_bridge_half_diagonal_ceiling_group
+                        .after(init_tile_properties)
+                        .after(init_generic_meshes)
+                        .before(init_tile_groups),
+                    init_reinforced_glass_half_diagonal_ceiling_group
+                        .after(init_tile_properties)
+                        .after(init_generic_meshes)
+                        .before(init_tile_groups),
+                    init_generic_half_diagonal_floor_group
+                        .after(init_tile_properties)
+                        .after(init_generic_meshes)
+                        .before(init_tile_groups),
+                    init_generic_wall
+                        .before(init_tile_properties)
+                        .after(init_generic_meshes),
+                    init_bridge_wall
+                        .before(init_tile_properties)
+                        .after(init_generic_meshes),
+                    init_reinforced_glass_wall
+                        .before(init_tile_properties)
+                        .after(init_generic_meshes),
+                    init_reinforced_glass_floor
+                        .before(init_tile_properties)
+                        .after(init_generic_meshes),
+                    init_generic_diagonal_floor
+                        .before(init_tile_properties)
+                        .after(init_generic_meshes),
+                    init_generic_diagonal_ceiling
+                        .before(init_tile_properties)
+                        .after(init_generic_meshes),
+                    init_generic_half_diagonal_ceiling_low
+                        .before(init_tile_properties)
+                        .after(init_generic_meshes),
+                    init_bridge_half_diagonal_ceiling_low
+                        .before(init_tile_properties)
+                        .after(init_generic_meshes),
+                    init_reinforced_glass_half_diagonal_ceiling_low
+                        .before(init_tile_properties)
+                        .after(init_generic_meshes),
+                    init_generic_half_diagonal_floor_low
+                        .before(init_tile_properties)
+                        .after(init_generic_meshes),
                 ),
-            )
-            .init_resource::<Gridmap>()
-            .init_resource::<DoryenMap>()
-            .add_systems(
-                FixedUpdate,
                 (
-                    remove_tile.after(EditTileSet::Remove),
-                    add_tile_collision.after(EditTileSet::Add),
-                    add_tile.after(EditTileSet::Add),
-                    spawn_group.before(EditTileSet::Add),
-                )
-                    .in_set(MainSet::Update),
+                    init_generic_half_diagonal_ceiling_high
+                        .before(init_tile_properties)
+                        .after(init_generic_meshes),
+                    init_bridge_half_diagonal_ceiling_high
+                        .before(init_tile_properties)
+                        .after(init_generic_meshes),
+                    init_reinforced_glass_half_diagonal_ceiling_high
+                        .before(init_tile_properties)
+                        .after(init_generic_meshes),
+                    init_generic_half_diagonal_floor_high
+                        .before(init_tile_properties)
+                        .after(init_generic_meshes),
+                    init_filled_bridge_floor
+                        .before(init_tile_properties)
+                        .after(init_generic_meshes),
+                    init_half_bridge_floor
+                        .before(init_tile_properties)
+                        .after(init_generic_meshes),
+                    init_corner_bridge_floor
+                        .before(init_tile_properties)
+                        .after(init_generic_meshes),
+                    init_corner2_bridge_floor
+                        .before(init_tile_properties)
+                        .after(init_generic_meshes),
+                ),
+            ),
+        )
+        .init_resource::<Gridmap>()
+        .init_resource::<DoryenMap>()
+        .add_systems(
+            FixedUpdate,
+            (
+                remove_tile.after(EditTileSet::Remove),
+                add_tile_collision.after(EditTileSet::Add),
+                add_tile.after(EditTileSet::Add),
+                spawn_group.before(EditTileSet::Add),
             )
-            .add_event::<AddTile>()
-            .add_event::<AddGroup>()
-            .add_event::<RemoveTile>()
-            .init_resource::<InitTileProperties>()
-            .init_resource::<InitTileGroups>();
+                .in_set(MainSet::Update),
+        )
+        .add_event::<AddTile>()
+        .add_event::<AddGroup>()
+        .add_event::<RemoveTile>()
+        .init_resource::<InitTileProperties>()
+        .init_resource::<InitTileGroups>();
 
         register_reliable_message::<GridmapClientMessage>(app, MessageSender::Client, true);
         register_reliable_message::<GridmapServerMessage>(app, MessageSender::Server, true);

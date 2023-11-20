@@ -15,7 +15,7 @@ use serde::{Deserialize, Serialize};
 use crate::entity::{RigidBodies, SFRigidBody};
 #[derive(Resource, Default, Clone)]
 pub struct PhysicsCache {
-    pub cache: HashMap<u64, Vec<Cache>>,
+    pub cache: HashMap<u64, HashMap<Entity, Cache>>,
 }
 #[derive(Clone)]
 pub struct Cache {
@@ -133,14 +133,15 @@ pub(crate) fn cache_data(
 
         match cache.cache.get_mut(&stamp.large) {
             Some(c) => {
-                c.push(ncache);
+                c.insert(ncache.entity, ncache);
             }
             None => {
-                cache.cache.insert(stamp.large, vec![ncache]);
+                let mut m = HashMap::new();
+                m.insert(ncache.entity, ncache);
+                cache.cache.insert(stamp.large, m);
             }
         }
     }
-    return;
     // Clean cache.
     let mut to_remove = vec![];
     for recorded_stamp in cache.cache.keys() {

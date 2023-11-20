@@ -1,4 +1,5 @@
 use std::{
+    collections::HashMap,
     sync::mpsc::{self, Receiver, SyncSender},
     thread::JoinHandle,
 };
@@ -30,7 +31,7 @@ use networking::stamp::{step_tickrate_stamp, TickRateStamp};
 use physics::{
     cache::{Cache, PhysicsCache, PhysicsSet},
     correction_mode::CorrectionResults,
-    entity::SFRigidBody,
+    entity::{RigidBodies, SFRigidBody},
     sync::CorrectionServerRigidBodyLink,
 };
 use resources::{
@@ -100,6 +101,8 @@ pub enum ConsoleCommandsSet {
     Finalize,
 }
 
+const IDLE_LOOP_TIME: f64 = 100000.;
+
 pub(crate) fn finish_correction(
     stamp: Res<TickRateStamp>,
     mut correcting: ResMut<IsCorrecting>,
@@ -115,7 +118,7 @@ pub(crate) fn finish_correction(
         let mut new_storage = storage.0.clone();
 
         for ncache in new_storage.cache.iter_mut() {
-            for cache in ncache.1 {
+            for (_, cache) in ncache.1 {
                 match link.map.get(&cache.entity) {
                     Some(l) => {
                         cache.entity = *l;
@@ -137,7 +140,7 @@ pub(crate) fn finish_correction(
                 data: new_storage,
             })) {
             Ok(_) => {
-                fixed.set_timestep_seconds(100000.);
+                fixed.set_timestep_seconds(IDLE_LOOP_TIME);
                 storage.0 = PhysicsCache::default();
             }
             Err(_) => {
@@ -186,7 +189,7 @@ pub(crate) fn server_start_correcting(
                     ) => {
                         let mut fixed_cache = new_cache.clone();
                         for t in fixed_cache.cache.iter_mut() {
-                            for cache in t.1 {
+                            for (_, cache) in t.1 {
                                 for (k, v) in link.map.iter() {
                                     if *v == cache.entity {
                                         cache.entity = *k;
@@ -223,7 +226,7 @@ pub(crate) fn init_correction_server(mut first: Local<bool>, mut fixed: ResMut<T
         return;
     }
 
-    fixed.set_timestep_seconds(100000.);
+    fixed.set_timestep_seconds(IDLE_LOOP_TIME);
 }
 
 #[derive(Default)]
@@ -303,7 +306,6 @@ pub(crate) fn start_correction(
     if !one_event {
         return;
     }
-    info!("Starting correction ({}-{}).", lowest_start, highest_end);
     match correction_server
         .message_sender
         .send(ClientCorrectionMessage::StartCorrecting(
@@ -328,11 +330,28 @@ pub(crate) fn receive_correction_server_messages(
     receiver: NonSend<CorrectionServerMessageReceiver>,
     mut send: EventWriter<CorrectionResults>,
     mut waiting: ResMut<CorrectionEnabled>,
+    rigidbodies: Res<RigidBodies>,
 ) {
     if waiting.0 {
         match receiver.receiver.recv() {
             Ok(correction_server_message) => match correction_server_message {
-                CorrectionServerMessage::Results(results) => {
+                CorrectionServerMessage::Results(mut results) => {
+                    for t in results.data.cache.iter_mut() {
+                        for (_, cache) in t.1 {
+                            match rigidbodies.get_entity_rigidbody(&cache.entity) {
+                                Some(rb_entity) => {
+                                    cache.rb_entity = *rb_entity;
+                                    info!(
+                                        "Results: {:?}{:?}",
+                                        cache.entity, cache.transform.translation
+                                    );
+                                }
+                                None => {
+                                    warn!("Couldnt get entity rigidbody.");
+                                }
+                            }
+                        }
+                    }
                     send.send(results);
                     waiting.0 = false;
                 }
@@ -374,7 +393,7 @@ pub(crate) fn store_tick_data(
     mut storage: ResMut<SimulationStorage>,
     stamp: Res<TickRateStamp>,
 ) {
-    storage.0.cache.insert(stamp.large, vec![]);
+    storage.0.cache.insert(stamp.large, HashMap::new());
 
     for (t0, collider_friction) in query.iter() {
         let (
@@ -395,25 +414,28 @@ pub(crate) fn store_tick_data(
             collision_layers,
         ) = t0;
         let tick_cache = storage.0.cache.get_mut(&stamp.large).unwrap();
-        tick_cache.push(Cache {
-            entity: rb_entity,
+        tick_cache.insert(
             rb_entity,
-            linear_velocity: *linear_velocity,
-            transform: *transform,
-            external_torque: *external_torque,
-            linear_damping: *linear_damping,
-            angular_damping: *angular_damping,
-            angular_velocity: *angular_velocity,
-            external_force: *external_force,
-            external_impulse: *external_impulse,
-            external_angular_impulse: *external_angular_impulse,
-            rigidbody: *rigidbody,
-            collider: collider.clone(),
-            sleeping: sleeping.copied(),
-            collision_layers: *collision_layers,
-            locked_axes: *locked_axes,
-            collider_friction: *collider_friction,
-        });
+            Cache {
+                entity: rb_entity,
+                rb_entity,
+                linear_velocity: *linear_velocity,
+                transform: *transform,
+                external_torque: *external_torque,
+                linear_damping: *linear_damping,
+                angular_damping: *angular_damping,
+                angular_velocity: *angular_velocity,
+                external_force: *external_force,
+                external_impulse: *external_impulse,
+                external_angular_impulse: *external_angular_impulse,
+                rigidbody: *rigidbody,
+                collider: collider.clone(),
+                sleeping: sleeping.copied(),
+                collision_layers: *collision_layers,
+                locked_axes: *locked_axes,
+                collider_friction: *collider_friction,
+            },
+        );
     }
 }
 
@@ -442,10 +464,22 @@ pub(crate) fn apply_correction_results(
     mut commands: Commands,
 ) {
     for event in events.read() {
-        *cache = event.data.clone();
+        for (tick, tick_cache) in event.data.cache.iter() {
+            match cache.cache.get_mut(tick) {
+                Some(modern) => {
+                    for (_, cache) in tick_cache {
+                        modern.insert(cache.entity, cache.clone());
+                    }
+                }
+                None => {
+                    cache.cache.insert(*tick, tick_cache.clone());
+                }
+            }
+        }
+
         match event.data.cache.get(&stamp.large) {
             Some(cache_vec) => {
-                for cache in cache_vec {
+                for (_, cache) in cache_vec {
                     match query.get_mut(cache.rb_entity) {
                         Ok((
                             mut transform,

@@ -28,6 +28,7 @@ use networking::{
 };
 use resources::core::TickRate;
 use resources::correction::{StartCorrection, SyncWorld};
+use resources::grid::TileCollider;
 use resources::modes::Mode;
 use resources::player::SoftPlayer;
 
@@ -184,7 +185,7 @@ pub(crate) fn sync_physics_data(
     if sync.second_tick {
         match cache.cache.get(&correction.start_tick) {
             Some(sync_tick_cache) => {
-                for cache in sync_tick_cache.iter() {
+                for (_, cache) in sync_tick_cache.iter() {
                     for (k, v) in &link.map {
                         if cache.entity == *v {
                             match query.get_mut(*k) {
@@ -243,7 +244,7 @@ pub struct CorrectionServerRigidBodyLink {
 pub(crate) fn sync_correction_world_entities(
     cache: Res<PhysicsCache>,
     sync: Res<SyncWorld>,
-    query: Query<Entity, With<SFRigidBody>>,
+    query: Query<Entity, (With<SFRigidBody>, Without<TileCollider>)>,
     mut despawn: EventWriter<DespawnEntity>,
     mut commands: Commands,
     mut rigid_bodies: ResMut<RigidBodies>,
@@ -257,8 +258,8 @@ pub(crate) fn sync_correction_world_entities(
                 // Despawn remainder entities.
                 for q in query.iter() {
                     let mut found = false;
-                    for c in sync_tick_cache.iter() {
-                        if c.rb_entity == q {
+                    for (_, c) in sync_tick_cache.iter() {
+                        if c.entity == q {
                             found = true;
                             break;
                         }
@@ -270,7 +271,7 @@ pub(crate) fn sync_correction_world_entities(
                 }
 
                 // Spawn new entities.
-                for c in sync_tick_cache.iter() {
+                for (_, c) in sync_tick_cache.iter() {
                     let mut found = false;
                     for q in query.iter() {
                         if c.entity == q {
@@ -283,7 +284,6 @@ pub(crate) fn sync_correction_world_entities(
                         // Try to manually call rigidbodybuilder and spawn function. Dont use SpawnEntity.
 
                         let entity = commands.spawn(()).id();
-                        info!("Link {:?},{:?}", entity, c.entity);
                         link.map.insert(entity, c.entity);
                         let dynamic;
                         match c.rigidbody {
@@ -326,11 +326,7 @@ pub(crate) fn sync_correction_world_entities(
                 }
             }
             None => {
-                warn!(
-                    "Cache didnt contain sync tick data. {}, length {}",
-                    correction.start_tick,
-                    cache.cache.len()
-                );
+                warn!("Cache skipped tick {}.", correction.start_tick,);
             }
         }
 
@@ -389,7 +385,7 @@ pub(crate) fn desync_check_correction(
                     for s in caches {
                         match server_client_entity.map.get(&s.entity) {
                             Some(entity) => {
-                                for c in physics_cache.iter_mut() {
+                                for (_, c) in physics_cache.iter_mut() {
                                     if c.entity == *entity {
                                         c.angular_velocity = AngularVelocity(s.angular_velocity);
                                         c.linear_velocity = LinearVelocity(s.linear_velocity);
@@ -398,6 +394,10 @@ pub(crate) fn desync_check_correction(
                                             rotation: s.rotation,
                                             ..Default::default()
                                         };
+                                        info!(
+                                            "Received server data: {:?}:{:?}",
+                                            c.entity, s.translation
+                                        );
                                         break;
                                     }
                                 }
@@ -413,11 +413,7 @@ pub(crate) fn desync_check_correction(
                     });
                 }
                 None => {
-                    warn!(
-                        "Couldnt find desync cache tick: {}. Cache len: {}",
-                        t,
-                        cache.cache.len()
-                    );
+                    warn!("Couldnt find desync cache tick: {}", t);
                 }
             },
         }

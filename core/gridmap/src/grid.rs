@@ -23,6 +23,7 @@ use physics::{
     physics::{get_bit_masks, ColliderGroup},
     rigid_body::STANDARD_BODY_FRICTION,
 };
+use resources::grid::TileCollider;
 use resources::player::SoftPlayer;
 use resources::{
     grid::TargetCell,
@@ -1052,6 +1053,7 @@ pub(crate) fn add_tile_collision(
                 SFRigidBody,
                 TransformBundle::from(world_position),
                 cell_properties.collider.clone(),
+                TileCollider,
             ))
             .id();
 

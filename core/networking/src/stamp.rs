@@ -3,6 +3,7 @@ use bevy::{
     time::Time,
 };
 use bevy_xpbd_3d::prelude::{Physics, PhysicsTime};
+use resources::core::TickRate;
 use serde::{Deserialize, Serialize};
 
 use crate::{client::IncomingReliableServerMessage, server::NetworkingServerMessage};
@@ -45,14 +46,15 @@ impl TickRateStamp {
     }
     pub fn get_difference(&self, input: u8) -> i8 {
         let d;
+        let rate = TickRate::default().fixed_rate;
         if input > self.tick {
-            if u8::MAX - input < 64 && input - self.tick > 64 {
+            if u8::MAX - input < rate && input - self.tick > rate {
                 d = (-((u8::MAX - input) as i16 + self.tick as i16)) as i8;
             } else {
                 d = (input as i16 - self.tick as i16) as i8;
             }
         } else {
-            if u8::MAX - self.tick < 64 && self.tick - input > 64 {
+            if u8::MAX - self.tick < rate && self.tick - input > rate {
                 d = ((u8::MAX as i16 - self.tick as i16) + input as i16) as i8;
             } else {
                 d = (-(self.tick as i16 - input as i16)) as i8;

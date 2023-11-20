@@ -29,3 +29,6 @@ pub struct TargetCellWithOrientation {
 
 #[derive(Component)]
 pub struct Tile;
+
+#[derive(Component)]
+pub struct TileCollider;
