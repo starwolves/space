@@ -177,7 +177,6 @@ pub(crate) fn sync_physics_data(
         With<SFRigidBody>,
     >,
     sync: Res<SyncWorld>,
-    link: Res<CorrectionServerRigidBodyLink>,
     cache: Res<PhysicsCache>,
     correction: Res<StartCorrection>,
     mut commands: Commands,
@@ -186,46 +185,42 @@ pub(crate) fn sync_physics_data(
         match cache.cache.get(&correction.start_tick) {
             Some(sync_tick_cache) => {
                 for (_, cache) in sync_tick_cache.iter() {
-                    for (k, v) in &link.map {
-                        if cache.entity == *v {
-                            match query.get_mut(*k) {
-                                Ok((
-                                    mut transform,
-                                    mut linear_velocity,
-                                    mut linear_damping,
-                                    mut angular_damping,
-                                    mut angular_velocity,
-                                    mut external_torque,
-                                    mut external_angular_impulse,
-                                    mut external_impulse,
-                                    mut external_force,
-                                    sleeping,
-                                    mut locked_axes,
-                                    mut collision_layers,
-                                    mut friction,
-                                )) => {
-                                    *transform = cache.transform;
-                                    *linear_velocity = cache.linear_velocity;
-                                    *linear_damping = cache.linear_damping;
-                                    *angular_damping = cache.angular_damping;
-                                    *angular_velocity = cache.angular_velocity;
-                                    *external_torque = cache.external_torque;
-                                    *external_angular_impulse = cache.external_angular_impulse;
-                                    *external_impulse = cache.external_impulse;
-                                    *external_force = cache.external_force;
-                                    *locked_axes = cache.locked_axes;
-                                    *collision_layers = cache.collision_layers;
-                                    *friction = cache.collider_friction;
-                                    if sleeping.is_some() {
-                                        commands.entity(*k).insert(Sleeping);
-                                    } else {
-                                        commands.entity(*k).remove::<Sleeping>();
-                                    }
-                                }
-                                Err(_) => {
-                                    warn!("Couldnt find entity in query.");
-                                }
+                    match query.get_mut(cache.entity) {
+                        Ok((
+                            mut transform,
+                            mut linear_velocity,
+                            mut linear_damping,
+                            mut angular_damping,
+                            mut angular_velocity,
+                            mut external_torque,
+                            mut external_angular_impulse,
+                            mut external_impulse,
+                            mut external_force,
+                            sleeping,
+                            mut locked_axes,
+                            mut collision_layers,
+                            mut friction,
+                        )) => {
+                            *transform = cache.transform;
+                            *linear_velocity = cache.linear_velocity;
+                            *linear_damping = cache.linear_damping;
+                            *angular_damping = cache.angular_damping;
+                            *angular_velocity = cache.angular_velocity;
+                            *external_torque = cache.external_torque;
+                            *external_angular_impulse = cache.external_angular_impulse;
+                            *external_impulse = cache.external_impulse;
+                            *external_force = cache.external_force;
+                            *locked_axes = cache.locked_axes;
+                            *collision_layers = cache.collision_layers;
+                            *friction = cache.collider_friction;
+                            if sleeping.is_some() {
+                                commands.entity(cache.entity).insert(Sleeping);
+                            } else {
+                                commands.entity(cache.entity).remove::<Sleeping>();
                             }
+                        }
+                        Err(_) => {
+                            warn!("Couldnt find entity in query.");
                         }
                     }
                 }
@@ -394,10 +389,6 @@ pub(crate) fn desync_check_correction(
                                             rotation: s.rotation,
                                             ..Default::default()
                                         };
-                                        info!(
-                                            "Received server data: {:?}:{:?}",
-                                            c.entity, s.translation
-                                        );
                                         break;
                                     }
                                 }

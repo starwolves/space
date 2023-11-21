@@ -341,10 +341,6 @@ pub(crate) fn receive_correction_server_messages(
                             match rigidbodies.get_entity_rigidbody(&cache.entity) {
                                 Some(rb_entity) => {
                                     cache.rb_entity = *rb_entity;
-                                    info!(
-                                        "Results: {:?}{:?}",
-                                        cache.entity, cache.transform.translation
-                                    );
                                 }
                                 None => {
                                     warn!("Couldnt get entity rigidbody.");
@@ -439,6 +435,7 @@ pub(crate) fn store_tick_data(
     }
 }
 
+/// Runs on client.
 pub(crate) fn apply_correction_results(
     mut events: EventReader<CorrectionResults>,
     mut query: Query<
