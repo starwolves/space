@@ -240,6 +240,7 @@ dependencies = [
  "bevy",
  "bevy_egui",
  "bevy_xpbd_3d",
+ "cameras",
  "chat",
  "combat",
  "computers",
@@ -1417,6 +1418,7 @@ dependencies = [
  "approx",
  "bevy",
  "bevy_xpbd_3d",
+ "networking",
  "resources",
  "serde",
 ]
@@ -1729,6 +1731,7 @@ dependencies = [
  "bevy",
  "bevy_renet",
  "bevy_xpbd_3d",
+ "cameras",
  "entity",
  "networking",
  "pawn",

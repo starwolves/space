@@ -30,6 +30,12 @@ pub enum EntityServerMessage {
     ),
     LoadEntity(LoadEntity),
     UnloadEntity(Entity),
+    LinkPeer(LinkPeer),
+}
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct LinkPeer {
+    pub handle: u16,
+    pub server_entity: Entity,
 }
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct LoadEntity {

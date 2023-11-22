@@ -19,3 +19,4 @@ serde = "1.0.177"
 bevy_xpbd_3d = { version = "0.3.2" , features = ["enhanced-determinism"], git = "https://github.com/Jondolf/bevy_xpbd.git", branch="main"}
 
 resources = { path = "../resources" }
+networking = { path = "../networking" }

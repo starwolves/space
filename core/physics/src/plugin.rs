@@ -13,11 +13,12 @@ use resources::{
     core::TickRate,
     correction::CorrectionSet,
     modes::{is_correction_mode, is_server, is_server_mode},
+    physics::PhysicsSet,
     sets::MainSet,
 };
 
 use crate::{
-    cache::{cache_data, PhysicsCache, PhysicsSet},
+    cache::{cache_data, PhysicsCache},
     correction_mode::CorrectionResults,
     entity::{
         client_interpolate_link_transform, client_mirror_link_target_transform, remove_links,
@@ -27,7 +28,8 @@ use crate::{
     net::PhysicsServerMessage,
     sync::{
         desync_check_correction, send_desync_check, sync_correction_world_entities, sync_loop,
-        sync_physics_data, CorrectionServerRigidBodyLink, FastForwarding, SyncPause,
+        sync_physics_data, CorrectionServerRigidBodyLink, FastForwarding, SpawningSimulation,
+        SpawningSimulationRigidBody, SyncPause,
     },
 };
 
@@ -51,13 +53,15 @@ impl Plugin for PhysicsPlugin {
                     (
                         sync_correction_world_entities
                             .after(CorrectionSet::Start)
-                            .in_set(MainSet::Update),
+                            .in_set(MainSet::Update)
+                            .before(SpawningSimulation::Spawn),
                         sync_physics_data
                             .in_set(MainSet::PreUpdate)
                             .in_set(CorrectionSet::SyncData),
                     ),
                 )
-                .init_resource::<CorrectionServerRigidBodyLink>();
+                .init_resource::<CorrectionServerRigidBodyLink>()
+                .add_event::<SpawningSimulationRigidBody>();
             }
             if is_server() {
                 app.add_systems(

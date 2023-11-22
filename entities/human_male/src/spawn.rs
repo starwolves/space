@@ -40,6 +40,7 @@ use pawn::pawn::{ClientPawn, DataLink, DataLinkType, PawnBuilder};
 use pawn::pawn::{PawnDesignation, ShipAuthorization, ShipAuthorizationEnum, SpawnPawnData};
 use physics::physics::CHARACTER_FLOOR_FRICTION;
 use physics::spawn::{RigidBodyBuilder, RigidBodyBundle};
+use physics::sync::SpawningSimulationRigidBody;
 use resources::math::Vec2Int;
 
 /// Get default transform.
@@ -467,6 +468,25 @@ pub fn spawn_held_item<T: Send + Sync + Default + 'static>(
                 item_entity: item,
                 item_type_id: net_type,
             });
+        }
+    }
+}
+
+/// This has to be turned into a generic system for all humanoids.
+pub(crate) fn simulation_humanoid_spawn(
+    mut spawns: EventReader<SpawningSimulationRigidBody>,
+    mut commands: Commands,
+) {
+    for spawn in spawns.read() {
+        if spawn
+            .entity_type
+            .is_type(HumanMaleType::default().identifier)
+        {
+            commands.entity(spawn.entity).insert((
+                Humanoid::default(),
+                ControllerInput::default(),
+                LookTransform::default(),
+            ));
         }
     }
 }

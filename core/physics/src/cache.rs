@@ -1,6 +1,5 @@
 use std::collections::HashMap;
 
-use bevy::ecs::schedule::SystemSet;
 use bevy::log::warn;
 use bevy::math::{Quat, Vec3};
 use bevy::prelude::{Entity, Query, Res, ResMut, Resource, Transform, With};
@@ -9,6 +8,8 @@ use bevy_xpbd_3d::prelude::{
     AngularDamping, AngularVelocity, ExternalAngularImpulse, ExternalForce, ExternalImpulse,
     ExternalTorque, LinearDamping, LinearVelocity, RigidBody,
 };
+use entity::entity_data::EntityData;
+use entity::entity_types::BoxedEntityType;
 use networking::stamp::TickRateStamp;
 use serde::{Deserialize, Serialize};
 
@@ -36,6 +37,7 @@ pub struct Cache {
     pub collision_layers: CollisionLayers,
     pub locked_axes: LockedAxes,
     pub collider_friction: Friction,
+    pub entity_type: BoxedEntityType,
 }
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct SmallCache {
@@ -44,13 +46,6 @@ pub struct SmallCache {
     pub angular_velocity: Vec3,
     pub translation: Vec3,
     pub rotation: Quat,
-}
-
-/// Label for systems ordering.
-#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
-pub enum PhysicsSet {
-    Correct,
-    Cache,
 }
 
 pub(crate) fn cache_data(
@@ -80,6 +75,7 @@ pub(crate) fn cache_data(
     stamp: Res<TickRateStamp>,
     mut cache: ResMut<PhysicsCache>,
     rigidbodies: Res<RigidBodies>,
+    types: Query<&EntityData>,
 ) {
     for (t0, collider_friction) in query.iter() {
         let (
@@ -111,6 +107,17 @@ pub(crate) fn cache_data(
             }
         }
 
+        let entity_type;
+        match types.get(entity) {
+            Ok(t) => {
+                entity_type = t.entity_type.clone();
+            }
+            Err(_) => {
+                warn!("Couldnt find entity type.");
+                continue;
+            }
+        }
+
         let ncache = Cache {
             entity,
             rb_entity,
@@ -129,6 +136,7 @@ pub(crate) fn cache_data(
             collision_layers: *collision_layers,
             locked_axes: *locked_axes,
             collider_friction: *collider_friction,
+            entity_type,
         };
 
         match cache.cache.get_mut(&stamp.large) {

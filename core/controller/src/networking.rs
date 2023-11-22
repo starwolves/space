@@ -1,21 +1,14 @@
 use bevy::log::warn;
-use bevy::prelude::Entity;
 use bevy::prelude::EventWriter;
-use bevy::prelude::Quat;
 use bevy::prelude::Query;
 use bevy::prelude::Res;
-use bevy::prelude::Transform;
-use bevy::prelude::Vec3;
 use bevy::prelude::With;
-use bevy_xpbd_3d::prelude::LinearVelocity;
 use networking::server::ConnectedPlayer;
 use networking::server::IncomingEarlyReliableClientMessage;
 use networking::server::IncomingEarlyUnreliableClientMessage;
 use networking::server::OutgoingReliableServerMessage;
 use networking::server::OutgoingUnreliableServerMessage;
-use networking::stamp::TickRateStamp;
 use pawn::net::UnreliableControllerClientMessage;
-use physics::entity::RigidBodies;
 use physics::entity::RigidBodyLink;
 use serde::Deserialize;
 use serde::Serialize;
@@ -42,7 +35,6 @@ pub struct PeerReliableControllerMessage {
     pub message: ControllerClientMessage,
     pub peer_handle: u16,
     pub client_stamp: u8,
-    pub data: EarlyTickData,
 }
 /// Replicates client input to peers this is a server message.
 #[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
@@ -51,15 +43,6 @@ pub struct PeerUnreliableControllerMessage {
     pub message: UnreliableControllerClientMessage,
     pub peer_handle: u16,
     pub client_stamp: u8,
-    pub data: EarlyTickData,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct EarlyTickData {
-    pub position: Vec3,
-    pub rotation: Quat,
-    pub velocity: Vec3,
-    pub stamp: u8,
 }
 
 /// Replicate client input to peers instantly.
@@ -72,13 +55,10 @@ pub(crate) fn peer_replication(
     mut peer_unreliable: EventWriter<
         OutgoingUnreliableServerMessage<PeerUnreliableControllerMessage>,
     >,
-    players: Query<(Entity, &ConnectedPlayer), With<RigidBodyLink>>,
-    rigidbody_query: Query<(&Transform, &LinearVelocity)>,
-    rigidbodies: Res<RigidBodies>,
-    stamp: Res<TickRateStamp>,
+    players: Query<&ConnectedPlayer, With<RigidBodyLink>>,
 ) {
     for message in server.read() {
-        for (entity, connected) in players.iter() {
+        for connected in players.iter() {
             if !connected.connected {
                 continue;
             }
@@ -86,43 +66,18 @@ pub(crate) fn peer_replication(
                 continue;
             }*/
 
-            let rb_entity;
-            match rigidbodies.get_entity_rigidbody(&entity) {
-                Some(e) => {
-                    rb_entity = *e;
-                }
-                None => {
-                    warn!("Couldnt find rb.");
-                    continue;
-                }
-            }
-
-            match rigidbody_query.get(rb_entity) {
-                Ok((transform, velocity)) => {
-                    peer.send(OutgoingReliableServerMessage {
-                        handle: connected.handle,
-                        message: PeerReliableControllerMessage {
-                            message: message.message.clone(),
-                            peer_handle: message.handle.raw() as u16,
-                            client_stamp: message.stamp,
-                            data: EarlyTickData {
-                                position: transform.translation,
-                                rotation: transform.rotation,
-                                velocity: velocity.0,
-                                stamp: stamp.tick,
-                            },
-                        },
-                    });
-                }
-                Err(_) => {
-                    warn!("Couldnt find rb in query.");
-                    continue;
-                }
-            }
+            peer.send(OutgoingReliableServerMessage {
+                handle: connected.handle,
+                message: PeerReliableControllerMessage {
+                    message: message.message.clone(),
+                    peer_handle: message.handle.raw() as u16,
+                    client_stamp: message.stamp,
+                },
+            });
         }
     }
     for message in u_server.read() {
-        for (entity, connected) in players.iter() {
+        for connected in players.iter() {
             if !connected.connected {
                 continue;
             }
@@ -130,39 +85,14 @@ pub(crate) fn peer_replication(
                 continue;
             }*/
 
-            let rb_entity;
-            match rigidbodies.get_entity_rigidbody(&entity) {
-                Some(e) => {
-                    rb_entity = *e;
-                }
-                None => {
-                    warn!("Couldnt find rb.");
-                    continue;
-                }
-            }
-
-            match rigidbody_query.get(rb_entity) {
-                Ok((transform, velocity)) => {
-                    peer_unreliable.send(OutgoingUnreliableServerMessage {
-                        handle: connected.handle,
-                        message: PeerUnreliableControllerMessage {
-                            message: message.message.clone(),
-                            peer_handle: message.handle.raw() as u16,
-                            client_stamp: message.stamp,
-                            data: EarlyTickData {
-                                position: transform.translation,
-                                rotation: transform.rotation,
-                                velocity: velocity.0,
-                                stamp: stamp.tick,
-                            },
-                        },
-                    });
-                }
-                Err(_) => {
-                    warn!("Couldnt find rb in query.");
-                    continue;
-                }
-            }
+            peer_unreliable.send(OutgoingUnreliableServerMessage {
+                handle: connected.handle,
+                message: PeerUnreliableControllerMessage {
+                    message: message.message.clone(),
+                    peer_handle: message.handle.raw() as u16,
+                    client_stamp: message.stamp,
+                },
+            });
         }
     }
 }

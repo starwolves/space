@@ -5,6 +5,7 @@ use bevy::prelude::EventReader;
 use bevy::prelude::EventWriter;
 use bevy::prelude::ResMut;
 use bevy::prelude::Transform;
+use bevy_renet::renet::ClientId;
 use networking::client::IncomingReliableServerMessage;
 
 use bevy::prelude::Res;
@@ -16,6 +17,7 @@ use crate::entity_types::EntityTypes;
 use crate::net::EntityServerMessage;
 use crate::spawn::ClientEntityServerEntity;
 use crate::spawn::EntityBuildData;
+use crate::spawn::PeerPawns;
 use crate::spawn::SpawnEntity;
 
 /// Client loads in entities.
@@ -81,6 +83,31 @@ pub fn load_entity<T: Send + Sync + 'static + Default + EntityType>(
                 }
             }
             _ => {}
+        }
+    }
+}
+
+pub(crate) fn link_peer(
+    mut client: EventReader<IncomingReliableServerMessage<EntityServerMessage>>,
+    mut peers: ResMut<PeerPawns>,
+    links: Res<ClientEntityServerEntity>,
+) {
+    for message in client.read() {
+        match &message.message {
+            EntityServerMessage::LinkPeer(link) => {
+                let mut found = false;
+                for (c, s) in links.map.iter() {
+                    if s == &link.server_entity {
+                        peers.map.insert(ClientId::from_raw(link.handle.into()), *c);
+                        found = true;
+                        break;
+                    }
+                }
+                if !found {
+                    warn!("Couldnt find link peer server entity.");
+                }
+            }
+            _ => (),
         }
     }
 }

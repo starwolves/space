@@ -25,9 +25,10 @@ use crate::{
     },
     server::{
         adjust_clients, receive_incoming_reliable_client_messages,
-        receive_incoming_unreliable_client_messages, IncomingRawReliableClientMessage,
-        IncomingRawUnreliableClientMessage, Latency, NetworkingChatServerMessage,
-        NetworkingServerMessage, SyncConfirmations, UnreliableServerMessage,
+        receive_incoming_unreliable_client_messages, HandleToEntity,
+        IncomingRawReliableClientMessage, IncomingRawUnreliableClientMessage, Latency,
+        NetworkingChatServerMessage, NetworkingServerMessage, SyncConfirmations,
+        UnreliableServerMessage,
     },
     stamp::{setup_client_tickrate_stamp, step_tickrate_stamp, PauseTickStep, TickRateStamp},
 };
@@ -118,6 +119,7 @@ impl Plugin for NetworkingPlugin {
         }
 
         app.init_resource::<TickRateStamp>()
+            .init_resource::<HandleToEntity>()
             .init_resource::<PauseTickStep>()
             .add_systems(FixedUpdate, step_tickrate_stamp.in_set(MainSet::PreUpdate))
             .init_resource::<Typenames>()

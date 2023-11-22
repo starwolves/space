@@ -1,9 +1,11 @@
 use std::time::Duration;
 
 use crate::connections::connections;
+use crate::controller::{cache_controller, ControllerCache};
 use crate::input::{
-    clean_recorded_input, controller_input, create_input_map, get_client_input, get_peer_input,
-    Controller, InputMovementInput, InputSet, RecordedControllerInput,
+    apply_peer_sync_transform, clean_recorded_input, controller_input, create_input_map,
+    get_client_input, get_peer_input, Controller, InputMovementInput, InputSet,
+    PeerSyncLookTransform, RecordedControllerInput,
 };
 use crate::net::ControllerClientMessage;
 use crate::networking::{
@@ -18,6 +20,7 @@ use networking::messaging::{
 };
 use player::boarding::BoardingPlayer;
 use resources::modes::is_server_mode;
+use resources::physics::PhysicsSet;
 use resources::sets::{MainSet, UpdateSet};
 
 use super::net::update_player_count;
@@ -56,7 +59,17 @@ impl Plugin for ControllerPlugin {
                         .before(UpdateSet::StandardCharacters)
                         .in_set(MainSet::Update),
                 )
-                .add_systems(FixedUpdate, clean_recorded_input.in_set(MainSet::PreUpdate));
+                .add_systems(
+                    FixedUpdate,
+                    (
+                        clean_recorded_input.in_set(MainSet::PreUpdate),
+                        cache_controller
+                            .after(MainSet::PostUpdate)
+                            .in_set(PhysicsSet::Cache),
+                        apply_peer_sync_transform.after(InputSet::First),
+                    ),
+                )
+                .add_event::<PeerSyncLookTransform>();
         }
 
         app.add_systems(
@@ -68,6 +81,7 @@ impl Plugin for ControllerPlugin {
                 .in_set(Controller::Input),
         )
         .init_resource::<RecordedControllerInput>()
+        .init_resource::<ControllerCache>()
         .add_event::<InputMovementInput>();
         register_reliable_message::<ControllerClientMessage>(app, MessageSender::Client, true);
         register_reliable_message::<PeerReliableControllerMessage>(

@@ -16,10 +16,7 @@ use crate::{
 use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, SystemSet, Update};
 use cameras::controllers::fps::FpsCameraPlugin;
 use cameras::LookTransformPlugin;
-use networking::{
-    messaging::{register_reliable_message, MessageSender},
-    server::HandleToEntity,
-};
+use networking::messaging::{register_reliable_message, MessageSender};
 use resources::modes::{is_correction_mode, is_server_mode};
 use resources::sets::MainSet;
 use ui::cursor::CursorSet;
@@ -50,7 +47,6 @@ impl Plugin for PlayerPlugin {
                 );
             }
             app.add_event::<SendServerConfiguration>()
-                .init_resource::<HandleToEntity>()
                 .add_systems(Update, buffer_server_events)
                 .add_systems(FixedUpdate, (clear_buffer.in_set(MainSet::PostUpdate),))
                 .add_systems(
@@ -85,12 +81,12 @@ impl Plugin for PlayerPlugin {
                 )
                     .in_set(MainSet::Update),
             )
-            .add_plugins(LookTransformPlugin)
             .add_plugins(FpsCameraPlugin::default())
             .init_resource::<Boarded>()
             .add_event::<ActivateDebugCamera>();
         }
-        app.init_resource::<SpawnPoints>();
+        app.init_resource::<SpawnPoints>()
+            .add_plugins(LookTransformPlugin);
         register_reliable_message::<PlayerServerMessage>(app, MessageSender::Server, true);
     }
 }

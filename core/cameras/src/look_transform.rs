@@ -1,15 +1,26 @@
+use std::collections::HashMap;
+
 use bevy::{
     app::prelude::*,
     ecs::{bundle::Bundle, prelude::*},
     math::prelude::*,
     transform::components::Transform,
 };
+use networking::stamp::TickRateStamp;
+use resources::{physics::PhysicsSet, sets::MainSet};
 
 pub struct LookTransformPlugin;
 
 impl Plugin for LookTransformPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, look_transform_system);
+        app.add_systems(Update, look_transform_system)
+            .init_resource::<LookTransformCache>()
+            .add_systems(
+                FixedUpdate,
+                cache_look_transform
+                    .after(MainSet::PostUpdate)
+                    .in_set(PhysicsSet::Cache),
+            );
     }
 }
 
@@ -18,10 +29,44 @@ pub struct LookTransformBundle {
     pub transform: LookTransform,
     pub smoother: Smoother,
 }
+#[derive(Resource, Default, Clone)]
+pub struct LookTransformCache {
+    pub cache: HashMap<u64, HashMap<Entity, LookTransform>>,
+}
+
+pub(crate) fn cache_look_transform(
+    query: Query<(Entity, &LookTransform)>,
+    stamp: Res<TickRateStamp>,
+    mut cache: ResMut<LookTransformCache>,
+) {
+    for (entity, controller) in query.iter() {
+        match cache.cache.get_mut(&stamp.large) {
+            Some(map) => {
+                map.insert(entity, controller.clone());
+            }
+            None => {
+                let mut map = HashMap::new();
+                map.insert(entity, controller.clone());
+                cache.cache.insert(stamp.large, map);
+            }
+        }
+    }
+
+    // Clean cache.
+    let mut to_remove = vec![];
+    for recorded_stamp in cache.cache.keys() {
+        if stamp.large >= 256 && recorded_stamp < &(stamp.large - 256) {
+            to_remove.push(*recorded_stamp);
+        }
+    }
+    for i in to_remove {
+        cache.cache.remove(&i);
+    }
+}
 
 /// An eye and the target it's looking at. As a component, this can be modified in place of bevy's `Transform`, and the two will
 /// stay in sync.
-#[derive(Clone, Component, Copy, Debug)]
+#[derive(Clone, Component, Copy, Debug, Default)]
 pub struct LookTransform {
     pub eye: Vec3,
     pub target: Vec3,

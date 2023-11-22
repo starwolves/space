@@ -47,6 +47,7 @@ basic_console_commands = { path = "../basic_console_commands" }
 physics = { path = "../physics" }
 graphics = { path = "../graphics" }
 token = { path = "../token" }
+cameras = { path = "../cameras" }
 
 setup_menu = { path = "../setup_menu" }
 escape_menu = { path = "../escape_menu" }

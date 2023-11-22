@@ -10,6 +10,7 @@ use bevy::{
     math::Vec3,
     prelude::{Commands, Entity, Event, EventReader, EventWriter, Resource, SystemSet, Transform},
 };
+use bevy_renet::renet::ClientId;
 use serde::Deserialize;
 
 use crate::{
@@ -293,4 +294,8 @@ pub struct ClientEntityServerEntity {
 pub struct PawnId {
     pub server: Option<Entity>,
     pub client: Option<Entity>,
+}
+#[derive(Resource, Default)]
+pub struct PeerPawns {
+    pub map: HashMap<ClientId, Entity>,
 }

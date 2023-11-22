@@ -14,8 +14,9 @@ use crate::examine::{
     incoming_messages, ExamineEntityMessages, InputExamineEntity,
 };
 use crate::init::load_ron_entities;
+use crate::loading::link_peer;
 use crate::net::{EntityClientMessage, EntityServerMessage};
-use crate::spawn::{ClientEntityServerEntity, PawnId};
+use crate::spawn::{ClientEntityServerEntity, PawnId, PeerPawns};
 use crate::spawning_events::{despawn_entity, DespawnClientEntity, SpawnClientEntity};
 use crate::visible_checker::visible_checker;
 
@@ -59,7 +60,14 @@ impl Plugin for EntityPlugin {
             .add_event::<DespawnClientEntity>()
             .add_event::<SpawnClientEntity>();
         } else {
-            app.init_resource::<ClientEntityServerEntity>();
+            app.init_resource::<ClientEntityServerEntity>()
+                .init_resource::<PeerPawns>()
+                .add_systems(
+                    FixedUpdate,
+                    link_peer
+                        .in_set(MainSet::Update)
+                        .after(BuildingSet::TriggerBuild),
+                );
         }
         app.add_event::<DespawnEntity>()
             .add_event::<RawSpawnEvent>()

@@ -25,18 +25,25 @@ use bevy_xpbd_3d::components::{
     ExternalForce, ExternalImpulse, ExternalTorque, Friction, LinearDamping, LinearVelocity,
     LockedAxes, RigidBody, Sleeping,
 };
-use controller::input::RecordedControllerInput;
+use cameras::{LookTransform, LookTransformCache};
+use controller::{
+    controller::{ControllerCache, ControllerInput},
+    input::RecordedControllerInput,
+};
+use entity::entity_macros::Identity;
 use gridmap::grid::{Gridmap, GridmapCache};
 use networking::stamp::{step_tickrate_stamp, TickRateStamp};
 use physics::{
-    cache::{Cache, PhysicsCache, PhysicsSet},
+    cache::{Cache, PhysicsCache},
     correction_mode::CorrectionResults,
     entity::{RigidBodies, SFRigidBody},
     sync::CorrectionServerRigidBodyLink,
 };
 use resources::{
+    content::SF_CONTENT_PREFIX,
     correction::{CorrectionServerSet, CorrectionSet, StartCorrection, SyncWorld},
     modes::is_server,
+    physics::PhysicsSet,
     sets::MainSet,
 };
 
@@ -78,6 +85,9 @@ impl Plugin for CorrectionServerPlugin {
                 finish_correction.in_set(MainSet::PostUpdate),
                 store_tick_data.in_set(MainSet::Update),
                 clear_sync_world.in_set(MainSet::PostUpdate),
+                apply_humanoid_caches
+                    .in_set(MainSet::PreUpdate)
+                    .after(CorrectionServerSet::TriggerSync),
             ),
         )
         .add_systems(
@@ -174,6 +184,8 @@ pub(crate) fn server_start_correcting(
     mut rebuild: ResMut<SyncWorld>,
     mut stamp: ResMut<TickRateStamp>,
     link: Res<CorrectionServerRigidBodyLink>,
+    mut controller_cache: ResMut<ControllerCache>,
+    mut look_cache: ResMut<LookTransformCache>,
 ) {
     match &queued_message_reciever.receiver_option {
         Some(receiver) => loop {
@@ -186,6 +198,8 @@ pub(crate) fn server_start_correcting(
                         new_cache,
                         input,
                         gridmap_cache,
+                        controller_cachec,
+                        look_cachec,
                     ) => {
                         let mut fixed_cache = new_cache.clone();
                         for t in fixed_cache.cache.iter_mut() {
@@ -207,6 +221,8 @@ pub(crate) fn server_start_correcting(
 
                         rebuild.rebuild = true;
                         rebuild.second_tick = false;
+                        *controller_cache = controller_cachec;
+                        *look_cache = look_cachec;
                         *stamp = TickRateStamp::new(start_correction_data.start_tick);
                     }
                 },
@@ -251,6 +267,8 @@ pub enum ClientCorrectionMessage {
         PhysicsCache,
         RecordedControllerInput,
         GridmapCache,
+        ControllerCache,
+        LookTransformCache,
     ),
 }
 pub enum CorrectionServerMessage {
@@ -285,6 +303,8 @@ pub(crate) fn start_correction(
     correction_server: Res<CorrectionServerData>,
     grid: Res<Gridmap>,
     mut enabled: ResMut<CorrectionEnabled>,
+    look_cache: Res<LookTransformCache>,
+    controller_cache: Res<ControllerCache>,
 ) {
     let mut lowest_start = 0;
     let mut highest_end = 1;
@@ -316,6 +336,8 @@ pub(crate) fn start_correction(
             physics_cache.clone(),
             input_cache.clone(),
             grid.updates_cache.clone(),
+            controller_cache.clone(),
+            look_cache.clone(),
         )) {
         Ok(_) => {
             enabled.0 = true;
@@ -430,11 +452,23 @@ pub(crate) fn store_tick_data(
                 collision_layers: *collision_layers,
                 locked_axes: *locked_axes,
                 collider_friction: *collider_friction,
+                entity_type: Box::new(SimulationType::default()),
             },
         );
     }
 }
-
+use entity::entity_types::EntityType;
+#[derive(Clone, Identity)]
+pub struct SimulationType {
+    pub identifier: String,
+}
+impl Default for SimulationType {
+    fn default() -> Self {
+        Self {
+            identifier: SF_CONTENT_PREFIX.to_string() + "simulation_body",
+        }
+    }
+}
 /// Runs on client.
 pub(crate) fn apply_correction_results(
     mut events: EventReader<CorrectionResults>,
@@ -520,6 +554,47 @@ pub(crate) fn apply_correction_results(
             None => {
                 warn!("Couldnt find the right tickrate: {}", stamp.large);
             }
+        }
+    }
+}
+
+pub(crate) fn apply_humanoid_caches(
+    controller_cache: Res<ControllerCache>,
+    look_cache: Res<LookTransformCache>,
+    mut query: Query<(Entity, &mut LookTransform, &mut ControllerInput)>,
+    stamp: Res<TickRateStamp>,
+) {
+    let controller_t;
+    match controller_cache.cache.get(&stamp.large) {
+        Some(c) => controller_t = c,
+        None => {
+            warn!("Missed controller cache tick {}", stamp.large);
+            return;
+        }
+    }
+    let look_t;
+    match look_cache.cache.get(&stamp.large) {
+        Some(c) => {
+            look_t = c;
+        }
+        None => {
+            warn!("Couldnt find look_cache for tick {}", stamp.large);
+            return;
+        }
+    }
+
+    for (entity, mut look, mut controller) in query.iter_mut() {
+        match controller_t.get(&entity) {
+            Some(component) => {
+                *controller = component.clone();
+            }
+            None => {}
+        }
+        match look_t.get(&entity) {
+            Some(component) => {
+                *look = component.clone();
+            }
+            None => {}
         }
     }
 }

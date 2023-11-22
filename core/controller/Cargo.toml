@@ -28,3 +28,4 @@ pawn = { path = "../pawn" }
 resources = { path = "../resources"}
 entity = { path = "../entity"}
 physics = { path = "../physics"}
+cameras = { path = "../cameras"}

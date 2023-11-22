@@ -3,7 +3,7 @@ use bevy::prelude::{Commands, Entity, EventReader};
 use bevy::prelude::{EventWriter, Query, Res};
 use bevy_xpbd_3d::components::{AngularVelocity, LinearVelocity};
 use bevy_xpbd_3d::prelude::RigidBody;
-use entity::net::{EntityServerMessage, LoadEntity, PhysicsData};
+use entity::net::{EntityServerMessage, LinkPeer, LoadEntity, PhysicsData};
 use entity::spawn::{EntityBuildData, SpawnEntity};
 use entity::spawning_events::SpawnClientEntity;
 use physics::entity::{RigidBodies, SFRigidBody};
@@ -90,7 +90,7 @@ use entity::entity_data::personalise;
 use entity::entity_types::EntityTypes;
 
 use entity::entity_data::{EntityData, EntityUpdates};
-use networking::server::OutgoingReliableServerMessage;
+use networking::server::{ConnectedPlayer, OutgoingReliableServerMessage};
 /// Load an entity in for the client. Does not only apply to inventory items or holders.
 /// Belongs in crate/entity but cyclic issues.
 pub(crate) fn spawn_entity_for_client(
@@ -100,6 +100,7 @@ pub(crate) fn spawn_entity_for_client(
         &Transform,
         Option<&RigidBody>,
         Option<&InventoryItem>,
+        Option<&ConnectedPlayer>,
     )>,
     mut load_entity_events: EventReader<SpawnClientEntity>,
     mut server: EventWriter<OutgoingReliableServerMessage<EntityServerMessage>>,
@@ -115,6 +116,7 @@ pub(crate) fn spawn_entity_for_client(
                 transform,
                 rigid_body_component_option,
                 inventory_item_option,
+                connected_option,
             )) => {
                 let mut linear_velocity = LinearVelocity::default();
                 let mut angular_velocity = AngularVelocity::default();
@@ -174,6 +176,19 @@ pub(crate) fn spawn_entity_for_client(
                         holder_entity: holder_option,
                     }),
                 });
+
+                match connected_option {
+                    Some(h) => {
+                        server.send(OutgoingReliableServerMessage {
+                            handle: load_entity_event.loader_handle,
+                            message: EntityServerMessage::LinkPeer(LinkPeer {
+                                handle: h.handle.raw() as u16,
+                                server_entity: load_entity_event.entity,
+                            }),
+                        });
+                    }
+                    None => {}
+                }
             }
             Err(_) => {
                 warn!("Couldnt find entity for load entity event.");

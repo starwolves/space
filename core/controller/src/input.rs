@@ -5,12 +5,14 @@ use crate::{
     net::{ControllerClientMessage, MovementInput},
     networking::{PeerReliableControllerMessage, PeerUnreliableControllerMessage},
 };
-use bevy::log::warn;
 use bevy::prelude::{
     Entity, Event, EventReader, EventWriter, KeyCode, Query, Res, ResMut, Resource, SystemSet, Vec2,
 };
+use bevy::{log::warn, math::Vec3};
 
-use entity::spawn::PawnId;
+use bevy_renet::renet::ClientId;
+use cameras::LookTransform;
+use entity::spawn::{PawnId, PeerPawns};
 use networking::{
     client::{
         IncomingReliableServerMessage, IncomingUnreliableServerMessage,
@@ -114,6 +116,27 @@ pub enum RecordedInput {
     Reliable(PeerReliableControllerMessage),
     Unreliable(PeerUnreliableControllerMessage),
 }
+#[derive(Event)]
+pub struct PeerSyncLookTransform {
+    pub entity: Entity,
+    pub target: Vec3,
+}
+
+pub(crate) fn apply_peer_sync_transform(
+    mut events: EventReader<PeerSyncLookTransform>,
+    mut query: Query<&mut LookTransform>,
+) {
+    for event in events.read() {
+        match query.get_mut(event.entity) {
+            Ok(mut l) => {
+                l.target = event.target;
+            }
+            Err(_) => {
+                warn!("Couldnt find looktransform for sync.");
+            }
+        }
+    }
+}
 
 #[derive(Resource, Default, Clone)]
 pub struct RecordedControllerInput {
@@ -127,6 +150,9 @@ pub(crate) fn get_peer_input(
     >,
     mut record: ResMut<RecordedControllerInput>,
     stamp: Res<TickRateStamp>,
+    mut movement_input_event: EventWriter<InputMovementInput>,
+    mut sync: EventWriter<PeerSyncLookTransform>,
+    peer_pawns: Res<PeerPawns>,
 ) {
     for message in peer.read() {
         let large_stamp = stamp.calculate_large(message.stamp);
@@ -139,6 +165,28 @@ pub(crate) fn get_peer_input(
                 record.input.insert(large_stamp, vec![msg]);
             }
         }
+        match &message.message.message {
+            ControllerClientMessage::MovementInput(input) => {
+                match peer_pawns
+                    .map
+                    .get(&ClientId::from_raw(message.message.peer_handle.into()))
+                {
+                    Some(peer) => {
+                        movement_input_event.send(InputMovementInput {
+                            player_entity: *peer,
+                            up: input.up,
+                            left: input.left,
+                            right: input.right,
+                            down: input.down,
+                            pressed: input.pressed,
+                        });
+                    }
+                    None => {
+                        warn!("Couldnt find peer pawn.");
+                    }
+                }
+            }
+        }
     }
     for message in unreliable_peer.read() {
         let large_stamp = stamp.calculate_large(message.stamp);
@@ -149,6 +197,24 @@ pub(crate) fn get_peer_input(
             }
             None => {
                 record.input.insert(large_stamp, vec![msg]);
+            }
+        }
+        match &message.message.message {
+            pawn::net::UnreliableControllerClientMessage::SyncLookTransform(target) => {
+                match peer_pawns
+                    .map
+                    .get(&ClientId::from_raw(message.message.peer_handle.into()))
+                {
+                    Some(peer) => {
+                        sync.send(PeerSyncLookTransform {
+                            entity: *peer,
+                            target: *target,
+                        });
+                    }
+                    None => {
+                        warn!("Couldnt find peer pawn 2.");
+                    }
+                }
             }
         }
     }

@@ -7,11 +7,11 @@ use entity::{
 };
 
 use networking::stamp::step_tickrate_stamp;
-use physics::spawn::build_rigid_bodies;
+use physics::{spawn::build_rigid_bodies, sync::SpawningSimulation};
 use player::boarding::player_boarded;
 use resources::{
     correction::CorrectionSet,
-    modes::is_server_mode,
+    modes::{is_correction_mode, is_server_mode},
     sets::{BuildingSet, CombatSet, MainSet},
 };
 
@@ -21,8 +21,8 @@ use crate::{
     setup_ui_showcase::human_male_setup_ui,
     spawn::{
         attach_human_male_camera, build_base_human_males, build_human_males,
-        process_add_item_slot_buffer, process_add_slot_buffer, spawn_held_item,
-        AddItemToSlotBuffer, AddSlotBuffer, HumanMaleType,
+        process_add_item_slot_buffer, process_add_slot_buffer, simulation_humanoid_spawn,
+        spawn_held_item, AddItemToSlotBuffer, AddSlotBuffer, HumanMaleType,
     },
 };
 pub struct HumanMalePlugin;
@@ -58,6 +58,14 @@ impl Plugin for HumanMalePlugin {
                         .in_set(CorrectionSet::Start),
                     attach_human_male_camera.after(BuildingSet::TriggerBuild),
                 )
+                    .in_set(MainSet::Update),
+            );
+        }
+        if is_correction_mode(app) {
+            app.add_systems(
+                FixedUpdate,
+                simulation_humanoid_spawn
+                    .in_set(SpawningSimulation::Spawn)
                     .in_set(MainSet::Update),
             );
         }

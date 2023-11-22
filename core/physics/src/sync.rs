@@ -1,7 +1,9 @@
 use std::collections::HashMap;
 
 use bevy::ecs::entity::Entity;
+use bevy::ecs::event::Event;
 use bevy::ecs::query::{With, Without};
+use bevy::ecs::schedule::SystemSet;
 use bevy::ecs::system::{Commands, Query};
 use bevy::log::{info, warn};
 use bevy::transform::components::Transform;
@@ -17,6 +19,7 @@ use bevy_xpbd_3d::components::{
 };
 use bevy_xpbd_3d::prelude::{Physics, PhysicsTime};
 use entity::despawn::DespawnEntity;
+use entity::entity_types::BoxedEntityType;
 use entity::spawn::ClientEntityServerEntity;
 use networking::server::{ConnectedPlayer, OutgoingReliableServerMessage};
 use networking::{
@@ -246,6 +249,7 @@ pub(crate) fn sync_correction_world_entities(
     app_mode: Res<Mode>,
     mut link: ResMut<CorrectionServerRigidBodyLink>,
     correction: Res<StartCorrection>,
+    mut event: EventWriter<SpawningSimulationRigidBody>,
 ) {
     if sync.rebuild {
         match cache.cache.get(&correction.start_tick) {
@@ -317,6 +321,10 @@ pub(crate) fn sync_correction_world_entities(
                             &mut rigid_bodies,
                             &app_mode,
                         );
+                        event.send(SpawningSimulationRigidBody {
+                            entity,
+                            entity_type: c.entity_type.clone(),
+                        });
                     }
                 }
             }
@@ -364,6 +372,19 @@ pub(crate) fn send_desync_check(
         }
     }
 }
+
+#[derive(Event)]
+pub struct SpawningSimulationRigidBody {
+    pub entity: Entity,
+    pub entity_type: BoxedEntityType,
+}
+
+/// Label for systems ordering.
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
+pub enum SpawningSimulation {
+    Spawn,
+}
+
 pub(crate) fn desync_check_correction(
     mut messages: EventReader<IncomingReliableServerMessage<PhysicsServerMessage>>,
     mut cache: ResMut<PhysicsCache>,
