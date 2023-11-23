@@ -15,9 +15,9 @@ use resources::correction::StartCorrection;
 use crate::entity_types::EntityType;
 use crate::entity_types::EntityTypes;
 use crate::net::EntityServerMessage;
-use crate::spawn::ClientEntityServerEntity;
 use crate::spawn::EntityBuildData;
 use crate::spawn::PeerPawns;
+use crate::spawn::ServerEntityClientEntity;
 use crate::spawn::SpawnEntity;
 
 /// Client loads in entities.
@@ -26,7 +26,7 @@ pub fn load_entity<T: Send + Sync + 'static + Default + EntityType>(
     types: Res<EntityTypes>,
     mut spawn_events: EventWriter<SpawnEntity<T>>,
     mut commands: Commands,
-    mut map: ResMut<ClientEntityServerEntity>,
+    mut map: ResMut<ServerEntityClientEntity>,
     mut correction: EventWriter<StartCorrection>,
     stamp: Res<TickRateStamp>,
 ) {
@@ -90,13 +90,13 @@ pub fn load_entity<T: Send + Sync + 'static + Default + EntityType>(
 pub(crate) fn link_peer(
     mut client: EventReader<IncomingReliableServerMessage<EntityServerMessage>>,
     mut peers: ResMut<PeerPawns>,
-    links: Res<ClientEntityServerEntity>,
+    links: Res<ServerEntityClientEntity>,
 ) {
     for message in client.read() {
         match &message.message {
             EntityServerMessage::LinkPeer(link) => {
                 let mut found = false;
-                for (c, s) in links.map.iter() {
+                for (s, c) in links.map.iter() {
                     if s == &link.server_entity {
                         peers.map.insert(ClientId::from_raw(link.handle.into()), *c);
                         found = true;
@@ -104,7 +104,10 @@ pub(crate) fn link_peer(
                     }
                 }
                 if !found {
-                    warn!("Couldnt find link peer server entity.");
+                    warn!(
+                        "Couldnt find link peer server entity. {:?}",
+                        link.server_entity
+                    );
                 }
             }
             _ => (),

@@ -20,9 +20,12 @@ use networking::{
     },
     stamp::TickRateStamp,
 };
-use resources::input::{
-    InputBuffer, KeyBind, KeyBinds, KeyCodeEnum, HOLD_SPRINT_BIND, JUMP_BIND, MOVE_BACKWARD_BIND,
-    MOVE_FORWARD_BIND, MOVE_LEFT_BIND, MOVE_RIGHT_BIND,
+use resources::{
+    correction::StartCorrection,
+    input::{
+        InputBuffer, KeyBind, KeyBinds, KeyCodeEnum, HOLD_SPRINT_BIND, JUMP_BIND,
+        MOVE_BACKWARD_BIND, MOVE_FORWARD_BIND, MOVE_LEFT_BIND, MOVE_RIGHT_BIND,
+    },
 };
 
 /// Label for systems ordering.
@@ -153,7 +156,10 @@ pub(crate) fn get_peer_input(
     mut movement_input_event: EventWriter<InputMovementInput>,
     mut sync: EventWriter<PeerSyncLookTransform>,
     peer_pawns: Res<PeerPawns>,
+    mut start_correction: EventWriter<StartCorrection>,
 ) {
+    let mut new_correction = false;
+    let mut earliest_tick = 0;
     for message in peer.read() {
         let large_stamp = stamp.calculate_large(message.stamp);
         let msg = RecordedInput::Reliable(message.message.clone());
@@ -180,6 +186,11 @@ pub(crate) fn get_peer_input(
                             down: input.down,
                             pressed: input.pressed,
                         });
+                        new_correction = true;
+                        let e = stamp.calculate_large(message.message.client_stamp);
+                        if e < earliest_tick || earliest_tick == 0 {
+                            earliest_tick = e;
+                        }
                     }
                     None => {
                         warn!("Couldnt find peer pawn.");
@@ -210,6 +221,11 @@ pub(crate) fn get_peer_input(
                             entity: *peer,
                             target: *target,
                         });
+                        new_correction = true;
+                        let e = stamp.calculate_large(message.message.client_stamp);
+                        if e < earliest_tick || earliest_tick == 0 {
+                            earliest_tick = e;
+                        }
                     }
                     None => {
                         warn!("Couldnt find peer pawn 2.");
@@ -217,6 +233,12 @@ pub(crate) fn get_peer_input(
                 }
             }
         }
+    }
+    if new_correction {
+        start_correction.send(StartCorrection {
+            start_tick: earliest_tick,
+            last_tick: stamp.large,
+        });
     }
 }
 
@@ -410,8 +432,6 @@ pub(crate) fn controller_input(
                 }
 
                 player_input_component.movement_vector += additive;
-
-                //info!("{:?}", player_input_component.movement_vector);
             }
             Err(_rr) => {
                 warn!("Couldn't process player input (movement_input_event): couldn't find player_entity 0. {:?}", player_entity);

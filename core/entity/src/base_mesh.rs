@@ -1,6 +1,6 @@
 use crate::{
     entity_types::EntityType,
-    spawn::{ClientEntityServerEntity, PawnId, SpawnEntity},
+    spawn::{PawnId, ServerEntityClientEntity, SpawnEntity},
 };
 use bevy::log::warn;
 use bevy::{
@@ -13,7 +13,7 @@ pub fn link_base_mesh<T: Send + Sync + 'static + EntityType + Default>(
     mut spawner: EventReader<SpawnEntity<T>>,
     mut commands: Commands,
     id: Res<PawnId>,
-    map: Res<ClientEntityServerEntity>,
+    map: Res<ServerEntityClientEntity>,
 ) {
     for spawn in spawner.read() {
         let entity_type = T::default();

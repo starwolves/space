@@ -6,7 +6,7 @@ use bevy::prelude::{
 
 use bevy_xpbd_3d::prelude::Sleeping;
 use cameras::controllers::fps::ActiveCamera;
-use entity::{entity_data::EntityData, entity_types::EntityType, spawn::ClientEntityServerEntity};
+use entity::{entity_data::EntityData, entity_types::EntityType, spawn::ServerEntityClientEntity};
 use networking::client::IncomingReliableServerMessage;
 
 use crate::{
@@ -82,7 +82,7 @@ pub enum ClientActiveCameraItem {
 pub fn set_active_item(
     mut net: EventReader<IncomingReliableServerMessage<InventoryServerMessage>>,
     mut inventory: ResMut<Inventory>,
-    map: Res<ClientEntityServerEntity>,
+    map: Res<ServerEntityClientEntity>,
     mut visible_query: Query<(Entity, &mut Visibility)>,
     state: Res<ActiveCamera>,
     mut commands: Commands,

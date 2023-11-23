@@ -20,7 +20,7 @@ use bevy_xpbd_3d::components::{
 use bevy_xpbd_3d::prelude::{Physics, PhysicsTime};
 use entity::despawn::DespawnEntity;
 use entity::entity_types::BoxedEntityType;
-use entity::spawn::ClientEntityServerEntity;
+use entity::spawn::ServerEntityClientEntity;
 use networking::server::{ConnectedPlayer, OutgoingReliableServerMessage};
 use networking::{
     client::{
@@ -223,7 +223,7 @@ pub(crate) fn sync_physics_data(
                             }
                         }
                         Err(_) => {
-                            warn!("Couldnt find entity in query.");
+                            warn!("Missed sync for {:?}", cache.entity);
                         }
                     }
                 }
@@ -234,7 +234,7 @@ pub(crate) fn sync_physics_data(
 }
 #[derive(Resource, Default)]
 pub struct CorrectionServerRigidBodyLink {
-    // Link sim rigidbody entity to client (not physics) entity.
+    // Sim entity, client entity.
     pub map: HashMap<Entity, Entity>,
 }
 
@@ -264,11 +264,11 @@ pub(crate) fn sync_correction_world_entities(
                         }
                     }
                     if !found {
+                        info!("Sim despawn {:?}", q);
                         link.map.remove(&q);
                         despawn.send(DespawnEntity { entity: q });
                     }
                 }
-
                 // Spawn new entities.
                 for (_, c) in sync_tick_cache.iter() {
                     let mut found = false;
@@ -278,6 +278,7 @@ pub(crate) fn sync_correction_world_entities(
                             break;
                         }
                     }
+
                     if !found {
                         // Strictly spawn rigidbodies.
                         // Try to manually call rigidbodybuilder and spawn function. Dont use SpawnEntity.
@@ -325,11 +326,12 @@ pub(crate) fn sync_correction_world_entities(
                             entity,
                             entity_type: c.entity_type.clone(),
                         });
+                        info!("Sim spawn {:?}", entity);
                     }
                 }
             }
             None => {
-                warn!("Cache skipped tick {}.", correction.start_tick,);
+                warn!("Missed cache ({})", correction.start_tick,);
             }
         }
 
@@ -390,7 +392,7 @@ pub(crate) fn desync_check_correction(
     mut cache: ResMut<PhysicsCache>,
     mut correction: EventWriter<StartCorrection>,
     stamp: Res<TickRateStamp>,
-    server_client_entity: Res<ClientEntityServerEntity>,
+    server_client_entity: Res<ServerEntityClientEntity>,
 ) {
     for message in messages.read() {
         let t = (stamp.large as i128 + stamp.get_difference(message.stamp) as i128) as u64;
@@ -425,7 +427,7 @@ pub(crate) fn desync_check_correction(
                     });
                 }
                 None => {
-                    warn!("Couldnt find desync cache tick: {}", t);
+                    warn!("Missed desync check ({})", t);
                 }
             },
         }

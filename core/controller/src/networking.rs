@@ -62,9 +62,9 @@ pub(crate) fn peer_replication(
             if !connected.connected {
                 continue;
             }
-            /*if message.handle == connected.handle {
+            if message.handle == connected.handle {
                 continue;
-            }*/
+            }
 
             peer.send(OutgoingReliableServerMessage {
                 handle: connected.handle,

@@ -1,6 +1,6 @@
 use bevy::log::warn;
 use bevy::prelude::{Commands, EventReader, EventWriter, Query, Res};
-use entity::spawn::ClientEntityServerEntity;
+use entity::spawn::ServerEntityClientEntity;
 use gridmap::{
     construction::{GridmapConstructionState, ShowYLevelPlane},
     grid::{AddTile, RemoveTile},
@@ -14,7 +14,7 @@ use crate::construction_tool::ConstructionTool;
 pub(crate) fn construction_tool_enable_select_cell_in_front_camera(
     inventory: Res<Inventory>,
     construction_tool_query: Query<&ConstructionTool>,
-    map: Res<ClientEntityServerEntity>,
+    map: Res<ServerEntityClientEntity>,
     state: Res<GridmapConstructionState>,
     mut yplane: EventWriter<ShowYLevelPlane>,
 ) {

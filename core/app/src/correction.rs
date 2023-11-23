@@ -202,13 +202,20 @@ pub(crate) fn server_start_correcting(
                         look_cachec,
                     ) => {
                         let mut fixed_cache = new_cache.clone();
+
                         for t in fixed_cache.cache.iter_mut() {
-                            for (_, cache) in t.1 {
-                                for (k, v) in link.map.iter() {
-                                    if *v == cache.entity {
-                                        cache.entity = *k;
+                            for (_, cache) in t.1.iter_mut() {
+                                let mut found: bool = false;
+                                for (sim, client) in link.map.iter() {
+                                    if *client == cache.entity {
+                                        cache.entity = *sim;
+                                        found = true;
+
                                         break;
                                     }
+                                }
+                                if !found {
+                                    warn!("Cache link not found.");
                                 }
                             }
                         }
@@ -563,15 +570,19 @@ pub(crate) fn apply_humanoid_caches(
     look_cache: Res<LookTransformCache>,
     mut query: Query<(Entity, &mut LookTransform, &mut ControllerInput)>,
     stamp: Res<TickRateStamp>,
+    link: Res<CorrectionServerRigidBodyLink>,
 ) {
     let controller_t;
     match controller_cache.cache.get(&stamp.large) {
         Some(c) => controller_t = c,
         None => {
-            warn!("Missed controller cache tick {}", stamp.large);
+            if stamp.large != 0 {
+                warn!("Missed input cache ({})", stamp.large);
+            }
             return;
         }
     }
+
     let look_t;
     match look_cache.cache.get(&stamp.large) {
         Some(c) => {
@@ -582,15 +593,23 @@ pub(crate) fn apply_humanoid_caches(
             return;
         }
     }
-
     for (entity, mut look, mut controller) in query.iter_mut() {
-        match controller_t.get(&entity) {
+        let mut rb = entity;
+        match link.map.get(&entity) {
+            Some(e) => {
+                rb = *e;
+            }
+            None => {
+                warn!("Couldnt find link of query. {:?}", entity);
+            }
+        }
+        match controller_t.get(&rb) {
             Some(component) => {
                 *controller = component.clone();
             }
             None => {}
         }
-        match look_t.get(&entity) {
+        match look_t.get(&rb) {
             Some(component) => {
                 *look = component.clone();
             }

@@ -29,9 +29,6 @@ pub(crate) fn connections(
                             Ok((mut connected_player_component, mut player_input_component)) => {
                                 connected_player_component.connected = false;
                                 player_input_component.movement_vector = Vec2::ZERO;
-                                player_input_component.sprinting = false;
-                                player_input_component.is_mouse_action_pressed = false;
-                                player_input_component.auto_move_enabled = false;
                             }
                             Err(_) => {
                                 warn!("Couldnt find proper components of player entity.");

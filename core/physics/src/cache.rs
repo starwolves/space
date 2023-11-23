@@ -117,6 +117,11 @@ pub(crate) fn cache_data(
                 continue;
             }
         }
+        /*info!(
+            "cache_data entity:{:?} {}",
+            entity,
+            entity_type.get_identity()
+        );*/
 
         let ncache = Cache {
             entity,
