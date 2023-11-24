@@ -90,10 +90,11 @@ use crate::{
         IncomingReliableClientMessage, OutgoingReliableServerMessage,
     },
 };
+use std::fmt::Debug;
 /// All reliable networking messages must be registered with this system.
 
 pub fn register_reliable_message<
-    T: TypeName + Send + Sync + Clone + Serialize + for<'a> Deserialize<'a> + 'static,
+    T: Debug + TypeName + Send + Sync + Clone + Serialize + for<'a> Deserialize<'a> + 'static,
 >(
     app: &mut App,
     sender: MessageSender,

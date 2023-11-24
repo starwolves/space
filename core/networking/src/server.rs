@@ -391,7 +391,15 @@ pub(crate) fn deserialize_incoming_unreliable_client_message<
                     }
 
                     match queue.get_mut(&event.message.stamp) {
-                        Some(v) => v.push(r),
+                        Some(v) => {
+                            let cr = r.clone();
+                            outgoing_early.send(IncomingEarlyUnreliableClientMessage {
+                                handle: cr.handle,
+                                message: cr.message,
+                                stamp: cr.stamp,
+                            });
+                            v.push(r);
+                        }
                         None => {
                             let cr = r.clone();
                             outgoing_early.send(IncomingEarlyUnreliableClientMessage {
@@ -419,9 +427,9 @@ pub(crate) fn deserialize_incoming_unreliable_client_message<
     }
 }
 use crate::messaging::get_reliable_message;
-
+use std::fmt::Debug;
 pub(crate) fn deserialize_incoming_reliable_client_message<
-    T: TypeName + Send + Sync + Serialize + Clone + for<'a> Deserialize<'a> + 'static,
+    T: Debug + TypeName + Send + Sync + Serialize + Clone + for<'a> Deserialize<'a> + 'static,
 >(
     mut incoming_raw: EventReader<IncomingRawReliableClientMessage>,
     mut outgoing: EventWriter<IncomingReliableClientMessage<T>>,
@@ -447,11 +455,21 @@ pub(crate) fn deserialize_incoming_reliable_client_message<
                         outgoing.send(r);
                         continue;
                     }
-
+                    info!("Early message: {:?}", r.message);
                     match queue.get_mut(&event.message.stamp) {
-                        Some(v) => v.push(r),
+                        Some(v) => {
+                            let cr = r.clone();
+
+                            outgoing_early.send(IncomingEarlyReliableClientMessage {
+                                handle: cr.handle,
+                                message: cr.message,
+                                stamp: cr.stamp,
+                            });
+                            v.push(r);
+                        }
                         None => {
                             let cr = r.clone();
+
                             outgoing_early.send(IncomingEarlyReliableClientMessage {
                                 handle: cr.handle,
                                 message: cr.message,
@@ -491,7 +509,7 @@ pub struct IncomingUnreliableClientMessage<T: TypeName + Send + Sync + Serialize
     pub stamp: u8,
 }
 ///  Messages that you receive with this event must be initiated from a plugin builder with [crate::messaging::init_reliable_message].
-#[derive(Event, Clone)]
+#[derive(Event, Clone, Debug)]
 pub struct IncomingEarlyReliableClientMessage<T: TypeName + Send + Sync + Serialize> {
     pub handle: ClientId,
     pub message: T,

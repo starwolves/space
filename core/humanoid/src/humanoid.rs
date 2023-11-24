@@ -102,7 +102,9 @@ pub(crate) fn humanoid_movement(
                 continue;
             }
         }
-
+        /*if entity == *rigidbody_entity {
+            info!("{:?}", input.movement_vector);
+        }*/
         match rigidbodies_query.get_mut(*rigidbody_entity) {
             Ok(mut velocity) => {
                 let normalized_movement_vector = input.movement_vector.normalize_or_zero();
