@@ -455,7 +455,6 @@ pub(crate) fn deserialize_incoming_reliable_client_message<
                         outgoing.send(r);
                         continue;
                     }
-                    info!("Early message: {:?}", r.message);
                     match queue.get_mut(&event.message.stamp) {
                         Some(v) => {
                             let cr = r.clone();

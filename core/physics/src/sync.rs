@@ -264,7 +264,14 @@ pub(crate) fn sync_correction_world_entities(
                         }
                     }
                     if !found {
-                        info!("Sim despawn {:?}", q);
+                        match link.map.get(&q) {
+                            Some(cid) => {
+                                info!("Correction despawn {:?}, cid:{:?}", q, cid);
+                            }
+                            None => {
+                                warn!("Correction despawn (nolink) {:?}", q);
+                            }
+                        }
                         link.map.remove(&q);
                         despawn.send(DespawnEntity { entity: q });
                     }
@@ -326,7 +333,7 @@ pub(crate) fn sync_correction_world_entities(
                             entity,
                             entity_type: c.entity_type.clone(),
                         });
-                        info!("Sim spawn {:?}", entity);
+                        info!("Correction spawn {:?}, cid:{:?}", entity, c.entity);
                     }
                 }
             }

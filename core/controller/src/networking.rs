@@ -1,4 +1,3 @@
-use bevy::log::info;
 use bevy::log::warn;
 use bevy::prelude::EventWriter;
 use bevy::prelude::Query;
@@ -112,10 +111,6 @@ pub(crate) fn incoming_messages(
             ControllerClientMessage::MovementInput(movement_input) => {
                 match handle_to_entity.map.get(&message.handle) {
                     Some(player_entity) => {
-                        info!(
-                            "Incoming client message: {:?}:{}",
-                            movement_input, message.stamp
-                        );
                         movement_input_event.send(InputMovementInput {
                             player_entity: *player_entity,
                             pressed: movement_input.pressed,

@@ -5,12 +5,8 @@ use crate::{
     net::{ControllerClientMessage, MovementInput},
     networking::{PeerReliableControllerMessage, PeerUnreliableControllerMessage},
 };
-use bevy::{
-    log::info,
-    prelude::{
-        Entity, Event, EventReader, EventWriter, KeyCode, Query, Res, ResMut, Resource, SystemSet,
-        Vec2,
-    },
+use bevy::prelude::{
+    Entity, Event, EventReader, EventWriter, KeyCode, Query, Res, ResMut, Resource, SystemSet, Vec2,
 };
 use bevy::{log::warn, math::Vec3};
 
@@ -167,10 +163,6 @@ pub(crate) fn get_peer_input(
     for message in peer.read() {
         let large_stamp = stamp.calculate_large(message.message.client_stamp);
         let msg = RecordedInput::Reliable(message.message.clone());
-        info!(
-            "Receiving {:?} tick {}",
-            message.message, message.message.client_stamp
-        );
 
         match record.input.get_mut(&large_stamp) {
             Some(v) => {
