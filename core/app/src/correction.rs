@@ -122,7 +122,7 @@ pub(crate) fn finish_correction(
     mut storage: ResMut<SimulationStorage>,
     link: Res<CorrectionServerRigidBodyLink>,
 ) {
-    if correcting.0 && stamp.large >= start.last_tick {
+    if correcting.0 && stamp.large > start.last_tick {
         correcting.0 = false;
 
         let mut new_storage = storage.0.clone();
