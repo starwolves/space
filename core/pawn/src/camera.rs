@@ -27,6 +27,7 @@ pub(crate) fn client_sync_look_transform(
     state: Res<ActiveCamera>,
     pawn_id: Res<PawnId>,
     physics_loop: Res<Time<Physics>>,
+    //stamp: Res<TickRateStamp>,
 ) {
     let camera_entity;
     match state.option {
@@ -41,6 +42,10 @@ pub(crate) fn client_sync_look_transform(
     match look_transform_query.get(camera_entity) {
         Ok(look_transform) => {
             if *prev_target != look_transform.target && !physics_loop.is_paused() {
+                /*info!(
+                    "Sending target: {:?}:{}",
+                    look_transform.target, stamp.large
+                );*/
                 events.send(OutgoingUnreliableClientMessage {
                     message: UnreliableControllerClientMessage::SyncLookTransform(
                         look_transform.target,

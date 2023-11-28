@@ -123,19 +123,39 @@ pub enum RecordedInput {
 pub struct PeerSyncLookTransform {
     pub entity: Entity,
     pub target: Vec3,
+    pub handle: ClientId,
+    pub stamp: u64,
+}
+
+#[derive(Event, Default, Resource)]
+pub struct LastPeerLookTransform {
+    pub map: HashMap<ClientId, u64>,
 }
 
 pub(crate) fn apply_peer_sync_transform(
     mut events: EventReader<PeerSyncLookTransform>,
     mut query: Query<&mut LookTransform>,
+    mut last: ResMut<LastPeerLookTransform>,
 ) {
     for event in events.read() {
-        match query.get_mut(event.entity) {
-            Ok(mut l) => {
-                l.target = event.target;
+        match last.map.get_mut(&event.handle) {
+            Some(old_stamp) => {
+                if event.stamp > *old_stamp {
+                    *old_stamp = event.stamp;
+                    //info!("Peer target: {:?}:{}", event.target, event.stamp);
+
+                    match query.get_mut(event.entity) {
+                        Ok(mut l) => {
+                            l.target = event.target;
+                        }
+                        Err(_) => {
+                            warn!("Couldnt find looktransform for sync.");
+                        }
+                    }
+                }
             }
-            Err(_) => {
-                warn!("Couldnt find looktransform for sync.");
+            None => {
+                last.map.insert(event.handle, event.stamp);
             }
         }
     }
@@ -218,12 +238,15 @@ pub(crate) fn get_peer_input(
                     .get(&ClientId::from_raw(message.message.peer_handle.into()))
                 {
                     Some(peer) => {
+                        let e = stamp.calculate_large(message.message.client_stamp);
                         sync.send(PeerSyncLookTransform {
                             entity: *peer,
                             target: *target,
+                            handle: ClientId::from_raw(message.message.peer_handle.into()),
+                            stamp: e,
                         });
                         new_correction = true;
-                        let e = stamp.calculate_large(message.message.client_stamp);
+
                         if e < earliest_tick || earliest_tick == 0 {
                             earliest_tick = e;
                         }
