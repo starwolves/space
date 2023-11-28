@@ -258,7 +258,8 @@ pub(crate) fn get_peer_input(
             }
         }
     }
-    if new_correction {
+    // Doesnt send StartCorrect if peer input is for our exact tick or future tack.
+    if new_correction && earliest_tick != stamp.large {
         start_correction.send(StartCorrection {
             start_tick: earliest_tick,
             last_tick: stamp.large,

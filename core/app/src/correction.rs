@@ -201,6 +201,7 @@ pub(crate) fn server_start_correcting(
                         controller_cachec,
                         look_cachec,
                     ) => {
+                        // info!("{:?}", start_correction_data);
                         let mut fixed_cache = new_cache.clone();
 
                         for t in fixed_cache.cache.iter_mut() {
@@ -316,8 +317,9 @@ pub(crate) fn start_correction(
     let mut lowest_start = 0;
     let mut highest_end = 1;
     let mut one_event = false;
+    let mut first_event = true;
     for event in events.read() {
-        if !one_event {
+        if first_event {
             lowest_start = event.start_tick;
             highest_end = event.last_tick;
         } else {
@@ -329,6 +331,7 @@ pub(crate) fn start_correction(
             }
         }
         one_event = true;
+        first_event = false;
     }
     if !one_event {
         return;
