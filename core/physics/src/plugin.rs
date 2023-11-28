@@ -78,9 +78,13 @@ impl Plugin for PhysicsPlugin {
                     client_mirror_link_target_transform
                         .after(MainSet::PostUpdate)
                         .after(PhysicsSet::Correct),
+                    // Cache twice.
                     cache_data
                         .after(MainSet::PostUpdate)
                         .in_set(PhysicsSet::Cache),
+                    cache_data
+                        .after(MainSet::PostUpdate)
+                        .after(PhysicsSet::Correct),
                     desync_check_correction
                         .in_set(MainSet::Update)
                         .in_set(CorrectionSet::Start),

@@ -41,7 +41,7 @@ use physics::{
 };
 use resources::{
     content::SF_CONTENT_PREFIX,
-    correction::{CorrectionServerSet, CorrectionSet, StartCorrection, SyncWorld},
+    correction::{CorrectionServerSet, StartCorrection, SyncWorld},
     modes::is_server,
     physics::PhysicsSet,
     sets::MainSet,
@@ -58,12 +58,12 @@ impl Plugin for CorrectionPlugin {
                 FixedUpdate,
                 (
                     start_correction
-                        .in_set(MainSet::Update)
-                        .after(CorrectionSet::Start),
+                        .after(MainSet::PostUpdate)
+                        .before(receive_correction_server_messages)
+                        .after(PhysicsSet::Cache),
                     receive_correction_server_messages.after(MainSet::PostUpdate),
                     apply_correction_results
                         .after(receive_correction_server_messages)
-                        .before(PhysicsSet::Cache)
                         .in_set(PhysicsSet::Correct),
                 ),
             )
