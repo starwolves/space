@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use bevy::{
     ecs::system::Local,
+    log::info,
     prelude::{Input, KeyCode, MouseButton, Res, ResMut, Resource},
 };
 
@@ -11,7 +12,7 @@ pub const MOVE_LEFT_BIND: &str = "moveLeft";
 pub const MOVE_RIGHT_BIND: &str = "moveRight";
 pub const JUMP_BIND: &str = "jump";
 pub const HOLD_SPRINT_BIND: &str = "holdSprint";
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct InputPart {
     pub bind: KeyBind,
     pub pressed: bool,
@@ -89,13 +90,13 @@ pub(crate) fn buffer_input(
                 if keyboard.just_pressed(k) {
                     buffer.add_input(InputPart {
                         bind: bind.clone(),
-                        pressed: true,
+                        pressed: keyboard.pressed(k),
                         id: id.clone(),
                     });
                 } else if keyboard.just_released(k) {
                     buffer.add_input(InputPart {
                         bind: bind.clone(),
-                        pressed: false,
+                        pressed: keyboard.pressed(k),
                         id: id.clone(),
                     });
                 }
@@ -123,7 +124,7 @@ pub(crate) fn buffer_input(
 pub struct KeyBinds {
     pub list: HashMap<String, KeyBind>,
 }
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct KeyBind {
     pub key_code: KeyCodeEnum,
     pub description: String,

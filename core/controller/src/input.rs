@@ -302,7 +302,6 @@ pub(crate) fn get_client_input(
         }
     }
     if keyboard.just_pressed(MOVE_FORWARD_BIND) {
-        info!("Sending move forward.");
         movement_event.send(InputMovementInput {
             player_entity: pawn_entity,
             up: true,
@@ -318,8 +317,6 @@ pub(crate) fn get_client_input(
         });
     }
     if keyboard.just_pressed(MOVE_BACKWARD_BIND) {
-        info!("Sending move backward.");
-
         movement_event.send(InputMovementInput {
             player_entity: pawn_entity,
             down: true,
@@ -335,8 +332,6 @@ pub(crate) fn get_client_input(
         });
     }
     if keyboard.just_pressed(MOVE_LEFT_BIND) {
-        info!("Sending move left.");
-
         movement_event.send(InputMovementInput {
             player_entity: pawn_entity,
             left: true,
@@ -352,8 +347,6 @@ pub(crate) fn get_client_input(
         });
     }
     if keyboard.just_pressed(MOVE_RIGHT_BIND) {
-        info!("Sending move right.");
-
         movement_event.send(InputMovementInput {
             player_entity: pawn_entity,
             right: true,
@@ -370,8 +363,6 @@ pub(crate) fn get_client_input(
     }
 
     if keyboard.just_released(MOVE_FORWARD_BIND) {
-        info!("Sending released forward.");
-
         movement_event.send(InputMovementInput {
             player_entity: pawn_entity,
             up: true,
@@ -387,8 +378,6 @@ pub(crate) fn get_client_input(
         });
     }
     if keyboard.just_released(MOVE_BACKWARD_BIND) {
-        info!("Sending released backward.");
-
         movement_event.send(InputMovementInput {
             player_entity: pawn_entity,
             down: true,
@@ -404,8 +393,6 @@ pub(crate) fn get_client_input(
         });
     }
     if keyboard.just_released(MOVE_LEFT_BIND) {
-        info!("Sending released left.");
-
         movement_event.send(InputMovementInput {
             player_entity: pawn_entity,
             left: true,
@@ -421,7 +408,6 @@ pub(crate) fn get_client_input(
         });
     }
     if keyboard.just_released(MOVE_RIGHT_BIND) {
-        info!("Sending released right.");
         movement_event.send(InputMovementInput {
             player_entity: pawn_entity,
             right: true,
