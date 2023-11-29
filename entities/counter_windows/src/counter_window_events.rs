@@ -3,7 +3,7 @@ use bevy::log::info;
 use bevy::log::warn;
 use bevy::{
     hierarchy::Children,
-    prelude::{Commands, Component, Entity, Event, EventReader, Query, ResMut, Transform, With},
+    prelude::{Commands, Component, Entity, Event, EventReader, Query, Transform, With},
     time::Timer,
 };
 
@@ -13,14 +13,11 @@ use entity::{entity_data::EntityGroup, examine::Examinable};
 use networking::server::NetworkingChatServerMessage;
 use pawn::pawn::{Pawn, ShipAuthorization, ShipAuthorizationEnum};
 use physics::physics::{get_bit_masks, ColliderGroup};
-use sfx::{builder::sfx_builder, entity_update::SfxAutoDestroyTimers};
-use sounds::{
-    counter_window::{
-        counter_window_closed_sfx::CounterWindowClosedSfxBundle,
-        counter_window_denied_sfx::CounterWindowDeniedSfxBundle,
-        counter_window_open_sfx::CounterWindowOpenSfxBundle,
-    },
-    shared::sfx_auto_destroy,
+use sfx::builder::sfx_builder;
+use sounds::counter_window::{
+    counter_window_closed_sfx::CounterWindowClosedSfxBundle,
+    counter_window_denied_sfx::CounterWindowDeniedSfxBundle,
+    counter_window_open_sfx::CounterWindowOpenSfxBundle,
 };
 use text_api::core::{FURTHER_ITALIC_FONT, WARNING_COLOR};
 
@@ -48,7 +45,6 @@ pub(crate) fn counter_window_events(
     mut counter_window_colliders: Query<&mut CollisionLayers, With<Collider>>,
     counter_window_sensor_query: Query<&CounterWindowSensor>,
     pawn_query: Query<(&Pawn, &ShipAuthorization)>,
-    mut auto_destroy_timers: ResMut<SfxAutoDestroyTimers>,
     mut commands: Commands,
     mut counter_window_lock_open_events: EventReader<CounterWindowLockOpen>,
     mut counter_window_lock_close_events: EventReader<CounterWindowLockClosed>,
@@ -290,12 +286,11 @@ pub(crate) fn counter_window_events(
                     counter_window_component.access_lights =
                         CounterWindowAccessLightsStatus::Neutral;
 
-                    let sfx_entity = sfx_builder(
+                    sfx_builder(
                         &mut commands,
                         *rigid_body_position_component,
                         Box::new(CounterWindowClosedSfxBundle::new),
                     );
-                    sfx_auto_destroy(sfx_entity, &mut auto_destroy_timers);
                 }
             }
             None => {}
@@ -517,12 +512,11 @@ pub(crate) fn counter_window_events(
 
         if pawn_has_permission == true {
             if !matches!(counter_window_component.status, CounterWindowStatus::Open) {
-                let sfx_entity = sfx_builder(
+                sfx_builder(
                     &mut commands,
                     *counter_window_rigid_body_position_component,
                     Box::new(CounterWindowOpenSfxBundle::new),
                 );
-                sfx_auto_destroy(sfx_entity, &mut auto_destroy_timers);
             }
 
             counter_window_component.status = CounterWindowStatus::Open;
@@ -538,12 +532,11 @@ pub(crate) fn counter_window_events(
 
             counter_window_component.denied_timer = Some(denied_timer());
 
-            let sfx_entity = sfx_builder(
+            sfx_builder(
                 &mut commands,
                 *counter_window_rigid_body_position_component,
                 Box::new(CounterWindowDeniedSfxBundle::new),
             );
-            sfx_auto_destroy(sfx_entity, &mut auto_destroy_timers);
         }
     }
 

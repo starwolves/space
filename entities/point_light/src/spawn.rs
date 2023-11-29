@@ -1,6 +1,6 @@
 use bevy::prelude::{Commands, EventReader, PointLight, PointLightBundle, Transform};
 use entity::{
-    entity_data::{EntityData, EntityGroup, EntityUpdates, WorldMode, WorldModes},
+    entity_data::{EntityData, EntityGroup, WorldMode, WorldModes},
     entity_macros::Identity,
     entity_types::EntityType,
     sensable::Sensable,
@@ -30,7 +30,6 @@ impl PointLightBuilderBundle {
                 entity_type: Box::new(PointLightType::new()),
                 entity_group: EntityGroup::default(),
             },
-            EntityUpdates::default(),
             WorldMode {
                 mode: WorldModes::Static,
             },
@@ -87,7 +86,6 @@ impl PointLightBuilder for PointLightType {
                 entity_type: Box::new(PointLightType::new()),
                 entity_group: EntityGroup::default(),
             },
-            EntityUpdates::default(),
             WorldMode {
                 mode: WorldModes::Static,
             },

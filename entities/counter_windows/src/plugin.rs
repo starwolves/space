@@ -4,7 +4,7 @@ use entity::spawn::build_base_entities;
 use entity::{entity_types::register_entity_type, spawn::SpawnItemSet};
 use physics::spawn::build_rigid_bodies;
 use resources::modes::is_server_mode;
-use resources::sets::{ActionsSet, CombatSet, MainSet, PostUpdateSet};
+use resources::sets::{ActionsSet, CombatSet, MainSet};
 
 use crate::{
     actions::{
@@ -21,7 +21,6 @@ use super::{
         CounterWindowSensorCollision, CounterWindowUnlock, InputCounterWindowToggleOpen,
     },
     counter_window_tick_timers::counter_window_tick_timers,
-    entity_update::counter_window_update,
     spawn::{build_counter_windows, CounterWindowType},
 };
 use crate::actions::build_actions;
@@ -57,13 +56,7 @@ impl Plugin for CounterWindowsPlugin {
                 .add_event::<InputCounterWindowToggleOpen>()
                 .add_event::<CounterWindowLockOpen>()
                 .add_event::<CounterWindowLockClosed>()
-                .add_event::<CounterWindowUnlock>()
-                .add_systems(
-                    FixedUpdate,
-                    counter_window_update
-                        .in_set(PostUpdateSet::EntityUpdate)
-                        .in_set(MainSet::PostUpdate),
-                );
+                .add_event::<CounterWindowUnlock>();
         }
         register_entity_type::<CounterWindowType>(app);
         app.add_systems(

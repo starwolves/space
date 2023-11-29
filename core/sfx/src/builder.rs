@@ -4,7 +4,7 @@ use bevy::{
 };
 use const_format::concatcp;
 use entity::{
-    entity_data::{CachedBroadcastTransform, EntityData, EntityUpdates, UpdateTransform},
+    entity_data::{CachedBroadcastTransform, EntityData, UpdateTransform},
     entity_macros::Identity,
     entity_types::EntityType,
     sensable::Sensable,
@@ -71,7 +71,6 @@ pub fn spawn_ambience_sfx(
             always_sensed: true,
             ..Default::default()
         },
-        EntityUpdates::default(),
     ));
 
     entity
@@ -233,7 +232,6 @@ pub fn repeating_sfx_builder(
             is_audible: true,
             ..Default::default()
         },
-        EntityUpdates::default(),
         UpdateTransform,
         CachedBroadcastTransform::default(),
     ));
@@ -257,7 +255,6 @@ pub fn sfx_builder(
             is_audible: true,
             ..Default::default()
         },
-        EntityUpdates::default(),
     ));
     entity
 }

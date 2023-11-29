@@ -1,3 +1,4 @@
+use bevy::ecs::schedule::SystemSet;
 use bevy::prelude::Commands;
 use bevy::prelude::Entity;
 use bevy::prelude::Event;
@@ -23,6 +24,14 @@ use networking::server::OutgoingReliableServerMessage;
 pub struct SpawnClientEntity {
     pub entity: Entity,
     pub loader_handle: ClientId,
+}
+
+/// Label for systems ordering.
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
+pub enum SpawnClientEntitySet {
+    Write,
+    Prepare,
+    BuildUpdates,
 }
 /// Executes despawn logic for Sensable components.
 /// Shouldn't be called from the same stage visible_checker.system() runs in.

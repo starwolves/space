@@ -2,7 +2,6 @@ use std::collections::HashMap;
 
 use bevy::{
     ecs::system::Local,
-    log::info,
     prelude::{Input, KeyCode, MouseButton, Res, ResMut, Resource},
 };
 

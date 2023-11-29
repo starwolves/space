@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 
-use bevy::prelude::{Changed, Component, Event, Query, SystemSet, Transform};
-use bevy_renet::renet::ClientId;
+use bevy::prelude::{Component, Event, SystemSet, Transform};
 use entity_macros::Identity;
 use networking::server::EntityUpdateData;
 use serde::{Deserialize, Serialize};
@@ -107,30 +106,6 @@ pub enum EntityGroup {
     CounterWindowSensor,
     Pawn,
 }
-
-/// Entity update component containing Godot node related updates for clients for visual changes. Old Godot netcode.
-#[derive(Component)]
-
-pub struct EntityUpdates {
-    pub updates: HashMap<String, HashMap<String, EntityUpdateData>>,
-    pub updates_difference: Vec<HashMap<String, HashMap<String, EntityUpdateData>>>,
-    pub changed_parameters: Vec<String>,
-    pub excluded_handles: HashMap<String, Vec<ClientId>>,
-}
-
-impl Default for EntityUpdates {
-    fn default() -> Self {
-        let mut entity_updates_map = HashMap::new();
-        entity_updates_map.insert(".".to_string(), HashMap::new());
-        Self {
-            updates: entity_updates_map,
-            changed_parameters: vec![],
-            excluded_handles: HashMap::new(),
-            updates_difference: vec![],
-        }
-    }
-}
-
 /// Match entity data as a function. Old Godot netcode.
 
 pub fn entity_data_is_matching(data1: &EntityUpdateData, data2: &EntityUpdateData) -> bool {
@@ -246,26 +221,6 @@ pub fn entity_data_is_matching(data1: &EntityUpdateData, data2: &EntityUpdateDat
     !is_not_matching
 }
 
-/// Personalise entity update set.
-
-pub fn personalise(
-    updates_data: &mut HashMap<String, HashMap<String, EntityUpdateData>>,
-    player_handle: ClientId,
-    entity_updates_component: &EntityUpdates,
-) {
-    let mut to_be_removed_parameters = vec![];
-
-    for key_value in entity_updates_component.excluded_handles.clone() {
-        if updates_data.contains_key(&key_value.0) && key_value.1.contains(&player_handle) {
-            to_be_removed_parameters.push(key_value.0);
-        }
-    }
-
-    for parameter in to_be_removed_parameters {
-        updates_data.remove(&parameter);
-    }
-}
-
 /// Get difference between this frame and last's frame entity updates per player. Old Godot netcode.
 
 pub fn get_entity_update_difference(
@@ -336,54 +291,6 @@ pub enum WorldModes {
     Held,
     Worn,
 }
-
-/// Physics entity change world mode for Godot client.
-
-pub(crate) fn world_mode_update(
-    mut updated_entities: Query<(&WorldMode, &mut EntityUpdates), Changed<WorldMode>>,
-) {
-    for (world_mode_component, mut entity_updates_component) in updated_entities.iter_mut() {
-        let old_entity_updates = entity_updates_component.updates.clone();
-
-        let world_mode;
-
-        match world_mode_component.mode {
-            WorldModes::Static => {
-                world_mode = "static";
-            }
-            WorldModes::Kinematic => {
-                world_mode = "kinematic";
-            }
-            WorldModes::Physics => {
-                world_mode = "physics";
-            }
-            WorldModes::Worn => {
-                world_mode = "worn";
-            }
-            WorldModes::Held => {
-                world_mode = "held";
-            }
-        };
-
-        let entity_updates = entity_updates_component
-            .updates
-            .get_mut(&".".to_string())
-            .unwrap();
-
-        entity_updates.insert(
-            "world_mode".to_string(),
-            EntityUpdateData::String(world_mode.to_string()),
-        );
-
-        let difference_updates =
-            get_entity_update_difference(old_entity_updates, &entity_updates_component.updates);
-
-        entity_updates_component
-            .updates_difference
-            .push(difference_updates);
-    }
-}
-
 /// For entities that are also registered with the gridmap.
 
 pub struct GridItemData {

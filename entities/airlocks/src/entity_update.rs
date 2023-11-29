@@ -1,7 +1,7 @@
-use std::collections::HashMap;
+/*use std::collections::HashMap;
 
 use bevy::prelude::{Changed, Query};
-use entity::entity_data::{get_entity_update_difference, EntityUpdates};
+use entity::entity_data::get_entity_update_difference;
 use networking::server::EntityUpdateData;
 
 use super::resources::{AccessLightsStatus, Airlock, AirlockStatus};
@@ -100,3 +100,4 @@ pub(crate) fn airlock_update(
             .push(difference_updates);
     }
 }
+*/

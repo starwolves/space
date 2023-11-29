@@ -1,5 +1,5 @@
-use bevy::prelude::{Changed, Query};
-use entity::entity_data::{get_entity_update_difference, EntityUpdates};
+/*use bevy::prelude::{Changed, Query};
+use entity::entity_data::get_entity_update_difference;
 use networking::server::EntityUpdateData;
 
 use crate::item::InventoryItem;
@@ -30,3 +30,4 @@ pub(crate) fn inventory_item_update(
             .push(difference_updates);
     }
 }
+*/

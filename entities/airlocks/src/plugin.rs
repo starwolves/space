@@ -4,7 +4,7 @@ use entity::entity_types::register_entity_type;
 use entity::spawn::{build_base_entities, SpawnItemSet};
 use physics::spawn::build_rigid_bodies;
 use resources::modes::is_server_mode;
-use resources::sets::{ActionsSet, CombatSet, MainSet, PostUpdateSet};
+use resources::sets::{ActionsSet, CombatSet, MainSet};
 
 use crate::{
     actions::{
@@ -21,7 +21,6 @@ use super::{
     airlock_added::{airlock_added, airlock_default_map_added},
     airlock_events::airlock_events,
     airlock_tick_timers::airlock_tick_timers,
-    entity_update::airlock_update,
     spawn::{build_airlocks, AirlockType},
 };
 
@@ -62,13 +61,7 @@ impl Plugin for AirLocksPlugin {
                         .in_set(MainSet::Update),
                 )
                 .add_event::<AirlockLockClosed>()
-                .add_event::<AirlockUnlock>()
-                .add_systems(
-                    FixedUpdate,
-                    airlock_update
-                        .in_set(PostUpdateSet::EntityUpdate)
-                        .in_set(MainSet::PostUpdate),
-                );
+                .add_event::<AirlockUnlock>();
         }
         app.add_systems(
             FixedUpdate,

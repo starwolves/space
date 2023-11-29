@@ -1,9 +1,6 @@
 use std::time::Duration;
 
-use bevy::prelude::{Entity, EventWriter, Query, ResMut};
-use entity::despawn::DespawnEntity;
-
-use crate::entity_update::SfxAutoDestroyTimers;
+use bevy::prelude::Query;
 
 use super::builder::{AmbienceSfxTimer, Sfx};
 
@@ -27,39 +24,5 @@ pub(crate) fn tick_timers_slowed(
             // This will sync the audio, but this currently causes a constant entityUpdate spam of the ambient sfx.
             sfx_component.play_back_position = timer_component.timer.elapsed_secs();
         }
-    }
-}
-
-/// Despawn sfx.
-
-pub(crate) fn free_sfx(
-    mut sfx_auto_destroy_timers: ResMut<SfxAutoDestroyTimers>,
-    mut despawn: EventWriter<DespawnEntity>,
-) {
-    let mut expired_sfx_entities: Vec<Entity> = vec![];
-
-    for (sfx_entity, incremental) in &mut sfx_auto_destroy_timers.timers {
-        *incremental += 1;
-        if incremental >= &mut 2 {
-            expired_sfx_entities.push(*sfx_entity);
-        }
-    }
-
-    for i in 0..expired_sfx_entities.len() {
-        let this_entity_id = expired_sfx_entities[i];
-
-        let mut j = 0;
-        for (sfx_entity, _timer) in &mut sfx_auto_destroy_timers.timers {
-            if this_entity_id == *sfx_entity {
-                break;
-            }
-            j += 1;
-        }
-
-        sfx_auto_destroy_timers.timers.remove(j);
-
-        despawn.send(DespawnEntity {
-            entity: this_entity_id,
-        });
     }
 }

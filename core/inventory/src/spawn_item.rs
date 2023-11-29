@@ -85,18 +85,16 @@ pub fn build_inventory_items<T: InventoryItemBuilder + 'static>(
 
 use bevy::log::warn;
 use bevy::prelude::Transform;
-use entity::entity_data::personalise;
 
 use entity::entity_types::EntityTypes;
 
-use entity::entity_data::{EntityData, EntityUpdates};
+use entity::entity_data::EntityData;
 use networking::server::{ConnectedPlayer, OutgoingReliableServerMessage};
 /// Load an entity in for the client. Does not only apply to inventory items or holders.
 /// Belongs in crate/entity but cyclic issues.
 pub(crate) fn spawn_entity_for_client(
     entity_query: Query<(
         &EntityData,
-        &EntityUpdates,
         &Transform,
         Option<&RigidBody>,
         Option<&InventoryItem>,
@@ -112,7 +110,6 @@ pub(crate) fn spawn_entity_for_client(
         match entity_query.get(load_entity_event.entity) {
             Ok((
                 entity_data,
-                entity_update,
                 transform,
                 rigid_body_component_option,
                 inventory_item_option,
@@ -140,16 +137,6 @@ pub(crate) fn spawn_entity_for_client(
                     },
                     None => {}
                 }
-
-                let mut hash_map;
-
-                hash_map = entity_update.updates.clone();
-
-                personalise(
-                    &mut hash_map,
-                    load_entity_event.loader_handle,
-                    entity_update,
-                );
 
                 let mut holder_option = None;
 

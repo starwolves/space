@@ -1,3 +1,4 @@
+use bevy::ecs::schedule::IntoSystemSetConfigs;
 use bevy::prelude::{
     resource_exists, App, Condition, FixedUpdate, IntoSystemConfigs, Plugin, Startup,
 };
@@ -7,7 +8,7 @@ use resources::modes::is_server_mode;
 use resources::sets::{ActionsSet, BuildingSet, MainSet, PostUpdateSet, StartupSet};
 
 use crate::despawn::{despawn_entities, DespawnEntity};
-use crate::entity_data::{world_mode_update, RawSpawnEvent};
+use crate::entity_data::RawSpawnEvent;
 use crate::entity_types::{finalize_register_entity_types, EntityTypeLabel, EntityTypes};
 use crate::examine::{
     examine_entity, examine_entity_health, finalize_entity_examine_input, finalize_examine_entity,
@@ -17,7 +18,9 @@ use crate::init::load_ron_entities;
 use crate::loading::link_peer;
 use crate::net::{EntityClientMessage, EntityServerMessage};
 use crate::spawn::{PawnId, PeerPawns, ServerEntityClientEntity};
-use crate::spawning_events::{despawn_entity, DespawnClientEntity, SpawnClientEntity};
+use crate::spawning_events::{
+    despawn_entity, DespawnClientEntity, SpawnClientEntity, SpawnClientEntitySet,
+};
 use crate::visible_checker::visible_checker;
 
 pub struct EntityPlugin;
@@ -31,8 +34,8 @@ impl Plugin for EntityPlugin {
                     finalize_examine_entity.before(PostUpdateSet::EntityUpdate),
                     visible_checker
                         .in_set(PostUpdateSet::VisibleChecker)
-                        .after(PostUpdateSet::SendEntityUpdates),
-                    world_mode_update.in_set(PostUpdateSet::EntityUpdate),
+                        .after(PostUpdateSet::SendEntityUpdates)
+                        .in_set(SpawnClientEntitySet::Write),
                 )
                     .in_set(MainSet::PostUpdate),
             )
@@ -59,6 +62,15 @@ impl Plugin for EntityPlugin {
             )*/
             .add_event::<DespawnClientEntity>()
             .add_event::<SpawnClientEntity>();
+            app.configure_sets(
+                FixedUpdate,
+                (
+                    SpawnClientEntitySet::Write,
+                    SpawnClientEntitySet::Prepare,
+                    SpawnClientEntitySet::BuildUpdates,
+                )
+                    .chain(),
+            );
         } else {
             app.init_resource::<ServerEntityClientEntity>()
                 .init_resource::<PeerPawns>()

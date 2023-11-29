@@ -19,7 +19,6 @@ use crate::{
     },
     net::{InventoryClientMessage, InventoryServerMessage},
     server::{
-        entity_update_item::inventory_item_update,
         inventory::{
             add_item_to_slot, add_slot_to_inventory, added_item_to_slot, AddItemToSlot, AddSlot,
             Inventory, InventorySlotLabel, ItemAddedToSlot,
@@ -36,12 +35,9 @@ impl Plugin for InventoryPlugin {
         if is_server_mode(app) {
             app.add_systems(
                 FixedUpdate,
-                (
-                    inventory_item_update,
-                    spawn_entity_for_client
-                        .after(PostUpdateSet::VisibleChecker)
-                        .before(ServerMessageSet::Send),
-                )
+                (spawn_entity_for_client
+                    .after(PostUpdateSet::VisibleChecker)
+                    .before(ServerMessageSet::Send),)
                     .in_set(PostUpdateSet::EntityUpdate)
                     .in_set(MainSet::PostUpdate),
             )

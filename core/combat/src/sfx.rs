@@ -1,7 +1,6 @@
 use bevy::log::warn;
-use bevy::prelude::{Commands, Component, EventReader, Query, Res, ResMut, Transform};
+use bevy::prelude::{Commands, Component, EventReader, Query, Res, Transform};
 use resources::math::cell_id_to_world;
-use sfx::entity_update::SfxAutoDestroyTimers;
 use sounds::shared::CombatSoundSet;
 
 use crate::{
@@ -15,7 +14,6 @@ use crate::{
 pub fn health_combat_hit_result_sfx<T: Component>(
     mut combat_hit_results: EventReader<HealthCombatHitResult>,
     cached_attacks: Res<ActiveAttacks>,
-    mut sfx_auto_destroy_timers: ResMut<SfxAutoDestroyTimers>,
     mut commands: Commands,
     transforms: Query<&Transform>,
     attacker_criteria: Query<&T>,
@@ -60,42 +58,24 @@ pub fn health_combat_hit_result_sfx<T: Component>(
                     if melee {
                         match entity_hit.hit_result {
                             HitResult::HitSoft => {
-                                CombatSoundSet::default().spawn_hit_sfx(
-                                    &mut commands,
-                                    *tra,
-                                    &mut sfx_auto_destroy_timers,
-                                );
+                                CombatSoundSet::default().spawn_hit_sfx(&mut commands, *tra);
                             }
                             HitResult::Blocked => {
-                                CombatSoundSet::default().spawn_hit_blocked(
-                                    &mut commands,
-                                    *tra,
-                                    &mut sfx_auto_destroy_timers,
-                                );
+                                CombatSoundSet::default().spawn_hit_blocked(&mut commands, *tra);
                             }
                             HitResult::Missed => {
-                                CombatSoundSet::default().spawn_default_sfx(
-                                    &mut commands,
-                                    *tra,
-                                    &mut sfx_auto_destroy_timers,
-                                );
+                                CombatSoundSet::default().spawn_default_sfx(&mut commands, *tra);
                             }
                         }
                     } else {
                         match entity_hit.hit_result {
                             HitResult::HitSoft => {
-                                CombatSoundSet::default_laser_projectiles().spawn_hit_sfx(
-                                    &mut commands,
-                                    *tra,
-                                    &mut sfx_auto_destroy_timers,
-                                );
+                                CombatSoundSet::default_laser_projectiles()
+                                    .spawn_hit_sfx(&mut commands, *tra);
                             }
                             HitResult::Blocked => {
-                                CombatSoundSet::default_laser_projectiles().spawn_hit_blocked(
-                                    &mut commands,
-                                    *tra,
-                                    &mut sfx_auto_destroy_timers,
-                                );
+                                CombatSoundSet::default_laser_projectiles()
+                                    .spawn_hit_blocked(&mut commands, *tra);
                             }
                             HitResult::Missed => {}
                         }
@@ -115,7 +95,6 @@ pub fn health_combat_hit_result_sfx<T: Component>(
 pub(crate) fn health_combat_hit_result_sfx_cells(
     mut combat_hit_results: EventReader<HealthCombatHitResult>,
     cached_attacks: Res<ActiveAttacks>,
-    mut sfx_auto_destroy_timers: ResMut<SfxAutoDestroyTimers>,
     mut commands: Commands,
 ) {
     for health_combat_hit_result in combat_hit_results.read() {
@@ -142,42 +121,24 @@ pub(crate) fn health_combat_hit_result_sfx_cells(
                     if melee {
                         match cell_hit.hit_result {
                             HitResult::HitSoft => {
-                                CombatSoundSet::default().spawn_hit_sfx(
-                                    &mut commands,
-                                    tra,
-                                    &mut sfx_auto_destroy_timers,
-                                );
+                                CombatSoundSet::default().spawn_hit_sfx(&mut commands, tra);
                             }
                             HitResult::Blocked => {
-                                CombatSoundSet::default().spawn_hit_blocked(
-                                    &mut commands,
-                                    tra,
-                                    &mut sfx_auto_destroy_timers,
-                                );
+                                CombatSoundSet::default().spawn_hit_blocked(&mut commands, tra);
                             }
                             HitResult::Missed => {
-                                CombatSoundSet::default().spawn_default_sfx(
-                                    &mut commands,
-                                    tra,
-                                    &mut sfx_auto_destroy_timers,
-                                );
+                                CombatSoundSet::default().spawn_default_sfx(&mut commands, tra);
                             }
                         }
                     } else {
                         match cell_hit.hit_result {
                             HitResult::HitSoft => {
-                                CombatSoundSet::default_laser_projectiles().spawn_hit_sfx(
-                                    &mut commands,
-                                    tra,
-                                    &mut sfx_auto_destroy_timers,
-                                );
+                                CombatSoundSet::default_laser_projectiles()
+                                    .spawn_hit_sfx(&mut commands, tra);
                             }
                             HitResult::Blocked => {
-                                CombatSoundSet::default_laser_projectiles().spawn_hit_blocked(
-                                    &mut commands,
-                                    tra,
-                                    &mut sfx_auto_destroy_timers,
-                                );
+                                CombatSoundSet::default_laser_projectiles()
+                                    .spawn_hit_blocked(&mut commands, tra);
                             }
                             HitResult::Missed => {}
                         }
@@ -198,7 +159,6 @@ pub fn attack_sfx<T: Component>(
     mut attack_events: EventReader<Attack>,
     transforms: Query<&Transform>,
     mut commands: Commands,
-    mut sfx_auto_destroy_timers: ResMut<SfxAutoDestroyTimers>,
     cached_attacks: Res<ActiveAttacks>,
     weapon_criteria: Query<&T>,
 ) {
@@ -240,17 +200,10 @@ pub fn attack_sfx<T: Component>(
         match transforms.get(attack.attacker) {
             Ok(transform) => {
                 if !melee {
-                    CombatSoundSet::default_laser_projectiles().spawn_default_sfx(
-                        &mut commands,
-                        *transform,
-                        &mut sfx_auto_destroy_timers,
-                    );
+                    CombatSoundSet::default_laser_projectiles()
+                        .spawn_default_sfx(&mut commands, *transform);
                 } else {
-                    CombatSoundSet::default().spawn_default_sfx(
-                        &mut commands,
-                        *transform,
-                        &mut sfx_auto_destroy_timers,
-                    );
+                    CombatSoundSet::default().spawn_default_sfx(&mut commands, *transform);
                 }
             }
             Err(_) => {}

@@ -3,8 +3,6 @@
 
 /// Build base SFX components.
 pub mod builder;
-/// Manage entity updates.
-pub mod entity_update;
 pub mod net;
 /// The Bevy plugin of this crate.
 pub mod plugin;

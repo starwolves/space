@@ -12,9 +12,10 @@ use bevy::{
 };
 use bevy_renet::renet::ClientId;
 use serde::Deserialize;
+use typename::TypeName;
 
 use crate::{
-    entity_data::{CachedBroadcastTransform, EntityData, EntityGroup, EntityUpdates},
+    entity_data::{CachedBroadcastTransform, EntityData, EntityGroup},
     examine::Examinable,
     health::{Health, HealthComponent},
     sensable::Sensable,
@@ -87,7 +88,6 @@ pub fn base_entity_builder(commands: &mut Commands, data: BaseEntityData, entity
             entity_type: data.entity_type,
             entity_group: data.entity_group,
         },
-        EntityUpdates::default(),
         CachedBroadcastTransform::default(),
     ));
 
@@ -298,4 +298,12 @@ pub struct PawnId {
 #[derive(Resource, Default)]
 pub struct PeerPawns {
     pub map: HashMap<ClientId, Entity>,
+}
+
+/// Clients can obtain the full state of an entity when these updates (server messages) are sent with an entity spawn command.
+/// These entity updates should clear and be rebuild based on the live data every tick.
+/// When spawning an entity it will be spawned with these updates to be applied on the next frame for the client after the entities were spawned.
+#[derive(Resource, Default)]
+pub struct EntityUpdates<T: TypeName + Send + Sync + 'static> {
+    pub map: HashMap<Entity, Vec<T>>,
 }

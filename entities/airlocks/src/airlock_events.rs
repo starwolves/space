@@ -1,20 +1,17 @@
 use bevy::log::warn;
 use bevy::{
     hierarchy::Children,
-    prelude::{Commands, Entity, Event, EventReader, Query, ResMut, Transform},
+    prelude::{Commands, Entity, Event, EventReader, Query, Transform},
 };
 
 use bevy_renet::renet::ClientId;
 use entity::{entity_data::EntityGroup, examine::Examinable};
 use pawn::pawn::{Pawn, ShipAuthorization};
 use resources::math::{world_to_cell_id, Vec2Int};
-use sfx::{builder::sfx_builder, entity_update::SfxAutoDestroyTimers};
-use sounds::{
-    airlock::{
-        airlock_closed_sfx::AirLockClosedSfxBundle, airlock_denied_sfx::AirLockDeniedSfxBundle,
-        airlock_open_sfx::AirLockOpenSfxBundle,
-    },
-    shared::sfx_auto_destroy,
+use sfx::builder::sfx_builder;
+use sounds::airlock::{
+    airlock_closed_sfx::AirLockClosedSfxBundle, airlock_denied_sfx::AirLockDeniedSfxBundle,
+    airlock_open_sfx::AirLockOpenSfxBundle,
 };
 use text_api::core::{FURTHER_ITALIC_FONT, WARNING_COLOR};
 
@@ -41,7 +38,6 @@ pub(crate) fn airlock_events(
     transforms: Query<&Transform>,
     mut airlock_query: Query<(&mut Airlock, Entity, &mut Examinable, &Children)>,
     pawn_query: Query<(&Pawn, &ShipAuthorization)>,
-    mut auto_destroy_timers: ResMut<SfxAutoDestroyTimers>,
     mut commands: Commands,
     mut airlock_lock_open_event: EventReader<AirLockLockOpen>,
     mut airlock_lock_close_event: EventReader<AirlockLockClosed>,
@@ -221,13 +217,11 @@ pub(crate) fn airlock_events(
 
                     airlock_component.access_lights = AccessLightsStatus::Neutral;
 
-                    let sfx_entity = sfx_builder(
+                    sfx_builder(
                         &mut commands,
                         rigid_body_position_component,
                         Box::new(AirLockClosedSfxBundle::new),
                     );
-
-                    sfx_auto_destroy(sfx_entity, &mut auto_destroy_timers);
                 }
             }
             None => {}
@@ -380,23 +374,21 @@ pub(crate) fn airlock_events(
 
             airlock_component.open_timer_option = Some(open_timer());
 
-            let sfx_entity = sfx_builder(
+            sfx_builder(
                 &mut commands,
                 airlock_static_transform_component,
                 Box::new(AirLockOpenSfxBundle::new),
             );
-            sfx_auto_destroy(sfx_entity, &mut auto_destroy_timers);
         } else {
             airlock_component.access_lights = AccessLightsStatus::Denied;
 
             airlock_component.denied_timer_option = Some(denied_timer());
 
-            let sfx_entity = sfx_builder(
+            sfx_builder(
                 &mut commands,
                 airlock_static_transform_component,
                 Box::new(AirLockDeniedSfxBundle::new),
             );
-            sfx_auto_destroy(sfx_entity, &mut auto_destroy_timers);
         }
     }
 
