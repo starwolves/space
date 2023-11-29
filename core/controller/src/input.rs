@@ -5,8 +5,12 @@ use crate::{
     net::{ControllerClientMessage, MovementInput},
     networking::{PeerReliableControllerMessage, PeerUnreliableControllerMessage},
 };
-use bevy::prelude::{
-    Entity, Event, EventReader, EventWriter, KeyCode, Query, Res, ResMut, Resource, SystemSet, Vec2,
+use bevy::{
+    log::info,
+    prelude::{
+        Entity, Event, EventReader, EventWriter, KeyCode, Query, Res, ResMut, Resource, SystemSet,
+        Vec2,
+    },
 };
 use bevy::{log::warn, math::Vec3};
 
@@ -35,7 +39,7 @@ pub enum InputSet {
 }
 
 /// Client input movement event.
-#[derive(Event)]
+#[derive(Event, Debug)]
 pub struct InputMovementInput {
     pub player_entity: Entity,
     pub up: bool,
@@ -259,7 +263,7 @@ pub(crate) fn get_peer_input(
         }
     }
     // Doesnt send StartCorrect if peer input is for our exact tick or future tack.
-    if new_correction && earliest_tick != stamp.large {
+    if new_correction && earliest_tick < stamp.large {
         start_correction.send(StartCorrection {
             start_tick: earliest_tick,
             last_tick: stamp.large,
@@ -298,6 +302,7 @@ pub(crate) fn get_client_input(
         }
     }
     if keyboard.just_pressed(MOVE_FORWARD_BIND) {
+        info!("Sending move forward.");
         movement_event.send(InputMovementInput {
             player_entity: pawn_entity,
             up: true,
@@ -313,6 +318,8 @@ pub(crate) fn get_client_input(
         });
     }
     if keyboard.just_pressed(MOVE_BACKWARD_BIND) {
+        info!("Sending move backward.");
+
         movement_event.send(InputMovementInput {
             player_entity: pawn_entity,
             down: true,
@@ -328,6 +335,8 @@ pub(crate) fn get_client_input(
         });
     }
     if keyboard.just_pressed(MOVE_LEFT_BIND) {
+        info!("Sending move left.");
+
         movement_event.send(InputMovementInput {
             player_entity: pawn_entity,
             left: true,
@@ -343,6 +352,8 @@ pub(crate) fn get_client_input(
         });
     }
     if keyboard.just_pressed(MOVE_RIGHT_BIND) {
+        info!("Sending move right.");
+
         movement_event.send(InputMovementInput {
             player_entity: pawn_entity,
             right: true,
@@ -359,6 +370,8 @@ pub(crate) fn get_client_input(
     }
 
     if keyboard.just_released(MOVE_FORWARD_BIND) {
+        info!("Sending released forward.");
+
         movement_event.send(InputMovementInput {
             player_entity: pawn_entity,
             up: true,
@@ -374,6 +387,8 @@ pub(crate) fn get_client_input(
         });
     }
     if keyboard.just_released(MOVE_BACKWARD_BIND) {
+        info!("Sending released backward.");
+
         movement_event.send(InputMovementInput {
             player_entity: pawn_entity,
             down: true,
@@ -389,6 +404,8 @@ pub(crate) fn get_client_input(
         });
     }
     if keyboard.just_released(MOVE_LEFT_BIND) {
+        info!("Sending released left.");
+
         movement_event.send(InputMovementInput {
             player_entity: pawn_entity,
             left: true,
@@ -404,6 +421,7 @@ pub(crate) fn get_client_input(
         });
     }
     if keyboard.just_released(MOVE_RIGHT_BIND) {
+        info!("Sending released right.");
         movement_event.send(InputMovementInput {
             player_entity: pawn_entity,
             right: true,

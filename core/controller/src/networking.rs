@@ -1,3 +1,4 @@
+use bevy::log::info;
 use bevy::log::warn;
 use bevy::prelude::EventWriter;
 use bevy::prelude::Query;
@@ -65,7 +66,7 @@ pub(crate) fn peer_replication(
             if message.handle == connected.handle {
                 continue;
             }
-            //info!("Sending {:?} tick {}", message.message, message.stamp);
+            info!("Sending {:?} tick {}", message.message, message.stamp);
             peer.send(OutgoingReliableServerMessage {
                 handle: connected.handle,
                 message: PeerReliableControllerMessage {

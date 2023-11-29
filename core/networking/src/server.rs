@@ -385,29 +385,39 @@ pub(crate) fn deserialize_incoming_unreliable_client_message<
                         stamp: event.message.stamp,
                     };
 
+                    let b = stamp.get_difference(event.message.stamp);
+                    let mut sent = false;
+                    if b <= 0 {
+                        if b < 0 {
+                            warn!(
+                                "unreliable message {} ticks late ({})",
+                                b.abs(),
+                                event.handle
+                            );
+                        }
+                        outgoing.send(r.clone());
+                        sent = true;
+                    }
+
                     if stamp.tick > event.message.stamp || (event.message.stamp - stamp.tick) > 182
                     {
                         continue;
                     }
 
-                    match queue.get_mut(&event.message.stamp) {
-                        Some(v) => {
-                            let cr = r.clone();
-                            outgoing_early.send(IncomingEarlyUnreliableClientMessage {
-                                handle: cr.handle,
-                                message: cr.message,
-                                stamp: cr.stamp,
-                            });
-                            v.push(r);
-                        }
-                        None => {
-                            let cr = r.clone();
-                            outgoing_early.send(IncomingEarlyUnreliableClientMessage {
-                                handle: cr.handle,
-                                message: cr.message,
-                                stamp: cr.stamp,
-                            });
-                            queue.insert(event.message.stamp, vec![r]);
+                    let cr = r.clone();
+                    outgoing_early.send(IncomingEarlyUnreliableClientMessage {
+                        handle: cr.handle,
+                        message: cr.message,
+                        stamp: cr.stamp,
+                    });
+                    if !sent {
+                        match queue.get_mut(&event.message.stamp) {
+                            Some(v) => {
+                                v.push(r);
+                            }
+                            None => {
+                                queue.insert(event.message.stamp, vec![r]);
+                            }
                         }
                     }
                 }
@@ -448,33 +458,29 @@ pub(crate) fn deserialize_incoming_reliable_client_message<
                         stamp: event.message.stamp,
                     };
                     let b = stamp.get_difference(event.message.stamp);
+                    let mut sent = false;
                     if b <= 0 {
                         if b < 0 {
                             warn!("message {} ticks late ({})", b.abs(), event.handle);
                         }
-                        outgoing.send(r);
-                        continue;
+                        outgoing.send(r.clone());
+                        sent = true;
                     }
-                    match queue.get_mut(&event.message.stamp) {
-                        Some(v) => {
-                            let cr = r.clone();
+                    let cr = r.clone();
 
-                            outgoing_early.send(IncomingEarlyReliableClientMessage {
-                                handle: cr.handle,
-                                message: cr.message,
-                                stamp: cr.stamp,
-                            });
-                            v.push(r);
-                        }
-                        None => {
-                            let cr = r.clone();
-
-                            outgoing_early.send(IncomingEarlyReliableClientMessage {
-                                handle: cr.handle,
-                                message: cr.message,
-                                stamp: cr.stamp,
-                            });
-                            queue.insert(event.message.stamp, vec![r]);
+                    outgoing_early.send(IncomingEarlyReliableClientMessage {
+                        handle: cr.handle,
+                        message: cr.message,
+                        stamp: cr.stamp,
+                    });
+                    if !sent {
+                        match queue.get_mut(&event.message.stamp) {
+                            Some(v) => {
+                                v.push(r);
+                            }
+                            None => {
+                                queue.insert(event.message.stamp, vec![r]);
+                            }
                         }
                     }
                 }

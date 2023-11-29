@@ -1,6 +1,9 @@
 use std::collections::HashMap;
 
-use bevy::prelude::{Input, KeyCode, MouseButton, Res, ResMut, Resource};
+use bevy::{
+    ecs::system::Local,
+    prelude::{Input, KeyCode, MouseButton, Res, ResMut, Resource},
+};
 
 pub const MOVE_FORWARD_BIND: &str = "moveForward";
 pub const MOVE_BACKWARD_BIND: &str = "moveBackward";
@@ -14,9 +17,9 @@ pub struct InputPart {
     pub pressed: bool,
     pub id: String,
 }
-#[derive(Resource, Default)]
+#[derive(Resource, Default, Clone)]
 pub struct InputBuffer {
-    pub buffer: Vec<InputPart>,
+    pub buffer: HashMap<String, InputPart>,
     pub pressed: HashMap<String, bool>,
 }
 
@@ -25,7 +28,7 @@ impl InputBuffer {
         self.buffer.clear();
     }
     pub fn add_input(&mut self, p: InputPart) {
-        self.buffer.push(p.clone());
+        self.buffer.insert(p.id.clone(), p.clone());
         self.pressed.insert(p.id, p.pressed);
     }
     pub fn pressed(&self, id: &str) -> bool {
@@ -41,29 +44,37 @@ impl InputBuffer {
         }
     }
     pub fn just_pressed(&self, id: &str) -> bool {
-        for p in self.buffer.iter() {
-            if p.pressed {
-                if id == p.id {
-                    return true;
-                }
-            }
+        match self.buffer.get(id) {
+            Some(t) => t.pressed,
+            None => false,
         }
-        return false;
     }
     pub fn just_released(&self, id: &str) -> bool {
-        for p in self.buffer.iter() {
-            if !p.pressed {
-                if id == p.id {
-                    return true;
-                }
-            }
+        match self.buffer.get(id) {
+            Some(t) => !t.pressed,
+            None => false,
         }
-        return false;
     }
 }
 
 pub(crate) fn clear_buffer(mut buffer: ResMut<InputBuffer>) {
     buffer.clear();
+}
+#[derive(Resource, Default)]
+pub(crate) struct LastBuffer(InputBuffer);
+pub(crate) fn sanitize_input(mut local: Local<LastBuffer>, mut buffer: ResMut<InputBuffer>) {
+    for (id, pressed) in buffer.clone().pressed.iter() {
+        match local.0.pressed.get(id) {
+            Some(p) => {
+                if pressed == p {
+                    buffer.buffer.remove(id);
+                }
+            }
+            None => {}
+        }
+    }
+
+    local.0 = buffer.clone();
 }
 
 pub(crate) fn buffer_input(
