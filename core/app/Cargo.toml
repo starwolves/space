@@ -19,7 +19,7 @@ features = [
 ]
 
 [dependencies]
-bevy_xpbd_3d = { version = "0.3.2" , features = ["enhanced-determinism"], git = "https://github.com/Jondolf/bevy_xpbd.git", branch="main"}
+bevy_xpbd_3d = { version = "0.3.2" , features = ["enhanced-determinism"]}
 bevy_egui = { version = "0.23.0", default-features = false, features = [
     "manage_clipboard",
 ] }

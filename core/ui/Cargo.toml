@@ -18,7 +18,7 @@ bevy_egui = { version = "0.23.0", default-features = false, features = [
 ] }
 networking = { path = "../networking" }
 resources = { path = "../resources" }
-bevy_renet = {version = "0.0.9", git="https://github.com/lucaspoffo/renet.git", branch="master" }
+bevy_renet = "0.0.10"
 
 [dependencies.bevy]
 version = "0.12"

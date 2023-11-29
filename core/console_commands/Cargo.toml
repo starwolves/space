@@ -19,7 +19,7 @@ default-features = false
 [dependencies]
 serde = "1.0.177"
 typename = "0.1.2"
-bevy_renet = {version = "0.0.9", git="https://github.com/lucaspoffo/renet.git", branch="master" }
+bevy_renet = "0.0.10"
 
 networking = { path = "../networking" }
 

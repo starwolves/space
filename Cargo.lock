@@ -1013,8 +1013,9 @@ dependencies = [
 
 [[package]]
 name = "bevy_renet"
-version = "0.0.9"
-source = "git+https://github.com/lucaspoffo/renet.git?branch=master#a7bced4cfb7fbe60f1447f9eb6423d2a8bc1cc6e"
+version = "0.0.10"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6b0f74ab5d4a9954c4dc1497bc55bfd5f845e254f24717c6464accffa4498f95"
 dependencies = [
  "bevy",
  "renet",
@@ -1234,7 +1235,8 @@ dependencies = [
 [[package]]
 name = "bevy_xpbd_3d"
 version = "0.3.2"
-source = "git+https://github.com/Jondolf/bevy_xpbd.git?branch=main#776a785c8b2accacc40dcb4a84c1a72ffe6890bb"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8abc57e8b249dc2ae59896189c05a39faca384c1f2eb7fd6dfb5127ad796354d"
 dependencies = [
  "bevy",
  "bevy_xpbd_derive",
@@ -1251,7 +1253,8 @@ dependencies = [
 [[package]]
 name = "bevy_xpbd_derive"
 version = "0.1.0"
-source = "git+https://github.com/Jondolf/bevy_xpbd.git?branch=main#776a785c8b2accacc40dcb4a84c1a72ffe6890bb"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3e1ef1d5e328abe1b76df974245f78e17fd17867583883d5e77444c6a8223a64"
 dependencies = [
  "quote",
  "syn 2.0.27",
@@ -4229,8 +4232,9 @@ checksum = "216080ab382b992234dda86873c18d4c48358f5cfcb70fd693d7f6f2131b628b"
 
 [[package]]
 name = "renet"
-version = "0.0.13"
-source = "git+https://github.com/lucaspoffo/renet.git?branch=master#a7bced4cfb7fbe60f1447f9eb6423d2a8bc1cc6e"
+version = "0.0.14"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e3ac6743d7567cad8ca1bb3b7ebe773ea81f2f7ed356cb0867ddb56251429644"
 dependencies = [
  "bevy_ecs",
  "bytes",
@@ -4241,8 +4245,9 @@ dependencies = [
 
 [[package]]
 name = "renetcode"
-version = "0.0.9"
-source = "git+https://github.com/lucaspoffo/renet.git?branch=master#a7bced4cfb7fbe60f1447f9eb6423d2a8bc1cc6e"
+version = "0.0.10"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0d20c7f74570e31217a9bbe6912e8d93ebf461939731ccb2f09a0da50e729ff7"
 dependencies = [
  "chacha20poly1305",
  "log",

@@ -17,7 +17,7 @@ version = "0.12"
 default-features = false
 
 [dependencies]
-bevy_renet = {version = "0.0.9", git="https://github.com/lucaspoffo/renet.git", branch="master" }
+bevy_renet = "0.0.10"
 
 console_commands = { path = "../console_commands"}
 gridmap = { path = "../gridmap"}

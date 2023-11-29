@@ -17,9 +17,9 @@ default-features = false
 
 [dependencies]
 vector2math = "0.13.1"
-bevy_renet = {version = "0.0.9", git="https://github.com/lucaspoffo/renet.git", branch="master" }
+bevy_renet = "0.0.10"
 const_format = "0.2.31"
-bevy_xpbd_3d = { version = "0.3.2" , features = ["enhanced-determinism"], git = "https://github.com/Jondolf/bevy_xpbd.git", branch="main"}
+bevy_xpbd_3d = { version = "0.3.2" , features = ["enhanced-determinism"]}
 
 networking = { path = "../networking" }
 pawn = { path = "../pawn" }
