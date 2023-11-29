@@ -2,7 +2,7 @@ use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, Startup};
 use console_commands::commands::{ConsoleCommand, ConsoleCommandsSet};
 use networking::{
     messaging::{register_reliable_message, MessageSender},
-    server::ServerMessageSet,
+    server::{EntityUpdatesSet, ServerMessageSet},
 };
 use resources::{
     modes::is_server_mode,
@@ -38,8 +38,8 @@ impl Plugin for InventoryPlugin {
                 (spawn_entity_for_client
                     .after(PostUpdateSet::VisibleChecker)
                     .before(ServerMessageSet::Send),)
-                    .in_set(PostUpdateSet::EntityUpdate)
-                    .in_set(MainSet::PostUpdate),
+                    .in_set(MainSet::PostUpdate)
+                    .in_set(EntityUpdatesSet::Ready),
             )
             .add_systems(
                 FixedUpdate,

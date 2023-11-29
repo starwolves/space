@@ -849,11 +849,28 @@ pub(crate) struct IncomingRawUnreliableClientMessage {
     pub message: UnreliableServerMessageBatch,
 }
 
-/// Clients can obtain the full state of an entity when these updates (server messages) are sent with the load entity message.
-/// These entity updates clear and rebuild every tick.
+/// Entity updates are serializable server messages (created with register_reliable_message) that are usually sent as live traffic from a spawned entity.
+/// Clients obtain the full state of an entity when these updates are sent through the LoadEntity message.
+/// Entity updates allow for replication and construction of the perfect entity state.
+/// Entity updates are received when the clients recieve the spawn/load entity message.
+/// These entity updates clear each tick and are built for each tick per entity that is getting this data accessed.
 #[derive(Resource, Default)]
 pub struct EntityUpdates<T: TypeName + Send + Sync + 'static> {
     pub map: HashMap<Entity, Vec<T>>,
+}
+
+/// Label for systems ordering.
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
+pub enum EntityUpdatesSet {
+    Write,
+    Prepare,
+    BuildUpdates,
+    Ready,
+}
+/// Construct entity updates for a specific entity for this frame. Ie when loading it in for a client.
+#[derive(Event)]
+pub struct ConstructEntityUpdates {
+    pub entity: Entity,
 }
 
 pub(crate) fn clear_entity_updates<T: TypeName + Send + Sync + 'static>(

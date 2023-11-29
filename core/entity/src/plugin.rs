@@ -1,9 +1,9 @@
-use bevy::ecs::schedule::IntoSystemSetConfigs;
 use bevy::prelude::{
     resource_exists, App, Condition, FixedUpdate, IntoSystemConfigs, Plugin, Startup,
 };
 use bevy_renet::renet::{RenetClient, RenetServer};
 use networking::messaging::{register_reliable_message, MessageSender};
+use networking::server::EntityUpdatesSet;
 use resources::modes::is_server_mode;
 use resources::sets::{ActionsSet, BuildingSet, MainSet, PostUpdateSet, StartupSet};
 
@@ -19,7 +19,7 @@ use crate::loading::link_peer;
 use crate::net::{EntityClientMessage, EntityServerMessage};
 use crate::spawn::{PawnId, PeerPawns, ServerEntityClientEntity};
 use crate::spawning_events::{
-    despawn_entity, DespawnClientEntity, SpawnClientEntity, SpawnClientEntitySet,
+    construct_entity_updates, despawn_entity, DespawnClientEntity, SpawnClientEntity,
 };
 use crate::visible_checker::visible_checker;
 
@@ -31,11 +31,10 @@ impl Plugin for EntityPlugin {
                 FixedUpdate,
                 (
                     despawn_entity.after(PostUpdateSet::VisibleChecker),
-                    finalize_examine_entity.before(PostUpdateSet::EntityUpdate),
+                    finalize_examine_entity,
                     visible_checker
                         .in_set(PostUpdateSet::VisibleChecker)
-                        .after(PostUpdateSet::SendEntityUpdates)
-                        .in_set(SpawnClientEntitySet::Write),
+                        .in_set(EntityUpdatesSet::Write),
                 )
                     .in_set(MainSet::PostUpdate),
             )
@@ -53,24 +52,14 @@ impl Plugin for EntityPlugin {
                 (finalize_entity_examine_input, incoming_messages).in_set(MainSet::PreUpdate),
             )
             .add_event::<InputExamineEntity>()
-            /*.add_systems(
+            .add_systems(
                 FixedUpdate,
-                finalize_entity_updates
-                    .after(PostUpdateSet::EntityUpdate)
-                    .in_set(PostUpdateSet::SendEntityUpdates)
-                    .in_set(MainSet::PostUpdate),
-            )*/
+                construct_entity_updates
+                    .in_set(MainSet::PostUpdate)
+                    .in_set(EntityUpdatesSet::Prepare),
+            )
             .add_event::<DespawnClientEntity>()
             .add_event::<SpawnClientEntity>();
-            app.configure_sets(
-                FixedUpdate,
-                (
-                    SpawnClientEntitySet::Write,
-                    SpawnClientEntitySet::Prepare,
-                    SpawnClientEntitySet::BuildUpdates,
-                )
-                    .chain(),
-            );
         } else {
             app.init_resource::<ServerEntityClientEntity>()
                 .init_resource::<PeerPawns>()

@@ -1,4 +1,7 @@
-use bevy::prelude::{resource_exists, App, FixedUpdate, IntoSystemConfigs, Plugin, Startup};
+use bevy::{
+    ecs::schedule::IntoSystemSetConfigs,
+    prelude::{resource_exists, App, FixedUpdate, IntoSystemConfigs, Plugin, Startup},
+};
 use bevy_renet::{
     renet::RenetClient,
     transport::{NetcodeClientPlugin, NetcodeServerPlugin},
@@ -25,9 +28,9 @@ use crate::{
     },
     server::{
         adjust_clients, receive_incoming_reliable_client_messages,
-        receive_incoming_unreliable_client_messages, HandleToEntity,
-        IncomingRawReliableClientMessage, IncomingRawUnreliableClientMessage, Latency,
-        NetworkingChatServerMessage, NetworkingServerMessage, SyncConfirmations,
+        receive_incoming_unreliable_client_messages, ConstructEntityUpdates, EntityUpdatesSet,
+        HandleToEntity, IncomingRawReliableClientMessage, IncomingRawUnreliableClientMessage,
+        Latency, NetworkingChatServerMessage, NetworkingServerMessage, SyncConfirmations,
         UnreliableServerMessage,
     },
     stamp::{setup_client_tickrate_stamp, step_tickrate_stamp, PauseTickStep, TickRateStamp},
@@ -51,6 +54,16 @@ impl Plugin for NetworkingPlugin {
                                 .after(receive_incoming_reliable_client_messages),
                         )
                             .in_set(MainSet::PreUpdate),
+                    )
+                    .configure_sets(
+                        FixedUpdate,
+                        (
+                            EntityUpdatesSet::Write,
+                            EntityUpdatesSet::Prepare,
+                            EntityUpdatesSet::BuildUpdates,
+                            EntityUpdatesSet::Ready,
+                        )
+                            .chain(),
                     );
             }
 
@@ -66,7 +79,8 @@ impl Plugin for NetworkingPlugin {
                     adjust_clients
                         .after(TypenamesSet::SendRawEvents)
                         .in_set(MainSet::PreUpdate),
-                );
+                )
+                .add_event::<ConstructEntityUpdates>();
         } else {
             app.add_systems(
                 FixedUpdate,

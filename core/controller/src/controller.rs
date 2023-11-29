@@ -1,11 +1,17 @@
 use std::collections::HashMap;
 
 use bevy::{
-    ecs::system::{Query, Res, ResMut, Resource},
+    ecs::{
+        event::EventReader,
+        system::{Query, Res, ResMut, Resource},
+    },
     prelude::{Component, Entity, Vec2},
 };
 use cameras::LookTransform;
-use networking::{server::EntityUpdates, stamp::TickRateStamp};
+use networking::{
+    server::{ConstructEntityUpdates, EntityUpdates},
+    stamp::TickRateStamp,
+};
 use pawn::net::UnreliableControllerClientMessage;
 use serde::{Deserialize, Serialize};
 
@@ -60,34 +66,46 @@ pub(crate) fn cache_controller(
 pub(crate) fn look_transform_entity_update(
     mut updates: ResMut<EntityUpdates<PeerUnreliableControllerMessage>>,
     query: Query<(Entity, &LookTransform)>,
+    mut construct: EventReader<ConstructEntityUpdates>,
 ) {
-    for (entity, look_transform) in query.iter() {
-        updates.map.insert(
-            entity,
-            vec![PeerUnreliableControllerMessage {
-                message: UnreliableControllerClientMessage::SyncLookTransform(
-                    look_transform.target,
-                ),
-                peer_handle: 0,
-                client_stamp: 0,
-            }],
-        );
+    for c in construct.read() {
+        match query.get(c.entity) {
+            Ok((entity, look_transform)) => {
+                updates.map.insert(
+                    entity,
+                    vec![PeerUnreliableControllerMessage {
+                        message: UnreliableControllerClientMessage::SyncLookTransform(
+                            look_transform.target,
+                        ),
+                        peer_handle: 0,
+                        client_stamp: 0,
+                    }],
+                );
+            }
+            Err(_) => {}
+        }
     }
 }
 
 pub(crate) fn controller_input_entity_update(
     mut updates: ResMut<EntityUpdates<PeerReliableControllerMessage>>,
     query: Query<(Entity, &ControllerInput)>,
+    mut construct: EventReader<ConstructEntityUpdates>,
 ) {
-    for (entity, controller_input) in query.iter() {
-        updates.map.insert(
-            entity,
-            vec![PeerReliableControllerMessage {
-                message: ControllerClientMessage::ControllerSync(controller_input.clone()),
-                peer_handle: 0,
-                client_stamp: 0,
-            }],
-        );
+    for c in construct.read() {
+        match query.get(c.entity) {
+            Ok((entity, controller_input)) => {
+                updates.map.insert(
+                    entity,
+                    vec![PeerReliableControllerMessage {
+                        message: ControllerClientMessage::ControllerSync(controller_input.clone()),
+                        peer_handle: 0,
+                        client_stamp: 0,
+                    }],
+                );
+            }
+            Err(_) => {}
+        }
     }
 }
 

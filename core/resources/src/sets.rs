@@ -54,8 +54,6 @@ pub enum UpdateSet {
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
 
 pub enum PostUpdateSet {
-    EntityUpdate,
-    SendEntityUpdates,
     VisibleChecker,
     Net,
 }

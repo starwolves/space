@@ -1,6 +1,6 @@
 use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin};
 use resources::modes::is_server_mode;
-use resources::sets::{CombatSet, MainSet, PostUpdateSet};
+use resources::sets::{CombatSet, MainSet};
 
 use crate::apply_damage::{finalize_apply_damage, ActiveApplyDamage};
 use crate::chat::hit_query_chat_cells;
@@ -72,12 +72,7 @@ impl Plugin for CombatPlugin {
                     .in_set(MainSet::Update),
             )
             .init_resource::<ActiveApplyDamage>()
-            .add_systems(
-                FixedUpdate,
-                health_ui_update
-                    .in_set(PostUpdateSet::EntityUpdate)
-                    .in_set(MainSet::PostUpdate),
-            )
+            .add_systems(FixedUpdate, health_ui_update.in_set(MainSet::PostUpdate))
             .init_resource::<ClientHealthUICache>();
         }
     }

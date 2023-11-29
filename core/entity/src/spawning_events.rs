@@ -1,4 +1,3 @@
-use bevy::ecs::schedule::SystemSet;
 use bevy::prelude::Commands;
 use bevy::prelude::Entity;
 use bevy::prelude::Event;
@@ -7,6 +6,7 @@ use bevy::prelude::EventWriter;
 use bevy::prelude::Query;
 use bevy::prelude::Res;
 use bevy_renet::renet::ClientId;
+use networking::server::ConstructEntityUpdates;
 use networking::server::HandleToEntity;
 
 use crate::net::EntityServerMessage;
@@ -26,13 +26,15 @@ pub struct SpawnClientEntity {
     pub loader_handle: ClientId,
 }
 
-/// Label for systems ordering.
-#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
-pub enum SpawnClientEntitySet {
-    Write,
-    Prepare,
-    BuildUpdates,
+pub(crate) fn construct_entity_updates(
+    mut send: EventWriter<ConstructEntityUpdates>,
+    mut events: EventReader<SpawnClientEntity>,
+) {
+    for e in events.read() {
+        send.send(ConstructEntityUpdates { entity: e.entity });
+    }
 }
+
 /// Executes despawn logic for Sensable components.
 /// Shouldn't be called from the same stage visible_checker.system() runs in.
 

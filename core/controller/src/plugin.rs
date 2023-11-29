@@ -1,7 +1,9 @@
 use std::time::Duration;
 
 use crate::connections::connections;
-use crate::controller::{cache_controller, ControllerCache};
+use crate::controller::{
+    cache_controller, controller_input_entity_update, look_transform_entity_update, ControllerCache,
+};
 use crate::input::{
     apply_peer_sync_transform, clean_recorded_input, controller_input, create_input_map,
     get_client_input, get_peer_input, Controller, InputMovementInput, InputSet,
@@ -18,6 +20,7 @@ use bevy::time::common_conditions::on_timer;
 use networking::messaging::{
     register_reliable_message, register_unreliable_message, MessageSender, MessagingSet,
 };
+use networking::server::EntityUpdatesSet;
 use player::boarding::BoardingPlayer;
 use resources::modes::is_server_mode;
 use resources::physics::PhysicsSet;
@@ -41,6 +44,14 @@ impl Plugin for ControllerPlugin {
                     peer_replication,
                 )
                     .in_set(MainSet::Update),
+            )
+            .add_systems(
+                FixedUpdate,
+                (
+                    controller_input_entity_update.in_set(EntityUpdatesSet::BuildUpdates),
+                    look_transform_entity_update.in_set(EntityUpdatesSet::BuildUpdates),
+                )
+                    .in_set(MainSet::PostUpdate),
             )
             .add_event::<BoardingPlayer>()
             .add_systems(

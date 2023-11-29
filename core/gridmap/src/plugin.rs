@@ -8,7 +8,7 @@ use networking::messaging::{register_reliable_message, MessageSender};
 use player::{connections::process_response, plugin::ConfigurationLabel};
 use resources::{
     modes::is_server_mode,
-    sets::{ActionsSet, BuildingSet, MainSet, PostUpdateSet, StartupSet},
+    sets::{ActionsSet, BuildingSet, MainSet, StartupSet},
 };
 
 use crate::{
@@ -126,7 +126,7 @@ impl Plugin for GridmapPlugin {
                 (
                     incoming_messages,
                     finalize_grid_examine_input,
-                    finalize_examine_map.before(PostUpdateSet::EntityUpdate),
+                    finalize_examine_map,
                 )
                     .in_set(MainSet::PreUpdate),
             )
