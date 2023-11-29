@@ -126,6 +126,7 @@ pub(crate) fn incoming_messages(
                     }
                 }
             }
+            ControllerClientMessage::ControllerSync(_) => (),
         }
     }
 }

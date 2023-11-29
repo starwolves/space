@@ -848,3 +848,16 @@ pub(crate) struct IncomingRawUnreliableClientMessage {
     pub handle: ClientId,
     pub message: UnreliableServerMessageBatch,
 }
+
+/// Clients can obtain the full state of an entity when these updates (server messages) are sent with the load entity message.
+/// These entity updates clear and rebuild every tick.
+#[derive(Resource, Default)]
+pub struct EntityUpdates<T: TypeName + Send + Sync + 'static> {
+    pub map: HashMap<Entity, Vec<T>>,
+}
+
+pub(crate) fn clear_entity_updates<T: TypeName + Send + Sync + 'static>(
+    mut res: ResMut<EntityUpdates<T>>,
+) {
+    res.map.clear();
+}

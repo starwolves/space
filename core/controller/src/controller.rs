@@ -4,10 +4,13 @@ use bevy::{
     ecs::system::{Query, Res, ResMut, Resource},
     prelude::{Component, Entity, Vec2},
 };
-use networking::stamp::TickRateStamp;
+use cameras::LookTransform;
+use networking::{server::EntityUpdates, stamp::TickRateStamp};
+use pawn::net::UnreliableControllerClientMessage;
+use serde::{Deserialize, Serialize};
 
 /// Controller input component.
-#[derive(Component, Clone, Debug)]
+#[derive(Component, Clone, Debug, Serialize, Deserialize)]
 
 pub struct ControllerInput {
     pub movement_vector: Vec2,
@@ -53,3 +56,42 @@ pub(crate) fn cache_controller(
         cache.cache.remove(&i);
     }
 }
+
+pub(crate) fn look_transform_entity_update(
+    mut updates: ResMut<EntityUpdates<PeerUnreliableControllerMessage>>,
+    query: Query<(Entity, &LookTransform)>,
+) {
+    for (entity, look_transform) in query.iter() {
+        updates.map.insert(
+            entity,
+            vec![PeerUnreliableControllerMessage {
+                message: UnreliableControllerClientMessage::SyncLookTransform(
+                    look_transform.target,
+                ),
+                peer_handle: 0,
+                client_stamp: 0,
+            }],
+        );
+    }
+}
+
+pub(crate) fn controller_input_entity_update(
+    mut updates: ResMut<EntityUpdates<PeerReliableControllerMessage>>,
+    query: Query<(Entity, &ControllerInput)>,
+) {
+    for (entity, controller_input) in query.iter() {
+        updates.map.insert(
+            entity,
+            vec![PeerReliableControllerMessage {
+                message: ControllerClientMessage::ControllerSync(controller_input.clone()),
+                peer_handle: 0,
+                client_stamp: 0,
+            }],
+        );
+    }
+}
+
+use crate::{
+    net::ControllerClientMessage,
+    networking::{PeerReliableControllerMessage, PeerUnreliableControllerMessage},
+};

@@ -218,6 +218,7 @@ pub(crate) fn get_peer_input(
                     }
                 }
             }
+            ControllerClientMessage::ControllerSync(_) => (),
         }
     }
     for message in unreliable_peer.read() {

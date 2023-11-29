@@ -78,7 +78,8 @@ pub enum MessageSender {
 
 use crate::client::step_buffer;
 use crate::server::{
-    IncomingEarlyReliableClientMessage, IncomingEarlyUnreliableClientMessage, ServerMessageSet,
+    clear_entity_updates, EntityUpdates, IncomingEarlyReliableClientMessage,
+    IncomingEarlyUnreliableClientMessage, ServerMessageSet,
 };
 use crate::{
     client::{
@@ -132,10 +133,16 @@ pub fn register_reliable_message<
     if server_is_sender && is_server() && !is_correction_mode(app) {
         app.add_systems(
             FixedUpdate,
-            send_outgoing_reliable_server_messages::<T>
-                .in_set(MainSet::PostUpdate)
-                .in_set(ServerMessageSet::Send),
+            (
+                send_outgoing_reliable_server_messages::<T>
+                    .in_set(MainSet::PostUpdate)
+                    .in_set(ServerMessageSet::Send),
+                clear_entity_updates::<T>.in_set(MainSet::PreUpdate),
+            ),
         );
+        app.insert_resource(EntityUpdates::<T> {
+            map: HashMap::default(),
+        });
     }
     app.add_event::<IncomingReliableServerMessage<T>>();
     if server_is_sender && !is_server_mode(app) {
@@ -216,10 +223,16 @@ pub fn register_unreliable_message<
         if !is_correction_mode(app) {
             app.add_systems(
                 FixedUpdate,
-                send_outgoing_unreliable_server_messages::<T>
-                    .in_set(ServerMessageSet::Send)
-                    .in_set(MainSet::PostUpdate),
+                (
+                    send_outgoing_unreliable_server_messages::<T>
+                        .in_set(ServerMessageSet::Send)
+                        .in_set(MainSet::PostUpdate),
+                    clear_entity_updates::<T>.in_set(MainSet::PreUpdate),
+                ),
             );
+            app.insert_resource(EntityUpdates::<T> {
+                map: HashMap::default(),
+            });
         }
     }
     if server_is_sender && !is_server_mode(app) {

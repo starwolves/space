@@ -7,6 +7,8 @@ use networking::server::ConnectedPlayer;
 use serde::{Deserialize, Serialize};
 use typename::TypeName;
 
+use crate::controller::ControllerInput;
+
 #[derive(Serialize, Deserialize, Clone, Debug, Default)]
 pub struct MovementInput {
     pub up: bool,
@@ -21,6 +23,7 @@ pub struct MovementInput {
 
 pub enum ControllerClientMessage {
     MovementInput(MovementInput),
+    ControllerSync(ControllerInput),
 }
 /// Update player count info for clients.
 
