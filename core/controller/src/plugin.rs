@@ -22,7 +22,7 @@ use networking::messaging::{
 };
 use networking::server::EntityUpdatesSet;
 use player::boarding::BoardingPlayer;
-use resources::modes::is_server_mode;
+use resources::modes::{is_correction_mode, is_server_mode};
 use resources::physics::PhysicsSet;
 use resources::sets::{MainSet, UpdateSet};
 
@@ -44,17 +44,18 @@ impl Plugin for ControllerPlugin {
                     peer_replication,
                 )
                     .in_set(MainSet::Update),
-            )
-            .add_systems(
-                FixedUpdate,
-                (
-                    controller_input_entity_update.in_set(EntityUpdatesSet::BuildUpdates),
-                    look_transform_entity_update.in_set(EntityUpdatesSet::BuildUpdates),
-                )
-                    .in_set(MainSet::PostUpdate),
-            )
-            .add_event::<BoardingPlayer>()
-            .add_systems(
+            );
+            if !is_correction_mode(app) {
+                app.add_systems(
+                    FixedUpdate,
+                    (
+                        controller_input_entity_update.in_set(EntityUpdatesSet::BuildUpdates),
+                        look_transform_entity_update.in_set(EntityUpdatesSet::BuildUpdates),
+                    )
+                        .in_set(MainSet::PostUpdate),
+                );
+            }
+            app.add_event::<BoardingPlayer>().add_systems(
                 FixedUpdate,
                 incoming_messages
                     .in_set(InputSet::First)
