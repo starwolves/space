@@ -3,8 +3,8 @@ use std::{
     time::SystemTime,
 };
 
-use bevy::log::error;
 use bevy::log::info;
+use bevy::{ecs::system::Local, log::error};
 use bevy::{
     prelude::{Event, Resource},
     tasks::{AsyncComputeTaskPool, Task},
@@ -15,6 +15,7 @@ use bevy_renet::renet::{
     ConnectionConfig, DefaultChannel, RenetClient,
 };
 use futures_lite::future;
+use resources::core::TickRate;
 use token::parse::Token;
 
 use crate::{
@@ -269,12 +270,12 @@ pub enum ConnectionStatus {
 
 use bevy::prelude::EventWriter;
 
-/// System run run_if with iyes_loopless
+/// System run run_if
 
 pub fn connected(connection: Res<Connection>) -> bool {
     matches!(connection.status, ConnectionStatus::Connected)
 }
-/// System run run_if with iyes_loopless. The earliest server messages (for setup_ui, boarding etc.)
+/// System run run_if. The earliest server messages (for setup_ui, boarding etc.)
 /// come in while in the connecting stage.
 
 pub fn is_client_connected(connection: Res<Connection>) -> bool {
@@ -607,18 +608,47 @@ pub fn get_unreliable_message<T: TypeName + Serialize + for<'a> Deserialize<'a>>
 }
 
 use crate::server::NetworkingServerMessage;
+#[derive(Resource, Default)]
+pub(crate) struct SyncClient((bool, u8));
+
+pub(crate) fn sync_client(
+    mut first: ResMut<SyncClient>,
+    mut net: EventWriter<OutgoingReliableClientMessage<NetworkingClientMessage>>,
+    mut skip: Local<u16>,
+    rate: Res<TickRate>,
+) {
+    if first.0 .0 {
+        *skip += 1;
+        if *skip > ((rate.fixed_rate as f32 * 2.) / 16 as f32).ceil() as u16 {
+            first.0 .1 += 1;
+
+            if first.0 .1 > 16 {
+                first.0 .0 = false;
+                first.0 .1 = 0;
+            } else {
+                net.send(OutgoingReliableClientMessage {
+                    message: NetworkingClientMessage::HeartBeat,
+                });
+            }
+            *skip = 0;
+        }
+    }
+}
 
 /// Confirms connection with server.
 pub(crate) fn confirm_connection(
     mut client1: EventReader<IncomingReliableServerMessage<NetworkingServerMessage>>,
     mut connected_state: ResMut<Connection>,
+    mut first: ResMut<SyncClient>,
 ) {
     for message in client1.read() {
         let player_message = message.message.clone();
         match player_message {
             NetworkingServerMessage::Awoo(_) => {
                 connected_state.status = ConnectionStatus::Connected;
-                info!("Connected.");
+                first.0 .0 = true;
+                first.0 .1 = 0;
+                info!("Connected to game server.");
             }
             _ => (),
         }

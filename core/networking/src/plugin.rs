@@ -17,10 +17,10 @@ use crate::{
     client::{
         confirm_connection, connect_to_server, connected, is_client_connected, on_disconnect,
         receive_incoming_reliable_server_messages, receive_incoming_unreliable_server_messages,
-        starwolves_response, step_buffer, token_assign_server, AssignTokenToServer,
+        starwolves_response, step_buffer, sync_client, token_assign_server, AssignTokenToServer,
         AssigningServerToken, ConnectToServer, Connection, ConnectionPreferences,
         IncomingRawReliableServerMessage, IncomingRawUnreliableServerMessage,
-        NetworkingClientMessage, OutgoingBuffer, TokenAssignServer,
+        NetworkingClientMessage, OutgoingBuffer, SyncClient, TokenAssignServer,
     },
     messaging::{
         generate_typenames, register_reliable_message, register_unreliable_message, MessageSender,
@@ -126,6 +126,9 @@ impl Plugin for NetworkingPlugin {
                 FixedUpdate,
                 (
                     confirm_connection.run_if(is_client_connected),
+                    sync_client
+                        .run_if(is_client_connected)
+                        .after(confirm_connection),
                     on_disconnect.run_if(connected),
                 )
                     .in_set(MainSet::Update),
@@ -136,7 +139,8 @@ impl Plugin for NetworkingPlugin {
                 step_buffer
                     .run_if(resource_exists::<RenetClient>())
                     .in_set(MainSet::PostUpdate),
-            );
+            )
+            .init_resource::<SyncClient>();
         }
 
         app.init_resource::<TickRateStamp>()
