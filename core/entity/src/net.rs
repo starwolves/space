@@ -43,6 +43,8 @@ pub struct LoadEntity {
     pub entity: Entity,
     pub holder_entity: Option<Entity>,
     pub physics_data: PhysicsData,
+    pub entity_updates_reliable: Vec<Vec<u8>>,
+    pub entity_updates_unreliable: Vec<Vec<u8>>,
 }
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct PhysicsData {

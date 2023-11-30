@@ -23,7 +23,7 @@ pub struct MovementInput {
 
 pub enum ControllerClientMessage {
     MovementInput(MovementInput),
-    ControllerSync(ControllerInput),
+    SyncControllerInput(ControllerInput),
 }
 /// Update player count info for clients.
 

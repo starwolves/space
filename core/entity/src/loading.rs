@@ -12,6 +12,7 @@ use bevy::prelude::Res;
 use networking::stamp::TickRateStamp;
 use resources::correction::StartCorrection;
 
+use crate::entity_data::QueuedSpawnEntityUpdates;
 use crate::entity_types::EntityType;
 use crate::entity_types::EntityTypes;
 use crate::net::EntityServerMessage;
@@ -29,6 +30,7 @@ pub fn load_entity<T: Send + Sync + 'static + Default + EntityType>(
     mut map: ResMut<ServerEntityClientEntity>,
     mut correction: EventWriter<StartCorrection>,
     stamp: Res<TickRateStamp>,
+    mut queue: ResMut<QueuedSpawnEntityUpdates>,
 ) {
     for message in client.read() {
         match &message.message {
@@ -76,8 +78,19 @@ pub fn load_entity<T: Send + Sync + 'static + Default + EntityType>(
                         },
                         entity_type: entity_default,
                     });
+
+                    queue
+                        .reliable
+                        .insert(c_id, load_entity.entity_updates_reliable.clone());
+
+                    queue
+                        .unreliable
+                        .insert(c_id, load_entity.entity_updates_unreliable.clone());
+
+                    queue.stamp = message.stamp;
+                    let large = stamp.calculate_large(message.stamp);
                     correction.send(StartCorrection {
-                        start_tick: stamp.calculate_large(message.stamp),
+                        start_tick: large,
                         last_tick: stamp.large,
                     });
                 }

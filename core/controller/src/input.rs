@@ -37,7 +37,7 @@ pub enum InputSet {
 /// Client input movement event.
 #[derive(Event, Debug)]
 pub struct InputMovementInput {
-    pub player_entity: Entity,
+    pub entity: Entity,
     pub up: bool,
     pub left: bool,
     pub right: bool,
@@ -45,10 +45,17 @@ pub struct InputMovementInput {
     pub pressed: bool,
 }
 
+/// Client input movement event.
+#[derive(Event, Debug)]
+pub struct SyncControllerInput {
+    pub entity: Entity,
+    pub sync: ControllerInput,
+}
+
 impl Default for InputMovementInput {
     fn default() -> Self {
         Self {
-            player_entity: Entity::from_bits(0),
+            entity: Entity::from_bits(0),
             up: false,
             left: false,
             right: false,
@@ -177,6 +184,7 @@ pub(crate) fn get_peer_input(
     mut sync: EventWriter<PeerSyncLookTransform>,
     peer_pawns: Res<PeerPawns>,
     mut start_correction: EventWriter<StartCorrection>,
+    mut sync_controller: EventWriter<SyncControllerInput>,
 ) {
     let mut new_correction = false;
     let mut earliest_tick = 0;
@@ -200,7 +208,7 @@ pub(crate) fn get_peer_input(
                 {
                     Some(peer) => {
                         movement_input_event.send(InputMovementInput {
-                            player_entity: *peer,
+                            entity: *peer,
                             up: input.up,
                             left: input.left,
                             right: input.right,
@@ -218,7 +226,27 @@ pub(crate) fn get_peer_input(
                     }
                 }
             }
-            ControllerClientMessage::ControllerSync(_) => (),
+            ControllerClientMessage::SyncControllerInput(input) => {
+                match peer_pawns
+                    .map
+                    .get(&ClientId::from_raw(message.message.peer_handle.into()))
+                {
+                    Some(peer) => {
+                        sync_controller.send(SyncControllerInput {
+                            entity: *peer,
+                            sync: input.clone(),
+                        });
+                        new_correction = true;
+                        let e = stamp.calculate_large(message.message.client_stamp);
+                        if e < earliest_tick || earliest_tick == 0 {
+                            earliest_tick = e;
+                        }
+                    }
+                    None => {
+                        warn!("Couldnt find peer pawn.");
+                    }
+                }
+            }
         }
     }
     for message in unreliable_peer.read() {
@@ -267,6 +295,22 @@ pub(crate) fn get_peer_input(
         });
     }
 }
+/// Client fn
+pub(crate) fn sync_controller_input(
+    mut events: EventReader<SyncControllerInput>,
+    mut query: Query<&mut ControllerInput>,
+) {
+    for event in events.read() {
+        match query.get_mut(event.entity) {
+            Ok(mut controller_input) => {
+                *controller_input = event.sync.clone();
+            }
+            Err(_) => {
+                warn!("Couldnt find entity to sync for.");
+            }
+        }
+    }
+}
 
 pub(crate) fn clean_recorded_input(
     mut record: ResMut<RecordedControllerInput>,
@@ -300,7 +344,7 @@ pub(crate) fn get_client_input(
     }
     if keyboard.just_pressed(MOVE_FORWARD_BIND) {
         movement_event.send(InputMovementInput {
-            player_entity: pawn_entity,
+            entity: pawn_entity,
             up: true,
             pressed: true,
             ..Default::default()
@@ -315,7 +359,7 @@ pub(crate) fn get_client_input(
     }
     if keyboard.just_pressed(MOVE_BACKWARD_BIND) {
         movement_event.send(InputMovementInput {
-            player_entity: pawn_entity,
+            entity: pawn_entity,
             down: true,
             pressed: true,
             ..Default::default()
@@ -330,7 +374,7 @@ pub(crate) fn get_client_input(
     }
     if keyboard.just_pressed(MOVE_LEFT_BIND) {
         movement_event.send(InputMovementInput {
-            player_entity: pawn_entity,
+            entity: pawn_entity,
             left: true,
             pressed: true,
             ..Default::default()
@@ -345,7 +389,7 @@ pub(crate) fn get_client_input(
     }
     if keyboard.just_pressed(MOVE_RIGHT_BIND) {
         movement_event.send(InputMovementInput {
-            player_entity: pawn_entity,
+            entity: pawn_entity,
             right: true,
             pressed: true,
             ..Default::default()
@@ -361,7 +405,7 @@ pub(crate) fn get_client_input(
 
     if keyboard.just_released(MOVE_FORWARD_BIND) {
         movement_event.send(InputMovementInput {
-            player_entity: pawn_entity,
+            entity: pawn_entity,
             up: true,
             pressed: false,
             ..Default::default()
@@ -376,7 +420,7 @@ pub(crate) fn get_client_input(
     }
     if keyboard.just_released(MOVE_BACKWARD_BIND) {
         movement_event.send(InputMovementInput {
-            player_entity: pawn_entity,
+            entity: pawn_entity,
             down: true,
             pressed: false,
             ..Default::default()
@@ -391,7 +435,7 @@ pub(crate) fn get_client_input(
     }
     if keyboard.just_released(MOVE_LEFT_BIND) {
         movement_event.send(InputMovementInput {
-            player_entity: pawn_entity,
+            entity: pawn_entity,
             left: true,
             pressed: false,
             ..Default::default()
@@ -406,7 +450,7 @@ pub(crate) fn get_client_input(
     }
     if keyboard.just_released(MOVE_RIGHT_BIND) {
         movement_event.send(InputMovementInput {
-            player_entity: pawn_entity,
+            entity: pawn_entity,
             right: true,
             pressed: false,
             ..Default::default()
@@ -435,7 +479,7 @@ pub(crate) fn controller_input(
     mut movement_input_event: EventReader<InputMovementInput>,
 ) {
     for new_event in movement_input_event.read() {
-        let player_entity = new_event.player_entity;
+        let player_entity = new_event.entity;
 
         let player_input_component_result = humanoids_query.get_mut(player_entity);
 

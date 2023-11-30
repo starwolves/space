@@ -6,8 +6,9 @@ use crate::controller::{
 };
 use crate::input::{
     apply_peer_sync_transform, clean_recorded_input, controller_input, create_input_map,
-    get_client_input, get_peer_input, Controller, InputMovementInput, InputSet,
-    LastPeerLookTransform, PeerSyncLookTransform, RecordedControllerInput,
+    get_client_input, get_peer_input, sync_controller_input, Controller, InputMovementInput,
+    InputSet, LastPeerLookTransform, PeerSyncLookTransform, RecordedControllerInput,
+    SyncControllerInput,
 };
 use crate::net::ControllerClientMessage;
 use crate::networking::{
@@ -79,6 +80,7 @@ impl Plugin for ControllerPlugin {
                             .after(MainSet::PostUpdate)
                             .in_set(PhysicsSet::Cache),
                         apply_peer_sync_transform.after(InputSet::First),
+                        sync_controller_input.after(InputSet::First),
                     ),
                 )
                 .add_event::<PeerSyncLookTransform>()
@@ -95,7 +97,8 @@ impl Plugin for ControllerPlugin {
         )
         .init_resource::<RecordedControllerInput>()
         .init_resource::<ControllerCache>()
-        .add_event::<InputMovementInput>();
+        .add_event::<InputMovementInput>()
+        .add_event::<SyncControllerInput>();
         register_reliable_message::<ControllerClientMessage>(app, MessageSender::Client, true);
         register_reliable_message::<PeerReliableControllerMessage>(
             app,

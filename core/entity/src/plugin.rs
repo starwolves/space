@@ -2,13 +2,13 @@ use bevy::prelude::{
     resource_exists, App, Condition, FixedUpdate, IntoSystemConfigs, Plugin, Startup,
 };
 use bevy_renet::renet::{RenetClient, RenetServer};
-use networking::messaging::{register_reliable_message, MessageSender};
+use networking::messaging::{register_reliable_message, MessageSender, TypenamesSet};
 use networking::server::EntityUpdatesSet;
 use resources::modes::is_server_mode;
 use resources::sets::{ActionsSet, BuildingSet, MainSet, PostUpdateSet, StartupSet};
 
 use crate::despawn::{despawn_entities, DespawnEntity};
-use crate::entity_data::RawSpawnEvent;
+use crate::entity_data::{fire_queued_entity_updates, QueuedSpawnEntityUpdates, RawSpawnEvent};
 use crate::entity_types::{finalize_register_entity_types, EntityTypeLabel, EntityTypes};
 use crate::examine::{
     examine_entity, examine_entity_health, finalize_entity_examine_input, finalize_examine_entity,
@@ -65,10 +65,16 @@ impl Plugin for EntityPlugin {
                 .init_resource::<PeerPawns>()
                 .add_systems(
                     FixedUpdate,
-                    link_peer
-                        .in_set(MainSet::Update)
-                        .after(BuildingSet::TriggerBuild),
-                );
+                    (
+                        link_peer
+                            .in_set(MainSet::Update)
+                            .after(BuildingSet::TriggerBuild),
+                        fire_queued_entity_updates
+                            .in_set(MainSet::PreUpdate)
+                            .before(TypenamesSet::SendRawEvents),
+                    ),
+                )
+                .init_resource::<QueuedSpawnEntityUpdates>();
         }
         app.add_event::<DespawnEntity>()
             .add_event::<RawSpawnEvent>()

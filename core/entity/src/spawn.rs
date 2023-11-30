@@ -178,6 +178,8 @@ pub fn build_base_entities<T: BaseEntityBuilder<NoData> + 'static>(
                             angular_velocity: Vec3::ZERO,
                         },
                         holder_entity: spawn_event.spawn_data.holder_entity_option,
+                        entity_updates_reliable: vec![],
+                        entity_updates_unreliable: vec![],
                     }),
                 });
             }

@@ -1,4 +1,3 @@
-use bevy::log::info;
 use bevy::log::warn;
 use bevy::prelude::EventWriter;
 use bevy::prelude::Query;
@@ -66,7 +65,6 @@ pub(crate) fn peer_replication(
             if message.handle == connected.handle {
                 continue;
             }
-            info!("Sending {:?} tick {}", message.message, message.stamp);
             peer.send(OutgoingReliableServerMessage {
                 handle: connected.handle,
                 message: PeerReliableControllerMessage {
@@ -113,7 +111,7 @@ pub(crate) fn incoming_messages(
                 match handle_to_entity.map.get(&message.handle) {
                     Some(player_entity) => {
                         movement_input_event.send(InputMovementInput {
-                            player_entity: *player_entity,
+                            entity: *player_entity,
                             pressed: movement_input.pressed,
                             up: movement_input.up,
                             left: movement_input.left,
@@ -126,7 +124,7 @@ pub(crate) fn incoming_messages(
                     }
                 }
             }
-            ControllerClientMessage::ControllerSync(_) => (),
+            ControllerClientMessage::SyncControllerInput(_) => (),
         }
     }
 }

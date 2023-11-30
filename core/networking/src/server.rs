@@ -865,6 +865,7 @@ pub enum EntityUpdatesSet {
     Write,
     Prepare,
     BuildUpdates,
+    Serialize,
     Ready,
 }
 /// Construct entity updates for a specific entity for this frame. Ie when loading it in for a client.
@@ -877,4 +878,103 @@ pub(crate) fn clear_entity_updates<T: TypeName + Send + Sync + 'static>(
     mut res: ResMut<EntityUpdates<T>>,
 ) {
     res.map.clear();
+}
+#[derive(Resource, Default)]
+pub struct EntityUpdatesSerialized {
+    pub reliable: HashMap<Entity, Vec<Vec<u8>>>,
+    pub unreliable: HashMap<Entity, Vec<Vec<u8>>>,
+}
+
+pub(crate) fn serialize_reliable_entity_updates<T: Serialize + TypeName + Send + Sync + 'static>(
+    updates: Res<EntityUpdates<T>>,
+    mut serialized: ResMut<EntityUpdatesSerialized>,
+    typenames: Res<Typenames>,
+) {
+    for (entity, updates) in updates.map.iter() {
+        for update in updates {
+            let net;
+            match typenames.reliable_net_types.get(&update.type_name_of()) {
+                Some(n) => {
+                    net = n;
+                }
+                None => {
+                    warn!(
+                        "Couldnt find server reliable type {}",
+                        update.type_name_of()
+                    );
+                    continue;
+                }
+            }
+
+            match bincode::serialize(update) {
+                Ok(c) => {
+                    match bincode::serialize(&ReliableMessage {
+                        serialized: c,
+                        typename_net: *net,
+                    }) {
+                        Ok(r) => match serialized.reliable.get_mut(entity) {
+                            Some(m) => m.push(r),
+                            None => {
+                                serialized.reliable.insert(*entity, vec![r]);
+                            }
+                        },
+                        Err(_) => {
+                            warn!("Couldnt serialize reliable msg.");
+                        }
+                    }
+                }
+                Err(_) => {
+                    warn!("Couldnt serialize entity update.");
+                }
+            }
+        }
+    }
+}
+
+pub(crate) fn serialize_unreliable_entity_updates<
+    T: Serialize + TypeName + Send + Sync + 'static,
+>(
+    updates: Res<EntityUpdates<T>>,
+    mut serialized: ResMut<EntityUpdatesSerialized>,
+    typenames: Res<Typenames>,
+) {
+    for (entity, updates) in updates.map.iter() {
+        for update in updates {
+            let net;
+            match typenames.unreliable_net_types.get(&update.type_name_of()) {
+                Some(n) => {
+                    net = n;
+                }
+                None => {
+                    warn!(
+                        "Couldnt find server reliable type {}",
+                        update.type_name_of()
+                    );
+                    continue;
+                }
+            }
+
+            match bincode::serialize(update) {
+                Ok(c) => {
+                    match bincode::serialize(&UnreliableMessage {
+                        serialized: c,
+                        typename_net: *net,
+                    }) {
+                        Ok(r) => match serialized.unreliable.get_mut(entity) {
+                            Some(m) => m.push(r),
+                            None => {
+                                serialized.unreliable.insert(*entity, vec![r]);
+                            }
+                        },
+                        Err(_) => {
+                            warn!("Couldnt serialize unreliable msg.");
+                        }
+                    }
+                }
+                Err(_) => {
+                    warn!("Couldnt serialize u-entity update.");
+                }
+            }
+        }
+    }
 }

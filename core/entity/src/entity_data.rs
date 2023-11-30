@@ -1,8 +1,15 @@
 use std::collections::HashMap;
 
+use bevy::ecs::entity::Entity;
+use bevy::ecs::event::EventWriter;
+use bevy::ecs::system::{ResMut, Resource};
+use bevy::log::warn;
 use bevy::prelude::{Component, Event, SystemSet, Transform};
 use entity_macros::Identity;
-use networking::server::EntityUpdateData;
+use networking::client::{IncomingRawReliableServerMessage, IncomingRawUnreliableServerMessage};
+use networking::messaging::{
+    ReliableMessage, ReliableServerMessageBatch, UnreliableMessage, UnreliableServerMessageBatch,
+};
 use serde::{Deserialize, Serialize};
 
 use crate::entity_types::{BoxedEntityType, EntityType};
@@ -49,35 +56,6 @@ pub struct CachedBroadcastTransform {
 #[derive(Component)]
 
 pub struct UpdateTransform;
-/// The NodePath to the node to spawn entities in on the Godot clients.
-
-pub const ENTITY_SPAWN_PARENT : &str = "ColorRect/background/VBoxContainer/HBoxContainer/3dviewportPopup/Control/TabContainer/3D Viewport/Control/ViewportContainer/Viewport/Spatial";
-
-/// Check if entity updates for a player has changed. Old Godot netcode.
-
-pub fn entity_update_changed_detection(
-    changed_parameters: &mut Vec<String>,
-    entity_updates: &mut HashMap<String, EntityUpdateData>,
-    set: EntityUpdateData,
-    parameter: String,
-) {
-    let get = entity_updates.get(&parameter);
-    let has_changed;
-    match get {
-        Some(value) => {
-            has_changed = !entity_data_is_matching(value, &set);
-        }
-        None => {
-            has_changed = true;
-        }
-    }
-
-    if has_changed == true {
-        entity_updates.insert(parameter.clone(), set);
-        changed_parameters.push(parameter);
-    }
-}
-
 /// The base entity component holding base entity data.
 #[derive(Component)]
 
@@ -105,173 +83,6 @@ pub enum EntityGroup {
     AirLock,
     CounterWindowSensor,
     Pawn,
-}
-/// Match entity data as a function. Old Godot netcode.
-
-pub fn entity_data_is_matching(data1: &EntityUpdateData, data2: &EntityUpdateData) -> bool {
-    let mut is_not_matching = true;
-
-    match data1 {
-        EntityUpdateData::Int(old_value) => match data2 {
-            EntityUpdateData::Int(new_value) => {
-                is_not_matching = *new_value != *old_value;
-            }
-            _ => {}
-        },
-        EntityUpdateData::UInt8(old_value) => match data2 {
-            EntityUpdateData::UInt8(new_value) => {
-                is_not_matching = *new_value != *old_value;
-            }
-            _ => {}
-        },
-        EntityUpdateData::String(old_value) => match data2 {
-            EntityUpdateData::String(new_value) => {
-                is_not_matching = *new_value != *old_value;
-            }
-            _ => {}
-        },
-        EntityUpdateData::StringVec(old_value) => match data2 {
-            EntityUpdateData::StringVec(new_value) => {
-                is_not_matching = *new_value != *old_value;
-            }
-            _ => {}
-        },
-        EntityUpdateData::Float(old_value) => match data2 {
-            EntityUpdateData::Float(new_value) => {
-                is_not_matching = *new_value != *old_value;
-            }
-            _ => {}
-        },
-        EntityUpdateData::Transform(old_value, old_value1, old_value2) => match data2 {
-            EntityUpdateData::Transform(new_value, new_value1, new_value2) => {
-                is_not_matching = *new_value != *old_value
-                    || *old_value1 != *new_value1
-                    || *old_value2 != *new_value2;
-            }
-            _ => {}
-        },
-        EntityUpdateData::Color(r, g, b, a) => match data2 {
-            EntityUpdateData::Color(r_n, g_n, b_n, a_n) => {
-                is_not_matching = r != r_n && g != g_n && b != b_n && a != a_n;
-            }
-            _ => {}
-        },
-        EntityUpdateData::Bool(old_value) => match data2 {
-            EntityUpdateData::Bool(new_value) => {
-                is_not_matching = *new_value != *old_value;
-            }
-            _ => {}
-        },
-        EntityUpdateData::Vec3(old_value) => match data2 {
-            EntityUpdateData::Vec3(new_value) => {
-                is_not_matching = *new_value != *old_value;
-            }
-            _ => {}
-        },
-        EntityUpdateData::AttachedItem(old_value0, old_value1, old_value2, old_value3) => {
-            match data2 {
-                EntityUpdateData::AttachedItem(new_value0, new_value1, new_value2, new_value3) => {
-                    is_not_matching = *new_value0 != *old_value0
-                        || *new_value1 != *old_value1
-                        || *new_value2 != *old_value2
-                        || *new_value3 != *old_value3;
-                }
-                _ => {}
-            }
-        }
-        EntityUpdateData::WornItem(
-            old_value0,
-            old_value1,
-            old_value2,
-            old_value3,
-            old_value4,
-            old_value5,
-        ) => match data2 {
-            EntityUpdateData::WornItem(
-                new_value0,
-                new_value1,
-                new_value2,
-                new_value3,
-                new_value4,
-                new_value5,
-            ) => {
-                is_not_matching = *new_value0 != *old_value0
-                    || *new_value1 != *old_value1
-                    || *new_value2 != *old_value2
-                    || *new_value3 != *old_value3
-                    || *new_value4 != *old_value4
-                    || *new_value5 != *old_value5;
-            }
-            _ => {}
-        },
-        EntityUpdateData::WornItemNotAttached(old_value0, old_value1, old_value2) => match data2 {
-            EntityUpdateData::WornItemNotAttached(new_value0, new_value1, new_value2) => {
-                is_not_matching = *new_value0 != *old_value0
-                    || *new_value1 != *old_value1
-                    || *new_value2 != *old_value2;
-            }
-            _ => {}
-        },
-        EntityUpdateData::Vec2(old_value0) => match data2 {
-            EntityUpdateData::Vec2(new_value0) => is_not_matching = *new_value0 != *old_value0,
-            _ => {}
-        },
-    }
-
-    !is_not_matching
-}
-
-/// Get difference between this frame and last's frame entity updates per player. Old Godot netcode.
-
-pub fn get_entity_update_difference(
-    old_data: HashMap<String, HashMap<String, EntityUpdateData>>,
-    new_data: &HashMap<String, HashMap<String, EntityUpdateData>>,
-) -> HashMap<String, HashMap<String, EntityUpdateData>> {
-    let mut difference_data = HashMap::new();
-
-    for (new_node_path, new_data_entity_updates) in new_data {
-        match old_data.get(new_node_path) {
-            Some(old_data_entity_updates) => {
-                for (new_entity_update_type, new_entity_update_data) in new_data_entity_updates {
-                    match old_data_entity_updates.get(new_entity_update_type) {
-                        Some(old_entity_update_data) => {
-                            if !entity_data_is_matching(
-                                new_entity_update_data,
-                                old_entity_update_data,
-                            ) {
-                                if !difference_data.contains_key(&new_node_path.to_string()) {
-                                    difference_data
-                                        .insert(new_node_path.to_string(), HashMap::new());
-                                }
-                                let difference_data_entity_updates =
-                                    difference_data.get_mut(&new_node_path.to_string()).unwrap();
-                                difference_data_entity_updates.insert(
-                                    new_entity_update_type.clone(),
-                                    new_entity_update_data.clone(),
-                                );
-                            }
-                        }
-                        None => {
-                            if !difference_data.contains_key(&new_node_path.to_string()) {
-                                difference_data.insert(new_node_path.to_string(), HashMap::new());
-                            }
-                            let difference_data_entity_updates =
-                                difference_data.get_mut(&new_node_path.to_string()).unwrap();
-                            difference_data_entity_updates.insert(
-                                new_entity_update_type.clone(),
-                                new_entity_update_data.clone(),
-                            );
-                        }
-                    }
-                }
-            }
-            None => {
-                difference_data.insert(new_node_path.to_string(), new_data_entity_updates.clone());
-            }
-        }
-    }
-
-    difference_data
 }
 
 /// World mode component.
@@ -301,4 +112,60 @@ pub struct GridItemData {
 
 pub trait GridEntity {
     fn get_grid_item_data() -> GridItemData;
+}
+
+#[derive(Resource, Default)]
+pub struct QueuedSpawnEntityUpdates {
+    pub stamp: u8,
+    pub reliable: HashMap<Entity, Vec<Vec<u8>>>,
+    pub unreliable: HashMap<Entity, Vec<Vec<u8>>>,
+}
+
+pub(crate) fn fire_queued_entity_updates(
+    mut queue: ResMut<QueuedSpawnEntityUpdates>,
+    mut send_reliable: EventWriter<IncomingRawReliableServerMessage>,
+    mut send_unreliable: EventWriter<IncomingRawUnreliableServerMessage>,
+) {
+    let queue_stamp = queue.stamp;
+    for (_, updates) in queue.reliable.drain() {
+        let mut msgs = vec![];
+        for update in updates {
+            match bincode::deserialize::<ReliableMessage>(&update) {
+                Ok(msg) => {
+                    msgs.push(msg);
+                }
+                Err(_) => {
+                    warn!("Couldnt deserialize ReliableMessage");
+                }
+            }
+        }
+
+        send_reliable.send(IncomingRawReliableServerMessage {
+            message: ReliableServerMessageBatch {
+                messages: msgs,
+                stamp: queue_stamp,
+            },
+        });
+    }
+
+    for (_, updates) in queue.unreliable.drain() {
+        let mut msgs = vec![];
+        for update in updates {
+            match bincode::deserialize::<UnreliableMessage>(&update) {
+                Ok(msg) => {
+                    msgs.push(msg);
+                }
+                Err(_) => {
+                    warn!("Couldnt deserialize UnreliableMessage");
+                }
+            }
+        }
+
+        send_unreliable.send(IncomingRawUnreliableServerMessage {
+            message: UnreliableServerMessageBatch {
+                messages: msgs,
+                stamp: queue_stamp,
+            },
+        });
+    }
 }

@@ -568,13 +568,13 @@ pub struct OutgoingReliableClientMessage<T: TypeName + Send + Sync + 'static> {
 
 /// Event to when received reliable message from server. Messages that you receive with this event must be initiated from a plugin builder with [crate::messaging::init_reliable_message].
 #[derive(Event)]
-pub(crate) struct IncomingRawReliableServerMessage {
+pub struct IncomingRawReliableServerMessage {
     pub message: ReliableServerMessageBatch,
 }
 
 /// Event to when received reliable message from server. Messages that you receive with this event must be initiated from a plugin builder with [crate::messaging::init_unreliable_message].
 #[derive(Event)]
-pub(crate) struct IncomingRawUnreliableServerMessage {
+pub struct IncomingRawUnreliableServerMessage {
     pub message: UnreliableServerMessageBatch,
 }
 

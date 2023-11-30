@@ -9,7 +9,7 @@ use bevy::{
 };
 use cameras::LookTransform;
 use networking::{
-    server::{ConstructEntityUpdates, EntityUpdates},
+    server::{ConnectedPlayer, ConstructEntityUpdates, EntityUpdates},
     stamp::TickRateStamp,
 };
 use pawn::net::UnreliableControllerClientMessage;
@@ -65,20 +65,21 @@ pub(crate) fn cache_controller(
 
 pub(crate) fn look_transform_entity_update(
     mut updates: ResMut<EntityUpdates<PeerUnreliableControllerMessage>>,
-    query: Query<(Entity, &LookTransform)>,
+    query: Query<(Entity, &LookTransform, &ConnectedPlayer)>,
     mut construct: EventReader<ConstructEntityUpdates>,
+    stamp: Res<TickRateStamp>,
 ) {
     for c in construct.read() {
         match query.get(c.entity) {
-            Ok((entity, look_transform)) => {
+            Ok((entity, look_transform, connected_player)) => {
                 updates.map.insert(
                     entity,
                     vec![PeerUnreliableControllerMessage {
                         message: UnreliableControllerClientMessage::SyncLookTransform(
                             look_transform.target,
                         ),
-                        peer_handle: 0,
-                        client_stamp: 0,
+                        peer_handle: connected_player.handle.raw() as u16,
+                        client_stamp: stamp.tick,
                     }],
                 );
             }
@@ -89,18 +90,21 @@ pub(crate) fn look_transform_entity_update(
 
 pub(crate) fn controller_input_entity_update(
     mut updates: ResMut<EntityUpdates<PeerReliableControllerMessage>>,
-    query: Query<(Entity, &ControllerInput)>,
+    query: Query<(Entity, &ControllerInput, &ConnectedPlayer)>,
     mut construct: EventReader<ConstructEntityUpdates>,
+    stamp: Res<TickRateStamp>,
 ) {
     for c in construct.read() {
         match query.get(c.entity) {
-            Ok((entity, controller_input)) => {
+            Ok((entity, controller_input, connected_player)) => {
                 updates.map.insert(
                     entity,
                     vec![PeerReliableControllerMessage {
-                        message: ControllerClientMessage::ControllerSync(controller_input.clone()),
-                        peer_handle: 0,
-                        client_stamp: 0,
+                        message: ControllerClientMessage::SyncControllerInput(
+                            controller_input.clone(),
+                        ),
+                        peer_handle: connected_player.handle.raw() as u16,
+                        client_stamp: stamp.tick,
                     }],
                 );
             }

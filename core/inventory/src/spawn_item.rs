@@ -89,7 +89,7 @@ use bevy::prelude::Transform;
 use entity::entity_types::EntityTypes;
 
 use entity::entity_data::EntityData;
-use networking::server::{ConnectedPlayer, OutgoingReliableServerMessage};
+use networking::server::{ConnectedPlayer, EntityUpdatesSerialized, OutgoingReliableServerMessage};
 /// Load an entity in for the client. Does not only apply to inventory items or holders.
 /// Belongs in crate/entity but cyclic issues.
 pub(crate) fn spawn_entity_for_client(
@@ -105,6 +105,7 @@ pub(crate) fn spawn_entity_for_client(
     types: Res<EntityTypes>,
     rigidbodies: Res<RigidBodies>,
     rigid_query: Query<(&LinearVelocity, &AngularVelocity), With<SFRigidBody>>,
+    serialized_updates: Res<EntityUpdatesSerialized>,
 ) {
     for load_entity_event in load_entity_events.read() {
         match entity_query.get(load_entity_event.entity) {
@@ -144,6 +145,20 @@ pub(crate) fn spawn_entity_for_client(
                     Some(t) => holder_option = t.in_inventory_of_entity,
                     None => {}
                 }
+                let mut reliable = vec![];
+                match serialized_updates.reliable.get(&load_entity_event.entity) {
+                    Some(a) => {
+                        reliable = a.clone();
+                    }
+                    None => {}
+                }
+                let mut unreliable = vec![];
+                match serialized_updates.unreliable.get(&load_entity_event.entity) {
+                    Some(a) => {
+                        unreliable = a.clone();
+                    }
+                    None => {}
+                }
 
                 server.send(OutgoingReliableServerMessage {
                     handle: load_entity_event.loader_handle,
@@ -161,6 +176,8 @@ pub(crate) fn spawn_entity_for_client(
                             angular_velocity: *angular_velocity,
                         },
                         holder_entity: holder_option,
+                        entity_updates_reliable: reliable,
+                        entity_updates_unreliable: unreliable,
                     }),
                 });
 

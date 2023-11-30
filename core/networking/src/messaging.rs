@@ -78,7 +78,8 @@ pub enum MessageSender {
 
 use crate::client::step_buffer;
 use crate::server::{
-    clear_entity_updates, EntityUpdates, IncomingEarlyReliableClientMessage,
+    clear_entity_updates, serialize_reliable_entity_updates, serialize_unreliable_entity_updates,
+    EntityUpdates, EntityUpdatesSet, IncomingEarlyReliableClientMessage,
     IncomingEarlyUnreliableClientMessage, ServerMessageSet,
 };
 use crate::{
@@ -138,9 +139,12 @@ pub fn register_reliable_message<
                     .in_set(MainSet::PostUpdate)
                     .in_set(ServerMessageSet::Send),
                 clear_entity_updates::<T>.in_set(MainSet::PreUpdate),
+                serialize_reliable_entity_updates::<T>
+                    .in_set(MainSet::PostUpdate)
+                    .in_set(EntityUpdatesSet::Serialize),
             ),
-        );
-        app.insert_resource(EntityUpdates::<T> {
+        )
+        .insert_resource(EntityUpdates::<T> {
             map: HashMap::default(),
         });
     }
@@ -228,9 +232,12 @@ pub fn register_unreliable_message<
                         .in_set(ServerMessageSet::Send)
                         .in_set(MainSet::PostUpdate),
                     clear_entity_updates::<T>.in_set(MainSet::PreUpdate),
+                    serialize_unreliable_entity_updates::<T>
+                        .in_set(MainSet::PostUpdate)
+                        .in_set(EntityUpdatesSet::Serialize),
                 ),
-            );
-            app.insert_resource(EntityUpdates::<T> {
+            )
+            .insert_resource(EntityUpdates::<T> {
                 map: HashMap::default(),
             });
         }
@@ -294,7 +301,7 @@ pub struct ReliableClientMessageBatch {
 }
 /// Batch of unreliable messages.
 #[derive(Serialize, Deserialize, Clone)]
-pub(crate) struct UnreliableServerMessageBatch {
+pub struct UnreliableServerMessageBatch {
     pub messages: Vec<UnreliableMessage>,
     pub stamp: u8,
 }
@@ -306,7 +313,7 @@ pub(crate) struct UnreliableClientMessageBatch {
 }
 /// Wrapper for unreliable messages.
 #[derive(Serialize, Deserialize, Clone)]
-pub(crate) struct UnreliableMessage {
+pub struct UnreliableMessage {
     pub serialized: Vec<u8>,
     pub typename_net: u8,
 }
