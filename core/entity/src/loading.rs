@@ -63,8 +63,12 @@ pub fn load_entity<T: Send + Sync + 'static + Default + EntityType>(
 
                     map.map.insert(load_entity.entity, c_id);
                     info!(
-                        "Spawning {} sid:{:?}, cid:{:?}",
-                        identity, load_entity.entity, c_id
+                        "Spawning {} sid:{:?}, cid:{:?}, updates:{}",
+                        identity,
+                        load_entity.entity,
+                        c_id,
+                        load_entity.entity_updates_reliable.len()
+                            + load_entity.entity_updates_unreliable.len()
                     );
 
                     spawn_events.send(SpawnEntity {
@@ -79,13 +83,16 @@ pub fn load_entity<T: Send + Sync + 'static + Default + EntityType>(
                         entity_type: entity_default,
                     });
 
-                    queue
-                        .reliable
-                        .insert(c_id, load_entity.entity_updates_reliable.clone());
-
-                    queue
-                        .unreliable
-                        .insert(c_id, load_entity.entity_updates_unreliable.clone());
+                    if load_entity.entity_updates_reliable.len() > 0 {
+                        queue
+                            .reliable
+                            .insert(c_id, load_entity.entity_updates_reliable.clone());
+                    }
+                    if load_entity.entity_updates_unreliable.len() > 0 {
+                        queue
+                            .unreliable
+                            .insert(c_id, load_entity.entity_updates_unreliable.clone());
+                    }
 
                     queue.stamp = message.stamp;
                     let large = stamp.calculate_large(message.stamp);

@@ -79,8 +79,12 @@ impl Plugin for ControllerPlugin {
                         cache_controller
                             .after(MainSet::PostUpdate)
                             .in_set(PhysicsSet::Cache),
-                        apply_peer_sync_transform.after(InputSet::First),
-                        sync_controller_input.after(InputSet::First),
+                        apply_peer_sync_transform
+                            .after(InputSet::First)
+                            .in_set(MainSet::Update),
+                        sync_controller_input
+                            .after(InputSet::First)
+                            .in_set(MainSet::Update),
                     ),
                 )
                 .add_event::<PeerSyncLookTransform>()

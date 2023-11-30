@@ -869,11 +869,13 @@ pub enum EntityUpdatesSet {
     Ready,
 }
 /// Construct entity updates for a specific entity for this frame. Ie when loading it in for a client.
-#[derive(Event)]
+#[derive(Resource, Default)]
 pub struct ConstructEntityUpdates {
-    pub entity: Entity,
+    pub entities: HashMap<Entity, bool>,
 }
-
+pub(crate) fn clear_construct_entity_updates(mut r: ResMut<ConstructEntityUpdates>) {
+    r.entities.clear();
+}
 pub(crate) fn clear_entity_updates<T: TypeName + Send + Sync + 'static>(
     mut res: ResMut<EntityUpdates<T>>,
 ) {
@@ -883,6 +885,11 @@ pub(crate) fn clear_entity_updates<T: TypeName + Send + Sync + 'static>(
 pub struct EntityUpdatesSerialized {
     pub reliable: HashMap<Entity, Vec<Vec<u8>>>,
     pub unreliable: HashMap<Entity, Vec<Vec<u8>>>,
+}
+
+pub(crate) fn clear_serialized_entity_updates(mut r: ResMut<EntityUpdatesSerialized>) {
+    r.reliable.clear();
+    r.unreliable.clear();
 }
 
 pub(crate) fn serialize_reliable_entity_updates<T: Serialize + TypeName + Send + Sync + 'static>(

@@ -27,9 +27,9 @@ use crate::{
         Typenames, TypenamesSet,
     },
     server::{
-        adjust_clients, receive_incoming_reliable_client_messages,
-        receive_incoming_unreliable_client_messages, ConstructEntityUpdates,
-        EntityUpdatesSerialized, EntityUpdatesSet, HandleToEntity,
+        adjust_clients, clear_construct_entity_updates, clear_serialized_entity_updates,
+        receive_incoming_reliable_client_messages, receive_incoming_unreliable_client_messages,
+        ConstructEntityUpdates, EntityUpdatesSerialized, EntityUpdatesSet, HandleToEntity,
         IncomingRawReliableClientMessage, IncomingRawUnreliableClientMessage, Latency,
         NetworkingChatServerMessage, NetworkingServerMessage, SyncConfirmations,
         UnreliableServerMessage,
@@ -78,11 +78,15 @@ impl Plugin for NetworkingPlugin {
                 .add_event::<IncomingRawUnreliableClientMessage>()
                 .add_systems(
                     FixedUpdate,
-                    adjust_clients
-                        .after(TypenamesSet::SendRawEvents)
-                        .in_set(MainSet::PreUpdate),
+                    (
+                        adjust_clients
+                            .after(TypenamesSet::SendRawEvents)
+                            .in_set(MainSet::PreUpdate),
+                        clear_construct_entity_updates.in_set(MainSet::PreUpdate),
+                        clear_serialized_entity_updates.in_set(MainSet::PreUpdate),
+                    ),
                 )
-                .add_event::<ConstructEntityUpdates>()
+                .init_resource::<ConstructEntityUpdates>()
                 .init_resource::<EntityUpdatesSerialized>();
         } else {
             app.add_systems(

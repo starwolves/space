@@ -1,10 +1,7 @@
 use std::collections::HashMap;
 
 use bevy::{
-    ecs::{
-        event::EventReader,
-        system::{Query, Res, ResMut, Resource},
-    },
+    ecs::system::{Query, Res, ResMut, Resource},
     prelude::{Component, Entity, Vec2},
 };
 use cameras::LookTransform;
@@ -66,11 +63,11 @@ pub(crate) fn cache_controller(
 pub(crate) fn look_transform_entity_update(
     mut updates: ResMut<EntityUpdates<PeerUnreliableControllerMessage>>,
     query: Query<(Entity, &LookTransform, &ConnectedPlayer)>,
-    mut construct: EventReader<ConstructEntityUpdates>,
+    construct: Res<ConstructEntityUpdates>,
     stamp: Res<TickRateStamp>,
 ) {
-    for c in construct.read() {
-        match query.get(c.entity) {
+    for (c, _) in construct.entities.iter() {
+        match query.get(*c) {
             Ok((entity, look_transform, connected_player)) => {
                 updates.map.insert(
                     entity,
@@ -91,11 +88,11 @@ pub(crate) fn look_transform_entity_update(
 pub(crate) fn controller_input_entity_update(
     mut updates: ResMut<EntityUpdates<PeerReliableControllerMessage>>,
     query: Query<(Entity, &ControllerInput, &ConnectedPlayer)>,
-    mut construct: EventReader<ConstructEntityUpdates>,
+    construct: Res<ConstructEntityUpdates>,
     stamp: Res<TickRateStamp>,
 ) {
-    for c in construct.read() {
-        match query.get(c.entity) {
+    for (c, _) in construct.entities.iter() {
+        match query.get(*c) {
             Ok((entity, controller_input, connected_player)) => {
                 updates.map.insert(
                     entity,

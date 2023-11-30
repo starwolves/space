@@ -145,24 +145,27 @@ pub(crate) fn apply_peer_sync_transform(
     mut last: ResMut<LastPeerLookTransform>,
 ) {
     for event in events.read() {
+        let mut go = false;
         match last.map.get_mut(&event.handle) {
             Some(old_stamp) => {
                 if event.stamp > *old_stamp {
                     *old_stamp = event.stamp;
-                    //info!("Peer target: {:?}:{}", event.target, event.stamp);
-
-                    match query.get_mut(event.entity) {
-                        Ok(mut l) => {
-                            l.target = event.target;
-                        }
-                        Err(_) => {
-                            warn!("Couldnt find looktransform for sync.");
-                        }
-                    }
+                    go = true;
                 }
             }
             None => {
+                go = true;
                 last.map.insert(event.handle, event.stamp);
+            }
+        }
+        if go {
+            match query.get_mut(event.entity) {
+                Ok(mut l) => {
+                    l.target = event.target;
+                }
+                Err(_) => {
+                    warn!("Couldnt find looktransform for sync.");
+                }
             }
         }
     }

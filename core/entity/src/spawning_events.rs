@@ -1,3 +1,4 @@
+use bevy::ecs::system::ResMut;
 use bevy::prelude::Commands;
 use bevy::prelude::Entity;
 use bevy::prelude::Event;
@@ -27,11 +28,11 @@ pub struct SpawnClientEntity {
 }
 
 pub(crate) fn construct_entity_updates(
-    mut send: EventWriter<ConstructEntityUpdates>,
+    mut send: ResMut<ConstructEntityUpdates>,
     mut events: EventReader<SpawnClientEntity>,
 ) {
     for e in events.read() {
-        send.send(ConstructEntityUpdates { entity: e.entity });
+        send.entities.insert(e.entity, true);
     }
 }
 
