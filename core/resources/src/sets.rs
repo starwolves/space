@@ -72,4 +72,5 @@ pub enum MainSet {
     PreUpdate,
     Update,
     PostUpdate,
+    PostPhysics,
 }

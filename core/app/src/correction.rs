@@ -61,10 +61,11 @@ impl Plugin for CorrectionPlugin {
                         .after(MainSet::PostUpdate)
                         .before(receive_correction_server_messages)
                         .after(PhysicsSet::Cache),
-                    receive_correction_server_messages.after(MainSet::PostUpdate),
+                    receive_correction_server_messages.in_set(MainSet::PostPhysics),
                     apply_correction_results
                         .after(receive_correction_server_messages)
-                        .in_set(PhysicsSet::Correct),
+                        .in_set(PhysicsSet::Correct)
+                        .in_set(MainSet::PostPhysics),
                 ),
             )
             .add_systems(Startup, start_correction_server)

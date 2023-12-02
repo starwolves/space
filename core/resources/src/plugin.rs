@@ -1,5 +1,8 @@
-use bevy::prelude::{
-    App, FixedUpdate, IntoSystemConfigs, IntoSystemSetConfigs, Plugin, PreUpdate, Update,
+use bevy::{
+    prelude::{
+        App, FixedUpdate, IntoSystemConfigs, IntoSystemSetConfigs, Plugin, PreUpdate, Update,
+    },
+    transform::TransformSystem,
 };
 use bevy_xpbd_3d::PhysicsSet;
 
@@ -47,8 +50,11 @@ impl Plugin for ResourcesPlugin {
                 MainSet::Update,
                 MainSet::PostUpdate,
                 PhysicsSet::Prepare,
+                PhysicsSet::Sync,
+                MainSet::PostPhysics,
             )
-                .chain(),
+                .chain()
+                .before(TransformSystem::TransformPropagate),
         );
     }
 }

@@ -76,14 +76,14 @@ impl Plugin for PhysicsPlugin {
                 FixedUpdate,
                 (
                     client_mirror_link_target_transform
-                        .after(MainSet::PostUpdate)
+                        .in_set(MainSet::PostPhysics)
                         .after(PhysicsSet::Correct),
                     // Cache twice.
                     cache_data
                         .after(MainSet::PostUpdate)
                         .in_set(PhysicsSet::Cache),
                     cache_data
-                        .after(MainSet::PostUpdate)
+                        .in_set(MainSet::PostPhysics)
                         .after(PhysicsSet::Correct),
                     desync_check_correction
                         .in_set(MainSet::Update)
@@ -94,7 +94,7 @@ impl Plugin for PhysicsPlugin {
                 Update,
                 client_interpolate_link_transform
                     .after(client_mirror_link_target_transform)
-                    .after(MainSet::PostUpdate),
+                    .after(MainSet::PostPhysics),
             )
             .add_event::<ResetLerp>()
             .init_resource::<SyncPause>()
