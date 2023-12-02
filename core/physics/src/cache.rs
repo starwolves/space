@@ -11,6 +11,7 @@ use bevy_xpbd_3d::prelude::{
 use entity::entity_data::EntityData;
 use entity::entity_types::BoxedEntityType;
 use networking::stamp::TickRateStamp;
+use resources::correction::CACHE_PREV_TICK_AMNT;
 use serde::{Deserialize, Serialize};
 
 use crate::entity::{RigidBodies, SFRigidBody};
@@ -158,7 +159,9 @@ pub(crate) fn cache_data(
     // Clean cache.
     let mut to_remove = vec![];
     for recorded_stamp in cache.cache.keys() {
-        if stamp.large >= 256 && recorded_stamp < &(stamp.large - 256) {
+        if stamp.large >= CACHE_PREV_TICK_AMNT
+            && recorded_stamp < &(stamp.large - CACHE_PREV_TICK_AMNT)
+        {
             to_remove.push(*recorded_stamp);
         }
     }

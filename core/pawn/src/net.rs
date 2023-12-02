@@ -5,5 +5,5 @@ use typename::TypeName;
 #[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
 
 pub enum UnreliableControllerClientMessage {
-    SyncLookTransform(Vec3),
+    UpdateLookTransform(Vec3),
 }

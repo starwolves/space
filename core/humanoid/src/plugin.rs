@@ -1,6 +1,6 @@
 use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin};
 use combat::{chat::attacked_by_chat, sfx::health_combat_hit_result_sfx};
-use controller::input::Controller;
+use controller::input::ControllerSet;
 use pawn::camera::LookTransformSet;
 use resources::{
     modes::is_server_mode,
@@ -39,7 +39,7 @@ impl Plugin for HumanoidPlugin {
             humanoid_movement
                 .in_set(UpdateSet::StandardCharacters)
                 .in_set(MainSet::Update)
-                .after(Controller::Input)
+                .after(ControllerSet::Input)
                 .after(LookTransformSet::Sync),
         );
     }

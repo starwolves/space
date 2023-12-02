@@ -680,3 +680,7 @@ pub enum NetworkingClientMessage {
     HeartBeat,
     SyncConfirmation,
 }
+#[derive(Resource, Default)]
+pub struct ClientLatency {
+    pub latency: u16,
+}

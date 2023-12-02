@@ -18,7 +18,7 @@ use crate::{
         confirm_connection, connect_to_server, connected, is_client_connected, on_disconnect,
         receive_incoming_reliable_server_messages, receive_incoming_unreliable_server_messages,
         starwolves_response, step_buffer, sync_client, token_assign_server, AssignTokenToServer,
-        AssigningServerToken, ConnectToServer, Connection, ConnectionPreferences,
+        AssigningServerToken, ClientLatency, ConnectToServer, Connection, ConnectionPreferences,
         IncomingRawReliableServerMessage, IncomingRawUnreliableServerMessage,
         NetworkingClientMessage, OutgoingBuffer, SyncClient, TokenAssignServer,
     },
@@ -140,7 +140,8 @@ impl Plugin for NetworkingPlugin {
                     .run_if(resource_exists::<RenetClient>())
                     .in_set(MainSet::PostUpdate),
             )
-            .init_resource::<SyncClient>();
+            .init_resource::<SyncClient>()
+            .init_resource::<ClientLatency>();
         }
 
         app.init_resource::<TickRateStamp>()

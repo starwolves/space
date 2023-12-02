@@ -24,3 +24,5 @@ pub enum CorrectionServerSet {
     TriggerSync,
     SyncClear,
 }
+
+pub const CACHE_PREV_TICK_AMNT: u64 = 256;

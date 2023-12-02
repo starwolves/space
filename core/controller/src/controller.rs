@@ -10,6 +10,7 @@ use networking::{
     stamp::TickRateStamp,
 };
 use pawn::net::UnreliableControllerClientMessage;
+use resources::correction::CACHE_PREV_TICK_AMNT;
 use serde::{Deserialize, Serialize};
 
 /// Controller input component.
@@ -51,7 +52,9 @@ pub(crate) fn cache_controller(
     // Clean cache.
     let mut to_remove = vec![];
     for recorded_stamp in cache.cache.keys() {
-        if stamp.large >= 256 && recorded_stamp < &(stamp.large - 256) {
+        if stamp.large >= CACHE_PREV_TICK_AMNT
+            && recorded_stamp < &(stamp.large - CACHE_PREV_TICK_AMNT)
+        {
             to_remove.push(*recorded_stamp);
         }
     }
@@ -72,7 +75,7 @@ pub(crate) fn look_transform_entity_update(
                 updates.map.insert(
                     entity,
                     vec![PeerUnreliableControllerMessage {
-                        message: UnreliableControllerClientMessage::SyncLookTransform(
+                        message: UnreliableControllerClientMessage::UpdateLookTransform(
                             look_transform.target,
                         ),
                         peer_handle: connected_player.handle.raw() as u16,

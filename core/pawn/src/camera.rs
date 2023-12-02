@@ -47,7 +47,7 @@ pub(crate) fn client_sync_look_transform(
                     look_transform.target, stamp.large
                 );*/
                 events.send(OutgoingUnreliableClientMessage {
-                    message: UnreliableControllerClientMessage::SyncLookTransform(
+                    message: UnreliableControllerClientMessage::UpdateLookTransform(
                         look_transform.target,
                     ),
                 });
@@ -82,7 +82,7 @@ pub(crate) fn server_sync_look_transform(
 ) {
     for msg in messages.read() {
         match msg.message {
-            UnreliableControllerClientMessage::SyncLookTransform(target) => {
+            UnreliableControllerClientMessage::UpdateLookTransform(target) => {
                 match handle_to_entity.map.get(&msg.handle) {
                     Some(entity) => match humanoids.get_mut(*entity) {
                         Ok(mut look_transform) => {

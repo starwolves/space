@@ -21,6 +21,7 @@ use bevy_xpbd_3d::prelude::{Physics, PhysicsTime};
 use entity::despawn::DespawnEntity;
 use entity::entity_types::BoxedEntityType;
 use entity::spawn::ServerEntityClientEntity;
+use networking::client::ClientLatency;
 use networking::server::{ConnectedPlayer, OutgoingReliableServerMessage};
 use networking::{
     client::{
@@ -64,6 +65,7 @@ pub(crate) fn sync_loop(
     mut fast_forwarding: ResMut<FastForwarding>,
     mut p: ResMut<PauseTickStep>,
     stamp: Res<TickRateStamp>,
+    mut l: ResMut<ClientLatency>,
 ) {
     if physics_loop.is_paused() {
         paused.i += 1;
@@ -131,12 +133,14 @@ pub(crate) fn sync_loop(
                     } else {
                         info!("- {} ticks", paused.duration);
                     }
+                    l.latency -= paused.duration;
                 } else {
                     if process_queue {
                         info!("+ {} ticks (from queue)", delta.abs());
                     } else {
                         info!("+ {} ticks", delta.abs());
                     }
+                    l.latency += delta.abs() as u16;
 
                     fixed_time.set_timestep_seconds(
                         (1. / TickRate::default().fixed_rate as f64) / (delta.abs() + 1) as f64,
