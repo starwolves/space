@@ -217,14 +217,14 @@ pub(crate) fn receive_and_queue_peer_input(
 ) {
     for message in peer.read() {
         queue.reliable_queue.insert(
-            stamp.calculate_large(message.stamp),
+            stamp.calculate_large(message.message.client_stamp),
             message.message.clone(),
         );
     }
 
     for message in unreliable_peer.read() {
         queue.unreliable_queue.insert(
-            stamp.calculate_large(message.stamp),
+            stamp.calculate_large(message.message.client_stamp),
             message.message.clone(),
         );
     }
