@@ -13,9 +13,10 @@ use crate::input::{
 };
 use crate::net::ControllerClientMessage;
 use crate::networking::{
-    incoming_messages, peer_replication, PeerReliableControllerMessage,
+    incoming_messages, peer_replicate_input_messages, PeerReliableControllerMessage,
     PeerUnreliableControllerMessage,
 };
+use bevy::app::Update;
 use bevy::ecs::schedule::IntoSystemSetConfigs;
 use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, Startup};
 
@@ -44,7 +45,6 @@ impl Plugin for ControllerPlugin {
                 (
                     update_player_count.run_if(on_timer(Duration::from_secs_f32(5.))),
                     connections,
-                    peer_replication,
                 )
                     .in_set(MainSet::Update),
             );
@@ -56,6 +56,10 @@ impl Plugin for ControllerPlugin {
                         look_transform_entity_update.in_set(EntityUpdatesSet::BuildUpdates),
                     )
                         .in_set(MainSet::PostUpdate),
+                )
+                .add_systems(
+                    Update,
+                    peer_replicate_input_messages.in_set(MainSet::Update),
                 );
             }
             app.add_event::<BoardingPlayer>().add_systems(

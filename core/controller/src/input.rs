@@ -5,8 +5,12 @@ use crate::{
     net::{ControllerClientMessage, MovementInput},
     networking::{PeerReliableControllerMessage, PeerUnreliableControllerMessage},
 };
-use bevy::prelude::{
-    Entity, Event, EventReader, EventWriter, KeyCode, Query, Res, ResMut, Resource, SystemSet, Vec2,
+use bevy::{
+    log::info,
+    prelude::{
+        Entity, Event, EventReader, EventWriter, KeyCode, Query, Res, ResMut, Resource, SystemSet,
+        Vec2,
+    },
 };
 use bevy::{log::warn, math::Vec3};
 

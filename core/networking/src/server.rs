@@ -639,50 +639,118 @@ pub(crate) fn adjust_clients(
         }
     }
 }
+pub(crate) fn step_incoming_client_messages(
+    mut queue: ResMut<UpdateIncomingRawClientMessage>,
+    mut events: EventWriter<IncomingRawReliableClientMessage>,
+    mut eventsu: EventWriter<IncomingRawUnreliableClientMessage>,
+    mut confirmations: ResMut<SyncConfirmations>,
+    mut sync: ResMut<Latency>,
+    typenames: Res<Typenames>,
+    stamp: Res<TickRateStamp>,
+) {
+    for message in queue.reliable.iter() {
+        events.send(message.clone());
+        for m in message.message.messages.iter() {
+            if m.typename_net
+                == *typenames
+                    .reliable_net_types
+                    .get(&NetworkingClientMessage::type_name())
+                    .unwrap()
+            {
+                match confirmations.incremental.get_mut(&message.handle) {
+                    Some(a) => {
+                        *a += 1;
+                    }
+                    None => {
+                        confirmations.incremental.insert(message.handle, 1);
+                    }
+                }
+            }
+        }
+
+        let c: u64;
+        match confirmations.incremental.get(&message.handle) {
+            Some(x) => {
+                c = *x;
+            }
+            None => {
+                c = 0;
+            }
+        }
+        match sync.tickrate_differences.get_mut(&message.handle) {
+            Some(v) => {
+                v.push(LatencyReport {
+                    client_sync_iteration: c,
+                    tick_difference: stamp.get_difference(message.message.stamp),
+                });
+            }
+            None => {
+                sync.tickrate_differences.insert(
+                    message.handle,
+                    vec![LatencyReport {
+                        client_sync_iteration: c,
+                        tick_difference: stamp.get_difference(message.message.stamp),
+                    }],
+                );
+            }
+        }
+    }
+    queue.reliable.clear();
+    for message in queue.unreliable.iter() {
+        eventsu.send(message.clone());
+        let c: u64;
+        match confirmations.incremental.get(&message.handle) {
+            Some(x) => {
+                c = *x;
+            }
+            None => {
+                c = 0;
+            }
+        }
+        match sync.tickrate_differences.get_mut(&message.handle) {
+            Some(v) => {
+                v.push(LatencyReport {
+                    client_sync_iteration: c,
+                    tick_difference: stamp.get_difference(message.message.stamp),
+                });
+            }
+            None => {
+                sync.tickrate_differences.insert(
+                    message.handle,
+                    vec![LatencyReport {
+                        client_sync_iteration: c,
+                        tick_difference: stamp.get_difference(message.message.stamp),
+                    }],
+                );
+            }
+        }
+    }
+    queue.unreliable.clear();
+}
+
+#[derive(Resource, Default)]
+pub(crate) struct UpdateIncomingRawClientMessage {
+    pub reliable: Vec<IncomingRawReliableClientMessage>,
+    pub unreliable: Vec<IncomingRawUnreliableClientMessage>,
+}
 
 /// Deserializes header of incoming client messages and writes to event.
 
 pub(crate) fn receive_incoming_unreliable_client_messages(
-    mut events: EventWriter<IncomingRawUnreliableClientMessage>,
     mut server: ResMut<RenetServer>,
-    mut sync: ResMut<Latency>,
-    stamp: Res<TickRateStamp>,
-    confirmations: Res<SyncConfirmations>,
+    mut queue: ResMut<UpdateIncomingRawClientMessage>,
+    mut early: EventWriter<EarlyIncomingRawUnreliableClientMessage>,
 ) {
     for handle in server.clients_id().into_iter() {
         while let Some(message) = server.receive_message(handle, RENET_UNRELIABLE_CHANNEL_ID) {
             match bincode::deserialize::<UnreliableServerMessageBatch>(&message) {
                 Ok(msg) => {
-                    events.send(IncomingRawUnreliableClientMessage {
+                    let incoming = IncomingRawUnreliableClientMessage {
                         message: msg.clone(),
                         handle,
-                    });
-                    let c: u64;
-                    match confirmations.incremental.get(&handle) {
-                        Some(x) => {
-                            c = *x;
-                        }
-                        None => {
-                            c = 0;
-                        }
-                    }
-                    match sync.tickrate_differences.get_mut(&handle) {
-                        Some(v) => {
-                            v.push(LatencyReport {
-                                client_sync_iteration: c,
-                                tick_difference: stamp.get_difference(msg.stamp),
-                            });
-                        }
-                        None => {
-                            sync.tickrate_differences.insert(
-                                handle,
-                                vec![LatencyReport {
-                                    client_sync_iteration: c,
-                                    tick_difference: stamp.get_difference(msg.stamp),
-                                }],
-                            );
-                        }
-                    }
+                    };
+                    queue.unreliable.push(incoming.clone());
+                    early.send(EarlyIncomingRawUnreliableClientMessage(incoming));
                 }
                 Err(_) => {
                     warn!("Received an invalid message 0.");
@@ -691,71 +759,30 @@ pub(crate) fn receive_incoming_unreliable_client_messages(
         }
     }
 }
+#[derive(Event)]
+pub struct EarlyIncomingRawReliableClientMessage(pub IncomingRawReliableClientMessage);
+#[derive(Event)]
+pub struct EarlyIncomingRawUnreliableClientMessage(pub IncomingRawUnreliableClientMessage);
+
 use crate::plugin::{RENET_RELIABLE_UNORDERED_ID, RENET_UNRELIABLE_CHANNEL_ID};
 
 /// Deserializes header of incoming client messages and writes to event.
 
 pub(crate) fn receive_incoming_reliable_client_messages(
-    mut events: EventWriter<IncomingRawReliableClientMessage>,
     mut server: ResMut<RenetServer>,
-    mut sync: ResMut<Latency>,
-    stamp: Res<TickRateStamp>,
-    typenames: Res<Typenames>,
-    mut confirmations: ResMut<SyncConfirmations>,
+    mut queue: ResMut<UpdateIncomingRawClientMessage>,
+    mut early: EventWriter<EarlyIncomingRawReliableClientMessage>,
 ) {
     for handle in server.clients_id().into_iter() {
         while let Some(message) = server.receive_message(handle, RENET_RELIABLE_ORDERED_ID) {
             match bincode::deserialize::<ReliableClientMessageBatch>(&message) {
                 Ok(msg) => {
-                    events.send(IncomingRawReliableClientMessage {
+                    let incoming = IncomingRawReliableClientMessage {
                         message: msg.clone(),
                         handle,
-                    });
-
-                    for m in msg.messages.iter() {
-                        if m.typename_net
-                            == *typenames
-                                .reliable_net_types
-                                .get(&NetworkingClientMessage::type_name())
-                                .unwrap()
-                        {
-                            match confirmations.incremental.get_mut(&handle) {
-                                Some(a) => {
-                                    *a += 1;
-                                }
-                                None => {
-                                    confirmations.incremental.insert(handle, 1);
-                                }
-                            }
-                        }
-                    }
-
-                    let c: u64;
-                    match confirmations.incremental.get(&handle) {
-                        Some(x) => {
-                            c = *x;
-                        }
-                        None => {
-                            c = 0;
-                        }
-                    }
-                    match sync.tickrate_differences.get_mut(&handle) {
-                        Some(v) => {
-                            v.push(LatencyReport {
-                                client_sync_iteration: c,
-                                tick_difference: stamp.get_difference(msg.stamp),
-                            });
-                        }
-                        None => {
-                            sync.tickrate_differences.insert(
-                                handle,
-                                vec![LatencyReport {
-                                    client_sync_iteration: c,
-                                    tick_difference: stamp.get_difference(msg.stamp),
-                                }],
-                            );
-                        }
-                    }
+                    };
+                    queue.reliable.push(incoming.clone());
+                    early.send(EarlyIncomingRawReliableClientMessage(incoming));
                 }
                 Err(_) => {
                     warn!("Received an invalid message.");
@@ -765,58 +792,15 @@ pub(crate) fn receive_incoming_reliable_client_messages(
         while let Some(message) = server.receive_message(handle, RENET_RELIABLE_UNORDERED_ID) {
             match bincode::deserialize::<ReliableClientMessageBatch>(&message) {
                 Ok(msg) => {
-                    events.send(IncomingRawReliableClientMessage {
+                    let incoming = IncomingRawReliableClientMessage {
                         message: msg.clone(),
                         handle,
-                    });
-
-                    for m in msg.messages.iter() {
-                        if m.typename_net
-                            == *typenames
-                                .reliable_net_types
-                                .get(&NetworkingClientMessage::type_name())
-                                .unwrap()
-                        {
-                            match confirmations.incremental.get_mut(&handle) {
-                                Some(a) => {
-                                    *a += 1;
-                                }
-                                None => {
-                                    confirmations.incremental.insert(handle, 1);
-                                }
-                            }
-                        }
-                    }
-
-                    let c: u64;
-                    match confirmations.incremental.get(&handle) {
-                        Some(x) => {
-                            c = *x;
-                        }
-                        None => {
-                            c = 0;
-                        }
-                    }
-                    match sync.tickrate_differences.get_mut(&handle) {
-                        Some(v) => {
-                            v.push(LatencyReport {
-                                client_sync_iteration: c,
-                                tick_difference: stamp.get_difference(msg.stamp),
-                            });
-                        }
-                        None => {
-                            sync.tickrate_differences.insert(
-                                handle,
-                                vec![LatencyReport {
-                                    client_sync_iteration: c,
-                                    tick_difference: stamp.get_difference(msg.stamp),
-                                }],
-                            );
-                        }
-                    }
+                    };
+                    queue.reliable.push(incoming.clone());
+                    early.send(EarlyIncomingRawReliableClientMessage(incoming));
                 }
                 Err(_) => {
-                    warn!("Received an invalid message.");
+                    warn!("Received an invalid message 1.");
                 }
             }
         }
@@ -837,14 +821,14 @@ pub struct OutgoingUnreliableServerMessage<T: TypeName + Send + Sync + 'static> 
     pub message: T,
 }
 /// Event to when received reliable message from client.  Messages that you use with this event must be initiated from a plugin builder with [crate::messaging::init_reliable_message].
-#[derive(Event)]
-pub(crate) struct IncomingRawReliableClientMessage {
+#[derive(Event, Clone)]
+pub struct IncomingRawReliableClientMessage {
     pub handle: ClientId,
     pub message: ReliableClientMessageBatch,
 }
 /// Event to when received reliable message from client.  Messages that you use with this event must be initiated from a plugin builder with [crate::messaging::init_unreliable_message].
-#[derive(Event)]
-pub(crate) struct IncomingRawUnreliableClientMessage {
+#[derive(Event, Clone)]
+pub struct IncomingRawUnreliableClientMessage {
     pub handle: ClientId,
     pub message: UnreliableServerMessageBatch,
 }

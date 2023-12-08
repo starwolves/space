@@ -1,4 +1,5 @@
 use bevy::{
+    app::Update,
     ecs::schedule::IntoSystemSetConfigs,
     prelude::{resource_exists, App, FixedUpdate, IntoSystemConfigs, Plugin, Startup},
 };
@@ -29,10 +30,12 @@ use crate::{
     server::{
         adjust_clients, clear_construct_entity_updates, clear_serialized_entity_updates,
         receive_incoming_reliable_client_messages, receive_incoming_unreliable_client_messages,
-        ConstructEntityUpdates, EntityUpdatesSerialized, EntityUpdatesSet, HandleToEntity,
+        step_incoming_client_messages, ConstructEntityUpdates,
+        EarlyIncomingRawReliableClientMessage, EarlyIncomingRawUnreliableClientMessage,
+        EntityUpdatesSerialized, EntityUpdatesSet, HandleToEntity,
         IncomingRawReliableClientMessage, IncomingRawUnreliableClientMessage, Latency,
         NetworkingChatServerMessage, NetworkingServerMessage, SyncConfirmations,
-        UnreliableServerMessage,
+        UnreliableServerMessage, UpdateIncomingRawClientMessage,
     },
     stamp::{setup_client_tickrate_stamp, step_tickrate_stamp, PauseTickStep, TickRateStamp},
 };
@@ -46,15 +49,20 @@ impl Plugin for NetworkingPlugin {
                 app.insert_resource(res.0)
                     .insert_resource(res.1)
                     .add_systems(
-                        FixedUpdate,
+                        Update,
                         (
-                            receive_incoming_reliable_client_messages
-                                .in_set(TypenamesSet::SendRawEvents),
+                            receive_incoming_reliable_client_messages,
                             receive_incoming_unreliable_client_messages
-                                .in_set(TypenamesSet::SendRawEvents)
                                 .after(receive_incoming_reliable_client_messages),
                         )
                             .in_set(MainSet::PreUpdate),
+                    )
+                    .add_systems(
+                        FixedUpdate,
+                        step_incoming_client_messages
+                            .in_set(TypenamesSet::SendRawEvents)
+                            .in_set(MainSet::PreUpdate)
+                            .before(receive_incoming_reliable_client_messages),
                     )
                     .configure_sets(
                         FixedUpdate,
@@ -66,7 +74,10 @@ impl Plugin for NetworkingPlugin {
                             EntityUpdatesSet::Ready,
                         )
                             .chain(),
-                    );
+                    )
+                    .init_resource::<UpdateIncomingRawClientMessage>()
+                    .add_event::<EarlyIncomingRawReliableClientMessage>()
+                    .add_event::<EarlyIncomingRawUnreliableClientMessage>();
             }
 
             app.add_plugins(RenetServerPlugin)
