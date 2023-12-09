@@ -663,7 +663,7 @@ pub(crate) fn step_incoming_client_messages(
     }
     let mut remove_i = vec![];
     let mut i = 0;
-    for (stamp, (already_latency_reported, message)) in queue.reliable.iter_mut() {
+    for (stamp, (latency_reported, message)) in queue.reliable.iter_mut() {
         let lowest_reliable_stamp_id = lowest_reliable_stamp.get(&message.handle).unwrap();
         if *stamp == *lowest_reliable_stamp_id {
             events.send(message.clone());
@@ -700,10 +700,10 @@ pub(crate) fn step_incoming_client_messages(
                 }
             }
         }
-        if *already_latency_reported {
+        if *latency_reported {
             continue;
         }
-        *already_latency_reported = true;
+        *latency_reported = true;
         let c: u64;
         match confirmations.incremental.get(&message.handle) {
             Some(x) => {

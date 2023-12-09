@@ -285,7 +285,7 @@ pub struct ReliableMessage {
 }
 
 /// Batch of reliable server messages.
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct ReliableServerMessageBatch {
     // The messages of this batch.
     pub messages: Vec<ReliableMessage>,

@@ -18,10 +18,11 @@ use crate::{
     client::{
         confirm_connection, connect_to_server, connected, is_client_connected, on_disconnect,
         receive_incoming_reliable_server_messages, receive_incoming_unreliable_server_messages,
-        starwolves_response, step_buffer, sync_client, token_assign_server, AssignTokenToServer,
-        AssigningServerToken, ClientLatency, ConnectToServer, Connection, ConnectionPreferences,
-        IncomingRawReliableServerMessage, IncomingRawUnreliableServerMessage,
-        NetworkingClientMessage, OutgoingBuffer, SyncClient, TokenAssignServer,
+        starwolves_response, step_buffer, step_incoming_reliable_server_messages, sync_client,
+        token_assign_server, AssignTokenToServer, AssigningServerToken, ClientLatency,
+        ConnectToServer, Connection, ConnectionPreferences, IncomingRawReliableServerMessage,
+        IncomingRawUnreliableServerMessage, NetworkingClientMessage, OutgoingBuffer,
+        RawServerMessageQueue, SyncClient, TokenAssignServer,
     },
     messaging::{
         generate_typenames, register_reliable_message, register_unreliable_message, MessageSender,
@@ -119,14 +120,17 @@ impl Plugin for NetworkingPlugin {
             .init_resource::<AssigningServerToken>()
             .add_systems(
                 FixedUpdate,
-                receive_incoming_reliable_server_messages
-                    .in_set(TypenamesSet::SendRawEvents)
+                (
+                    receive_incoming_reliable_server_messages,
+                    receive_incoming_unreliable_server_messages.in_set(TypenamesSet::SendRawEvents),
+                )
                     .run_if(resource_exists::<RenetClient>())
                     .in_set(MainSet::PreUpdate),
             )
             .add_systems(
                 FixedUpdate,
-                receive_incoming_unreliable_server_messages
+                step_incoming_reliable_server_messages
+                    .after(receive_incoming_reliable_server_messages)
                     .in_set(TypenamesSet::SendRawEvents)
                     .run_if(resource_exists::<RenetClient>())
                     .in_set(MainSet::PreUpdate),
@@ -152,7 +156,8 @@ impl Plugin for NetworkingPlugin {
                     .in_set(MainSet::PostUpdate),
             )
             .init_resource::<SyncClient>()
-            .init_resource::<ClientLatency>();
+            .init_resource::<ClientLatency>()
+            .init_resource::<RawServerMessageQueue>();
         }
 
         app.init_resource::<TickRateStamp>()

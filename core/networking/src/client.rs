@@ -529,17 +529,49 @@ pub(crate) fn receive_incoming_unreliable_server_messages(
         }
     }
 }
+#[derive(Resource, Default)]
+pub(crate) struct RawServerMessageQueue {
+    pub reliable: Vec<(u64, ReliableServerMessageBatch)>,
+}
+
+pub(crate) fn step_incoming_reliable_server_messages(
+    mut queue: ResMut<RawServerMessageQueue>,
+    mut events: EventWriter<IncomingRawReliableServerMessage>,
+) {
+    let mut lowest_stamp = u64::MAX;
+    for (s, _) in queue.reliable.iter() {
+        if *s < lowest_stamp {
+            lowest_stamp = *s;
+        }
+    }
+    let mut remove_i = vec![];
+    let mut i = 0;
+    for (s, message) in queue.reliable.iter() {
+        if *s == lowest_stamp {
+            remove_i.push(i);
+            events.send(IncomingRawReliableServerMessage {
+                message: message.clone(),
+            });
+        }
+        i += 1;
+    }
+    for i in remove_i.iter().rev() {
+        queue.reliable.remove(*i);
+    }
+}
 
 /// Deserializes incoming server messages and writes to event.
 
 pub(crate) fn receive_incoming_reliable_server_messages(
-    mut events: EventWriter<IncomingRawReliableServerMessage>,
     mut client: ResMut<RenetClient>,
+    mut queue: ResMut<RawServerMessageQueue>,
+    stamp: Res<TickRateStamp>,
 ) {
     while let Some(message) = client.receive_message(RENET_RELIABLE_ORDERED_ID) {
         match bincode::deserialize::<ReliableServerMessageBatch>(&message) {
             Ok(msg) => {
-                events.send(IncomingRawReliableServerMessage { message: msg });
+                //events.send(IncomingRawReliableServerMessage { message: msg });
+                queue.reliable.push((stamp.calculate_large(msg.stamp), msg));
             }
             Err(_) => {
                 warn!("Received an invalid message.");
@@ -549,7 +581,8 @@ pub(crate) fn receive_incoming_reliable_server_messages(
     while let Some(message) = client.receive_message(RENET_RELIABLE_UNORDERED_ID) {
         match bincode::deserialize::<ReliableServerMessageBatch>(&message) {
             Ok(msg) => {
-                events.send(IncomingRawReliableServerMessage { message: msg });
+                //events.send(IncomingRawReliableServerMessage { message: msg });
+                queue.reliable.push((stamp.calculate_large(msg.stamp), msg));
             }
             Err(_) => {
                 warn!("Received an invalid message.");
