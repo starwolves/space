@@ -298,6 +298,7 @@ pub struct ReliableServerMessageBatch {
 pub struct ReliableClientMessageBatch {
     pub messages: Vec<ReliableMessage>,
     pub stamp: u8,
+    pub sub_step: bool,
 }
 /// Batch of unreliable messages.
 #[derive(Serialize, Deserialize, Clone)]
@@ -306,10 +307,11 @@ pub struct UnreliableServerMessageBatch {
     pub stamp: u8,
 }
 /// Batch of unreliable messages.
-#[derive(Serialize, Deserialize)]
-pub(crate) struct UnreliableClientMessageBatch {
+#[derive(Serialize, Deserialize, Clone)]
+pub struct UnreliableClientMessageBatch {
     pub messages: Vec<UnreliableMessage>,
     pub stamp: u8,
+    pub sub_step: bool,
 }
 /// Wrapper for unreliable messages.
 #[derive(Serialize, Deserialize, Clone)]

@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 
 use bevy::ecs::system::ResMut;
-use bevy::log::info;
 use bevy::log::warn;
 use bevy::prelude::EventWriter;
 use bevy::prelude::Query;
@@ -58,6 +57,7 @@ pub struct PeerUnreliableControllerMessage {
 }
 
 /// Replicate client input to peers instantly.
+/// Will make use of generic systems one day.
 pub(crate) fn peer_replicate_input_messages(
     mut reliable: EventReader<EarlyIncomingRawReliableClientMessage>,
     mut unreliable: EventReader<EarlyIncomingRawUnreliableClientMessage>,

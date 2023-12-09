@@ -7,9 +7,9 @@ use crate::controller::{
 use crate::input::{
     apply_peer_sync_transform, clean_input_queue, clean_recorded_input, controller_input,
     create_input_map, get_client_input, process_peer_input, receive_and_queue_peer_input,
-    step_input_queue, sync_controller_input, ControllerSet, InputMovementInput, InputSet,
-    LastPeerLookTransform, PeerInputQueue, PeerInputSet, PeerSyncLookTransform, ProcessPeerInput,
-    RecordedControllerInput, SyncControllerInput,
+    send_client_input_to_server, step_input_queue, sync_controller_input, ControllerSet,
+    InputMovementInput, InputSet, LastPeerLookTransform, PeerInputQueue, PeerInputSet,
+    PeerSyncLookTransform, ProcessPeerInput, RecordedControllerInput, SyncControllerInput,
 };
 use crate::net::ControllerClientMessage;
 use crate::networking::{
@@ -17,10 +17,12 @@ use crate::networking::{
     PeerUnreliableControllerMessage,
 };
 use bevy::app::Update;
+use bevy::ecs::schedule::common_conditions::resource_exists;
 use bevy::ecs::schedule::IntoSystemSetConfigs;
 use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, Startup};
 
 use bevy::time::common_conditions::on_timer;
+use bevy_renet::renet::RenetClient;
 use networking::messaging::{
     register_reliable_message, register_unreliable_message, MessageSender, MessagingSet,
 };
@@ -80,6 +82,13 @@ impl Plugin for ControllerPlugin {
                         .in_set(InputSet::First)
                         .before(UpdateSet::StandardCharacters)
                         .in_set(MainSet::Update),
+                )
+                .add_systems(
+                    Update,
+                    send_client_input_to_server
+                        .before(get_client_input)
+                        .in_set(MainSet::Update)
+                        .run_if(resource_exists::<RenetClient>()),
                 )
                 .add_systems(
                     FixedUpdate,

@@ -1,16 +1,19 @@
+use bevy::ecs::system::ResMut;
 use bevy::log::warn;
 use bevy::{
-    prelude::{EventReader, EventWriter, Local, Query, Res, SystemSet, Vec3},
+    prelude::{EventReader, Local, Query, Res, SystemSet, Vec3},
     time::Time,
 };
 
+use bevy_renet::renet::RenetClient;
 use bevy_xpbd_3d::prelude::{Physics, PhysicsTime};
 use cameras::{controllers::fps::ActiveCamera, LookTransform};
 use entity::spawn::PawnId;
-use networking::{
-    client::OutgoingUnreliableClientMessage,
-    server::{HandleToEntity, IncomingUnreliableClientMessage},
-};
+use networking::messaging::{Typenames, UnreliableClientMessageBatch, UnreliableMessage};
+use networking::plugin::RENET_UNRELIABLE_CHANNEL_ID;
+use networking::server::{HandleToEntity, IncomingUnreliableClientMessage};
+use networking::stamp::TickRateStamp;
+use typename::TypeName;
 
 use crate::net::UnreliableControllerClientMessage;
 
@@ -22,12 +25,13 @@ pub enum LookTransformSet {
 
 pub(crate) fn client_sync_look_transform(
     mut look_transform_query: Query<&mut LookTransform>,
-    mut events: EventWriter<OutgoingUnreliableClientMessage<UnreliableControllerClientMessage>>,
+    mut client: ResMut<RenetClient>,
     mut prev_target: Local<Vec3>,
     state: Res<ActiveCamera>,
     pawn_id: Res<PawnId>,
     physics_loop: Res<Time<Physics>>,
-    //stamp: Res<TickRateStamp>,
+    stamp: Res<TickRateStamp>,
+    typenames: Res<Typenames>,
 ) {
     let camera_entity;
     match state.option {
@@ -46,11 +50,29 @@ pub(crate) fn client_sync_look_transform(
                     "Sending target: {:?}:{}",
                     look_transform.target, stamp.large
                 );*/
-                events.send(OutgoingUnreliableClientMessage {
-                    message: UnreliableControllerClientMessage::UpdateLookTransform(
-                        look_transform.target,
-                    ),
-                });
+
+                let id = typenames
+                    .unreliable_net_types
+                    .get(&UnreliableControllerClientMessage::type_name())
+                    .unwrap();
+
+                client.send_message(
+                    RENET_UNRELIABLE_CHANNEL_ID,
+                    bincode::serialize(&UnreliableClientMessageBatch {
+                        messages: vec![UnreliableMessage {
+                            serialized: bincode::serialize(
+                                &UnreliableControllerClientMessage::UpdateLookTransform(
+                                    look_transform.target,
+                                ),
+                            )
+                            .unwrap(),
+                            typename_net: *id,
+                        }],
+                        stamp: stamp.tick,
+                        sub_step: true,
+                    })
+                    .unwrap(),
+                );
 
                 *prev_target = look_transform.target;
             }

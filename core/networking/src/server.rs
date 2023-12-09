@@ -261,7 +261,7 @@ pub enum ServerMessageSet {
 
 use bevy::prelude::{Res, ResMut};
 
-use crate::messaging::Typenames;
+use crate::messaging::{Typenames, UnreliableClientMessageBatch};
 /// Serializes and sends the outgoing reliable server messages.
 pub fn send_outgoing_reliable_server_messages<T: TypeName + Send + Sync + Serialize>(
     mut events: EventReader<OutgoingReliableServerMessage<T>>,
@@ -650,6 +650,9 @@ pub(crate) fn step_incoming_client_messages(
 ) {
     for message in queue.reliable.iter() {
         events.send(message.clone());
+        if message.message.sub_step {
+            continue;
+        }
         for m in message.message.messages.iter() {
             if m.typename_net
                 == *typenames
@@ -657,12 +660,22 @@ pub(crate) fn step_incoming_client_messages(
                     .get(&NetworkingClientMessage::type_name())
                     .unwrap()
             {
-                match confirmations.incremental.get_mut(&message.handle) {
-                    Some(a) => {
-                        *a += 1;
-                    }
-                    None => {
-                        confirmations.incremental.insert(message.handle, 1);
+                match bincode::deserialize::<NetworkingClientMessage>(&m.serialized) {
+                    Ok(cl) => match cl {
+                        NetworkingClientMessage::SyncConfirmation => {
+                            match confirmations.incremental.get_mut(&message.handle) {
+                                Some(a) => {
+                                    *a += 1;
+                                }
+                                None => {
+                                    confirmations.incremental.insert(message.handle, 1);
+                                }
+                            }
+                        }
+                        _ => (),
+                    },
+                    Err(_) => {
+                        warn!("Coudlnt deserialize client message.");
                     }
                 }
             }
@@ -698,6 +711,9 @@ pub(crate) fn step_incoming_client_messages(
     queue.reliable.clear();
     for message in queue.unreliable.iter() {
         eventsu.send(message.clone());
+        if message.message.sub_step {
+            continue;
+        }
         let c: u64;
         match confirmations.incremental.get(&message.handle) {
             Some(x) => {
@@ -743,7 +759,7 @@ pub(crate) fn receive_incoming_unreliable_client_messages(
 ) {
     for handle in server.clients_id().into_iter() {
         while let Some(message) = server.receive_message(handle, RENET_UNRELIABLE_CHANNEL_ID) {
-            match bincode::deserialize::<UnreliableServerMessageBatch>(&message) {
+            match bincode::deserialize::<UnreliableClientMessageBatch>(&message) {
                 Ok(msg) => {
                     let incoming = IncomingRawUnreliableClientMessage {
                         message: msg.clone(),
@@ -830,7 +846,7 @@ pub struct IncomingRawReliableClientMessage {
 #[derive(Event, Clone)]
 pub struct IncomingRawUnreliableClientMessage {
     pub handle: ClientId,
-    pub message: UnreliableServerMessageBatch,
+    pub message: UnreliableClientMessageBatch,
 }
 
 /// Entity updates are serializable server messages (created with register_reliable_message) that are usually sent as live traffic from a spawned entity.

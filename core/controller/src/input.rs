@@ -6,7 +6,7 @@ use crate::{
     networking::{PeerReliableControllerMessage, PeerUnreliableControllerMessage},
 };
 use bevy::{
-    log::info,
+    input::Input,
     prelude::{
         Entity, Event, EventReader, EventWriter, KeyCode, Query, Res, ResMut, Resource, SystemSet,
         Vec2,
@@ -14,7 +14,7 @@ use bevy::{
 };
 use bevy::{log::warn, math::Vec3};
 
-use bevy_renet::renet::ClientId;
+use bevy_renet::renet::{ClientId, RenetClient};
 use cameras::LookTransform;
 use entity::spawn::{PawnId, PeerPawns};
 use networking::{
@@ -22,6 +22,8 @@ use networking::{
         ClientLatency, IncomingReliableServerMessage, IncomingUnreliableServerMessage,
         OutgoingReliableClientMessage,
     },
+    messaging::{ReliableClientMessageBatch, ReliableMessage, Typenames},
+    plugin::RENET_RELIABLE_ORDERED_ID,
     stamp::TickRateStamp,
 };
 use resources::{
@@ -31,6 +33,7 @@ use resources::{
         MOVE_BACKWARD_BIND, MOVE_FORWARD_BIND, MOVE_LEFT_BIND, MOVE_RIGHT_BIND,
     },
 };
+use typename::TypeName;
 
 /// Label for systems ordering.
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
@@ -442,6 +445,96 @@ pub(crate) fn clean_recorded_input(
     for i in to_remove {
         record.input.remove(&i);
     }
+}
+
+/// Sends client input instantly from Update schedule.
+pub(crate) fn send_client_input_to_server(
+    keyboard: Res<Input<KeyCode>>,
+    mut client: ResMut<RenetClient>,
+    binds: Res<KeyBinds>,
+    typenames: Res<Typenames>,
+    stamp: Res<TickRateStamp>,
+) {
+    let mut inputs = vec![];
+    if keyboard.just_pressed(binds.keyboard_bind(MOVE_FORWARD_BIND)) {
+        inputs.push(ControllerClientMessage::MovementInput(MovementInput {
+            up: true,
+            pressed: true,
+            ..Default::default()
+        }));
+    }
+    if keyboard.just_pressed(binds.keyboard_bind(MOVE_BACKWARD_BIND)) {
+        inputs.push(ControllerClientMessage::MovementInput(MovementInput {
+            down: true,
+            pressed: true,
+            ..Default::default()
+        }));
+    }
+    if keyboard.just_pressed(binds.keyboard_bind(MOVE_LEFT_BIND)) {
+        inputs.push(ControllerClientMessage::MovementInput(MovementInput {
+            left: true,
+            pressed: true,
+            ..Default::default()
+        }));
+    }
+    if keyboard.just_pressed(binds.keyboard_bind(MOVE_RIGHT_BIND)) {
+        inputs.push(ControllerClientMessage::MovementInput(MovementInput {
+            right: true,
+            pressed: true,
+            ..Default::default()
+        }));
+    }
+
+    if keyboard.just_released(binds.keyboard_bind(MOVE_FORWARD_BIND)) {
+        inputs.push(ControllerClientMessage::MovementInput(MovementInput {
+            up: true,
+            pressed: false,
+            ..Default::default()
+        }));
+    }
+    if keyboard.just_released(binds.keyboard_bind(MOVE_BACKWARD_BIND)) {
+        inputs.push(ControllerClientMessage::MovementInput(MovementInput {
+            down: true,
+            pressed: false,
+            ..Default::default()
+        }));
+    }
+    if keyboard.just_released(binds.keyboard_bind(MOVE_LEFT_BIND)) {
+        inputs.push(ControllerClientMessage::MovementInput(MovementInput {
+            left: true,
+            pressed: false,
+            ..Default::default()
+        }));
+    }
+    if keyboard.just_released(binds.keyboard_bind(MOVE_RIGHT_BIND)) {
+        inputs.push(ControllerClientMessage::MovementInput(MovementInput {
+            right: true,
+            pressed: false,
+            ..Default::default()
+        }));
+    }
+
+    let id = typenames
+        .reliable_net_types
+        .get(&ControllerClientMessage::type_name())
+        .unwrap();
+    let mut messages = vec![];
+    for input in inputs.iter() {
+        messages.push(ReliableMessage {
+            serialized: bincode::serialize(input).unwrap(),
+            typename_net: *id,
+        });
+    }
+
+    client.send_message(
+        RENET_RELIABLE_ORDERED_ID,
+        bincode::serialize(&ReliableClientMessageBatch {
+            messages,
+            stamp: stamp.tick,
+            sub_step: true,
+        })
+        .unwrap(),
+    );
 }
 
 pub(crate) fn get_client_input(
