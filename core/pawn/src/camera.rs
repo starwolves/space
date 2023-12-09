@@ -45,12 +45,8 @@ pub(crate) fn client_sync_look_transform(
     let lk;
     match look_transform_query.get(camera_entity) {
         Ok(look_transform) => {
-            if *prev_target != look_transform.target && !physics_loop.is_paused() {
-                /*info!(
-                    "Sending target: {:?}:{}",
-                    look_transform.target, stamp.large
-                );*/
-
+            let difference = (*prev_target - look_transform.target).abs();
+            if difference.length() > 0.0001 && !physics_loop.is_paused() {
                 let id = typenames
                     .unreliable_net_types
                     .get(&UnreliableControllerClientMessage::type_name())
