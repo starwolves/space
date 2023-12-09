@@ -646,10 +646,30 @@ pub(crate) fn step_incoming_client_messages(
     mut confirmations: ResMut<SyncConfirmations>,
     mut sync: ResMut<Latency>,
     typenames: Res<Typenames>,
-    stamp: Res<TickRateStamp>,
+    stampres: Res<TickRateStamp>,
 ) {
-    for message in queue.reliable.iter() {
-        events.send(message.clone());
+    let mut lowest_reliable_stamp = HashMap::new();
+    for (stamp, (_, m)) in queue.reliable.iter() {
+        match lowest_reliable_stamp.get_mut(&m.handle) {
+            Some(s) => {
+                if *stamp < *s {
+                    *s = *stamp;
+                }
+            }
+            None => {
+                lowest_reliable_stamp.insert(m.handle, *stamp);
+            }
+        }
+    }
+    let mut remove_i = vec![];
+    let mut i = 0;
+    for (stamp, (already_latency_reported, message)) in queue.reliable.iter_mut() {
+        let lowest_reliable_stamp_id = lowest_reliable_stamp.get(&message.handle).unwrap();
+        if *stamp == *lowest_reliable_stamp_id {
+            events.send(message.clone());
+            remove_i.push(i as usize);
+        }
+        i += 1;
         if message.message.sub_step {
             continue;
         }
@@ -680,7 +700,10 @@ pub(crate) fn step_incoming_client_messages(
                 }
             }
         }
-
+        if *already_latency_reported {
+            continue;
+        }
+        *already_latency_reported = true;
         let c: u64;
         match confirmations.incremental.get(&message.handle) {
             Some(x) => {
@@ -694,7 +717,7 @@ pub(crate) fn step_incoming_client_messages(
             Some(v) => {
                 v.push(LatencyReport {
                     client_sync_iteration: c,
-                    tick_difference: stamp.get_difference(message.message.stamp),
+                    tick_difference: stampres.get_difference(message.message.stamp),
                 });
             }
             None => {
@@ -702,14 +725,17 @@ pub(crate) fn step_incoming_client_messages(
                     message.handle,
                     vec![LatencyReport {
                         client_sync_iteration: c,
-                        tick_difference: stamp.get_difference(message.message.stamp),
+                        tick_difference: stampres.get_difference(message.message.stamp),
                     }],
                 );
             }
         }
     }
-    queue.reliable.clear();
-    for message in queue.unreliable.iter() {
+    for i in remove_i.iter().rev() {
+        queue.reliable.remove(*i);
+    }
+
+    for (_, (_, message)) in queue.unreliable.iter() {
         eventsu.send(message.clone());
         if message.message.sub_step {
             continue;
@@ -727,7 +753,7 @@ pub(crate) fn step_incoming_client_messages(
             Some(v) => {
                 v.push(LatencyReport {
                     client_sync_iteration: c,
-                    tick_difference: stamp.get_difference(message.message.stamp),
+                    tick_difference: stampres.get_difference(message.message.stamp),
                 });
             }
             None => {
@@ -735,7 +761,7 @@ pub(crate) fn step_incoming_client_messages(
                     message.handle,
                     vec![LatencyReport {
                         client_sync_iteration: c,
-                        tick_difference: stamp.get_difference(message.message.stamp),
+                        tick_difference: stampres.get_difference(message.message.stamp),
                     }],
                 );
             }
@@ -746,8 +772,8 @@ pub(crate) fn step_incoming_client_messages(
 
 #[derive(Resource, Default)]
 pub(crate) struct UpdateIncomingRawClientMessage {
-    pub reliable: Vec<IncomingRawReliableClientMessage>,
-    pub unreliable: Vec<IncomingRawUnreliableClientMessage>,
+    pub reliable: Vec<(u64, (bool, IncomingRawReliableClientMessage))>,
+    pub unreliable: Vec<(u64, (bool, IncomingRawUnreliableClientMessage))>,
 }
 
 /// Deserializes header of incoming client messages and writes to event.
@@ -756,6 +782,7 @@ pub(crate) fn receive_incoming_unreliable_client_messages(
     mut server: ResMut<RenetServer>,
     mut queue: ResMut<UpdateIncomingRawClientMessage>,
     mut early: EventWriter<EarlyIncomingRawUnreliableClientMessage>,
+    stamp: Res<TickRateStamp>,
 ) {
     for handle in server.clients_id().into_iter() {
         while let Some(message) = server.receive_message(handle, RENET_UNRELIABLE_CHANNEL_ID) {
@@ -765,7 +792,10 @@ pub(crate) fn receive_incoming_unreliable_client_messages(
                         message: msg.clone(),
                         handle,
                     };
-                    queue.unreliable.push(incoming.clone());
+                    queue.unreliable.push((
+                        stamp.calculate_large(incoming.message.stamp),
+                        (false, incoming.clone()),
+                    ));
                     early.send(EarlyIncomingRawUnreliableClientMessage(incoming));
                 }
                 Err(_) => {
@@ -788,6 +818,7 @@ pub(crate) fn receive_incoming_reliable_client_messages(
     mut server: ResMut<RenetServer>,
     mut queue: ResMut<UpdateIncomingRawClientMessage>,
     mut early: EventWriter<EarlyIncomingRawReliableClientMessage>,
+    stamp: Res<TickRateStamp>,
 ) {
     for handle in server.clients_id().into_iter() {
         while let Some(message) = server.receive_message(handle, RENET_RELIABLE_ORDERED_ID) {
@@ -797,7 +828,10 @@ pub(crate) fn receive_incoming_reliable_client_messages(
                         message: msg.clone(),
                         handle,
                     };
-                    queue.reliable.push(incoming.clone());
+                    queue.reliable.push((
+                        stamp.calculate_large(incoming.message.stamp),
+                        (false, incoming.clone()),
+                    ));
                     early.send(EarlyIncomingRawReliableClientMessage(incoming));
                 }
                 Err(_) => {
@@ -812,7 +846,11 @@ pub(crate) fn receive_incoming_reliable_client_messages(
                         message: msg.clone(),
                         handle,
                     };
-                    queue.reliable.push(incoming.clone());
+
+                    queue.reliable.push((
+                        stamp.calculate_large(incoming.message.stamp),
+                        (false, incoming.clone()),
+                    ));
                     early.send(EarlyIncomingRawReliableClientMessage(incoming));
                 }
                 Err(_) => {
