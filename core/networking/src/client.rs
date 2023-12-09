@@ -647,6 +647,10 @@ use crate::server::NetworkingServerMessage;
 #[derive(Resource, Default)]
 pub(crate) struct SyncClient((bool, u8));
 
+pub(crate) fn sync_frequency(mut first: ResMut<SyncClient>) {
+    first.0 .0 = true;
+}
+
 pub(crate) fn sync_client(
     mut first: ResMut<SyncClient>,
     mut net: EventWriter<OutgoingReliableClientMessage<NetworkingClientMessage>>,

@@ -5,11 +5,10 @@ use crate::controller::{
     cache_controller, controller_input_entity_update, look_transform_entity_update, ControllerCache,
 };
 use crate::input::{
-    apply_peer_sync_transform, clean_input_queue, clean_recorded_input, controller_input,
-    create_input_map, get_client_input, process_peer_input, receive_and_queue_peer_input,
-    send_client_input_to_server, step_input_queue, sync_controller_input, ControllerSet,
-    InputMovementInput, InputSet, LastPeerLookTransform, PeerInputQueue, PeerInputSet,
-    PeerSyncLookTransform, ProcessPeerInput, RecordedControllerInput, SyncControllerInput,
+    apply_peer_sync_transform, clean_recorded_input, controller_input, create_input_map,
+    get_client_input, process_peer_input, send_client_input_to_server, sync_controller_input,
+    ControllerSet, InputMovementInput, InputSet, LastPeerLookTransform, PeerInputSet,
+    PeerSyncLookTransform, RecordedControllerInput, SyncControllerInput,
 };
 use crate::net::ControllerClientMessage;
 use crate::networking::{
@@ -103,9 +102,6 @@ impl Plugin for ControllerPlugin {
                         sync_controller_input
                             .after(InputSet::First)
                             .in_set(MainSet::Update),
-                        clean_input_queue.in_set(MainSet::PostUpdate),
-                        receive_and_queue_peer_input.in_set(PeerInputSet::PrepareQueue),
-                        step_input_queue.in_set(PeerInputSet::StepQueue),
                     ),
                 )
                 .configure_sets(
@@ -113,9 +109,7 @@ impl Plugin for ControllerPlugin {
                     (PeerInputSet::PrepareQueue, PeerInputSet::StepQueue).chain(),
                 )
                 .add_event::<PeerSyncLookTransform>()
-                .init_resource::<LastPeerLookTransform>()
-                .init_resource::<PeerInputQueue>()
-                .add_event::<ProcessPeerInput>();
+                .init_resource::<LastPeerLookTransform>();
         }
 
         app.add_systems(

@@ -1,7 +1,10 @@
+use std::time::Duration;
+
 use bevy::{
     app::Update,
     ecs::schedule::IntoSystemSetConfigs,
     prelude::{resource_exists, App, FixedUpdate, IntoSystemConfigs, Plugin, Startup},
+    time::common_conditions::on_timer,
 };
 use bevy_renet::{
     renet::RenetClient,
@@ -19,10 +22,11 @@ use crate::{
         confirm_connection, connect_to_server, connected, is_client_connected, on_disconnect,
         receive_incoming_reliable_server_messages, receive_incoming_unreliable_server_messages,
         starwolves_response, step_buffer, step_incoming_reliable_server_messages, sync_client,
-        token_assign_server, AssignTokenToServer, AssigningServerToken, ClientLatency,
-        ConnectToServer, Connection, ConnectionPreferences, IncomingRawReliableServerMessage,
-        IncomingRawUnreliableServerMessage, NetworkingClientMessage, OutgoingBuffer,
-        RawServerMessageQueue, SyncClient, TokenAssignServer,
+        sync_frequency, token_assign_server, AssignTokenToServer, AssigningServerToken,
+        ClientLatency, ConnectToServer, Connection, ConnectionPreferences,
+        IncomingRawReliableServerMessage, IncomingRawUnreliableServerMessage,
+        NetworkingClientMessage, OutgoingBuffer, RawServerMessageQueue, SyncClient,
+        TokenAssignServer,
     },
     messaging::{
         generate_typenames, register_reliable_message, register_unreliable_message, MessageSender,
@@ -141,6 +145,9 @@ impl Plugin for NetworkingPlugin {
                 FixedUpdate,
                 (
                     confirm_connection.run_if(is_client_connected),
+                    sync_frequency
+                        .before(sync_client)
+                        .run_if(on_timer(Duration::from_secs_f32(1.))),
                     sync_client
                         .run_if(is_client_connected)
                         .after(confirm_connection),

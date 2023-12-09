@@ -19,7 +19,7 @@ use cameras::LookTransform;
 use entity::spawn::{PawnId, PeerPawns};
 use networking::{
     client::{
-        ClientLatency, IncomingReliableServerMessage, IncomingUnreliableServerMessage,
+        IncomingReliableServerMessage, IncomingUnreliableServerMessage,
         OutgoingReliableClientMessage,
     },
     messaging::{ReliableClientMessageBatch, ReliableMessage, Typenames},
@@ -182,103 +182,10 @@ pub(crate) fn apply_peer_sync_transform(
 pub struct RecordedControllerInput {
     pub input: HashMap<u64, Vec<RecordedInput>>,
 }
-#[derive(Resource, Default)]
-pub struct PeerInputQueue {
-    pub reliable_queue: HashMap<u64, PeerReliableControllerMessage>,
-    pub unreliable_queue: HashMap<u64, PeerUnreliableControllerMessage>,
-}
-
-pub(crate) fn clean_input_queue(mut queue: ResMut<PeerInputQueue>, stamp: Res<TickRateStamp>) {
-    let mut to_remove = vec![];
-    for recorded_stamp in queue.reliable_queue.keys() {
-        if stamp.large >= CACHE_PREV_TICK_AMNT
-            && recorded_stamp < &(stamp.large - CACHE_PREV_TICK_AMNT)
-        {
-            to_remove.push(*recorded_stamp);
-        }
-    }
-    for i in to_remove {
-        queue.reliable_queue.remove(&i);
-    }
-
-    let mut to_remove = vec![];
-    for recorded_stamp in queue.unreliable_queue.keys() {
-        if stamp.large >= CACHE_PREV_TICK_AMNT
-            && recorded_stamp < &(stamp.large - CACHE_PREV_TICK_AMNT)
-        {
-            to_remove.push(*recorded_stamp);
-        }
-    }
-    for i in to_remove {
-        queue.unreliable_queue.remove(&i);
-    }
-}
-
-pub(crate) fn receive_and_queue_peer_input(
-    mut peer: EventReader<IncomingReliableServerMessage<PeerReliableControllerMessage>>,
-    mut unreliable_peer: EventReader<
-        IncomingUnreliableServerMessage<PeerUnreliableControllerMessage>,
-    >,
-    mut queue: ResMut<PeerInputQueue>,
-    stamp: Res<TickRateStamp>,
-) {
-    for message in peer.read() {
-        queue.reliable_queue.insert(
-            stamp.calculate_large(message.message.client_stamp),
-            message.message.clone(),
-        );
-    }
-
-    for message in unreliable_peer.read() {
-        queue.unreliable_queue.insert(
-            stamp.calculate_large(message.message.client_stamp),
-            message.message.clone(),
-        );
-    }
-}
-
-pub(crate) fn step_input_queue(
-    stamp: Res<TickRateStamp>,
-    latency: Res<ClientLatency>,
-    queue: Res<PeerInputQueue>,
-    mut process: EventWriter<ProcessPeerInput>,
-) {
-    let desired_tick = stamp.large - latency.latency as u64;
-
-    let mut reliables = vec![];
-    match queue.reliable_queue.get(&desired_tick) {
-        Some(peer_message) => match &peer_message.message {
-            ControllerClientMessage::MovementInput(_) => {
-                reliables.push(peer_message.clone());
-            }
-            _ => (),
-        },
-        None => {}
-    }
-
-    let mut unreliables = vec![];
-    match queue.unreliable_queue.get(&desired_tick) {
-        Some(peer_message) => match &peer_message.message {
-            pawn::net::UnreliableControllerClientMessage::UpdateLookTransform(_) => {
-                unreliables.push(peer_message.clone());
-            }
-        },
-        None => {}
-    }
-
-    process.send(ProcessPeerInput {
-        reliable: reliables,
-        unreliable: unreliables,
-    });
-}
-#[derive(Event, Default)]
-pub struct ProcessPeerInput {
-    pub reliable: Vec<PeerReliableControllerMessage>,
-    pub unreliable: Vec<PeerUnreliableControllerMessage>,
-}
 
 pub(crate) fn process_peer_input(
-    mut process_input: EventReader<ProcessPeerInput>,
+    mut reliables: EventReader<IncomingReliableServerMessage<PeerReliableControllerMessage>>,
+    mut unreliables: EventReader<IncomingUnreliableServerMessage<PeerUnreliableControllerMessage>>,
     mut record: ResMut<RecordedControllerInput>,
     stamp: Res<TickRateStamp>,
     mut movement_input_event: EventWriter<InputMovementInput>,
@@ -287,28 +194,11 @@ pub(crate) fn process_peer_input(
     mut start_correction: EventWriter<StartCorrection>,
     mut sync_controller: EventWriter<SyncControllerInput>,
 ) {
-    let mut reliables = vec![];
-    let mut unreliables = vec![];
-
-    let mut go = false;
-    for p in process_input.read() {
-        go = true;
-        for m in p.reliable.iter() {
-            reliables.push(m.clone())
-        }
-        for m in p.unreliable.iter() {
-            unreliables.push(m.clone())
-        }
-    }
-    if !go {
-        return;
-    }
-
     let mut new_correction = false;
     let mut earliest_tick = 0;
-    for message in reliables.iter() {
-        let large_stamp = stamp.calculate_large(message.client_stamp);
-        let msg = RecordedInput::Reliable(message.clone());
+    for message in reliables.read() {
+        let large_stamp = stamp.calculate_large(message.message.client_stamp);
+        let msg = RecordedInput::Reliable(message.message.clone());
 
         match record.input.get_mut(&large_stamp) {
             Some(v) => {
@@ -318,11 +208,11 @@ pub(crate) fn process_peer_input(
                 record.input.insert(large_stamp, vec![msg]);
             }
         }
-        match &message.message {
+        match &message.message.message {
             ControllerClientMessage::MovementInput(input) => {
                 match peer_pawns
                     .map
-                    .get(&ClientId::from_raw(message.peer_handle.into()))
+                    .get(&ClientId::from_raw(message.message.peer_handle.into()))
                 {
                     Some(peer) => {
                         movement_input_event.send(InputMovementInput {
@@ -334,7 +224,7 @@ pub(crate) fn process_peer_input(
                             pressed: input.pressed,
                         });
                         new_correction = true;
-                        let e = stamp.calculate_large(message.client_stamp);
+                        let e = stamp.calculate_large(message.message.client_stamp);
                         if e < earliest_tick || earliest_tick == 0 {
                             earliest_tick = e;
                         }
@@ -347,7 +237,7 @@ pub(crate) fn process_peer_input(
             ControllerClientMessage::SyncControllerInput(input) => {
                 match peer_pawns
                     .map
-                    .get(&ClientId::from_raw(message.peer_handle.into()))
+                    .get(&ClientId::from_raw(message.message.peer_handle.into()))
                 {
                     Some(peer) => {
                         sync_controller.send(SyncControllerInput {
@@ -355,7 +245,7 @@ pub(crate) fn process_peer_input(
                             sync: input.clone(),
                         });
                         new_correction = true;
-                        let e = stamp.calculate_large(message.client_stamp);
+                        let e = stamp.calculate_large(message.message.client_stamp);
                         if e < earliest_tick || earliest_tick == 0 {
                             earliest_tick = e;
                         }
@@ -367,9 +257,9 @@ pub(crate) fn process_peer_input(
             }
         }
     }
-    for message in unreliables.iter() {
-        let large_stamp = stamp.calculate_large(message.client_stamp);
-        let msg = RecordedInput::Unreliable(message.clone());
+    for message in unreliables.read() {
+        let large_stamp = stamp.calculate_large(message.message.client_stamp);
+        let msg = RecordedInput::Unreliable(message.message.clone());
         match record.input.get_mut(&large_stamp) {
             Some(v) => {
                 v.push(msg);
@@ -378,18 +268,18 @@ pub(crate) fn process_peer_input(
                 record.input.insert(large_stamp, vec![msg]);
             }
         }
-        match &message.message {
+        match &message.message.message {
             pawn::net::UnreliableControllerClientMessage::UpdateLookTransform(target) => {
                 match peer_pawns
                     .map
-                    .get(&ClientId::from_raw(message.peer_handle.into()))
+                    .get(&ClientId::from_raw(message.message.peer_handle.into()))
                 {
                     Some(peer) => {
-                        let e = stamp.calculate_large(message.client_stamp);
+                        let e = stamp.calculate_large(message.message.client_stamp);
                         sync.send(PeerSyncLookTransform {
                             entity: *peer,
                             target: *target,
-                            handle: ClientId::from_raw(message.peer_handle.into()),
+                            handle: ClientId::from_raw(message.message.peer_handle.into()),
                             stamp: e,
                         });
                         new_correction = true;
