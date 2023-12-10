@@ -9,7 +9,6 @@ pub struct StartCorrection {
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
 
 pub enum CorrectionSet {
-    SyncData,
     Start,
 }
 

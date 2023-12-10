@@ -32,12 +32,12 @@ use controller::{
 };
 use entity::entity_macros::Identity;
 use gridmap::grid::{Gridmap, GridmapCache};
-use networking::stamp::{step_tickrate_stamp, TickRateStamp};
+use networking::stamp::{step_tickrate_stamp, PauseTickStep, TickRateStamp};
 use physics::{
     cache::{Cache, PhysicsCache},
     correction_mode::CorrectionResults,
     entity::{RigidBodies, SFRigidBody},
-    sync::CorrectionServerRigidBodyLink,
+    sync::{sync_physics_data, CorrectionServerRigidBodyLink},
 };
 use resources::{
     content::SF_CONTENT_PREFIX,
@@ -75,7 +75,7 @@ impl Plugin for CorrectionPlugin {
     }
 }
 
-/// Runs on the app if in correction mode.
+/// Runs on the correction app.
 pub struct CorrectionServerPlugin;
 impl Plugin for CorrectionServerPlugin {
     fn build(&self, app: &mut App) {
@@ -84,7 +84,9 @@ impl Plugin for CorrectionServerPlugin {
             (
                 init_correction_server.in_set(MainSet::PreUpdate),
                 finish_correction.in_set(MainSet::PostUpdate),
-                store_tick_data.in_set(MainSet::Update),
+                store_tick_data
+                    .in_set(MainSet::PostPhysics)
+                    .after(sync_physics_data),
                 clear_sync_world.in_set(MainSet::PostUpdate),
                 apply_humanoid_caches
                     .in_set(MainSet::PreUpdate)
@@ -161,11 +163,15 @@ pub(crate) fn finish_correction(
     }
 }
 
-pub(crate) fn clear_sync_world(mut sync: ResMut<SyncWorld>) {
+pub(crate) fn clear_sync_world(
+    mut sync: ResMut<SyncWorld>,
+    mut pause_stamp: ResMut<PauseTickStep>,
+) {
     if sync.rebuild && !sync.second_tick {
         sync.second_tick = true;
     }
-    if !sync.rebuild {
+    if !sync.rebuild && sync.second_tick {
+        pause_stamp.0 = false;
         sync.second_tick = false;
     }
 
@@ -187,6 +193,7 @@ pub(crate) fn server_start_correcting(
     link: Res<CorrectionServerRigidBodyLink>,
     mut controller_cache: ResMut<ControllerCache>,
     mut look_cache: ResMut<LookTransformCache>,
+    mut pause_stamp: ResMut<PauseTickStep>,
 ) {
     match &queued_message_reciever.receiver_option {
         Some(receiver) => loop {
@@ -202,7 +209,6 @@ pub(crate) fn server_start_correcting(
                         controller_cachec,
                         look_cachec,
                     ) => {
-                        // info!("{:?}", start_correction_data);
                         let mut fixed_cache = new_cache.clone();
 
                         for t in fixed_cache.cache.iter_mut() {
@@ -233,6 +239,7 @@ pub(crate) fn server_start_correcting(
                         *controller_cache = controller_cachec;
                         *look_cache = look_cachec;
                         *stamp = TickRateStamp::new(start_correction_data.start_tick);
+                        pause_stamp.0 = true;
                     }
                 },
                 Err(_) => {

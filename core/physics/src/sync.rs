@@ -164,7 +164,7 @@ pub(crate) fn sync_loop(
 }
 
 /// Correction server system.
-pub(crate) fn sync_physics_data(
+pub fn sync_physics_data(
     mut query: Query<
         (
             &mut Transform,

@@ -55,9 +55,7 @@ impl Plugin for PhysicsPlugin {
                             .after(CorrectionSet::Start)
                             .in_set(MainSet::Update)
                             .before(SpawningSimulation::Spawn),
-                        sync_physics_data
-                            .in_set(MainSet::PreUpdate)
-                            .in_set(CorrectionSet::SyncData),
+                        sync_physics_data.in_set(MainSet::PostPhysics),
                     ),
                 )
                 .init_resource::<CorrectionServerRigidBodyLink>()

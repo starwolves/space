@@ -7,6 +7,7 @@ use crate::{
 };
 use bevy::{
     input::Input,
+    log::info,
     prelude::{
         Entity, Event, EventReader, EventWriter, KeyCode, Query, Res, ResMut, Resource, SystemSet,
         Vec2,
@@ -296,6 +297,9 @@ pub(crate) fn process_peer_input(
         }
     }
     // Doesnt send StartCorrect if peer input is for our exact tick or future tack.
+    if new_correction && earliest_tick == stamp.large {
+        info!("Perfect peer sync.");
+    }
     if new_correction && earliest_tick < stamp.large {
         start_correction.send(StartCorrection {
             start_tick: earliest_tick,
@@ -563,13 +567,6 @@ pub(crate) fn get_client_input(
             }),
         });
     }
-}
-/// Label for systems ordering.
-#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
-
-pub enum PeerInputSet {
-    PrepareQueue,
-    StepQueue,
 }
 /// Label for systems ordering.
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
