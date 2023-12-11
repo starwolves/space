@@ -6,7 +6,7 @@ use bevy::{
 };
 use bevy_xpbd_3d::{prelude::PhysicsPlugins, resources::SubstepCount};
 use networking::{
-    messaging::{register_reliable_message, MessageSender, MessagingSet},
+    messaging::{register_unreliable_message, MessageSender, MessagingSet},
     stamp::step_tickrate_stamp,
 };
 use resources::{
@@ -25,11 +25,11 @@ use crate::{
         server_mirror_link_transform, ResetLerp, RigidBodies,
     },
     mirror_physics_transform::rigidbody_link_transform,
-    net::PhysicsServerMessage,
+    net::PhysicsUnreliableServerMessage,
     sync::{
         desync_check_correction, send_desync_check, sync_correction_world_entities, sync_loop,
-        sync_physics_data, CorrectionServerRigidBodyLink, FastForwarding, SpawningSimulation,
-        SpawningSimulationRigidBody, SyncPause,
+        sync_physics_data, CorrectionServerRigidBodyLink, FastForwarding, PendingDesync,
+        SpawningSimulation, SpawningSimulationRigidBody, SyncPause,
     },
 };
 
@@ -104,13 +104,14 @@ impl Plugin for PhysicsPlugin {
                     .in_set(MainSet::PreUpdate),
             )
             .init_resource::<FastForwarding>()
-            .add_event::<CorrectionResults>();
+            .add_event::<CorrectionResults>()
+            .init_resource::<PendingDesync>();
         }
         app.add_plugins(PhysicsPlugins::new(FixedUpdate))
             .init_resource::<RigidBodies>()
             .add_systems(FixedUpdate, remove_links.in_set(MainSet::PostUpdate))
             .insert_resource(SubstepCount(TickRate::default().physics_substep.into()))
             .init_resource::<PhysicsCache>();
-        register_reliable_message::<PhysicsServerMessage>(app, MessageSender::Server, false);
+        register_unreliable_message::<PhysicsUnreliableServerMessage>(app, MessageSender::Server);
     }
 }

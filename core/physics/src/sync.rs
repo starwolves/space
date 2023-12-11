@@ -21,8 +21,8 @@ use bevy_xpbd_3d::prelude::{Physics, PhysicsTime};
 use entity::despawn::DespawnEntity;
 use entity::entity_types::BoxedEntityType;
 use entity::spawn::ServerEntityClientEntity;
-use networking::client::ClientLatency;
-use networking::server::{ConnectedPlayer, OutgoingReliableServerMessage};
+use networking::client::{ClientLatency, IncomingUnreliableServerMessage};
+use networking::server::{ConnectedPlayer, OutgoingUnreliableServerMessage};
 use networking::{
     client::{
         IncomingReliableServerMessage, NetworkingClientMessage, OutgoingReliableClientMessage,
@@ -38,7 +38,7 @@ use resources::player::SoftPlayer;
 
 use crate::cache::{PhysicsCache, SmallCache};
 use crate::entity::{RigidBodies, SFRigidBody};
-use crate::net::PhysicsServerMessage;
+use crate::net::PhysicsUnreliableServerMessage;
 use crate::spawn::{rigidbody_builder, RigidBodyBuildData};
 #[derive(Resource, Default)]
 pub(crate) struct FastForwarding {
@@ -354,7 +354,7 @@ pub(crate) fn sync_correction_world_entities(
 pub(crate) fn send_desync_check(
     query: Query<(Entity, &Transform, &LinearVelocity, &AngularVelocity), With<SFRigidBody>>,
     rigid_bodies: Res<RigidBodies>,
-    mut net: EventWriter<OutgoingReliableServerMessage<PhysicsServerMessage>>,
+    mut net: EventWriter<OutgoingUnreliableServerMessage<PhysicsUnreliableServerMessage>>,
     players: Query<&ConnectedPlayer, Without<SoftPlayer>>,
 ) {
     let mut small_cache = vec![];
@@ -377,8 +377,8 @@ pub(crate) fn send_desync_check(
     if small_cache.len() > 0 {
         for c in players.iter() {
             if c.connected {
-                net.send(OutgoingReliableServerMessage {
-                    message: PhysicsServerMessage::DesyncCheck(small_cache.clone()),
+                net.send(OutgoingUnreliableServerMessage {
+                    message: PhysicsUnreliableServerMessage::DesyncCheck(small_cache.clone()),
                     handle: c.handle,
                 });
             }
@@ -397,50 +397,85 @@ pub struct SpawningSimulationRigidBody {
 pub enum SpawningSimulation {
     Spawn,
 }
+#[derive(Resource, Default)]
+pub struct PendingDesync(Option<(u64, PhysicsUnreliableServerMessage)>);
 
 pub(crate) fn desync_check_correction(
-    mut messages: EventReader<IncomingReliableServerMessage<PhysicsServerMessage>>,
+    mut messages: EventReader<IncomingUnreliableServerMessage<PhysicsUnreliableServerMessage>>,
     mut cache: ResMut<PhysicsCache>,
     mut correction: EventWriter<StartCorrection>,
     stamp: Res<TickRateStamp>,
     server_client_entity: Res<ServerEntityClientEntity>,
+    latency: Res<ClientLatency>,
+    mut latest_desync: ResMut<PendingDesync>,
 ) {
-    for message in messages.read() {
-        let t = (stamp.large as i128 + stamp.get_difference(message.stamp) as i128) as u64;
+    let desired_tick = stamp.large - (latency.latency as u64);
 
+    for message in messages.read() {
+        let message_desync_stamp = stamp.calculate_large(message.stamp);
         match &message.message {
-            PhysicsServerMessage::DesyncCheck(caches) => match cache.cache.get_mut(&t) {
-                Some(physics_cache) => {
-                    for s in caches {
-                        match server_client_entity.map.get(&s.entity) {
-                            Some(entity) => {
-                                for (_, c) in physics_cache.iter_mut() {
-                                    if c.entity == *entity {
-                                        c.angular_velocity = AngularVelocity(s.angular_velocity);
-                                        c.linear_velocity = LinearVelocity(s.linear_velocity);
-                                        c.transform = Transform {
-                                            translation: s.translation,
-                                            rotation: s.rotation,
-                                            ..Default::default()
-                                        };
-                                        break;
-                                    }
-                                }
-                            }
-                            None => {
-                                warn!("Couldnt find server client entity.");
-                            }
-                        }
+            PhysicsUnreliableServerMessage::DesyncCheck(_) => match &latest_desync.0 {
+                Some((cached_latest_stamp, _)) => {
+                    if message_desync_stamp < *cached_latest_stamp {
+                        continue;
                     }
-                    correction.send(StartCorrection {
-                        start_tick: t,
-                        last_tick: stamp.large,
-                    });
+                    latest_desync.0 = Some((message_desync_stamp, message.message.clone()));
                 }
                 None => {
-                    warn!("Missed desync check ({})", t);
+                    latest_desync.0 = Some((message_desync_stamp, message.message.clone()));
                 }
             },
         }
+    }
+    let mut clear_pending = false;
+    match &latest_desync.0 {
+        Some((latest_desync_stamp, message)) => {
+            if latest_desync_stamp > &desired_tick {
+                return;
+            }
+            match cache.cache.get_mut(&latest_desync_stamp) {
+                Some(physics_cache) => match &message {
+                    PhysicsUnreliableServerMessage::DesyncCheck(caches) => {
+                        if latest_desync_stamp == &stamp.large {
+                            info!("Perfect desync check.");
+                        }
+                        for s in caches {
+                            match server_client_entity.map.get(&s.entity) {
+                                Some(entity) => {
+                                    for (_, c) in physics_cache.iter_mut() {
+                                        if c.entity == *entity {
+                                            c.angular_velocity =
+                                                AngularVelocity(s.angular_velocity);
+                                            c.linear_velocity = LinearVelocity(s.linear_velocity);
+                                            c.transform = Transform {
+                                                translation: s.translation,
+                                                rotation: s.rotation,
+                                                ..Default::default()
+                                            };
+                                            break;
+                                        }
+                                    }
+                                }
+                                None => {
+                                    warn!("Couldnt find server client entity.");
+                                }
+                            }
+                        }
+                        correction.send(StartCorrection {
+                            start_tick: *latest_desync_stamp,
+                            last_tick: stamp.large,
+                        });
+                        clear_pending = true;
+                    }
+                },
+                None => {
+                    warn!("Missed desync check ({})", latest_desync_stamp);
+                }
+            }
+        }
+        None => {}
+    }
+    if clear_pending {
+        latest_desync.0 = None;
     }
 }

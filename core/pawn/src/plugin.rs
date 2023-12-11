@@ -1,5 +1,8 @@
 use crate::actions::{build_actions, examine, examine_prerequisite_check};
-use crate::camera::{client_sync_look_transform, server_sync_look_transform, LookTransformSet};
+use crate::camera::{
+    clear_mouse_stamps, clear_mouse_stamps_server, client_sync_look_transform,
+    server_sync_look_transform, LookTransformSet, MouseInputStamps, ServerMouseInputStamps,
+};
 use crate::net::UnreliableControllerClientMessage;
 use bevy::app::Update;
 use bevy::ecs::schedule::common_conditions::resource_exists;
@@ -28,6 +31,11 @@ impl Plugin for PawnPlugin {
                     server_sync_look_transform.in_set(LookTransformSet::Sync),
                 )
                     .in_set(MainSet::Update),
+            )
+            .init_resource::<ServerMouseInputStamps>()
+            .add_systems(
+                FixedUpdate,
+                clear_mouse_stamps_server.in_set(MainSet::PostUpdate),
             );
         } else {
             app.add_systems(
@@ -36,7 +44,9 @@ impl Plugin for PawnPlugin {
                     .run_if(resource_exists::<RenetClient>())
                     .in_set(MainSet::Update)
                     .in_set(LookTransformSet::Sync),
-            );
+            )
+            .init_resource::<MouseInputStamps>()
+            .add_systems(FixedUpdate, clear_mouse_stamps.in_set(MainSet::PostUpdate));
         }
         register_unreliable_message::<UnreliableControllerClientMessage>(
             app,

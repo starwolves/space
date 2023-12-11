@@ -19,18 +19,20 @@ use bevy::{log::warn, math::Vec3};
 use bevy_renet::renet::{ClientId, RenetClient};
 use cameras::{LookTransform, LookTransformCache};
 use entity::spawn::{PawnId, PeerPawns};
+use itertools::Itertools;
 use networking::{
     client::{
-        IncomingReliableServerMessage, IncomingUnreliableServerMessage,
+        ClientLatency, IncomingReliableServerMessage, IncomingUnreliableServerMessage,
         OutgoingReliableClientMessage,
     },
     messaging::{ReliableClientMessageBatch, ReliableMessage, Typenames},
     plugin::RENET_RELIABLE_ORDERED_ID,
     stamp::TickRateStamp,
 };
+use pawn::camera::MouseInputStamps;
 use physics::cache::PhysicsCache;
 use resources::{
-    correction::{StartCorrection, CACHE_PREV_TICK_AMNT},
+    correction::{StartCorrection, MAX_CACHE_TICKS_AMNT},
     input::{
         InputBuffer, KeyBind, KeyBinds, KeyCodeEnum, HOLD_SPRINT_BIND, JUMP_BIND,
         MOVE_BACKWARD_BIND, MOVE_FORWARD_BIND, MOVE_LEFT_BIND, MOVE_RIGHT_BIND,
@@ -214,10 +216,18 @@ pub(crate) fn apply_peer_sync_look_transform(
 pub struct RecordedControllerInput {
     pub input: HashMap<u64, Vec<RecordedInput>>,
 }
+#[derive(Resource, Default)]
+pub struct FuturePeerInputCache {
+    pub reliable: HashMap<u64, Vec<IncomingReliableServerMessage<PeerReliableControllerMessage>>>,
+    pub unreliable:
+        HashMap<u64, Vec<IncomingUnreliableServerMessage<PeerUnreliableControllerMessage>>>,
+}
 
 pub(crate) fn process_peer_input(
-    mut reliables: EventReader<IncomingReliableServerMessage<PeerReliableControllerMessage>>,
-    mut unreliables: EventReader<IncomingUnreliableServerMessage<PeerUnreliableControllerMessage>>,
+    mut reliables_reader: EventReader<IncomingReliableServerMessage<PeerReliableControllerMessage>>,
+    mut unreliables_reader: EventReader<
+        IncomingUnreliableServerMessage<PeerUnreliableControllerMessage>,
+    >,
     mut record: ResMut<RecordedControllerInput>,
     stamp: Res<TickRateStamp>,
     mut movement_input_event: EventWriter<InputMovementInput>,
@@ -225,11 +235,66 @@ pub(crate) fn process_peer_input(
     peer_pawns: Res<PeerPawns>,
     mut start_correction: EventWriter<StartCorrection>,
     mut sync_controller: EventWriter<SyncControllerInput>,
+    mut future: ResMut<FuturePeerInputCache>,
+    latency: Res<ClientLatency>,
+    mut mouse_stamps: ResMut<MouseInputStamps>,
 ) {
     let mut new_correction = false;
     let mut earliest_tick = 0;
-    for message in reliables.read() {
+
+    let mut reliables = vec![];
+    let mut unreliables = vec![];
+    for r in reliables_reader.read() {
+        reliables.push(r.clone());
+    }
+
+    for u in unreliables_reader.read() {
+        unreliables.push(u.clone());
+    }
+
+    let desired_tick = stamp.large - latency.latency as u64;
+    for i in future.reliable.keys().sorted() {
+        if i > &desired_tick {
+            break;
+        }
+        match future.reliable.get(i) {
+            Some(v) => {
+                for e in v {
+                    reliables.push(e.clone());
+                }
+                break;
+            }
+            None => {}
+        }
+    }
+    for i in future.reliable.keys().sorted() {
+        if i > &desired_tick {
+            break;
+        }
+        match future.unreliable.get(i) {
+            Some(v) => {
+                for e in v {
+                    unreliables.push(e.clone());
+                }
+                break;
+            }
+            None => {}
+        }
+    }
+
+    for message in reliables.iter() {
         let large_stamp = stamp.calculate_large(message.message.client_stamp);
+
+        if large_stamp > stamp.large {
+            match future.reliable.get_mut(&large_stamp) {
+                Some(v) => v.push(message.clone()),
+                None => {
+                    future.reliable.insert(large_stamp, vec![message.clone()]);
+                }
+            }
+            continue;
+        }
+
         let msg = RecordedInput::Reliable(message.message.clone());
 
         match record.input.get_mut(&large_stamp) {
@@ -290,8 +355,19 @@ pub(crate) fn process_peer_input(
             }
         }
     }
-    for message in unreliables.read() {
+    for message in unreliables.iter() {
         let large_stamp = stamp.calculate_large(message.message.client_stamp);
+
+        if large_stamp > stamp.large {
+            match future.unreliable.get_mut(&large_stamp) {
+                Some(v) => v.push(message.clone()),
+                None => {
+                    future.unreliable.insert(large_stamp, vec![message.clone()]);
+                }
+            }
+            continue;
+        }
+
         let msg = RecordedInput::Unreliable(message.message.clone());
         match record.input.get_mut(&large_stamp) {
             Some(v) => {
@@ -305,7 +381,12 @@ pub(crate) fn process_peer_input(
             pawn::net::UnreliablePeerControllerClientMessage::UpdateLookTransform(
                 target,
                 position,
+                id,
             ) => {
+                if &mouse_stamps.i > id {
+                    continue;
+                }
+                mouse_stamps.i = *id;
                 match peer_pawns
                     .map
                     .get(&ClientId::from_raw(message.message.peer_handle.into()))
@@ -366,8 +447,8 @@ pub(crate) fn clean_recorded_input(
 ) {
     let mut to_remove = vec![];
     for recorded_stamp in record.input.keys() {
-        if stamp.large >= CACHE_PREV_TICK_AMNT
-            && recorded_stamp < &(stamp.large - CACHE_PREV_TICK_AMNT)
+        if stamp.large >= MAX_CACHE_TICKS_AMNT
+            && recorded_stamp < &(stamp.large - MAX_CACHE_TICKS_AMNT)
         {
             to_remove.push(*recorded_stamp);
         }

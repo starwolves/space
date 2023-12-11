@@ -11,7 +11,7 @@ use networking::{
     stamp::TickRateStamp,
 };
 use pawn::net::UnreliablePeerControllerClientMessage;
-use resources::correction::CACHE_PREV_TICK_AMNT;
+use resources::correction::MAX_CACHE_TICKS_AMNT;
 use serde::{Deserialize, Serialize};
 
 use crate::{
@@ -58,8 +58,8 @@ pub(crate) fn cache_controller(
     // Clean cache.
     let mut to_remove = vec![];
     for recorded_stamp in cache.cache.keys() {
-        if stamp.large >= CACHE_PREV_TICK_AMNT
-            && recorded_stamp < &(stamp.large - CACHE_PREV_TICK_AMNT)
+        if stamp.large >= MAX_CACHE_TICKS_AMNT
+            && recorded_stamp < &(stamp.large - MAX_CACHE_TICKS_AMNT)
         {
             to_remove.push(*recorded_stamp);
         }
@@ -84,6 +84,7 @@ pub(crate) fn look_transform_entity_update(
                         message: UnreliablePeerControllerClientMessage::UpdateLookTransform(
                             look_transform.target,
                             transform.translation,
+                            u8::MAX,
                         ),
                         peer_handle: connected_player.handle.raw() as u16,
                         client_stamp: stamp.tick,

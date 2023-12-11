@@ -23,7 +23,7 @@ use physics::{
     physics::{get_bit_masks, ColliderGroup},
     rigid_body::STANDARD_BODY_FRICTION,
 };
-use resources::correction::CACHE_PREV_TICK_AMNT;
+use resources::correction::MAX_CACHE_TICKS_AMNT;
 use resources::grid::TileCollider;
 use resources::player::SoftPlayer;
 use resources::{
@@ -747,8 +747,8 @@ pub(crate) fn cache_updates(stamp: Res<TickRateStamp>, mut grid: ResMut<Gridmap>
 
     let mut to_remove = vec![];
     for recorded_stamp in grid.updates_cache.cache.keys() {
-        if stamp.large >= CACHE_PREV_TICK_AMNT
-            && recorded_stamp < &(stamp.large - CACHE_PREV_TICK_AMNT)
+        if stamp.large >= MAX_CACHE_TICKS_AMNT
+            && recorded_stamp < &(stamp.large - MAX_CACHE_TICKS_AMNT)
         {
             to_remove.push(*recorded_stamp);
         }

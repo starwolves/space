@@ -7,7 +7,7 @@ use bevy::{
     transform::components::Transform,
 };
 use networking::stamp::TickRateStamp;
-use resources::{correction::CACHE_PREV_TICK_AMNT, physics::PhysicsSet, sets::MainSet};
+use resources::{correction::MAX_CACHE_TICKS_AMNT, physics::PhysicsSet, sets::MainSet};
 
 pub struct LookTransformPlugin;
 
@@ -55,8 +55,8 @@ pub(crate) fn cache_look_transform(
     // Clean cache.
     let mut to_remove = vec![];
     for recorded_stamp in cache.cache.keys() {
-        if stamp.large >= CACHE_PREV_TICK_AMNT
-            && recorded_stamp < &(stamp.large - CACHE_PREV_TICK_AMNT)
+        if stamp.large >= MAX_CACHE_TICKS_AMNT
+            && recorded_stamp < &(stamp.large - MAX_CACHE_TICKS_AMNT)
         {
             to_remove.push(*recorded_stamp);
         }

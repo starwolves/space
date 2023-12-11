@@ -5,6 +5,6 @@ use crate::cache::SmallCache;
 
 /// Gets serialized and sent over the net, this is the client message.
 #[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
-pub enum PhysicsServerMessage {
+pub enum PhysicsUnreliableServerMessage {
     DesyncCheck(Vec<SmallCache>),
 }

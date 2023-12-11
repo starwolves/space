@@ -32,29 +32,18 @@ impl Plugin for ResourcesPlugin {
                 .init_resource::<MainMenuState>()
                 .add_event::<StartCorrection>();
         }
-
-        app.configure_sets(
-            FixedUpdate,
-            (
-                MainSet::PreUpdate,
-                MainSet::Update,
-                MainSet::PostUpdate,
-                PhysicsSet::Prepare,
-            )
-                .chain(),
-        )
-        .configure_sets(
-            Update,
-            (
-                MainSet::PreUpdate,
-                MainSet::Update,
-                MainSet::PostUpdate,
-                PhysicsSet::Prepare,
-                PhysicsSet::Sync,
-                MainSet::PostPhysics,
-            )
-                .chain()
-                .before(TransformSystem::TransformPropagate),
+        let sets = (
+            MainSet::PreUpdate,
+            MainSet::Update,
+            MainSet::PostUpdate,
+            PhysicsSet::Prepare,
+            PhysicsSet::Sync,
+            MainSet::PostPhysics,
         );
+        app.configure_sets(FixedUpdate, sets.clone().chain())
+            .configure_sets(
+                Update,
+                sets.chain().before(TransformSystem::TransformPropagate),
+            );
     }
 }

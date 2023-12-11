@@ -1,11 +1,13 @@
-use bevy::ecs::system::ResMut;
+use std::collections::HashMap;
+
+use bevy::ecs::system::{ResMut, Resource};
 use bevy::log::warn;
 use bevy::{
     prelude::{EventReader, Local, Query, Res, SystemSet, Vec3},
     time::Time,
 };
 
-use bevy_renet::renet::RenetClient;
+use bevy_renet::renet::{ClientId, RenetClient};
 use bevy_xpbd_3d::prelude::{Physics, PhysicsTime};
 use cameras::{controllers::fps::ActiveCamera, LookTransform};
 use entity::spawn::PawnId;
@@ -23,6 +25,29 @@ pub enum LookTransformSet {
     Sync,
 }
 
+#[derive(Resource, Default)]
+pub struct ServerMouseInputStamps {
+    pub map: HashMap<ClientId, u8>,
+}
+#[derive(Resource, Default)]
+pub struct MouseInputStamps {
+    pub i: u8,
+}
+impl MouseInputStamps {
+    pub fn step(&mut self) {
+        if self.i == u8::MAX {
+            self.i = 0;
+        } else {
+            self.i += 1;
+        }
+    }
+}
+pub(crate) fn clear_mouse_stamps(mut mouse_stamps: ResMut<MouseInputStamps>) {
+    mouse_stamps.i = 0;
+}
+pub(crate) fn clear_mouse_stamps_server(mut mouse_stamps: ResMut<ServerMouseInputStamps>) {
+    mouse_stamps.map.clear();
+}
 pub(crate) fn client_sync_look_transform(
     mut look_transform_query: Query<&mut LookTransform>,
     mut client: ResMut<RenetClient>,
@@ -32,6 +57,7 @@ pub(crate) fn client_sync_look_transform(
     physics_loop: Res<Time<Physics>>,
     stamp: Res<TickRateStamp>,
     typenames: Res<Typenames>,
+    mut mouse_stamps: ResMut<MouseInputStamps>,
 ) {
     let camera_entity;
     match state.option {
@@ -59,6 +85,7 @@ pub(crate) fn client_sync_look_transform(
                             serialized: bincode::serialize(
                                 &UnreliableControllerClientMessage::UpdateLookTransform(
                                     look_transform.target,
+                                    mouse_stamps.i,
                                 ),
                             )
                             .unwrap(),
@@ -69,6 +96,7 @@ pub(crate) fn client_sync_look_transform(
                     })
                     .unwrap(),
                 );
+                mouse_stamps.step();
 
                 *prev_target = look_transform.target;
             }
@@ -97,10 +125,23 @@ pub(crate) fn server_sync_look_transform(
     mut humanoids: Query<&mut LookTransform>,
     mut messages: EventReader<IncomingUnreliableClientMessage<UnreliableControllerClientMessage>>,
     handle_to_entity: Res<HandleToEntity>,
+    mut mouse_stamps: ResMut<ServerMouseInputStamps>,
 ) {
     for msg in messages.read() {
         match msg.message {
-            UnreliableControllerClientMessage::UpdateLookTransform(target) => {
+            UnreliableControllerClientMessage::UpdateLookTransform(target, id) => {
+                match mouse_stamps.map.get_mut(&msg.handle) {
+                    Some(st) => {
+                        if id < *st {
+                            continue;
+                        }
+                        *st = id;
+                    }
+                    None => {
+                        mouse_stamps.map.insert(msg.handle, id);
+                    }
+                }
+
                 match handle_to_entity.map.get(&msg.handle) {
                     Some(entity) => match humanoids.get_mut(*entity) {
                         Ok(mut look_transform) => {

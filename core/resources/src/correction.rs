@@ -24,4 +24,4 @@ pub enum CorrectionServerSet {
     SyncClear,
 }
 
-pub const CACHE_PREV_TICK_AMNT: u64 = 256;
+pub const MAX_CACHE_TICKS_AMNT: u64 = 256;
