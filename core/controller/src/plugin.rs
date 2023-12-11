@@ -5,7 +5,7 @@ use crate::controller::{
     cache_controller, controller_input_entity_update, look_transform_entity_update, ControllerCache,
 };
 use crate::input::{
-    apply_peer_sync_transform, clean_recorded_input, controller_input, create_input_map,
+    apply_peer_sync_look_transform, clean_recorded_input, controller_input, create_input_map,
     get_client_input, process_peer_input, send_client_input_to_server, sync_controller_input,
     ControllerSet, InputMovementInput, InputSet, LastPeerLookTransform, PeerSyncLookTransform,
     RecordedControllerInput, SyncControllerInput,
@@ -92,7 +92,7 @@ impl Plugin for ControllerPlugin {
                         cache_controller
                             .after(MainSet::PostUpdate)
                             .in_set(PhysicsSet::Cache),
-                        apply_peer_sync_transform
+                        apply_peer_sync_look_transform
                             .after(InputSet::First)
                             .in_set(MainSet::Update),
                         sync_controller_input

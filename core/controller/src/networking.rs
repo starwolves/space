@@ -6,8 +6,10 @@ use bevy::prelude::EventWriter;
 use bevy::prelude::Query;
 use bevy::prelude::Res;
 use bevy::prelude::With;
+use bevy::transform::components::Transform;
 use bevy_renet::renet::ClientId;
 use bevy_renet::renet::RenetServer;
+use cameras::LookTransform;
 use networking::messaging::ReliableMessage;
 use networking::messaging::ReliableServerMessageBatch;
 use networking::messaging::Typenames;
@@ -20,12 +22,14 @@ use networking::server::EarlyIncomingRawReliableClientMessage;
 use networking::server::EarlyIncomingRawUnreliableClientMessage;
 use networking::stamp::TickRateStamp;
 use pawn::net::UnreliableControllerClientMessage;
+use pawn::net::UnreliablePeerControllerClientMessage;
 use physics::entity::RigidBodyLink;
 use serde::Deserialize;
 use serde::Serialize;
 use typename::TypeName;
 
 use crate::input::InputMovementInput;
+use crate::net::PeerControllerClientMessage;
 
 use networking::server::HandleToEntity;
 
@@ -43,7 +47,7 @@ use networking::server::IncomingReliableClientMessage;
 #[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
 
 pub struct PeerReliableControllerMessage {
-    pub message: ControllerClientMessage,
+    pub message: PeerControllerClientMessage,
     pub peer_handle: u16,
     pub client_stamp: u8,
 }
@@ -51,7 +55,7 @@ pub struct PeerReliableControllerMessage {
 #[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
 
 pub struct PeerUnreliableControllerMessage {
-    pub message: UnreliableControllerClientMessage,
+    pub message: UnreliablePeerControllerClientMessage,
     pub peer_handle: u16,
     pub client_stamp: u8,
 }
@@ -64,7 +68,9 @@ pub(crate) fn peer_replicate_input_messages(
     mut server: ResMut<RenetServer>,
     players: Query<&ConnectedPlayer, With<RigidBodyLink>>,
     typenames: Res<Typenames>,
+    query: Query<(&Transform, &LookTransform), With<RigidBodyLink>>,
     stamp: Res<TickRateStamp>,
+    handle_to_entity: Res<HandleToEntity>,
 ) {
     let mut reliable_peer_messages: HashMap<ClientId, Vec<ReliableMessage>> = HashMap::new();
     let mut unreliable_peer_messages: HashMap<ClientId, Vec<UnreliableMessage>> = HashMap::new();
@@ -85,8 +91,32 @@ pub(crate) fn peer_replicate_input_messages(
                                     if batch.0.handle == connected.handle {
                                         continue;
                                     }
+                                    let moving_entity;
+                                    match handle_to_entity.map.get(&batch.0.handle) {
+                                        Some(e) => {
+                                            moving_entity = *e;
+                                        }
+                                        None => {
+                                            warn!("no handle entity found.");
+                                            continue;
+                                        }
+                                    }
+                                    let tuple;
+                                    match query.get(moving_entity) {
+                                        Ok(t) => {
+                                            tuple = t.clone();
+                                        }
+                                        Err(_) => {
+                                            warn!("Couldnt find moving entity.");
+                                            continue;
+                                        }
+                                    }
                                     let new_message = PeerReliableControllerMessage {
-                                        message: client_message.clone(),
+                                        message: PeerControllerClientMessage::from(
+                                            client_message.clone(),
+                                            tuple.0.translation,
+                                            tuple.1.target,
+                                        ),
                                         peer_handle: batch.0.handle.raw() as u16,
                                         client_stamp: batch.0.message.stamp,
                                     };
@@ -141,8 +171,32 @@ pub(crate) fn peer_replicate_input_messages(
                                     if batch.0.handle == connected.handle {
                                         continue;
                                     }
+                                    let moving_entity;
+                                    match handle_to_entity.map.get(&batch.0.handle) {
+                                        Some(e) => {
+                                            moving_entity = *e;
+                                        }
+                                        None => {
+                                            warn!("no handle entity found.");
+                                            continue;
+                                        }
+                                    }
+                                    let tuple;
+                                    match query.get(moving_entity) {
+                                        Ok(t) => {
+                                            tuple = t.clone();
+                                        }
+                                        Err(_) => {
+                                            warn!("Couldnt find moving entity.");
+                                            continue;
+                                        }
+                                    }
+
                                     let new_message = PeerUnreliableControllerMessage {
-                                        message: client_message.clone(),
+                                        message: UnreliablePeerControllerClientMessage::from(
+                                            client_message.clone(),
+                                            tuple.0.translation,
+                                        ),
                                         peer_handle: batch.0.handle.raw() as u16,
                                         client_stamp: batch.0.message.stamp,
                                     };
@@ -223,6 +277,7 @@ pub(crate) fn incoming_messages(
                             left: movement_input.left,
                             right: movement_input.right,
                             down: movement_input.down,
+                            peer_data: None,
                         });
                     }
                     None => {

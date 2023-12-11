@@ -3,15 +3,21 @@ use std::collections::HashMap;
 use bevy::{
     ecs::system::{Query, Res, ResMut, Resource},
     prelude::{Component, Entity, Vec2},
+    transform::components::Transform,
 };
 use cameras::LookTransform;
 use networking::{
     server::{ConnectedPlayer, ConstructEntityUpdates, EntityUpdates},
     stamp::TickRateStamp,
 };
-use pawn::net::UnreliableControllerClientMessage;
+use pawn::net::UnreliablePeerControllerClientMessage;
 use resources::correction::CACHE_PREV_TICK_AMNT;
 use serde::{Deserialize, Serialize};
+
+use crate::{
+    net::PeerControllerClientMessage,
+    networking::{PeerReliableControllerMessage, PeerUnreliableControllerMessage},
+};
 
 /// Controller input component.
 #[derive(Component, Clone, Debug, Serialize, Deserialize)]
@@ -65,18 +71,19 @@ pub(crate) fn cache_controller(
 
 pub(crate) fn look_transform_entity_update(
     mut updates: ResMut<EntityUpdates<PeerUnreliableControllerMessage>>,
-    query: Query<(Entity, &LookTransform, &ConnectedPlayer)>,
+    query: Query<(Entity, &LookTransform, &ConnectedPlayer, &Transform)>,
     construct: Res<ConstructEntityUpdates>,
     stamp: Res<TickRateStamp>,
 ) {
     for (c, _) in construct.entities.iter() {
         match query.get(*c) {
-            Ok((entity, look_transform, connected_player)) => {
+            Ok((entity, look_transform, connected_player, transform)) => {
                 updates.map.insert(
                     entity,
                     vec![PeerUnreliableControllerMessage {
-                        message: UnreliableControllerClientMessage::UpdateLookTransform(
+                        message: UnreliablePeerControllerClientMessage::UpdateLookTransform(
                             look_transform.target,
+                            transform.translation,
                         ),
                         peer_handle: connected_player.handle.raw() as u16,
                         client_stamp: stamp.tick,
@@ -100,7 +107,7 @@ pub(crate) fn controller_input_entity_update(
                 updates.map.insert(
                     entity,
                     vec![PeerReliableControllerMessage {
-                        message: ControllerClientMessage::SyncControllerInput(
+                        message: PeerControllerClientMessage::SyncControllerInput(
                             controller_input.clone(),
                         ),
                         peer_handle: connected_player.handle.raw() as u16,
@@ -112,8 +119,3 @@ pub(crate) fn controller_input_entity_update(
         }
     }
 }
-
-use crate::{
-    net::ControllerClientMessage,
-    networking::{PeerReliableControllerMessage, PeerUnreliableControllerMessage},
-};

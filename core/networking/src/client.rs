@@ -500,13 +500,13 @@ pub(crate) fn deserialize_incoming_reliable_server_message<
     }
 }
 ///  Messages that you receive with this event must be initiated from a plugin builder with [crate::messaging::init_reliable_message].
-#[derive(Event)]
+#[derive(Event, Clone)]
 pub struct IncomingReliableServerMessage<T: TypeName + Send + Sync + Serialize> {
     pub message: T,
     pub stamp: u8,
 }
 ///  Messages that you receive with this event must be initiated from a plugin builder with [crate::messaging::init_unreliable_message].
-#[derive(Event)]
+#[derive(Event, Clone)]
 pub struct IncomingUnreliableServerMessage<T: TypeName + Send + Sync + Serialize> {
     pub message: T,
     pub stamp: u8,

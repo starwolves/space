@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use crate::{
     controller::ControllerInput,
-    net::{ControllerClientMessage, MovementInput},
+    net::{ControllerClientMessage, MovementInput, PeerControllerClientMessage},
     networking::{PeerReliableControllerMessage, PeerUnreliableControllerMessage},
 };
 use bevy::{
@@ -12,11 +12,12 @@ use bevy::{
         Entity, Event, EventReader, EventWriter, KeyCode, Query, Res, ResMut, Resource, SystemSet,
         Vec2,
     },
+    transform::components::Transform,
 };
 use bevy::{log::warn, math::Vec3};
 
 use bevy_renet::renet::{ClientId, RenetClient};
-use cameras::LookTransform;
+use cameras::{LookTransform, LookTransformCache};
 use entity::spawn::{PawnId, PeerPawns};
 use networking::{
     client::{
@@ -27,6 +28,7 @@ use networking::{
     plugin::RENET_RELIABLE_ORDERED_ID,
     stamp::TickRateStamp,
 };
+use physics::cache::PhysicsCache;
 use resources::{
     correction::{StartCorrection, CACHE_PREV_TICK_AMNT},
     input::{
@@ -51,6 +53,7 @@ pub struct InputMovementInput {
     pub right: bool,
     pub down: bool,
     pub pressed: bool,
+    pub peer_data: Option<(Vec3, Vec3, u64)>,
 }
 
 /// Client input movement event.
@@ -69,6 +72,7 @@ impl Default for InputMovementInput {
             right: false,
             down: false,
             pressed: false,
+            peer_data: None,
         }
     }
 }
@@ -140,6 +144,7 @@ pub struct PeerSyncLookTransform {
     pub target: Vec3,
     pub handle: ClientId,
     pub stamp: u64,
+    pub position: Vec3,
 }
 
 #[derive(Event, Default, Resource)]
@@ -147,10 +152,12 @@ pub struct LastPeerLookTransform {
     pub map: HashMap<ClientId, u64>,
 }
 
-pub(crate) fn apply_peer_sync_transform(
+pub(crate) fn apply_peer_sync_look_transform(
     mut events: EventReader<PeerSyncLookTransform>,
-    mut query: Query<&mut LookTransform>,
+    mut query: Query<(&mut LookTransform, &mut Transform)>,
     mut last: ResMut<LastPeerLookTransform>,
+    mut cache: ResMut<PhysicsCache>,
+    stamp: Res<TickRateStamp>,
 ) {
     for event in events.read() {
         let mut go = false;
@@ -168,11 +175,35 @@ pub(crate) fn apply_peer_sync_transform(
         }
         if go {
             match query.get_mut(event.entity) {
-                Ok(mut l) => {
+                Ok((mut l, mut t)) => {
                     l.target = event.target;
+                    if stamp.large == event.stamp {
+                        t.translation = event.position;
+                    }
                 }
                 Err(_) => {
                     warn!("Couldnt find looktransform for sync.");
+                }
+            }
+            if stamp.large != event.stamp {
+                match cache.cache.get_mut(&event.stamp) {
+                    Some(map) => match map.get_mut(&event.entity) {
+                        Some(c) => {
+                            c.transform.translation = event.position;
+                        }
+                        None => {
+                            warn!(
+                                "Missed peer position for looktransform 1. {:?}",
+                                event.entity
+                            );
+                        }
+                    },
+                    None => {
+                        warn!(
+                            "Missed peer position for looktransform. {:?}:{} current tick: {}",
+                            event.entity, event.stamp, stamp.large
+                        );
+                    }
                 }
             }
         }
@@ -210,7 +241,7 @@ pub(crate) fn process_peer_input(
             }
         }
         match &message.message.message {
-            ControllerClientMessage::MovementInput(input) => {
+            PeerControllerClientMessage::MovementInput(input, position, look_transform_target) => {
                 match peer_pawns
                     .map
                     .get(&ClientId::from_raw(message.message.peer_handle.into()))
@@ -223,6 +254,7 @@ pub(crate) fn process_peer_input(
                             right: input.right,
                             down: input.down,
                             pressed: input.pressed,
+                            peer_data: Some((*position, *look_transform_target, large_stamp)),
                         });
                         new_correction = true;
                         let e = stamp.calculate_large(message.message.client_stamp);
@@ -235,7 +267,7 @@ pub(crate) fn process_peer_input(
                     }
                 }
             }
-            ControllerClientMessage::SyncControllerInput(input) => {
+            PeerControllerClientMessage::SyncControllerInput(input) => {
                 match peer_pawns
                     .map
                     .get(&ClientId::from_raw(message.message.peer_handle.into()))
@@ -270,7 +302,10 @@ pub(crate) fn process_peer_input(
             }
         }
         match &message.message.message {
-            pawn::net::UnreliableControllerClientMessage::UpdateLookTransform(target) => {
+            pawn::net::UnreliablePeerControllerClientMessage::UpdateLookTransform(
+                target,
+                position,
+            ) => {
                 match peer_pawns
                     .map
                     .get(&ClientId::from_raw(message.message.peer_handle.into()))
@@ -282,6 +317,7 @@ pub(crate) fn process_peer_input(
                             target: *target,
                             handle: ClientId::from_raw(message.message.peer_handle.into()),
                             stamp: e,
+                            position: *position,
                         });
                         new_correction = true;
 
@@ -577,9 +613,11 @@ pub enum ControllerSet {
 
 /// Manage controller input for humanoid. The controller can be controlled by a player or AI.
 pub(crate) fn controller_input(
-    mut humanoids_query: Query<&mut ControllerInput>,
-
+    mut humanoids_query: Query<(&mut ControllerInput, &mut LookTransform, &mut Transform)>,
     mut movement_input_event: EventReader<InputMovementInput>,
+    mut cache: ResMut<PhysicsCache>,
+    mut look_cache: ResMut<LookTransformCache>,
+    stampres: Res<TickRateStamp>,
 ) {
     for new_event in movement_input_event.read() {
         let player_entity = new_event.entity;
@@ -587,7 +625,7 @@ pub(crate) fn controller_input(
         let player_input_component_result = humanoids_query.get_mut(player_entity);
 
         match player_input_component_result {
-            Ok(mut player_input_component) => {
+            Ok((mut player_input_component, mut look_transform, mut transform)) => {
                 let mut additive = Vec2::default();
 
                 if new_event.left {
@@ -605,6 +643,44 @@ pub(crate) fn controller_input(
                 }
 
                 player_input_component.movement_vector += additive;
+
+                match new_event.peer_data {
+                    Some((position, look_target, stamp)) => {
+                        look_transform.target = look_target;
+
+                        if stamp == stampres.large {
+                            transform.translation = position;
+                        } else {
+                            match look_cache.cache.get_mut(&stamp) {
+                                Some(map) => match map.get_mut(&player_entity) {
+                                    Some(l) => {
+                                        l.target = look_target;
+                                    }
+                                    None => {
+                                        warn!("Missed look cache. 0");
+                                    }
+                                },
+                                None => {
+                                    warn!("Missed look cache.");
+                                }
+                            }
+                            match cache.cache.get_mut(&stamp) {
+                                Some(map) => match map.get_mut(&player_entity) {
+                                    Some(c) => {
+                                        c.transform.translation = position;
+                                    }
+                                    None => {
+                                        warn!("Missed peer position cache 0.");
+                                    }
+                                },
+                                None => {
+                                    warn!("Missed peer position cache.");
+                                }
+                            }
+                        }
+                    }
+                    None => {}
+                }
             }
             Err(_rr) => {
                 warn!("Couldn't process player input (movement_input_event): couldn't find player_entity 0. {:?}", player_entity);
