@@ -111,7 +111,7 @@ impl Plugin for NetworkingPlugin {
                     starwolves_response.run_if(resource_exists::<TokenAssignServer>()),
                     token_assign_server,
                     connect_to_server.after(starwolves_response),
-                    setup_client_tickrate_stamp,
+                    setup_client_tickrate_stamp.run_if(resource_exists::<RenetClient>()),
                 )
                     .in_set(MainSet::Update),
             )

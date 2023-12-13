@@ -248,7 +248,7 @@ pub(crate) fn process_peer_input(
         reliables.push(r.clone());
     }
 
-    let desired_tick = stamp.large; // - latency.latency as u64;
+    let desired_tick = stamp.large - latency.latency as u64 - latency.latency as u64;
     for i in input_cache.reliable.keys().sorted() {
         if i > &desired_tick {
             break;

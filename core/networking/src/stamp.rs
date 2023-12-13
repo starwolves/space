@@ -84,11 +84,10 @@ pub(crate) fn setup_client_tickrate_stamp(
     for event in client.read() {
         match &event.message {
             NetworkingServerMessage::Awoo(sync) => {
-                //let mut m_stamp = sync.stamp.clone();
-                //m_stamp.step_custom(5);
-                //l.latency += 5;
-                //*stamp = m_stamp;
-                *stamp = sync.stamp.clone();
+                let mut m_stamp = sync.stamp.clone();
+                m_stamp.step_custom(10);
+                //l.latency += 10;
+                *stamp = m_stamp;
             }
             _ => (),
         }

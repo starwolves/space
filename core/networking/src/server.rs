@@ -678,21 +678,18 @@ pub(crate) fn step_incoming_client_messages(
                 c = 0;
             }
         }
+        let report = LatencyReport {
+            client_sync_iteration: c,
+            tick_difference: stampres.get_difference(message.message.stamp),
+        };
+        info!("Report: {:?}", report);
         match sync.tickrate_differences.get_mut(&message.handle) {
             Some(v) => {
-                v.push(LatencyReport {
-                    client_sync_iteration: c,
-                    tick_difference: stampres.get_difference(message.message.stamp),
-                });
+                v.push(report);
             }
             None => {
-                sync.tickrate_differences.insert(
-                    message.handle,
-                    vec![LatencyReport {
-                        client_sync_iteration: c,
-                        tick_difference: stampres.get_difference(message.message.stamp),
-                    }],
-                );
+                sync.tickrate_differences
+                    .insert(message.handle, vec![report]);
             }
         }
     }
