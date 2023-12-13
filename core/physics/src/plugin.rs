@@ -1,6 +1,7 @@
 use std::time::Duration;
 
 use bevy::{
+    app::Startup,
     prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, Update},
     time::common_conditions::on_timer,
 };
@@ -27,9 +28,10 @@ use crate::{
     mirror_physics_transform::rigidbody_link_transform,
     net::PhysicsUnreliableServerMessage,
     sync::{
-        desync_check_correction, send_desync_check, sync_correction_world_entities, sync_loop,
-        sync_physics_data, CorrectionServerRigidBodyLink, FastForwarding, PendingDesync,
-        SpawningSimulation, SpawningSimulationRigidBody, SyncPause,
+        desync_check_correction, pause_loop, send_desync_check, start_sync,
+        sync_correction_world_entities, sync_loop, sync_physics_data, ClientStartedSyncing,
+        CorrectionServerRigidBodyLink, FastForwarding, PendingDesync, SpawningSimulation,
+        SpawningSimulationRigidBody, SyncPause,
     },
 };
 
@@ -88,6 +90,7 @@ impl Plugin for PhysicsPlugin {
                         .in_set(CorrectionSet::Start),
                 ),
             )
+            .add_systems(Startup, pause_loop)
             .add_systems(
                 Update,
                 client_interpolate_link_transform
@@ -98,14 +101,21 @@ impl Plugin for PhysicsPlugin {
             .init_resource::<SyncPause>()
             .add_systems(
                 FixedUpdate,
-                sync_loop
-                    .before(step_tickrate_stamp)
-                    .after(MessagingSet::DeserializeIncoming)
-                    .in_set(MainSet::PreUpdate),
+                (
+                    sync_loop
+                        .after(step_tickrate_stamp)
+                        .after(MessagingSet::DeserializeIncoming)
+                        .in_set(MainSet::PreUpdate),
+                    start_sync
+                        .in_set(MainSet::PreUpdate)
+                        .after(step_tickrate_stamp)
+                        .before(sync_loop),
+                ),
             )
             .init_resource::<FastForwarding>()
             .add_event::<CorrectionResults>()
-            .init_resource::<PendingDesync>();
+            .init_resource::<PendingDesync>()
+            .init_resource::<ClientStartedSyncing>();
         }
         app.add_plugins(PhysicsPlugins::new(FixedUpdate))
             .init_resource::<RigidBodies>()

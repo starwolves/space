@@ -19,14 +19,15 @@ use resources::{
 use super::server::{souls, startup_server_listen_connections};
 use crate::{
     client::{
-        confirm_connection, connect_to_server, connected, is_client_connected, on_disconnect,
-        receive_incoming_reliable_server_messages, receive_incoming_unreliable_server_messages,
-        starwolves_response, step_buffer, step_incoming_reliable_server_messages, sync_client,
-        sync_frequency, token_assign_server, AssignTokenToServer, AssigningServerToken,
+        confirm_connection, connect_to_server, connected, detect_client_world_loaded,
+        is_client_connected, on_disconnect, receive_incoming_reliable_server_messages,
+        receive_incoming_unreliable_server_messages, starwolves_response, step_buffer,
+        step_incoming_reliable_server_messages, sync_frequency, sync_test_client,
+        token_assign_server, AssignTokenToServer, AssigningServerToken, ClientGameWorldLoaded,
         ClientLatency, ConnectToServer, Connection, ConnectionPreferences,
         IncomingRawReliableServerMessage, IncomingRawUnreliableServerMessage,
-        NetworkingClientMessage, OutgoingBuffer, RawServerMessageQueue, SyncClient,
-        TokenAssignServer,
+        LoadedGameWorldBuffer, NetworkingClientMessage, OutgoingBuffer, RawServerMessageQueue,
+        SyncClient, TokenAssignServer,
     },
     messaging::{
         generate_typenames, register_reliable_message, register_unreliable_message, MessageSender,
@@ -34,15 +35,15 @@ use crate::{
     },
     server::{
         adjust_clients, clear_construct_entity_updates, clear_serialized_entity_updates,
-        receive_incoming_reliable_client_messages, receive_incoming_unreliable_client_messages,
-        step_incoming_client_messages, ConstructEntityUpdates,
-        EarlyIncomingRawReliableClientMessage, EarlyIncomingRawUnreliableClientMessage,
-        EntityUpdatesSerialized, EntityUpdatesSet, HandleToEntity,
-        IncomingRawReliableClientMessage, IncomingRawUnreliableClientMessage, Latency,
-        NetworkingChatServerMessage, NetworkingServerMessage, SyncConfirmations,
+        client_loaded_game_world, receive_incoming_reliable_client_messages,
+        receive_incoming_unreliable_client_messages, step_incoming_client_messages,
+        ClientsReadyForSync, ConstructEntityUpdates, EarlyIncomingRawReliableClientMessage,
+        EarlyIncomingRawUnreliableClientMessage, EntityUpdatesSerialized, EntityUpdatesSet,
+        HandleToEntity, IncomingRawReliableClientMessage, IncomingRawUnreliableClientMessage,
+        Latency, NetworkingChatServerMessage, NetworkingServerMessage, SyncConfirmations,
         UnreliableServerMessage, UpdateIncomingRawClientMessage,
     },
-    stamp::{setup_client_tickrate_stamp, step_tickrate_stamp, PauseTickStep, TickRateStamp},
+    stamp::{step_tickrate_stamp, PauseTickStep, TickRateStamp},
 };
 pub struct NetworkingPlugin;
 
@@ -64,10 +65,17 @@ impl Plugin for NetworkingPlugin {
                     )
                     .add_systems(
                         FixedUpdate,
-                        step_incoming_client_messages
-                            .in_set(TypenamesSet::SendRawEvents)
-                            .in_set(MainSet::PreUpdate)
-                            .before(receive_incoming_reliable_client_messages),
+                        (
+                            step_incoming_client_messages
+                                .in_set(TypenamesSet::SendRawEvents)
+                                .in_set(MainSet::PreUpdate)
+                                .before(receive_incoming_reliable_client_messages),
+                            adjust_clients
+                                .after(TypenamesSet::SendRawEvents)
+                                .in_set(MainSet::PreUpdate)
+                                .after(step_tickrate_stamp),
+                            client_loaded_game_world.in_set(MainSet::Update),
+                        ),
                     )
                     .configure_sets(
                         FixedUpdate,
@@ -82,7 +90,8 @@ impl Plugin for NetworkingPlugin {
                     )
                     .init_resource::<UpdateIncomingRawClientMessage>()
                     .add_event::<EarlyIncomingRawReliableClientMessage>()
-                    .add_event::<EarlyIncomingRawUnreliableClientMessage>();
+                    .add_event::<EarlyIncomingRawUnreliableClientMessage>()
+                    .init_resource::<ClientsReadyForSync>();
             }
 
             app.add_plugins(RenetServerPlugin)
@@ -95,9 +104,6 @@ impl Plugin for NetworkingPlugin {
                 .add_systems(
                     FixedUpdate,
                     (
-                        adjust_clients
-                            .after(TypenamesSet::SendRawEvents)
-                            .in_set(MainSet::PreUpdate),
                         clear_construct_entity_updates.in_set(MainSet::PreUpdate),
                         clear_serialized_entity_updates.in_set(MainSet::PreUpdate),
                     ),
@@ -111,7 +117,6 @@ impl Plugin for NetworkingPlugin {
                     starwolves_response.run_if(resource_exists::<TokenAssignServer>()),
                     token_assign_server,
                     connect_to_server.after(starwolves_response),
-                    setup_client_tickrate_stamp.run_if(resource_exists::<RenetClient>()),
                 )
                     .in_set(MainSet::Update),
             )
@@ -146,9 +151,9 @@ impl Plugin for NetworkingPlugin {
                 (
                     confirm_connection.run_if(is_client_connected),
                     sync_frequency
-                        .before(sync_client)
+                        .before(sync_test_client)
                         .run_if(on_timer(Duration::from_secs_f32(1.))),
-                    sync_client
+                    sync_test_client
                         .run_if(is_client_connected)
                         .after(confirm_connection),
                     on_disconnect.run_if(connected),
@@ -164,7 +169,13 @@ impl Plugin for NetworkingPlugin {
             )
             .init_resource::<SyncClient>()
             .init_resource::<ClientLatency>()
-            .init_resource::<RawServerMessageQueue>();
+            .init_resource::<RawServerMessageQueue>()
+            .add_systems(
+                FixedUpdate,
+                detect_client_world_loaded.in_set(MainSet::Update),
+            )
+            .init_resource::<LoadedGameWorldBuffer>()
+            .add_event::<ClientGameWorldLoaded>();
         }
 
         app.init_resource::<TickRateStamp>()

@@ -46,7 +46,10 @@ impl Plugin for PawnPlugin {
                     .in_set(LookTransformSet::Sync),
             )
             .init_resource::<MouseInputStamps>()
-            .add_systems(FixedUpdate, clear_mouse_stamps.in_set(MainSet::PostUpdate));
+            .add_systems(
+                FixedUpdate,
+                (clear_mouse_stamps.in_set(MainSet::PostUpdate),),
+            );
         }
         register_unreliable_message::<UnreliableControllerClientMessage>(
             app,

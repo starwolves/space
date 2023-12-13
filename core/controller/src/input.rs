@@ -29,7 +29,7 @@ use networking::{
     plugin::RENET_RELIABLE_ORDERED_ID,
     stamp::TickRateStamp,
 };
-use physics::cache::PhysicsCache;
+use physics::{cache::PhysicsCache, sync::ClientStartedSyncing};
 use resources::{
     correction::{StartCorrection, MAX_CACHE_TICKS_AMNT},
     input::{
@@ -217,7 +217,10 @@ pub struct RecordedControllerInput {
 }
 #[derive(Resource, Default, Clone)]
 pub struct PeerInputCache {
-    pub reliable: HashMap<u64, Vec<IncomingReliableServerMessage<PeerReliableControllerMessage>>>,
+    pub reliable: HashMap<
+        ClientId,
+        HashMap<u64, Vec<IncomingReliableServerMessage<PeerReliableControllerMessage>>>,
+    >,
     pub look_transform_syncs: HashMap<
         ClientId,
         HashMap<u64, HashMap<u8, IncomingUnreliableServerMessage<PeerUnreliableControllerMessage>>>,
@@ -243,41 +246,42 @@ pub(crate) fn process_peer_input(
     let mut new_correction = false;
     let mut earliest_tick = 0;
 
-    let mut reliables = vec![];
     for r in reliables_reader.read() {
-        reliables.push(r.clone());
-    }
-
-    let desired_tick = stamp.large - latency.latency as u64 - latency.latency as u64;
-    for i in input_cache.reliable.keys().sorted() {
-        if i > &desired_tick {
-            break;
-        }
-        match input_cache.reliable.get(i) {
-            Some(v) => {
-                for e in v {
-                    reliables.push(e.clone());
+        let handle = ClientId::from_raw(r.message.peer_handle as u64);
+        let large = stamp.calculate_large(r.message.client_stamp);
+        match input_cache.reliable.get_mut(&handle) {
+            Some(map) => match map.get_mut(&large) {
+                Some(list) => {
+                    list.push(r.clone());
                 }
+                None => {
+                    map.insert(large, vec![r.clone()]);
+                }
+            },
+            None => {
+                let mut map = HashMap::new();
+                map.insert(large, vec![r.clone()]);
+                input_cache.reliable.insert(handle, map);
+            }
+        }
+    }
+    let desired_tick = stamp.large - latency.latency as u64 - latency.latency as u64;
+    let mut reliables = vec![];
+    for (_, reliable_cache) in input_cache.reliable.iter_mut() {
+        for i in reliable_cache.clone().keys().sorted() {
+            if i > &desired_tick {
                 break;
             }
-            None => {}
+            for e in reliable_cache.get(i).unwrap() {
+                reliables.push(e.clone());
+            }
+            reliable_cache.remove(i);
+            break;
         }
     }
 
     for message in reliables.iter() {
         let large_client_stamp = stamp.calculate_large(message.message.client_stamp);
-
-        if large_client_stamp > stamp.large {
-            match input_cache.reliable.get_mut(&large_client_stamp) {
-                Some(v) => v.push(message.clone()),
-                None => {
-                    input_cache
-                        .reliable
-                        .insert(large_client_stamp, vec![message.clone()]);
-                }
-            }
-            continue;
-        }
 
         let msg = RecordedInput::Reliable(message.message.clone());
 
@@ -330,6 +334,7 @@ pub(crate) fn process_peer_input(
                             entity: *peer,
                             sync: input.clone(),
                         });
+
                         new_correction = true;
                         let e = stamp.calculate_large(message.message.client_stamp);
                         if e < earliest_tick || earliest_tick == 0 {
@@ -367,11 +372,6 @@ pub(crate) fn process_peer_input(
                 input_cache
                     .look_transform_best_ticks
                     .insert(client_id, (large_client_stamp, new_sub));
-
-                info!(
-                    "prepare: {} , {} at tick {} latency {}",
-                    large_client_stamp, new_sub, stamp.large, latency.latency
-                );
 
                 match input_cache.look_transform_syncs.get_mut(&client_id) {
                     Some(look_transform_ticks) => {
@@ -461,9 +461,8 @@ pub(crate) fn process_peer_input(
                                     stamp: e,
                                     position: *position,
                                 });
-                                new_correction = true;
 
-                                info!("accept: {}, {} at tick {}", e, best_sub, stamp.large);
+                                new_correction = true;
 
                                 if e < earliest_tick || earliest_tick == 0 {
                                     earliest_tick = e;
@@ -506,7 +505,6 @@ pub(crate) fn process_peer_input(
                 if clean_last {
                     peer_data.remove(&best_tick);
                 }
-                info!("peer_data length: {}", peer_data.len());
 
                 input_cache
                     .look_transform_best_ticks
@@ -567,7 +565,11 @@ pub(crate) fn send_client_input_to_server(
     binds: Res<KeyBinds>,
     typenames: Res<Typenames>,
     stamp: Res<TickRateStamp>,
+    start: Res<ClientStartedSyncing>,
 ) {
+    if !start.0 {
+        return;
+    }
     let mut inputs = vec![];
     if keyboard.just_pressed(binds.keyboard_bind(MOVE_FORWARD_BIND)) {
         inputs.push(ControllerClientMessage::MovementInput(MovementInput {

@@ -187,8 +187,6 @@ pub fn process_response(
     mut used_names: ResMut<UsedNames>,
     mut outgoing: EventWriter<OutgoingReliableServerMessage<NetworkingServerMessage>>,
     mut configure: EventWriter<SendServerConfiguration>,
-    stamp: Res<TickRateStamp>,
-    tickrate: Res<TickRate>,
     mut despawn: EventWriter<DespawnEntity>,
 ) {
     for (entity, mut token) in query.iter_mut() {
@@ -210,10 +208,7 @@ pub fn process_response(
 
                         outgoing.send(OutgoingReliableServerMessage {
                             handle: token.handle,
-                            message: NetworkingServerMessage::Awoo(StartSync {
-                                tick_rate: tickrate.clone(),
-                                stamp: stamp.clone(),
-                            }),
+                            message: NetworkingServerMessage::Awoo,
                         });
 
                         configure.send(SendServerConfiguration {
@@ -237,9 +232,7 @@ use bevy::prelude::Resource;
 use bevy_renet::renet::transport::NetcodeServerTransport;
 use entity::despawn::DespawnEntity;
 use futures_lite::future;
-use networking::server::{NetworkingServerMessage, OutgoingReliableServerMessage, StartSync};
-use networking::stamp::TickRateStamp;
-use resources::core::TickRate;
+use networking::server::{NetworkingServerMessage, OutgoingReliableServerMessage};
 use serde::{Deserialize, Serialize};
 
 use crate::names::UsedNames;

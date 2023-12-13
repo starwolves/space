@@ -90,12 +90,39 @@ pub(crate) fn souls(
         }
     }
 }
+#[derive(Resource, Default)]
+pub(crate) struct ClientsReadyForSync(HashMap<ClientId, bool>);
+
+pub(crate) fn client_loaded_game_world(
+    mut messages: EventReader<IncomingReliableClientMessage<NetworkingClientMessage>>,
+    mut start: EventWriter<OutgoingReliableServerMessage<NetworkingServerMessage>>,
+    stamp: Res<TickRateStamp>,
+    tickrate: Res<TickRate>,
+    mut cache: ResMut<ClientsReadyForSync>,
+) {
+    for message in messages.read() {
+        match message.message {
+            NetworkingClientMessage::LoadedGameWorld => {
+                cache.0.insert(message.handle, true);
+                start.send(OutgoingReliableServerMessage {
+                    handle: message.handle,
+                    message: NetworkingServerMessage::StartSync(StartSync {
+                        tick_rate: tickrate.clone(),
+                        stamp: stamp.clone(),
+                    }),
+                });
+            }
+            _ => (),
+        }
+    }
+}
 
 /// Gets serialized and sent over the net, this is the client message.
 #[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
 
 pub enum NetworkingServerMessage {
-    Awoo(StartSync),
+    Awoo,
+    StartSync(StartSync),
     AdjustSync(AdjustSync),
 }
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -521,8 +548,19 @@ pub(crate) fn adjust_clients(
     mut net: EventWriter<OutgoingReliableServerMessage<NetworkingServerMessage>>,
     mut confirmations: ResMut<SyncConfirmations>,
     stamp: Res<TickRateStamp>,
+    synced_clients: Res<ClientsReadyForSync>,
 ) {
     for (handle, tickrate_differences) in latency.tickrate_differences.iter_mut() {
+        let mut ready = false;
+        match synced_clients.0.get(handle) {
+            Some(b) => {
+                ready = *b;
+            }
+            None => {}
+        }
+        if !ready {
+            continue;
+        }
         let server_side_sync_iteration;
 
         match confirmations.server_sync.get(handle) {

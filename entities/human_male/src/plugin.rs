@@ -6,7 +6,7 @@ use entity::{
     spawn::SpawnItemSet,
 };
 
-use networking::stamp::step_tickrate_stamp;
+use networking::{client::detect_client_world_loaded, stamp::step_tickrate_stamp};
 use physics::{spawn::build_rigid_bodies, sync::SpawningSimulation};
 use player::boarding::player_boarded;
 use resources::{
@@ -56,7 +56,9 @@ impl Plugin for HumanMalePlugin {
                         .before(SpawnItemSet::SpawnHeldItem)
                         .in_set(BuildingSet::TriggerBuild)
                         .in_set(CorrectionSet::Start),
-                    attach_human_male_camera.after(BuildingSet::TriggerBuild),
+                    attach_human_male_camera
+                        .after(BuildingSet::TriggerBuild)
+                        .after(detect_client_world_loaded),
                 )
                     .in_set(MainSet::Update),
             );

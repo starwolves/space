@@ -55,6 +55,33 @@ pub struct SyncPause {
     pub i: u16,
 }
 
+#[derive(Resource, Default)]
+pub struct ClientStartedSyncing(pub bool);
+
+pub(crate) fn start_sync(
+    mut out: EventReader<IncomingReliableServerMessage<NetworkingServerMessage>>,
+    mut stamp: ResMut<TickRateStamp>,
+    mut tickrate: ResMut<TickRate>,
+    mut physics_loop: ResMut<Time<Physics>>,
+    mut start: ResMut<ClientStartedSyncing>,
+) {
+    for message in out.read() {
+        match &message.message {
+            NetworkingServerMessage::StartSync(start_sync) => {
+                *stamp = start_sync.stamp.clone();
+                *tickrate = start_sync.tick_rate.clone();
+                physics_loop.unpause();
+                start.0 = true;
+            }
+            _ => (),
+        }
+    }
+}
+
+pub(crate) fn pause_loop(mut physics_loop: ResMut<Time<Physics>>) {
+    physics_loop.pause();
+}
+
 pub(crate) fn sync_loop(
     mut net: EventReader<IncomingReliableServerMessage<NetworkingServerMessage>>,
     mut physics_loop: ResMut<Time<Physics>>,
@@ -133,14 +160,14 @@ pub(crate) fn sync_loop(
                     } else {
                         info!("- {} ticks", paused.duration);
                     }
-                    l.latency -= paused.duration;
+                    l.latency -= paused.duration as i16;
                 } else {
                     if process_queue {
                         info!("+ {} ticks (from queue)", delta.abs());
                     } else {
                         info!("+ {} ticks", delta.abs());
                     }
-                    l.latency += delta.abs() as u16;
+                    l.latency += delta.abs() as i16;
 
                     fixed_time.set_timestep_seconds(
                         (1. / TickRate::default().fixed_rate as f64) / (delta.abs() + 1) as f64,
@@ -409,6 +436,8 @@ pub(crate) fn desync_check_correction(
     latency: Res<ClientLatency>,
     mut latest_desync: ResMut<PendingDesync>,
 ) {
+    return;
+
     let desired_tick = stamp.large - (latency.latency as u64);
 
     for message in messages.read() {

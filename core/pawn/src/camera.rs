@@ -24,7 +24,6 @@ use crate::net::UnreliableControllerClientMessage;
 pub enum LookTransformSet {
     Sync,
 }
-
 #[derive(Resource, Default)]
 pub struct ServerMouseInputStamps {
     pub map: HashMap<ClientId, (u64, u8)>,

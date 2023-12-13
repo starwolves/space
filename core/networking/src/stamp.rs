@@ -1,12 +1,10 @@
 use bevy::{
-    prelude::{EventReader, Res, ResMut, Resource},
+    prelude::{Res, ResMut, Resource},
     time::Time,
 };
 use bevy_xpbd_3d::prelude::{Physics, PhysicsTime};
 use resources::core::TickRate;
 use serde::{Deserialize, Serialize};
-
-use crate::{client::IncomingReliableServerMessage, server::NetworkingServerMessage};
 
 #[derive(Resource, Default, Serialize, Deserialize, Debug, Clone)]
 pub struct TickRateStamp {
@@ -76,23 +74,6 @@ impl TickRateStamp {
     }
 }
 
-pub(crate) fn setup_client_tickrate_stamp(
-    mut client: EventReader<IncomingReliableServerMessage<NetworkingServerMessage>>,
-    mut stamp: ResMut<TickRateStamp>,
-    //mut l: ResMut<ClientLatency>,
-) {
-    for event in client.read() {
-        match &event.message {
-            NetworkingServerMessage::Awoo(sync) => {
-                let mut m_stamp = sync.stamp.clone();
-                m_stamp.step_custom(10);
-                //l.latency += 10;
-                *stamp = m_stamp;
-            }
-            _ => (),
-        }
-    }
-}
 #[derive(Resource, Default)]
 pub struct PauseTickStep(pub bool);
 

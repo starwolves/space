@@ -689,7 +689,7 @@ pub(crate) fn sync_frequency(mut first: ResMut<SyncClient>) {
     first.0 .0 = true;
 }
 
-pub(crate) fn sync_client(
+pub(crate) fn sync_test_client(
     mut first: ResMut<SyncClient>,
     mut net: EventWriter<OutgoingReliableClientMessage<NetworkingClientMessage>>,
     mut skip: Local<u16>,
@@ -713,6 +713,26 @@ pub(crate) fn sync_client(
     }
 }
 
+#[derive(Event)]
+pub struct ClientGameWorldLoaded;
+
+#[derive(Resource, Default)]
+pub struct LoadedGameWorldBuffer(pub bool);
+
+pub fn detect_client_world_loaded(
+    mut state: ResMut<LoadedGameWorldBuffer>,
+    mut events: EventWriter<ClientGameWorldLoaded>,
+    mut out: EventWriter<OutgoingReliableClientMessage<NetworkingClientMessage>>,
+) {
+    if state.0 {
+        state.0 = false;
+        events.send(ClientGameWorldLoaded);
+        out.send(OutgoingReliableClientMessage {
+            message: NetworkingClientMessage::LoadedGameWorld,
+        });
+    }
+}
+
 /// Confirms connection with server.
 pub(crate) fn confirm_connection(
     mut client1: EventReader<IncomingReliableServerMessage<NetworkingServerMessage>>,
@@ -722,7 +742,7 @@ pub(crate) fn confirm_connection(
     for message in client1.read() {
         let player_message = message.message.clone();
         match player_message {
-            NetworkingServerMessage::Awoo(_) => {
+            NetworkingServerMessage::Awoo => {
                 connected_state.status = ConnectionStatus::Connected;
                 first.0 .0 = true;
                 first.0 .1 = 0;
@@ -757,8 +777,9 @@ pub(crate) fn on_disconnect(
 pub enum NetworkingClientMessage {
     HeartBeat,
     SyncConfirmation,
+    LoadedGameWorld,
 }
 #[derive(Resource, Default)]
 pub struct ClientLatency {
-    pub latency: u16,
+    pub latency: i16,
 }

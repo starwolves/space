@@ -36,6 +36,7 @@ use inventory::server::{
     inventory::{AddItemToSlot, AddSlot, Inventory, Slot},
 };
 use map::map::Map;
+use networking::client::LoadedGameWorldBuffer;
 use pawn::pawn::{ClientPawn, DataLink, DataLinkType, PawnBuilder};
 use pawn::pawn::{PawnDesignation, ShipAuthorization, ShipAuthorizationEnum, SpawnPawnData};
 use physics::physics::CHARACTER_FLOOR_FRICTION;
@@ -224,7 +225,6 @@ fn default_look_transform() -> LookTransform {
         Vec3::Y,
     )
 }
-
 pub fn attach_human_male_camera(
     mut commands: Commands,
     mut spawn_events: EventReader<SpawnEntity<HumanMaleType>>,
@@ -232,6 +232,7 @@ pub fn attach_human_male_camera(
     mut state: ResMut<ActiveCamera>,
     settings: Res<GraphicsSettings>,
     handle: Res<SkyboxHandle>,
+    mut pending: ResMut<LoadedGameWorldBuffer>,
 ) {
     for spawn_event in spawn_events.read() {
         let mut is_player_pawn = false;
@@ -287,6 +288,7 @@ pub fn attach_human_male_camera(
                         .id();
                     state.option = Some(id);
                 });
+            pending.0 = true;
         }
     }
 }
