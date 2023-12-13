@@ -29,7 +29,6 @@ use networking::{
     plugin::RENET_RELIABLE_ORDERED_ID,
     stamp::TickRateStamp,
 };
-use pawn::camera::MouseInputStamps;
 use physics::cache::PhysicsCache;
 use resources::{
     correction::{StartCorrection, MAX_CACHE_TICKS_AMNT},
@@ -216,11 +215,14 @@ pub(crate) fn apply_peer_sync_look_transform(
 pub struct RecordedControllerInput {
     pub input: HashMap<u64, Vec<RecordedInput>>,
 }
-#[derive(Resource, Default)]
-pub struct FuturePeerInputCache {
+#[derive(Resource, Default, Clone)]
+pub struct PeerInputCache {
     pub reliable: HashMap<u64, Vec<IncomingReliableServerMessage<PeerReliableControllerMessage>>>,
-    pub unreliable:
-        HashMap<u64, Vec<IncomingUnreliableServerMessage<PeerUnreliableControllerMessage>>>,
+    pub look_transform_syncs: HashMap<
+        ClientId,
+        HashMap<u64, HashMap<u8, IncomingUnreliableServerMessage<PeerUnreliableControllerMessage>>>,
+    >,
+    pub look_transform_best_ticks: HashMap<ClientId, (u64, u8)>,
 }
 
 pub(crate) fn process_peer_input(
@@ -235,29 +237,23 @@ pub(crate) fn process_peer_input(
     peer_pawns: Res<PeerPawns>,
     mut start_correction: EventWriter<StartCorrection>,
     mut sync_controller: EventWriter<SyncControllerInput>,
-    mut future: ResMut<FuturePeerInputCache>,
+    mut input_cache: ResMut<PeerInputCache>,
     latency: Res<ClientLatency>,
-    mut mouse_stamps: ResMut<MouseInputStamps>,
 ) {
     let mut new_correction = false;
     let mut earliest_tick = 0;
 
     let mut reliables = vec![];
-    let mut unreliables = vec![];
     for r in reliables_reader.read() {
         reliables.push(r.clone());
     }
 
-    for u in unreliables_reader.read() {
-        unreliables.push(u.clone());
-    }
-
-    let desired_tick = stamp.large - latency.latency as u64;
-    for i in future.reliable.keys().sorted() {
+    let desired_tick = stamp.large; // - latency.latency as u64;
+    for i in input_cache.reliable.keys().sorted() {
         if i > &desired_tick {
             break;
         }
-        match future.reliable.get(i) {
+        match input_cache.reliable.get(i) {
             Some(v) => {
                 for e in v {
                     reliables.push(e.clone());
@@ -267,29 +263,17 @@ pub(crate) fn process_peer_input(
             None => {}
         }
     }
-    for i in future.reliable.keys().sorted() {
-        if i > &desired_tick {
-            break;
-        }
-        match future.unreliable.get(i) {
-            Some(v) => {
-                for e in v {
-                    unreliables.push(e.clone());
-                }
-                break;
-            }
-            None => {}
-        }
-    }
 
     for message in reliables.iter() {
-        let large_stamp = stamp.calculate_large(message.message.client_stamp);
+        let large_client_stamp = stamp.calculate_large(message.message.client_stamp);
 
-        if large_stamp > stamp.large {
-            match future.reliable.get_mut(&large_stamp) {
+        if large_client_stamp > stamp.large {
+            match input_cache.reliable.get_mut(&large_client_stamp) {
                 Some(v) => v.push(message.clone()),
                 None => {
-                    future.reliable.insert(large_stamp, vec![message.clone()]);
+                    input_cache
+                        .reliable
+                        .insert(large_client_stamp, vec![message.clone()]);
                 }
             }
             continue;
@@ -297,12 +281,12 @@ pub(crate) fn process_peer_input(
 
         let msg = RecordedInput::Reliable(message.message.clone());
 
-        match record.input.get_mut(&large_stamp) {
+        match record.input.get_mut(&large_client_stamp) {
             Some(v) => {
                 v.push(msg);
             }
             None => {
-                record.input.insert(large_stamp, vec![msg]);
+                record.input.insert(large_client_stamp, vec![msg]);
             }
         }
         match &message.message.message {
@@ -319,7 +303,11 @@ pub(crate) fn process_peer_input(
                             right: input.right,
                             down: input.down,
                             pressed: input.pressed,
-                            peer_data: Some((*position, *look_transform_target, large_stamp)),
+                            peer_data: Some((
+                                *position,
+                                *look_transform_target,
+                                large_client_stamp,
+                            )),
                         });
                         new_correction = true;
                         let e = stamp.calculate_large(message.message.client_stamp);
@@ -355,62 +343,176 @@ pub(crate) fn process_peer_input(
             }
         }
     }
-    for message in unreliables.iter() {
-        let large_stamp = stamp.calculate_large(message.message.client_stamp);
 
-        if large_stamp > stamp.large {
-            match future.unreliable.get_mut(&large_stamp) {
-                Some(v) => v.push(message.clone()),
-                None => {
-                    future.unreliable.insert(large_stamp, vec![message.clone()]);
-                }
-            }
-            continue;
-        }
-
-        let msg = RecordedInput::Unreliable(message.message.clone());
-        match record.input.get_mut(&large_stamp) {
-            Some(v) => {
-                v.push(msg);
-            }
-            None => {
-                record.input.insert(large_stamp, vec![msg]);
-            }
-        }
-        match &message.message.message {
+    for u in unreliables_reader.read() {
+        let client_id = ClientId::from_raw(u.message.peer_handle as u64);
+        let large_client_stamp = stamp.calculate_large(u.message.client_stamp);
+        match u.message.message {
             pawn::net::UnreliablePeerControllerClientMessage::UpdateLookTransform(
-                target,
-                position,
-                id,
+                _,
+                _,
+                new_sub,
             ) => {
-                if &mouse_stamps.i > id {
-                    continue;
+                match input_cache.look_transform_best_ticks.get(&client_id) {
+                    Some((old_best_tick, old_best_sub)) => {
+                        if !(old_best_tick < &large_client_stamp
+                            || (old_best_tick == &large_client_stamp && new_sub > *old_best_sub))
+                        {
+                            continue;
+                        }
+                    }
+                    None => {}
                 }
-                mouse_stamps.i = *id;
-                match peer_pawns
-                    .map
-                    .get(&ClientId::from_raw(message.message.peer_handle.into()))
-                {
-                    Some(peer) => {
-                        let e = stamp.calculate_large(message.message.client_stamp);
-                        sync.send(PeerSyncLookTransform {
-                            entity: *peer,
-                            target: *target,
-                            handle: ClientId::from_raw(message.message.peer_handle.into()),
-                            stamp: e,
-                            position: *position,
-                        });
-                        new_correction = true;
 
-                        if e < earliest_tick || earliest_tick == 0 {
-                            earliest_tick = e;
+                input_cache
+                    .look_transform_best_ticks
+                    .insert(client_id, (large_client_stamp, new_sub));
+
+                info!(
+                    "prepare: {} , {} at tick {} latency {}",
+                    large_client_stamp, new_sub, stamp.large, latency.latency
+                );
+
+                match input_cache.look_transform_syncs.get_mut(&client_id) {
+                    Some(look_transform_ticks) => {
+                        match look_transform_ticks.get_mut(&large_client_stamp) {
+                            Some(v) => {
+                                v.insert(new_sub, u.clone());
+                            }
+                            None => {
+                                let mut map = HashMap::new();
+                                map.insert(new_sub, u.clone());
+                                look_transform_ticks.insert(large_client_stamp, map);
+                            }
                         }
                     }
                     None => {
-                        warn!("Couldnt find peer pawn 2.");
+                        let mut map = HashMap::new();
+                        map.insert(new_sub, u.clone());
+                        let mut map2 = HashMap::new();
+                        map2.insert(large_client_stamp, map);
+                        input_cache.look_transform_syncs.insert(client_id, map2);
                     }
                 }
             }
+        }
+    }
+
+    for peer in input_cache.look_transform_syncs.clone().keys() {
+        let mut best_tick_option = None;
+        let peer_data = input_cache.look_transform_syncs.get_mut(peer).unwrap();
+
+        match peer_data.get(&desired_tick) {
+            Some(_) => {
+                best_tick_option = Some(desired_tick);
+            }
+            None => {
+                for i in peer_data.keys().sorted().rev() {
+                    if i > &desired_tick {
+                        continue;
+                    }
+                    best_tick_option = Some(*i);
+                    break;
+                }
+            }
+        }
+
+        match best_tick_option {
+            Some(best_tick) => {
+                let steps = peer_data.get(&best_tick).unwrap();
+                let mut best_sub = 0;
+
+                if steps.keys().len() == 0 {
+                    warn!("Empty substeps?");
+                    continue;
+                }
+                for sub_step in steps.keys().sorted().rev() {
+                    best_sub = *sub_step;
+                    break;
+                }
+
+                let message = peer_data.get(&best_tick).unwrap().get(&best_sub).unwrap();
+
+                let msg = RecordedInput::Unreliable(message.message.clone());
+                match record.input.get_mut(&best_tick) {
+                    Some(v) => {
+                        v.push(msg);
+                    }
+                    None => {
+                        record.input.insert(best_tick, vec![msg]);
+                    }
+                }
+                match &message.message.message {
+                    pawn::net::UnreliablePeerControllerClientMessage::UpdateLookTransform(
+                        target,
+                        position,
+                        _,
+                    ) => {
+                        match peer_pawns
+                            .map
+                            .get(&ClientId::from_raw(message.message.peer_handle.into()))
+                        {
+                            Some(peer) => {
+                                let e = stamp.calculate_large(message.message.client_stamp);
+                                sync.send(PeerSyncLookTransform {
+                                    entity: *peer,
+                                    target: *target,
+                                    handle: ClientId::from_raw(message.message.peer_handle.into()),
+                                    stamp: e,
+                                    position: *position,
+                                });
+                                new_correction = true;
+
+                                info!("accept: {}, {} at tick {}", e, best_sub, stamp.large);
+
+                                if e < earliest_tick || earliest_tick == 0 {
+                                    earliest_tick = e;
+                                }
+                            }
+                            None => {
+                                warn!("Couldnt find peer pawn 2.");
+                            }
+                        }
+                    }
+                }
+
+                let mut clean_cache = vec![];
+                let mut clean_steps = vec![];
+                let bound_data = peer_data.clone();
+                for i in bound_data.keys().sorted() {
+                    if i < &best_tick {
+                        clean_cache.push(i);
+                    } else if i == &best_tick {
+                        for sub in bound_data.get(i).unwrap().keys() {
+                            if sub <= &best_sub {
+                                clean_steps.push(*sub);
+                            }
+                        }
+                    }
+                }
+                for i in clean_cache {
+                    peer_data.remove(i);
+                }
+                let mut clean_last = false;
+                match peer_data.get_mut(&best_tick) {
+                    Some(c) => {
+                        for s in clean_steps {
+                            c.remove(&s);
+                        }
+                        clean_last = c.len() == 0;
+                    }
+                    None => {}
+                }
+                if clean_last {
+                    peer_data.remove(&best_tick);
+                }
+                info!("peer_data length: {}", peer_data.len());
+
+                input_cache
+                    .look_transform_best_ticks
+                    .insert(*peer, (best_tick, best_sub));
+            }
+            None => {}
         }
     }
     // Doesnt send StartCorrect if peer input is for our exact tick or future tack.

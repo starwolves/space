@@ -3408,6 +3408,7 @@ dependencies = [
  "ehttp",
  "form_urlencoded",
  "futures-lite",
+ "itertools 0.12.0",
  "local_ipaddress",
  "resources",
  "serde",

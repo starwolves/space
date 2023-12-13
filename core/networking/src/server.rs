@@ -4,6 +4,7 @@ use bevy::{
     prelude::{Component, Entity, Event, Local, Quat, Resource, SystemSet},
 };
 
+use itertools::Itertools;
 use resources::core::TickRate;
 use serde::{Deserialize, Serialize};
 use typename::TypeName;
@@ -369,55 +370,29 @@ pub(crate) fn deserialize_incoming_unreliable_client_message<
 >(
     mut incoming_raw: EventReader<IncomingRawUnreliableClientMessage>,
     mut outgoing: EventWriter<IncomingUnreliableClientMessage<T>>,
-    mut outgoing_early: EventWriter<IncomingEarlyUnreliableClientMessage<T>>,
     typenames: Res<Typenames>,
     stamp: Res<TickRateStamp>,
-    mut queue: Local<HashMap<u8, Vec<IncomingUnreliableClientMessage<T>>>>,
+    mut queue: Local<HashMap<u64, Vec<IncomingUnreliableClientMessage<T>>>>,
 ) {
     for event in incoming_raw.read() {
         for message in event.message.messages.iter() {
             match get_unreliable_message::<T>(&typenames, message.typename_net, &message.serialized)
             {
                 Some(data) => {
+                    let b = stamp.calculate_large(event.message.stamp);
+
                     let r = IncomingUnreliableClientMessage {
                         message: data,
                         handle: event.handle,
-                        stamp: event.message.stamp,
+                        stamp: b,
                     };
 
-                    let b = stamp.get_difference(event.message.stamp);
-                    let mut sent = false;
-                    if b <= 0 {
-                        if b < 0 {
-                            warn!(
-                                "unreliable message {} ticks late ({})",
-                                b.abs(),
-                                event.handle
-                            );
+                    match queue.get_mut(&b) {
+                        Some(v) => {
+                            v.push(r);
                         }
-                        outgoing.send(r.clone());
-                        sent = true;
-                    }
-
-                    if stamp.tick > event.message.stamp || (event.message.stamp - stamp.tick) > 182
-                    {
-                        continue;
-                    }
-
-                    let cr = r.clone();
-                    outgoing_early.send(IncomingEarlyUnreliableClientMessage {
-                        handle: cr.handle,
-                        message: cr.message,
-                        stamp: cr.stamp,
-                    });
-                    if !sent {
-                        match queue.get_mut(&event.message.stamp) {
-                            Some(v) => {
-                                v.push(r);
-                            }
-                            None => {
-                                queue.insert(event.message.stamp, vec![r]);
-                            }
+                        None => {
+                            queue.insert(b, vec![r]);
                         }
                     }
                 }
@@ -426,14 +401,22 @@ pub(crate) fn deserialize_incoming_unreliable_client_message<
         }
     }
 
-    match queue.get_mut(&stamp.tick) {
-        Some(v) => {
-            for msg in v.clone() {
-                outgoing.send(msg);
-            }
-            v.clear();
+    let mut processed_stamp = vec![];
+    let bound_queue = queue.clone();
+    for i in bound_queue.keys().sorted() {
+        if i > &stamp.large {
+            break;
         }
-        None => {}
+        let msgs = queue.get(i).unwrap();
+
+        for m in msgs {
+            outgoing.send(m.clone());
+        }
+        processed_stamp.push(i);
+    }
+
+    for i in processed_stamp {
+        queue.remove(&i);
     }
 }
 use crate::messaging::get_reliable_message;
@@ -443,44 +426,28 @@ pub(crate) fn deserialize_incoming_reliable_client_message<
 >(
     mut incoming_raw: EventReader<IncomingRawReliableClientMessage>,
     mut outgoing: EventWriter<IncomingReliableClientMessage<T>>,
-    mut outgoing_early: EventWriter<IncomingEarlyReliableClientMessage<T>>,
     typenames: Res<Typenames>,
     stamp: Res<TickRateStamp>,
-    mut queue: Local<HashMap<u8, Vec<IncomingReliableClientMessage<T>>>>,
+    mut queue: Local<HashMap<u64, Vec<IncomingReliableClientMessage<T>>>>,
 ) {
     for event in incoming_raw.read() {
         for message in event.message.messages.iter() {
             match get_reliable_message::<T>(&typenames, message.typename_net, &message.serialized) {
                 Some(data) => {
+                    let b = stamp.calculate_large(event.message.stamp);
+
                     let r = IncomingReliableClientMessage {
                         message: data,
                         handle: event.handle,
-                        stamp: event.message.stamp,
+                        stamp: b,
                     };
-                    let b = stamp.get_difference(event.message.stamp);
-                    let mut sent = false;
-                    if b <= 0 {
-                        if b < 0 {
-                            warn!("message {} ticks late ({})", b.abs(), event.handle);
-                        }
-                        outgoing.send(r.clone());
-                        sent = true;
-                    }
-                    let cr = r.clone();
 
-                    outgoing_early.send(IncomingEarlyReliableClientMessage {
-                        handle: cr.handle,
-                        message: cr.message,
-                        stamp: cr.stamp,
-                    });
-                    if !sent {
-                        match queue.get_mut(&event.message.stamp) {
-                            Some(v) => {
-                                v.push(r);
-                            }
-                            None => {
-                                queue.insert(event.message.stamp, vec![r]);
-                            }
+                    match queue.get_mut(&b) {
+                        Some(v) => {
+                            v.push(r);
+                        }
+                        None => {
+                            queue.insert(b, vec![r]);
                         }
                     }
                 }
@@ -489,12 +456,24 @@ pub(crate) fn deserialize_incoming_reliable_client_message<
         }
     }
 
-    match queue.get_mut(&stamp.tick) {
-        Some(v) => {
-            for msg in v.clone() {
-                outgoing.send(msg);
-            }
-            v.clear();
+    let mut processed_stamp = None;
+    let bound_queue = queue.clone();
+    for i in bound_queue.keys().sorted() {
+        if i > &stamp.large {
+            break;
+        }
+        let msgs = queue.get(i).unwrap();
+
+        for m in msgs {
+            outgoing.send(m.clone());
+        }
+        processed_stamp = Some(i);
+        break;
+    }
+
+    match processed_stamp {
+        Some(i) => {
+            queue.remove(&i);
         }
         None => {}
     }
@@ -504,28 +483,14 @@ pub(crate) fn deserialize_incoming_reliable_client_message<
 pub struct IncomingReliableClientMessage<T: TypeName + Send + Sync + Serialize> {
     pub handle: ClientId,
     pub message: T,
-    pub stamp: u8,
+    pub stamp: u64,
 }
 ///  Messages that you receive with this event must be initiated from a plugin builder with [crate::messaging::init_unreliable_message].
 #[derive(Event, Clone)]
 pub struct IncomingUnreliableClientMessage<T: TypeName + Send + Sync + Serialize + Clone> {
     pub handle: ClientId,
     pub message: T,
-    pub stamp: u8,
-}
-///  Messages that you receive with this event must be initiated from a plugin builder with [crate::messaging::init_reliable_message].
-#[derive(Event, Clone, Debug)]
-pub struct IncomingEarlyReliableClientMessage<T: TypeName + Send + Sync + Serialize> {
-    pub handle: ClientId,
-    pub message: T,
-    pub stamp: u8,
-}
-///  Messages that you receive with this event must be initiated from a plugin builder with [crate::messaging::init_unreliable_message].
-#[derive(Event, Clone)]
-pub struct IncomingEarlyUnreliableClientMessage<T: TypeName + Send + Sync + Serialize + Clone> {
-    pub handle: ClientId,
-    pub message: T,
-    pub stamp: u8,
+    pub stamp: u64,
 }
 
 #[derive(Resource, Default)]

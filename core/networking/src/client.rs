@@ -1,4 +1,5 @@
 use std::{
+    collections::HashMap,
     net::{SocketAddr, UdpSocket},
     time::SystemTime,
 };
@@ -15,6 +16,7 @@ use bevy_renet::renet::{
     ConnectionConfig, DefaultChannel, RenetClient,
 };
 use futures_lite::future;
+use itertools::Itertools;
 use resources::core::TickRate;
 use token::parse::Token;
 
@@ -455,21 +457,25 @@ pub(crate) fn send_outgoing_unreliable_client_messages<T: TypeName + Send + Sync
 use serde::Deserialize;
 
 pub(crate) fn deserialize_incoming_unreliable_server_message<
-    T: TypeName + Send + Sync + Serialize + for<'a> Deserialize<'a> + 'static,
+    T: Clone + TypeName + Send + Sync + Serialize + for<'a> Deserialize<'a> + 'static,
 >(
     mut incoming_raw: EventReader<IncomingRawUnreliableServerMessage>,
     mut outgoing: EventWriter<IncomingUnreliableServerMessage<T>>,
     typenames: Res<Typenames>,
+    stamp: Res<TickRateStamp>,
 ) {
     for event in incoming_raw.read() {
         for message in event.message.messages.iter() {
             match get_unreliable_message::<T>(&typenames, message.typename_net, &message.serialized)
             {
                 Some(data) => {
-                    outgoing.send(IncomingUnreliableServerMessage {
+                    let b = stamp.calculate_large(event.message.stamp);
+
+                    let r = IncomingUnreliableServerMessage {
                         message: data,
-                        stamp: event.message.stamp,
-                    });
+                        stamp: b,
+                    };
+                    outgoing.send(r.clone());
                 }
                 None => {}
             }
@@ -479,37 +485,69 @@ pub(crate) fn deserialize_incoming_unreliable_server_message<
 use crate::messaging::get_reliable_message;
 
 pub(crate) fn deserialize_incoming_reliable_server_message<
-    T: TypeName + Send + Sync + Serialize + for<'a> Deserialize<'a> + 'static,
+    T: Clone + TypeName + Send + Sync + Serialize + for<'a> Deserialize<'a> + 'static,
 >(
     mut incoming_raw: EventReader<IncomingRawReliableServerMessage>,
     mut outgoing: EventWriter<IncomingReliableServerMessage<T>>,
     typenames: Res<Typenames>,
+    stamp: Res<TickRateStamp>,
+    mut queue: Local<HashMap<u64, Vec<IncomingReliableServerMessage<T>>>>,
 ) {
     for event in incoming_raw.read() {
         for message in event.message.messages.iter() {
             match get_reliable_message::<T>(&typenames, message.typename_net, &message.serialized) {
                 Some(data) => {
-                    outgoing.send(IncomingReliableServerMessage {
+                    let b = stamp.calculate_large(event.message.stamp);
+
+                    let r = IncomingReliableServerMessage {
                         message: data,
-                        stamp: event.message.stamp,
-                    });
+                        stamp: b,
+                    };
+
+                    match queue.get_mut(&b) {
+                        Some(v) => {
+                            v.push(r);
+                        }
+                        None => {
+                            queue.insert(b, vec![r]);
+                        }
+                    }
                 }
                 None => {}
             }
         }
+    }
+
+    let mut processed_stamp = None;
+    let bound_queue = queue.clone();
+    for i in bound_queue.keys().sorted() {
+        let msgs = queue.get(i).unwrap();
+
+        for m in msgs {
+            outgoing.send(m.clone());
+        }
+        processed_stamp = Some(i);
+        break;
+    }
+
+    match processed_stamp {
+        Some(i) => {
+            queue.remove(&i);
+        }
+        None => {}
     }
 }
 ///  Messages that you receive with this event must be initiated from a plugin builder with [crate::messaging::init_reliable_message].
 #[derive(Event, Clone)]
 pub struct IncomingReliableServerMessage<T: TypeName + Send + Sync + Serialize> {
     pub message: T,
-    pub stamp: u8,
+    pub stamp: u64,
 }
 ///  Messages that you receive with this event must be initiated from a plugin builder with [crate::messaging::init_unreliable_message].
 #[derive(Event, Clone)]
 pub struct IncomingUnreliableServerMessage<T: TypeName + Send + Sync + Serialize> {
     pub message: T,
-    pub stamp: u8,
+    pub stamp: u64,
 }
 
 /// Dezerializes incoming server messages and writes to event.

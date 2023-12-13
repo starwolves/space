@@ -94,10 +94,8 @@ pub fn load_entity<T: Send + Sync + 'static + Default + EntityType>(
                             .insert(c_id, load_entity.entity_updates_unreliable.clone());
                     }
 
-                    queue.stamp = message.stamp;
-                    let large = stamp.calculate_large(message.stamp);
                     correction.send(StartCorrection {
-                        start_tick: large,
+                        start_tick: message.stamp,
                         last_tick: stamp.large,
                     });
                 }

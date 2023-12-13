@@ -412,7 +412,7 @@ pub(crate) fn desync_check_correction(
     let desired_tick = stamp.large - (latency.latency as u64);
 
     for message in messages.read() {
-        let message_desync_stamp = stamp.calculate_large(message.stamp);
+        let message_desync_stamp = message.stamp;
         match &message.message {
             PhysicsUnreliableServerMessage::DesyncCheck(_) => match &latest_desync.0 {
                 Some((cached_latest_stamp, _)) => {

@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use bevy::ecs::system::Local;
 use bevy::ecs::system::ResMut;
 use bevy::log::warn;
 use bevy::prelude::EventWriter;
@@ -60,7 +61,7 @@ pub struct PeerUnreliableControllerMessage {
     pub client_stamp: u8,
 }
 
-/// Replicate client input to peers instantly.
+/// Replicate client input to peers from Update schedule.
 /// Will make use of generic systems one day.
 pub(crate) fn peer_replicate_input_messages(
     mut reliable: EventReader<EarlyIncomingRawReliableClientMessage>,
@@ -71,6 +72,7 @@ pub(crate) fn peer_replicate_input_messages(
     query: Query<(&Transform, &LookTransform), With<RigidBodyLink>>,
     stamp: Res<TickRateStamp>,
     handle_to_entity: Res<HandleToEntity>,
+    mut latest_look_transform_sync: Local<HashMap<ClientId, (u64, u8)>>,
 ) {
     let mut reliable_peer_messages: HashMap<ClientId, Vec<ReliableMessage>> = HashMap::new();
     let mut unreliable_peer_messages: HashMap<ClientId, Vec<UnreliableMessage>> = HashMap::new();
@@ -171,6 +173,39 @@ pub(crate) fn peer_replicate_input_messages(
                                     if batch.0.handle == connected.handle {
                                         continue;
                                     }
+
+                                    let mut latest = false;
+                                    match client_message {
+                                        UnreliableControllerClientMessage::UpdateLookTransform(
+                                            _,
+                                            new_id,
+                                        ) => {
+                                            let large =
+                                                stamp.calculate_large(batch.0.message.stamp);
+                                            match latest_look_transform_sync.get(&batch.0.handle) {
+                                                Some((tick, id)) => {
+                                                    if large >= *tick
+                                                        || (large == *tick && new_id > *id)
+                                                    {
+                                                        latest = true;
+                                                        latest_look_transform_sync.insert(
+                                                            batch.0.handle,
+                                                            (large, new_id),
+                                                        );
+                                                    }
+                                                }
+                                                None => {
+                                                    latest = true;
+                                                    latest_look_transform_sync
+                                                        .insert(batch.0.handle, (large, new_id));
+                                                }
+                                            }
+                                        }
+                                    }
+                                    if !latest {
+                                        continue;
+                                    }
+
                                     let moving_entity;
                                     match handle_to_entity.map.get(&batch.0.handle) {
                                         Some(e) => {

@@ -27,7 +27,7 @@ pub enum LookTransformSet {
 
 #[derive(Resource, Default)]
 pub struct ServerMouseInputStamps {
-    pub map: HashMap<ClientId, u8>,
+    pub map: HashMap<ClientId, (u64, u8)>,
 }
 #[derive(Resource, Default)]
 pub struct MouseInputStamps {
@@ -77,7 +77,6 @@ pub(crate) fn client_sync_look_transform(
                     .unreliable_net_types
                     .get(&UnreliableControllerClientMessage::type_name())
                     .unwrap();
-
                 client.send_message(
                     RENET_UNRELIABLE_CHANNEL_ID,
                     bincode::serialize(&UnreliableClientMessageBatch {
@@ -127,35 +126,42 @@ pub(crate) fn server_sync_look_transform(
     handle_to_entity: Res<HandleToEntity>,
     mut mouse_stamps: ResMut<ServerMouseInputStamps>,
 ) {
+    let mut apply_look_transform = None;
     for msg in messages.read() {
         match msg.message {
             UnreliableControllerClientMessage::UpdateLookTransform(target, id) => {
                 match mouse_stamps.map.get_mut(&msg.handle) {
-                    Some(st) => {
-                        if id < *st {
+                    Some((tick, sub)) => {
+                        if msg.stamp < *tick || (msg.stamp == *tick && id < *sub) {
                             continue;
                         }
-                        *st = id;
+                        *sub = id;
+                        *tick = msg.stamp;
+                        apply_look_transform = Some((msg.handle, target));
                     }
                     None => {
-                        mouse_stamps.map.insert(msg.handle, id);
-                    }
-                }
-
-                match handle_to_entity.map.get(&msg.handle) {
-                    Some(entity) => match humanoids.get_mut(*entity) {
-                        Ok(mut look_transform) => {
-                            look_transform.target = target;
-                        }
-                        Err(_) => {
-                            warn!("Couldnt find client entity components.");
-                        }
-                    },
-                    None => {
-                        warn!("Couldnt find handle entity.");
+                        mouse_stamps.map.insert(msg.handle, (msg.stamp, id));
+                        apply_look_transform = Some((msg.handle, target));
                     }
                 }
             }
         }
+    }
+
+    match apply_look_transform {
+        Some((handle, target)) => match handle_to_entity.map.get(&handle) {
+            Some(entity) => match humanoids.get_mut(*entity) {
+                Ok(mut look_transform) => {
+                    look_transform.target = target;
+                }
+                Err(_) => {
+                    warn!("Couldnt find client entity components.");
+                }
+            },
+            None => {
+                warn!("Couldnt find handle entity.");
+            }
+        },
+        None => {}
     }
 }

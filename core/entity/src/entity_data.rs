@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use bevy::ecs::entity::Entity;
 use bevy::ecs::event::EventWriter;
-use bevy::ecs::system::{ResMut, Resource};
+use bevy::ecs::system::{Res, ResMut, Resource};
 use bevy::log::{info, warn};
 use bevy::prelude::{Component, Event, SystemSet, Transform};
 use entity_macros::Identity;
@@ -10,6 +10,7 @@ use networking::client::{IncomingRawReliableServerMessage, IncomingRawUnreliable
 use networking::messaging::{
     ReliableMessage, ReliableServerMessageBatch, UnreliableMessage, UnreliableServerMessageBatch,
 };
+use networking::stamp::TickRateStamp;
 use serde::{Deserialize, Serialize};
 
 use crate::entity_types::{BoxedEntityType, EntityType};
@@ -116,7 +117,6 @@ pub trait GridEntity {
 
 #[derive(Resource, Default)]
 pub struct QueuedSpawnEntityUpdates {
-    pub stamp: u8,
     pub reliable: HashMap<Entity, Vec<Vec<u8>>>,
     pub unreliable: HashMap<Entity, Vec<Vec<u8>>>,
 }
@@ -125,8 +125,8 @@ pub(crate) fn fire_queued_entity_updates(
     mut queue: ResMut<QueuedSpawnEntityUpdates>,
     mut send_reliable: EventWriter<IncomingRawReliableServerMessage>,
     mut send_unreliable: EventWriter<IncomingRawUnreliableServerMessage>,
+    stamp: Res<TickRateStamp>,
 ) {
-    let queue_stamp = queue.stamp;
     for (e, updates) in queue.reliable.drain() {
         let mut msgs = vec![];
         for update in updates {
@@ -143,7 +143,7 @@ pub(crate) fn fire_queued_entity_updates(
         send_reliable.send(IncomingRawReliableServerMessage {
             message: ReliableServerMessageBatch {
                 messages: msgs,
-                stamp: queue_stamp,
+                stamp: stamp.tick,
             },
         });
         info!("Forward entity update: {:?}", e);
@@ -165,7 +165,7 @@ pub(crate) fn fire_queued_entity_updates(
         send_unreliable.send(IncomingRawUnreliableServerMessage {
             message: UnreliableServerMessageBatch {
                 messages: msgs,
-                stamp: queue_stamp,
+                stamp: stamp.tick,
             },
         });
         info!("Forward u entity update: {:?}", e);

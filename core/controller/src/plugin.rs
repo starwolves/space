@@ -7,7 +7,7 @@ use crate::controller::{
 use crate::input::{
     apply_peer_sync_look_transform, clean_recorded_input, controller_input, create_input_map,
     get_client_input, process_peer_input, send_client_input_to_server, sync_controller_input,
-    ControllerSet, FuturePeerInputCache, InputMovementInput, InputSet, LastPeerLookTransform,
+    ControllerSet, InputMovementInput, InputSet, LastPeerLookTransform, PeerInputCache,
     PeerSyncLookTransform, RecordedControllerInput, SyncControllerInput,
 };
 use crate::net::ControllerClientMessage;
@@ -102,7 +102,7 @@ impl Plugin for ControllerPlugin {
                 )
                 .add_event::<PeerSyncLookTransform>()
                 .init_resource::<LastPeerLookTransform>()
-                .init_resource::<FuturePeerInputCache>();
+                .init_resource::<PeerInputCache>();
         }
 
         app.add_systems(
