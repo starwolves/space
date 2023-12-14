@@ -8,7 +8,7 @@ use crate::input::{
     apply_peer_sync_look_transform, clean_recorded_input, controller_input, create_input_map,
     get_client_input, process_peer_input, send_client_input_to_server, sync_controller_input,
     ControllerSet, InputMovementInput, InputSet, LastPeerLookTransform, PeerInputCache,
-    PeerSyncLookTransform, Pressed, RecordedControllerInput, SyncControllerInput,
+    PeerSyncLookTransform, RecordedControllerInput, SyncControllerInput,
 };
 use crate::net::ControllerClientMessage;
 use crate::networking::{
