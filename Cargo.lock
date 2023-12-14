@@ -3904,6 +3904,7 @@ name = "physics"
 version = "0.0.3"
 dependencies = [
  "bevy",
+ "bevy_renet",
  "bevy_xpbd_3d",
  "entity",
  "networking",

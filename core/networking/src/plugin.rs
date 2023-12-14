@@ -24,10 +24,9 @@ use crate::{
         receive_incoming_unreliable_server_messages, starwolves_response, step_buffer,
         step_incoming_reliable_server_messages, sync_frequency, sync_test_client,
         token_assign_server, AssignTokenToServer, AssigningServerToken, ClientGameWorldLoaded,
-        ClientLatency, ConnectToServer, Connection, ConnectionPreferences,
-        IncomingRawReliableServerMessage, IncomingRawUnreliableServerMessage,
-        LoadedGameWorldBuffer, NetworkingClientMessage, OutgoingBuffer, RawServerMessageQueue,
-        SyncClient, TokenAssignServer,
+        ConnectToServer, Connection, ConnectionPreferences, IncomingRawReliableServerMessage,
+        IncomingRawUnreliableServerMessage, LoadedGameWorldBuffer, NetworkingClientMessage,
+        OutgoingBuffer, RawServerMessageQueue, SyncClient, TokenAssignServer,
     },
     messaging::{
         generate_typenames, register_reliable_message, register_unreliable_message, MessageSender,
@@ -168,7 +167,6 @@ impl Plugin for NetworkingPlugin {
                     .in_set(MainSet::PostUpdate),
             )
             .init_resource::<SyncClient>()
-            .init_resource::<ClientLatency>()
             .init_resource::<RawServerMessageQueue>()
             .add_systems(
                 FixedUpdate,

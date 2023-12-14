@@ -779,7 +779,3 @@ pub enum NetworkingClientMessage {
     SyncConfirmation,
     LoadedGameWorld,
 }
-#[derive(Resource, Default)]
-pub struct ClientLatency {
-    pub latency: i16,
-}

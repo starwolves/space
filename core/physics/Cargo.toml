@@ -20,6 +20,7 @@ default-features = false
 bevy_xpbd_3d = { version = "0.3.2" , features = ["enhanced-determinism"]}
 serde = "1.0.177"
 typename = "0.1.2"
+bevy_renet = "0.0.10"
 
 entity = { path = "../entity"}
 resources = { path = "../resources"}

@@ -22,15 +22,19 @@ use entity::spawn::{PawnId, PeerPawns};
 use itertools::Itertools;
 use networking::{
     client::{
-        ClientLatency, IncomingReliableServerMessage, IncomingUnreliableServerMessage,
+        IncomingReliableServerMessage, IncomingUnreliableServerMessage,
         OutgoingReliableClientMessage,
     },
     messaging::{ReliableClientMessageBatch, ReliableMessage, Typenames},
     plugin::RENET_RELIABLE_ORDERED_ID,
     stamp::TickRateStamp,
 };
-use physics::{cache::PhysicsCache, sync::ClientStartedSyncing};
+use physics::{
+    cache::{PhysicsCache, PriorityPhysicsCache, PriorityUpdate},
+    sync::ClientStartedSyncing,
+};
 use resources::{
+    core::TickRate,
     correction::{StartCorrection, MAX_CACHE_TICKS_AMNT},
     input::{
         InputBuffer, KeyBind, KeyBinds, KeyCodeEnum, HOLD_SPRINT_BIND, JUMP_BIND,
@@ -159,6 +163,7 @@ pub(crate) fn apply_peer_sync_look_transform(
     mut last: ResMut<LastPeerLookTransform>,
     mut cache: ResMut<PhysicsCache>,
     stamp: Res<TickRateStamp>,
+    mut priority: ResMut<PriorityPhysicsCache>,
 ) {
     for event in events.read() {
         let mut go = false;
@@ -206,6 +211,16 @@ pub(crate) fn apply_peer_sync_look_transform(
                         );
                     }
                 }
+                match priority.cache.get_mut(&event.stamp) {
+                    Some(map) => {
+                        map.insert(event.entity, PriorityUpdate::Position(event.position));
+                    }
+                    None => {
+                        let mut map = HashMap::new();
+                        map.insert(event.entity, PriorityUpdate::Position(event.position));
+                        priority.cache.insert(event.stamp, map);
+                    }
+                }
             }
         }
     }
@@ -241,7 +256,8 @@ pub(crate) fn process_peer_input(
     mut start_correction: EventWriter<StartCorrection>,
     mut sync_controller: EventWriter<SyncControllerInput>,
     mut input_cache: ResMut<PeerInputCache>,
-    latency: Res<ClientLatency>,
+    client: Res<RenetClient>,
+    tickrate: Res<TickRate>,
 ) {
     let mut new_correction = false;
     let mut earliest_tick = 0;
@@ -265,7 +281,8 @@ pub(crate) fn process_peer_input(
             }
         }
     }
-    let desired_tick = stamp.large - latency.latency as u64 - latency.latency as u64;
+    let latency_in_ticks = (client.rtt() as f32 / (1. / tickrate.fixed_rate as f32)).floor() as u64;
+    let desired_tick = stamp.large - latency_in_ticks - latency_in_ticks;
     let mut reliables = vec![];
     for (_, reliable_cache) in input_cache.reliable.iter_mut() {
         for i in reliable_cache.clone().keys().sorted() {
@@ -803,6 +820,7 @@ pub(crate) fn controller_input(
     mut cache: ResMut<PhysicsCache>,
     mut look_cache: ResMut<LookTransformCache>,
     stampres: Res<TickRateStamp>,
+    mut priority: ResMut<PriorityPhysicsCache>,
 ) {
     for new_event in movement_input_event.read() {
         let player_entity = new_event.entity;
@@ -849,17 +867,27 @@ pub(crate) fn controller_input(
                                     warn!("Missed look cache.");
                                 }
                             }
+                            match priority.cache.get_mut(&stamp) {
+                                Some(map) => {
+                                    map.insert(player_entity, PriorityUpdate::Position(position));
+                                }
+                                None => {
+                                    let mut map = HashMap::new();
+                                    map.insert(player_entity, PriorityUpdate::Position(position));
+                                    priority.cache.insert(stamp, map);
+                                }
+                            }
                             match cache.cache.get_mut(&stamp) {
                                 Some(map) => match map.get_mut(&player_entity) {
                                     Some(c) => {
                                         c.transform.translation = position;
                                     }
                                     None => {
-                                        warn!("Missed peer position cache 0.");
+                                        warn!("Missed physics cache1.");
                                     }
                                 },
                                 None => {
-                                    warn!("Missed peer position cache.");
+                                    warn!("Missed physics cache.");
                                 }
                             }
                         }

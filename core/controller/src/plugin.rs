@@ -73,7 +73,10 @@ impl Plugin for ControllerPlugin {
             app.add_systems(Startup, create_input_map)
                 .add_systems(
                     FixedUpdate,
-                    (get_client_input, process_peer_input)
+                    (
+                        get_client_input,
+                        process_peer_input.run_if(resource_exists::<RenetClient>()),
+                    )
                         .in_set(InputSet::First)
                         .before(UpdateSet::StandardCharacters)
                         .in_set(MainSet::Update),

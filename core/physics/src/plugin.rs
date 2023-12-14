@@ -2,9 +2,11 @@ use std::time::Duration;
 
 use bevy::{
     app::Startup,
+    ecs::schedule::common_conditions::resource_exists,
     prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, Update},
     time::common_conditions::on_timer,
 };
+use bevy_renet::renet::RenetClient;
 use bevy_xpbd_3d::{prelude::PhysicsPlugins, resources::SubstepCount};
 use networking::{
     messaging::{register_unreliable_message, MessageSender, MessagingSet},
@@ -19,7 +21,10 @@ use resources::{
 };
 
 use crate::{
-    cache::{cache_data, PhysicsCache},
+    cache::{
+        cache_data, clear_priority_cache, sync_entities, PhysicsCache, PriorityPhysicsCache,
+        SyncEntitiesPhysics,
+    },
     correction_mode::CorrectionResults,
     entity::{
         client_interpolate_link_transform, client_mirror_link_target_transform, remove_links,
@@ -28,10 +33,10 @@ use crate::{
     mirror_physics_transform::rigidbody_link_transform,
     net::PhysicsUnreliableServerMessage,
     sync::{
-        desync_check_correction, pause_loop, send_desync_check, start_sync,
-        sync_correction_world_entities, sync_loop, sync_physics_data, ClientStartedSyncing,
-        CorrectionServerRigidBodyLink, FastForwarding, PendingDesync, SpawningSimulation,
-        SpawningSimulationRigidBody, SyncPause,
+        apply_priority_cache, correction_sync_physics_data, desync_check_correction, pause_loop,
+        send_desync_check, start_sync, sync_correction_world_entities, sync_loop,
+        ClientStartedSyncing, CorrectionServerRigidBodyLink, FastForwarding, PendingDesync,
+        SpawningSimulation, SpawningSimulationRigidBody, SyncPause,
     },
 };
 
@@ -57,7 +62,10 @@ impl Plugin for PhysicsPlugin {
                             .after(CorrectionSet::Start)
                             .in_set(MainSet::Update)
                             .before(SpawningSimulation::Spawn),
-                        sync_physics_data.in_set(MainSet::PostPhysics),
+                        correction_sync_physics_data.in_set(MainSet::PostPhysics),
+                        apply_priority_cache
+                            .in_set(MainSet::PostPhysics)
+                            .after(correction_sync_physics_data),
                     ),
                 )
                 .init_resource::<CorrectionServerRigidBodyLink>()
@@ -86,8 +94,11 @@ impl Plugin for PhysicsPlugin {
                         .in_set(MainSet::PostPhysics)
                         .after(PhysicsSet::Correct),
                     desync_check_correction
+                        .run_if(resource_exists::<RenetClient>())
                         .in_set(MainSet::Update)
-                        .in_set(CorrectionSet::Start),
+                        .in_set(CorrectionSet::Start)
+                        .before(sync_entities),
+                    sync_entities.in_set(MainSet::Update),
                 ),
             )
             .add_systems(Startup, pause_loop)
@@ -110,18 +121,23 @@ impl Plugin for PhysicsPlugin {
                         .in_set(MainSet::PreUpdate)
                         .after(step_tickrate_stamp)
                         .before(sync_loop),
+                    clear_priority_cache
+                        .in_set(MainSet::PostPhysics)
+                        .after(PhysicsSet::Correct),
                 ),
             )
             .init_resource::<FastForwarding>()
             .add_event::<CorrectionResults>()
             .init_resource::<PendingDesync>()
-            .init_resource::<ClientStartedSyncing>();
+            .init_resource::<ClientStartedSyncing>()
+            .add_event::<SyncEntitiesPhysics>();
         }
         app.add_plugins(PhysicsPlugins::new(FixedUpdate))
             .init_resource::<RigidBodies>()
             .add_systems(FixedUpdate, remove_links.in_set(MainSet::PostUpdate))
             .insert_resource(SubstepCount(TickRate::default().physics_substep.into()))
-            .init_resource::<PhysicsCache>();
+            .init_resource::<PhysicsCache>()
+            .init_resource::<PriorityPhysicsCache>();
         register_unreliable_message::<PhysicsUnreliableServerMessage>(app, MessageSender::Server);
     }
 }

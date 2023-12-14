@@ -21,7 +21,7 @@ use bevy_xpbd_3d::prelude::{Physics, PhysicsTime};
 use entity::despawn::DespawnEntity;
 use entity::entity_types::BoxedEntityType;
 use entity::spawn::ServerEntityClientEntity;
-use networking::client::{ClientLatency, IncomingUnreliableServerMessage};
+use networking::client::IncomingUnreliableServerMessage;
 use networking::server::{ConnectedPlayer, OutgoingUnreliableServerMessage};
 use networking::{
     client::{
@@ -36,7 +36,9 @@ use resources::grid::TileCollider;
 use resources::modes::Mode;
 use resources::player::SoftPlayer;
 
-use crate::cache::{PhysicsCache, SmallCache};
+use crate::cache::{
+    PhysicsCache, PriorityPhysicsCache, PriorityUpdate, SmallCache, SyncEntitiesPhysics,
+};
 use crate::entity::{RigidBodies, SFRigidBody};
 use crate::net::PhysicsUnreliableServerMessage;
 use crate::spawn::{rigidbody_builder, RigidBodyBuildData};
@@ -92,7 +94,6 @@ pub(crate) fn sync_loop(
     mut fast_forwarding: ResMut<FastForwarding>,
     mut p: ResMut<PauseTickStep>,
     stamp: Res<TickRateStamp>,
-    mut l: ResMut<ClientLatency>,
 ) {
     if physics_loop.is_paused() {
         paused.i += 1;
@@ -160,14 +161,12 @@ pub(crate) fn sync_loop(
                     } else {
                         info!("- {} ticks", paused.duration);
                     }
-                    l.latency -= paused.duration as i16;
                 } else {
                     if process_queue {
                         info!("+ {} ticks (from queue)", delta.abs());
                     } else {
                         info!("+ {} ticks", delta.abs());
                     }
-                    l.latency += delta.abs() as i16;
 
                     fixed_time.set_timestep_seconds(
                         (1. / TickRate::default().fixed_rate as f64) / (delta.abs() + 1) as f64,
@@ -191,7 +190,7 @@ pub(crate) fn sync_loop(
 }
 
 /// Correction server system.
-pub fn sync_physics_data(
+pub fn correction_sync_physics_data(
     mut query: Query<
         (
             &mut Transform,
@@ -433,19 +432,19 @@ pub(crate) fn desync_check_correction(
     mut correction: EventWriter<StartCorrection>,
     stamp: Res<TickRateStamp>,
     server_client_entity: Res<ServerEntityClientEntity>,
-    latency: Res<ClientLatency>,
     mut latest_desync: ResMut<PendingDesync>,
+    mut syncs: EventWriter<SyncEntitiesPhysics>,
+    mut priority: ResMut<PriorityPhysicsCache>,
 ) {
-    return;
-
-    let desired_tick = stamp.large - (latency.latency as u64);
-
     for message in messages.read() {
         let message_desync_stamp = message.stamp;
         match &message.message {
             PhysicsUnreliableServerMessage::DesyncCheck(_) => match &latest_desync.0 {
                 Some((cached_latest_stamp, _)) => {
                     if message_desync_stamp < *cached_latest_stamp {
+                        continue;
+                    }
+                    if cached_latest_stamp <= &stamp.large && message_desync_stamp > stamp.large {
                         continue;
                     }
                     latest_desync.0 = Some((message_desync_stamp, message.message.clone()));
@@ -459,15 +458,13 @@ pub(crate) fn desync_check_correction(
     let mut clear_pending = false;
     match &latest_desync.0 {
         Some((latest_desync_stamp, message)) => {
-            if latest_desync_stamp > &desired_tick {
+            if latest_desync_stamp > &stamp.large {
                 return;
             }
             match cache.cache.get_mut(&latest_desync_stamp) {
                 Some(physics_cache) => match &message {
                     PhysicsUnreliableServerMessage::DesyncCheck(caches) => {
-                        if latest_desync_stamp == &stamp.large {
-                            info!("Perfect desync check.");
-                        }
+                        let mut tosync = vec![];
                         for s in caches {
                             match server_client_entity.map.get(&s.entity) {
                                 Some(entity) => {
@@ -481,6 +478,26 @@ pub(crate) fn desync_check_correction(
                                                 rotation: s.rotation,
                                                 ..Default::default()
                                             };
+                                            tosync.push(c.entity);
+                                            match priority.cache.get_mut(&latest_desync_stamp) {
+                                                Some(cac) => {
+                                                    cac.insert(
+                                                        c.entity,
+                                                        PriorityUpdate::SmallCache(s.clone()),
+                                                    );
+                                                }
+                                                None => {
+                                                    let mut map = HashMap::new();
+                                                    map.insert(
+                                                        c.entity,
+                                                        PriorityUpdate::SmallCache(s.clone()),
+                                                    );
+                                                    priority
+                                                        .cache
+                                                        .insert(*latest_desync_stamp, map);
+                                                }
+                                            }
+
                                             break;
                                         }
                                     }
@@ -490,10 +507,16 @@ pub(crate) fn desync_check_correction(
                                 }
                             }
                         }
-                        correction.send(StartCorrection {
-                            start_tick: *latest_desync_stamp,
-                            last_tick: stamp.large,
-                        });
+
+                        if latest_desync_stamp == &stamp.large {
+                            info!("Perfect desync check.");
+                            syncs.send(SyncEntitiesPhysics { entities: tosync });
+                        } else {
+                            correction.send(StartCorrection {
+                                start_tick: *latest_desync_stamp,
+                                last_tick: stamp.large,
+                            });
+                        }
                         clear_pending = true;
                     }
                 },
@@ -506,5 +529,41 @@ pub(crate) fn desync_check_correction(
     }
     if clear_pending {
         latest_desync.0 = None;
+    }
+}
+
+/// Correction server system.
+pub fn apply_priority_cache(
+    priority: Res<PriorityPhysicsCache>,
+    mut query: Query<
+        (&mut Transform, &mut LinearVelocity, &mut AngularVelocity),
+        With<SFRigidBody>,
+    >,
+    stamp: Res<TickRateStamp>,
+) {
+    match priority.cache.get(&stamp.large) {
+        Some(s) => {
+            for (entity, update) in s.iter() {
+                match query.get_mut(*entity) {
+                    Ok((mut transform, mut linear_velocity, mut angular_velocity)) => {
+                        match update {
+                            PriorityUpdate::SmallCache(cache) => {
+                                transform.translation = cache.translation;
+                                transform.rotation = cache.rotation;
+                                linear_velocity.0 = cache.linear_velocity;
+                                angular_velocity.0 = cache.angular_velocity;
+                            }
+                            PriorityUpdate::Position(p) => {
+                                transform.translation = *p;
+                            }
+                        }
+                    }
+                    Err(_) => {
+                        warn!("Couldnt find priority entity.");
+                    }
+                }
+            }
+        }
+        None => {}
     }
 }

@@ -582,7 +582,7 @@ pub(crate) fn adjust_clients(
         }
         let average_latency = accumulative as f32 / length as f32;
 
-        let max_latency = 3. * (tickrate.fixed_rate as f32 / 32.);
+        let max_latency = 3. * (tickrate.fixed_rate as f32 / 60.);
 
         if length >= 16 {
             if average_latency < 1. {
@@ -720,7 +720,6 @@ pub(crate) fn step_incoming_client_messages(
             client_sync_iteration: c,
             tick_difference: stampres.get_difference(message.message.stamp),
         };
-        info!("Report: {:?}", report);
         match sync.tickrate_differences.get_mut(&message.handle) {
             Some(v) => {
                 v.push(report);

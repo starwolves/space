@@ -34,10 +34,10 @@ use entity::entity_macros::Identity;
 use gridmap::grid::{Gridmap, GridmapCache};
 use networking::stamp::{step_tickrate_stamp, PauseTickStep, TickRateStamp};
 use physics::{
-    cache::{Cache, PhysicsCache},
+    cache::{Cache, PhysicsCache, PriorityPhysicsCache, PriorityUpdate},
     correction_mode::CorrectionResults,
     entity::{RigidBodies, SFRigidBody},
-    sync::{sync_physics_data, CorrectionServerRigidBodyLink},
+    sync::{apply_priority_cache, CorrectionServerRigidBodyLink},
 };
 use resources::{
     content::SF_CONTENT_PREFIX,
@@ -86,7 +86,7 @@ impl Plugin for CorrectionServerPlugin {
                 finish_correction.in_set(MainSet::PostUpdate),
                 store_tick_data
                     .in_set(MainSet::PostPhysics)
-                    .after(sync_physics_data),
+                    .after(apply_priority_cache),
                 clear_sync_world.in_set(MainSet::PostUpdate),
                 apply_humanoid_caches
                     .in_set(MainSet::PreUpdate)
@@ -194,6 +194,7 @@ pub(crate) fn server_start_correcting(
     mut controller_cache: ResMut<ControllerCache>,
     mut look_cache: ResMut<LookTransformCache>,
     mut pause_stamp: ResMut<PauseTickStep>,
+    mut priority: ResMut<PriorityPhysicsCache>,
 ) {
     match &queued_message_reciever.receiver_option {
         Some(receiver) => loop {
@@ -208,6 +209,7 @@ pub(crate) fn server_start_correcting(
                         gridmap_cache,
                         controller_cachec,
                         look_cachec,
+                        priorityc,
                     ) => {
                         let mut fixed_cache = new_cache.clone();
 
@@ -227,6 +229,39 @@ pub(crate) fn server_start_correcting(
                                 }
                             }
                         }
+                        let mut new_pcache = HashMap::new();
+                        for t in priorityc.cache.iter() {
+                            let mut new_tick_map = HashMap::new();
+                            for (pentity, update) in t.1.iter() {
+                                let mut found: bool = false;
+                                for (sim, client) in link.map.iter() {
+                                    if client == pentity {
+                                        let new_update = update.clone();
+                                        match new_update {
+                                            physics::cache::PriorityUpdate::SmallCache(
+                                                mut small,
+                                            ) => {
+                                                small.entity = *sim;
+                                                new_tick_map.insert(
+                                                    *sim,
+                                                    PriorityUpdate::SmallCache(small),
+                                                );
+                                            }
+                                            _ => {
+                                                new_tick_map.insert(*sim, new_update);
+                                            }
+                                        }
+                                        found = true;
+
+                                        break;
+                                    }
+                                }
+                                if !found {
+                                    warn!("pCache link not found.");
+                                }
+                            }
+                            new_pcache.insert(*t.0, new_tick_map);
+                        }
                         *cache = fixed_cache;
                         fixed.set_timestep_seconds(0.000000001);
                         *correction = start_correction_data.clone();
@@ -240,6 +275,7 @@ pub(crate) fn server_start_correcting(
                         *look_cache = look_cachec;
                         *stamp = TickRateStamp::new(start_correction_data.start_tick);
                         pause_stamp.0 = true;
+                        priority.cache = new_pcache;
                     }
                 },
                 Err(_) => {
@@ -285,6 +321,7 @@ pub enum ClientCorrectionMessage {
         GridmapCache,
         ControllerCache,
         LookTransformCache,
+        PriorityPhysicsCache,
     ),
 }
 pub enum CorrectionServerMessage {
@@ -321,6 +358,7 @@ pub(crate) fn start_correction(
     mut enabled: ResMut<CorrectionEnabled>,
     look_cache: Res<LookTransformCache>,
     controller_cache: Res<ControllerCache>,
+    priority: Res<PriorityPhysicsCache>,
 ) {
     let mut lowest_start = 0;
     let mut highest_end = 1;
@@ -356,6 +394,7 @@ pub(crate) fn start_correction(
             grid.updates_cache.clone(),
             controller_cache.clone(),
             look_cache.clone(),
+            priority.clone(),
         )) {
         Ok(_) => {
             enabled.0 = true;

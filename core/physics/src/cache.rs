@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 
+use bevy::ecs::event::{Event, EventReader};
+use bevy::ecs::system::Commands;
 use bevy::log::warn;
 use bevy::math::{Quat, Vec3};
 use bevy::prelude::{Entity, Query, Res, ResMut, Resource, Transform, With};
@@ -19,6 +21,20 @@ use crate::entity::{RigidBodies, SFRigidBody};
 pub struct PhysicsCache {
     pub cache: HashMap<u64, HashMap<Entity, Cache>>,
 }
+#[derive(Resource, Default, Clone)]
+pub struct PriorityPhysicsCache {
+    pub cache: HashMap<u64, HashMap<Entity, PriorityUpdate>>,
+}
+#[derive(Clone)]
+pub enum PriorityUpdate {
+    SmallCache(SmallCache),
+    Position(Vec3),
+}
+
+pub(crate) fn clear_priority_cache(mut cache: ResMut<PriorityPhysicsCache>) {
+    cache.cache.clear();
+}
+
 #[derive(Clone)]
 pub struct Cache {
     pub entity: Entity,
@@ -167,5 +183,93 @@ pub(crate) fn cache_data(
     }
     for i in to_remove {
         cache.cache.remove(&i);
+    }
+}
+#[derive(Event, Default)]
+pub struct SyncEntitiesPhysics {
+    pub entities: Vec<Entity>,
+}
+
+pub fn sync_entities(
+    mut query: Query<
+        (
+            &mut Transform,
+            &mut LinearVelocity,
+            &mut LinearDamping,
+            &mut AngularDamping,
+            &mut AngularVelocity,
+            &mut ExternalTorque,
+            &mut ExternalAngularImpulse,
+            &mut ExternalImpulse,
+            &mut ExternalForce,
+            Option<&Sleeping>,
+            &mut LockedAxes,
+            &mut CollisionLayers,
+            &mut Friction,
+        ),
+        With<SFRigidBody>,
+    >,
+    physics_cache: Res<PhysicsCache>,
+    stamp: Res<TickRateStamp>,
+    mut commands: Commands,
+    mut syncs: EventReader<SyncEntitiesPhysics>,
+) {
+    for sync in syncs.read() {
+        for entity in sync.entities.iter() {
+            match physics_cache.cache.get(&stamp.large) {
+                Some(sync_tick_cache) => {
+                    let cache;
+                    match sync_tick_cache.get(entity) {
+                        Some(c) => {
+                            cache = c;
+                        }
+                        None => {
+                            warn!("Couldnt find sync cache.");
+                            continue;
+                        }
+                    }
+
+                    match query.get_mut(*entity) {
+                        Ok((
+                            mut transform,
+                            mut linear_velocity,
+                            mut linear_damping,
+                            mut angular_damping,
+                            mut angular_velocity,
+                            mut external_torque,
+                            mut external_angular_impulse,
+                            mut external_impulse,
+                            mut external_force,
+                            sleeping,
+                            mut locked_axes,
+                            mut collision_layers,
+                            mut friction,
+                        )) => {
+                            *transform = cache.transform;
+                            *linear_velocity = cache.linear_velocity;
+                            *linear_damping = cache.linear_damping;
+                            *angular_damping = cache.angular_damping;
+                            *angular_velocity = cache.angular_velocity;
+                            *external_torque = cache.external_torque;
+                            *external_angular_impulse = cache.external_angular_impulse;
+                            *external_impulse = cache.external_impulse;
+                            *external_force = cache.external_force;
+                            *locked_axes = cache.locked_axes;
+                            *collision_layers = cache.collision_layers;
+                            *friction = cache.collider_friction;
+                            if sleeping.is_some() {
+                                commands.entity(cache.entity).insert(Sleeping);
+                            } else {
+                                commands.entity(cache.entity).remove::<Sleeping>();
+                            }
+                        }
+                        Err(_) => {
+                            warn!("Missed sync for {:?}", cache.entity);
+                        }
+                    }
+                }
+                None => {}
+            }
+        }
     }
 }
