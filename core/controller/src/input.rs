@@ -6,6 +6,7 @@ use crate::{
     networking::{PeerReliableControllerMessage, PeerUnreliableControllerMessage},
 };
 use bevy::{
+    ecs::system::Local,
     input::Input,
     log::info,
     prelude::{
@@ -21,10 +22,7 @@ use cameras::{LookTransform, LookTransformCache};
 use entity::spawn::{PawnId, PeerPawns};
 use itertools::Itertools;
 use networking::{
-    client::{
-        IncomingReliableServerMessage, IncomingUnreliableServerMessage,
-        OutgoingReliableClientMessage,
-    },
+    client::{IncomingReliableServerMessage, IncomingUnreliableServerMessage},
     messaging::{ReliableClientMessageBatch, ReliableMessage, Typenames},
     plugin::RENET_RELIABLE_ORDERED_ID,
     stamp::TickRateStamp,
@@ -258,6 +256,7 @@ pub(crate) fn process_peer_input(
     mut input_cache: ResMut<PeerInputCache>,
     client: Res<RenetClient>,
     tickrate: Res<TickRate>,
+    pawnid: Res<PawnId>,
 ) {
     let mut new_correction = false;
     let mut earliest_tick = 0;
@@ -347,6 +346,15 @@ pub(crate) fn process_peer_input(
                     .get(&ClientId::from_raw(message.message.peer_handle.into()))
                 {
                     Some(peer) => {
+                        match pawnid.client {
+                            Some(ce) => {
+                                if *peer == ce {
+                                    continue;
+                                }
+                            }
+                            None => {}
+                        }
+
                         sync_controller.send(SyncControllerInput {
                             entity: *peer,
                             sync: input.clone(),
@@ -574,6 +582,13 @@ pub(crate) fn clean_recorded_input(
         record.input.remove(&i);
     }
 }
+#[derive(Resource, Default)]
+pub(crate) struct Pressed {
+    pub up: bool,
+    pub down: bool,
+    pub left: bool,
+    pub right: bool,
+}
 
 /// Sends client input instantly from Update schedule.
 pub(crate) fn send_client_input_to_server(
@@ -583,12 +598,14 @@ pub(crate) fn send_client_input_to_server(
     typenames: Res<Typenames>,
     stamp: Res<TickRateStamp>,
     start: Res<ClientStartedSyncing>,
+    mut pressed: Local<Pressed>,
 ) {
     if !start.0 {
         return;
     }
     let mut inputs = vec![];
     if keyboard.just_pressed(binds.keyboard_bind(MOVE_FORWARD_BIND)) {
+        pressed.up = true;
         inputs.push(ControllerClientMessage::MovementInput(MovementInput {
             up: true,
             pressed: true,
@@ -596,6 +613,8 @@ pub(crate) fn send_client_input_to_server(
         }));
     }
     if keyboard.just_pressed(binds.keyboard_bind(MOVE_BACKWARD_BIND)) {
+        pressed.down = true;
+
         inputs.push(ControllerClientMessage::MovementInput(MovementInput {
             down: true,
             pressed: true,
@@ -603,6 +622,8 @@ pub(crate) fn send_client_input_to_server(
         }));
     }
     if keyboard.just_pressed(binds.keyboard_bind(MOVE_LEFT_BIND)) {
+        pressed.left = true;
+
         inputs.push(ControllerClientMessage::MovementInput(MovementInput {
             left: true,
             pressed: true,
@@ -610,6 +631,8 @@ pub(crate) fn send_client_input_to_server(
         }));
     }
     if keyboard.just_pressed(binds.keyboard_bind(MOVE_RIGHT_BIND)) {
+        pressed.right = true;
+
         inputs.push(ControllerClientMessage::MovementInput(MovementInput {
             right: true,
             pressed: true,
@@ -617,28 +640,28 @@ pub(crate) fn send_client_input_to_server(
         }));
     }
 
-    if keyboard.just_released(binds.keyboard_bind(MOVE_FORWARD_BIND)) {
+    if keyboard.just_released(binds.keyboard_bind(MOVE_FORWARD_BIND)) && pressed.up {
         inputs.push(ControllerClientMessage::MovementInput(MovementInput {
             up: true,
             pressed: false,
             ..Default::default()
         }));
     }
-    if keyboard.just_released(binds.keyboard_bind(MOVE_BACKWARD_BIND)) {
+    if keyboard.just_released(binds.keyboard_bind(MOVE_BACKWARD_BIND)) && pressed.down {
         inputs.push(ControllerClientMessage::MovementInput(MovementInput {
             down: true,
             pressed: false,
             ..Default::default()
         }));
     }
-    if keyboard.just_released(binds.keyboard_bind(MOVE_LEFT_BIND)) {
+    if keyboard.just_released(binds.keyboard_bind(MOVE_LEFT_BIND)) && pressed.left {
         inputs.push(ControllerClientMessage::MovementInput(MovementInput {
             left: true,
             pressed: false,
             ..Default::default()
         }));
     }
-    if keyboard.just_released(binds.keyboard_bind(MOVE_RIGHT_BIND)) {
+    if keyboard.just_released(binds.keyboard_bind(MOVE_RIGHT_BIND)) && pressed.right {
         inputs.push(ControllerClientMessage::MovementInput(MovementInput {
             right: true,
             pressed: false,
@@ -657,23 +680,24 @@ pub(crate) fn send_client_input_to_server(
             typename_net: *id,
         });
     }
-
-    client.send_message(
-        RENET_RELIABLE_ORDERED_ID,
-        bincode::serialize(&ReliableClientMessageBatch {
-            messages,
-            stamp: stamp.tick,
-            sub_step: true,
-        })
-        .unwrap(),
-    );
+    if messages.len() > 0 {
+        client.send_message(
+            RENET_RELIABLE_ORDERED_ID,
+            bincode::serialize(&ReliableClientMessageBatch {
+                messages,
+                stamp: stamp.tick,
+                sub_step: true,
+            })
+            .unwrap(),
+        );
+    }
 }
 
 pub(crate) fn get_client_input(
     keyboard: Res<InputBuffer>,
-    mut net: EventWriter<OutgoingReliableClientMessage<ControllerClientMessage>>,
     mut movement_event: EventWriter<InputMovementInput>,
     pawn_id: Res<PawnId>,
+    mut pressed: Local<Pressed>,
 ) {
     let pawn_entity;
     match pawn_id.client {
@@ -685,124 +709,75 @@ pub(crate) fn get_client_input(
         }
     }
     if keyboard.just_pressed(MOVE_FORWARD_BIND) {
+        pressed.up = true;
         movement_event.send(InputMovementInput {
             entity: pawn_entity,
             up: true,
             pressed: true,
             ..Default::default()
-        });
-        net.send(OutgoingReliableClientMessage {
-            message: ControllerClientMessage::MovementInput(MovementInput {
-                up: true,
-                pressed: true,
-                ..Default::default()
-            }),
         });
     }
     if keyboard.just_pressed(MOVE_BACKWARD_BIND) {
+        pressed.down = true;
+
         movement_event.send(InputMovementInput {
             entity: pawn_entity,
             down: true,
             pressed: true,
             ..Default::default()
         });
-        net.send(OutgoingReliableClientMessage {
-            message: ControllerClientMessage::MovementInput(MovementInput {
-                down: true,
-                pressed: true,
-                ..Default::default()
-            }),
-        });
     }
     if keyboard.just_pressed(MOVE_LEFT_BIND) {
+        pressed.left = true;
+
         movement_event.send(InputMovementInput {
             entity: pawn_entity,
             left: true,
             pressed: true,
             ..Default::default()
         });
-        net.send(OutgoingReliableClientMessage {
-            message: ControllerClientMessage::MovementInput(MovementInput {
-                left: true,
-                pressed: true,
-                ..Default::default()
-            }),
-        });
     }
     if keyboard.just_pressed(MOVE_RIGHT_BIND) {
+        pressed.right = true;
+
         movement_event.send(InputMovementInput {
             entity: pawn_entity,
             right: true,
             pressed: true,
             ..Default::default()
         });
-        net.send(OutgoingReliableClientMessage {
-            message: ControllerClientMessage::MovementInput(MovementInput {
-                right: true,
-                pressed: true,
-                ..Default::default()
-            }),
-        });
     }
 
-    if keyboard.just_released(MOVE_FORWARD_BIND) {
+    if keyboard.just_released(MOVE_FORWARD_BIND) && pressed.up {
         movement_event.send(InputMovementInput {
             entity: pawn_entity,
             up: true,
             pressed: false,
             ..Default::default()
         });
-        net.send(OutgoingReliableClientMessage {
-            message: ControllerClientMessage::MovementInput(MovementInput {
-                up: true,
-                pressed: false,
-                ..Default::default()
-            }),
-        });
     }
-    if keyboard.just_released(MOVE_BACKWARD_BIND) {
+    if keyboard.just_released(MOVE_BACKWARD_BIND) && pressed.down {
         movement_event.send(InputMovementInput {
             entity: pawn_entity,
             down: true,
             pressed: false,
             ..Default::default()
         });
-        net.send(OutgoingReliableClientMessage {
-            message: ControllerClientMessage::MovementInput(MovementInput {
-                down: true,
-                pressed: false,
-                ..Default::default()
-            }),
-        });
     }
-    if keyboard.just_released(MOVE_LEFT_BIND) {
+    if keyboard.just_released(MOVE_LEFT_BIND) && pressed.left {
         movement_event.send(InputMovementInput {
             entity: pawn_entity,
             left: true,
             pressed: false,
             ..Default::default()
         });
-        net.send(OutgoingReliableClientMessage {
-            message: ControllerClientMessage::MovementInput(MovementInput {
-                left: true,
-                pressed: false,
-                ..Default::default()
-            }),
-        });
     }
-    if keyboard.just_released(MOVE_RIGHT_BIND) {
+    if keyboard.just_released(MOVE_RIGHT_BIND) && pressed.right {
         movement_event.send(InputMovementInput {
             entity: pawn_entity,
             right: true,
             pressed: false,
             ..Default::default()
-        });
-        net.send(OutgoingReliableClientMessage {
-            message: ControllerClientMessage::MovementInput(MovementInput {
-                right: true,
-                pressed: false,
-                ..Default::default()
-            }),
         });
     }
 }

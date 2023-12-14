@@ -484,7 +484,7 @@ pub(crate) fn deserialize_incoming_unreliable_server_message<
 }
 use crate::messaging::get_reliable_message;
 
-pub(crate) fn deserialize_incoming_reliable_server_message<
+pub fn deserialize_incoming_reliable_server_message<
     T: Clone + TypeName + Send + Sync + Serialize + for<'a> Deserialize<'a> + 'static,
 >(
     mut incoming_raw: EventReader<IncomingRawReliableServerMessage>,

@@ -120,6 +120,7 @@ impl Plugin for PhysicsPlugin {
                     start_sync
                         .in_set(MainSet::PreUpdate)
                         .after(step_tickrate_stamp)
+                        .after(MessagingSet::DeserializeIncoming)
                         .before(sync_loop),
                     clear_priority_cache
                         .in_set(MainSet::PostPhysics)
