@@ -4,8 +4,8 @@ use std::{
     time::SystemTime,
 };
 
-use bevy::log::info;
 use bevy::{ecs::system::Local, log::error};
+use bevy::{log::info, time::Time};
 use bevy::{
     prelude::{Event, Resource},
     tasks::{AsyncComputeTaskPool, Task},
@@ -15,6 +15,7 @@ use bevy_renet::renet::{
     transport::{ClientAuthentication, ConnectToken, NetcodeClientTransport},
     ConnectionConfig, DefaultChannel, RenetClient,
 };
+use bevy_xpbd_3d::plugins::setup::{Physics, PhysicsTime};
 use futures_lite::future;
 use itertools::Itertools;
 use resources::core::TickRate;
@@ -302,13 +303,14 @@ pub(crate) fn step_buffer(
     mut res: ResMut<OutgoingBuffer>,
     mut client: ResMut<RenetClient>,
     stamp: Res<TickRateStamp>,
+    pause_loop: Res<Time<Physics>>,
 ) {
     if res.reliable.len() > 0 {
         let bin;
         match bincode::serialize(&ReliableClientMessageBatch {
             messages: res.reliable.clone(),
             stamp: stamp.tick,
-            sub_step: false,
+            not_timed: pause_loop.is_paused(),
         }) {
             Ok(b) => {
                 bin = b;
@@ -326,7 +328,7 @@ pub(crate) fn step_buffer(
         match bincode::serialize(&ReliableClientMessageBatch {
             messages: res.reliable_unordered.clone(),
             stamp: stamp.tick,
-            sub_step: false,
+            not_timed: pause_loop.is_paused(),
         }) {
             Ok(b) => {
                 bin = b;
@@ -344,7 +346,7 @@ pub(crate) fn step_buffer(
         match bincode::serialize(&UnreliableClientMessageBatch {
             messages: res.unreliable.clone(),
             stamp: stamp.tick,
-            sub_step: false,
+            sub_step: pause_loop.is_paused(),
         }) {
             Ok(b) => {
                 bin = b;

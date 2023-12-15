@@ -686,7 +686,7 @@ pub(crate) fn send_client_input_to_server(
             bincode::serialize(&ReliableClientMessageBatch {
                 messages,
                 stamp: stamp.tick,
-                sub_step: true,
+                not_timed: true,
             })
             .unwrap(),
         );

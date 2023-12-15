@@ -673,7 +673,7 @@ pub(crate) fn step_incoming_client_messages(
             remove_i.push(i as usize);
         }
         i += 1;
-        if message.message.sub_step {
+        if message.message.not_timed {
             continue;
         }
         for m in message.message.messages.iter() {

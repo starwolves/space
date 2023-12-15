@@ -295,7 +295,7 @@ pub struct ReliableServerMessageBatch {
 pub struct ReliableClientMessageBatch {
     pub messages: Vec<ReliableMessage>,
     pub stamp: u8,
-    pub sub_step: bool,
+    pub not_timed: bool,
 }
 /// Batch of unreliable messages.
 #[derive(Serialize, Deserialize, Clone)]
