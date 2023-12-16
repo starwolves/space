@@ -21,7 +21,7 @@ impl Plugin for ResourcesPlugin {
         if !is_server_mode(app) {
             app.init_resource::<KeyBinds>()
                 .init_resource::<InputBuffer>()
-                .add_systems(PreUpdate, buffer_input)
+                .add_systems(Update, buffer_input.in_set(MainSet::PreUpdate))
                 .add_systems(
                     FixedUpdate,
                     sanitize_input
