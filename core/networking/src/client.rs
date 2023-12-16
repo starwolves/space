@@ -346,7 +346,7 @@ pub(crate) fn step_buffer(
         match bincode::serialize(&UnreliableClientMessageBatch {
             messages: res.unreliable.clone(),
             stamp: stamp.tick,
-            sub_step: pause_loop.is_paused(),
+            not_timed: pause_loop.is_paused(),
         }) {
             Ok(b) => {
                 bin = b;

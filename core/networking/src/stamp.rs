@@ -62,14 +62,15 @@ impl TickRateStamp {
         d
     }
     pub fn calculate_large(&self, input: u8) -> u64 {
-        let mut d = self.get_difference(input);
+        let d = self.get_difference(input);
         if d > 0 {
             self.large + d as u64
         } else {
             if d.abs() as u64 > self.large {
-                d = -(self.large as i8);
+                0
+            } else {
+                self.large - (d.abs() as u64)
             }
-            self.large - (d.abs() as u64)
         }
     }
 }

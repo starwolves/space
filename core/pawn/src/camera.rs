@@ -90,7 +90,7 @@ pub(crate) fn client_sync_look_transform(
                             typename_net: *id,
                         }],
                         stamp: stamp.tick,
-                        sub_step: true,
+                        not_timed: true,
                     })
                     .unwrap(),
                 );

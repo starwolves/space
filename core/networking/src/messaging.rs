@@ -308,7 +308,7 @@ pub struct UnreliableServerMessageBatch {
 pub struct UnreliableClientMessageBatch {
     pub messages: Vec<UnreliableMessage>,
     pub stamp: u8,
-    pub sub_step: bool,
+    pub not_timed: bool,
 }
 /// Wrapper for unreliable messages.
 #[derive(Serialize, Deserialize, Clone)]

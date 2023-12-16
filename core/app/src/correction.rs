@@ -225,7 +225,7 @@ pub(crate) fn server_start_correcting(
                                     }
                                 }
                                 if !found {
-                                    warn!("Cache link not found.");
+                                    //warn!("Cache link not found.");
                                 }
                             }
                         }
@@ -257,7 +257,7 @@ pub(crate) fn server_start_correcting(
                                     }
                                 }
                                 if !found {
-                                    warn!("pCache link not found.");
+                                    //warn!("pCache link not found.");
                                 }
                             }
                             new_pcache.insert(*t.0, new_tick_map);
@@ -626,9 +626,9 @@ pub(crate) fn apply_humanoid_caches(
     match controller_cache.cache.get(&stamp.large) {
         Some(c) => controller_t = c,
         None => {
-            if stamp.large != 0 {
+            /*if stamp.large != 0 {
                 warn!("Missed input cache ({})", stamp.large);
-            }
+            }*/
             return;
         }
     }

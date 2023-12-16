@@ -720,6 +720,7 @@ pub(crate) fn step_incoming_client_messages(
             client_sync_iteration: c,
             tick_difference: stampres.get_difference(message.message.stamp),
         };
+
         match sync.tickrate_differences.get_mut(&message.handle) {
             Some(v) => {
                 v.push(report);
@@ -736,9 +737,11 @@ pub(crate) fn step_incoming_client_messages(
 
     for (_, (_, message)) in queue.unreliable.iter() {
         eventsu.send(message.clone());
-        if message.message.sub_step {
+
+        if message.message.not_timed {
             continue;
         }
+
         let c: u64;
         match confirmations.incremental.get(&message.handle) {
             Some(x) => {
@@ -748,21 +751,17 @@ pub(crate) fn step_incoming_client_messages(
                 c = 0;
             }
         }
+        let report = LatencyReport {
+            client_sync_iteration: c,
+            tick_difference: stampres.get_difference(message.message.stamp),
+        };
         match sync.tickrate_differences.get_mut(&message.handle) {
             Some(v) => {
-                v.push(LatencyReport {
-                    client_sync_iteration: c,
-                    tick_difference: stampres.get_difference(message.message.stamp),
-                });
+                v.push(report);
             }
             None => {
-                sync.tickrate_differences.insert(
-                    message.handle,
-                    vec![LatencyReport {
-                        client_sync_iteration: c,
-                        tick_difference: stampres.get_difference(message.message.stamp),
-                    }],
-                );
+                sync.tickrate_differences
+                    .insert(message.handle, vec![report]);
             }
         }
     }
