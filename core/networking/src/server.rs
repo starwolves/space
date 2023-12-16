@@ -528,7 +528,7 @@ pub struct SyncConfirmations {
 #[derive(Debug)]
 pub struct LatencyReport {
     pub client_sync_iteration: u64,
-    pub tick_difference: i8,
+    pub tick_difference: i16,
 }
 
 /// Vectors containing adjustment iteration and tick difference linked by connection handle.

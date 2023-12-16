@@ -43,20 +43,20 @@ impl TickRateStamp {
             self.tick += step_amount;
         }
     }
-    pub fn get_difference(&self, input: u8) -> i8 {
+    pub fn get_difference(&self, input: u8) -> i16 {
         let d;
         let rate = TickRate::default().fixed_rate;
         if input > self.tick {
             if u8::MAX - input < rate && input - self.tick > rate {
-                d = (-((u8::MAX - input) as i16 + self.tick as i16)) as i8;
+                d = -((u8::MAX - input) as i16 + self.tick as i16);
             } else {
-                d = (input as i16 - self.tick as i16) as i8;
+                d = input as i16 - self.tick as i16;
             }
         } else {
             if u8::MAX - self.tick < rate && self.tick - input > rate {
-                d = ((u8::MAX as i16 - self.tick as i16) + input as i16) as i8;
+                d = (u8::MAX as i16 - self.tick as i16) + input as i16;
             } else {
-                d = (-(self.tick as i16 - input as i16)) as i8;
+                d = -(self.tick as i16 - input as i16);
             }
         }
         d
