@@ -1,7 +1,5 @@
 use bevy::{
-    prelude::{
-        App, FixedUpdate, IntoSystemConfigs, IntoSystemSetConfigs, Plugin, PreUpdate, Update,
-    },
+    prelude::{App, FixedUpdate, IntoSystemConfigs, IntoSystemSetConfigs, Plugin, Update},
     transform::TransformSystem,
 };
 use bevy_xpbd_3d::PhysicsSet;

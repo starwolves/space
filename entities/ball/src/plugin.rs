@@ -3,15 +3,21 @@ use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, Startup};
 use entity::{
     base_mesh::link_base_mesh,
     entity_types::register_entity_type,
+    loading::load_entity,
     spawn::{build_base_entities, SpawnItemSet},
 };
+use networking::messaging::{register_reliable_message, MessageSender};
 use physics::spawn::build_rigid_bodies;
 use resources::{
+    correction::CorrectionSet,
     modes::is_server_mode,
     sets::{BuildingSet, MainSet},
 };
 
-use crate::shoot_ball::{register_input, shoot_ball};
+use crate::{
+    net::BallClientMessage,
+    shoot_ball::{register_input, shoot_ball_client, shoot_ball_server},
+};
 
 use super::spawn::{build_balls, BallType};
 
@@ -26,6 +32,7 @@ impl Plugin for BallPlugin {
                 build_balls::<BallType>.after(SpawnItemSet::SpawnHeldItem),
                 (build_base_entities::<BallType>).after(SpawnItemSet::SpawnHeldItem),
                 (build_rigid_bodies::<BallType>).after(SpawnItemSet::SpawnHeldItem),
+                shoot_ball_server.in_set(BuildingSet::TriggerBuild),
             )
                 .in_set(MainSet::Update),
         );
@@ -35,11 +42,16 @@ impl Plugin for BallPlugin {
             app.add_systems(
                 FixedUpdate,
                 (
-                    shoot_ball.in_set(BuildingSet::TriggerBuild),
+                    shoot_ball_client,
                     link_base_mesh::<BallType>.after(SpawnItemSet::SpawnHeldItem),
+                    load_entity::<BallType>
+                        .before(SpawnItemSet::SpawnHeldItem)
+                        .in_set(BuildingSet::TriggerBuild)
+                        .in_set(CorrectionSet::Start),
                 )
                     .in_set(MainSet::Update),
             );
         }
+        register_reliable_message::<BallClientMessage>(app, MessageSender::Client, true);
     }
 }

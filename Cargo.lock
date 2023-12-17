@@ -437,9 +437,12 @@ dependencies = [
  "bevy_xpbd_3d",
  "cameras",
  "entity",
+ "networking",
  "pawn",
  "physics",
  "resources",
+ "serde",
+ "typename",
 ]
 
 [[package]]

@@ -19,9 +19,12 @@ default-features = false
 
 [dependencies]
 bevy_xpbd_3d = { version = "0.3.2" , features = ["enhanced-determinism"]}
+serde = "1.0.177"
+typename = "0.1.2"
 
 entity = { path = "../../core/entity" }
 resources = { path = "../../core/resources" }
 physics = { path = "../../core/physics" }
 cameras = { path = "../../core/cameras" }
 pawn = { path = "../../core/pawn" }
+networking = { path = "../../core/networking" }

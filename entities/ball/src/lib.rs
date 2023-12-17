@@ -2,6 +2,7 @@
 
 /// Component.
 pub mod ball;
+pub mod net;
 /// The Bevy plugin of this crate.
 pub mod plugin;
 /// Client-side shoot ball.
