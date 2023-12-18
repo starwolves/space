@@ -280,9 +280,8 @@ pub(crate) fn process_peer_input(
             }
         }
     }
-    let latency_in_ticks = client.rtt() as f32 / (1. / tickrate.fixed_rate as f32);
-    let adjustment = (latency_in_ticks + latency_in_ticks).ceil() as u64;
-    let desired_tick = stamp.large - adjustment;
+    let latency_in_ticks = (client.rtt() as f32 / (1. / tickrate.fixed_rate as f32)).floor() as u64;
+    let desired_tick = stamp.large - latency_in_ticks - latency_in_ticks;
     let mut reliables = vec![];
     for (_, reliable_cache) in input_cache.reliable.iter_mut() {
         for i in reliable_cache.clone().keys().sorted() {
