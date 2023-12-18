@@ -468,7 +468,8 @@ pub(crate) fn store_tick_data(
     mut storage: ResMut<SimulationStorage>,
     stamp: Res<TickRateStamp>,
 ) {
-    storage.0.cache.insert(stamp.large, HashMap::new());
+    let adjusted_stamp = stamp.large + 1;
+    storage.0.cache.insert(adjusted_stamp, HashMap::new());
 
     for (t0, collider_friction) in query.iter() {
         let (
@@ -488,7 +489,7 @@ pub(crate) fn store_tick_data(
             locked_axes,
             collision_layers,
         ) = t0;
-        let tick_cache = storage.0.cache.get_mut(&stamp.large).unwrap();
+        let tick_cache = storage.0.cache.get_mut(&adjusted_stamp).unwrap();
         tick_cache.insert(
             rb_entity,
             Cache {
