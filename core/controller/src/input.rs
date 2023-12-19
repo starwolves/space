@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use crate::{
-    controller::ControllerInput,
+    controller::{ControllerCache, ControllerInput},
     net::{ControllerClientMessage, MovementInput, PeerControllerClientMessage},
     networking::{PeerReliableControllerMessage, PeerUnreliableControllerMessage},
 };
@@ -56,7 +56,7 @@ pub struct InputMovementInput {
     pub right: bool,
     pub down: bool,
     pub pressed: bool,
-    pub peer_data: Option<(Vec3, Vec3, u64)>,
+    pub peer_data: Option<(Vec3, Vec3, u64, u64)>,
 }
 
 /// Client input movement event.
@@ -146,7 +146,8 @@ pub struct PeerSyncLookTransform {
     pub entity: Entity,
     pub target: Vec3,
     pub handle: ClientId,
-    pub stamp: u64,
+    pub client_stamp: u64,
+    pub server_stamp: u64,
     pub position: Vec3,
 }
 
@@ -167,21 +168,21 @@ pub(crate) fn apply_peer_sync_look_transform(
         let mut go = false;
         match last.map.get_mut(&event.handle) {
             Some(old_stamp) => {
-                if event.stamp > *old_stamp {
-                    *old_stamp = event.stamp;
+                if event.client_stamp > *old_stamp {
+                    *old_stamp = event.client_stamp;
                     go = true;
                 }
             }
             None => {
                 go = true;
-                last.map.insert(event.handle, event.stamp);
+                last.map.insert(event.handle, event.client_stamp);
             }
         }
         if go {
             match query.get_mut(event.entity) {
                 Ok((mut l, mut t)) => {
                     l.target = event.target;
-                    if stamp.large == event.stamp {
+                    if stamp.large == event.client_stamp {
                         t.translation = event.position;
                     }
                 }
@@ -189,8 +190,9 @@ pub(crate) fn apply_peer_sync_look_transform(
                     warn!("Couldnt find looktransform for sync.");
                 }
             }
-            if stamp.large != event.stamp {
-                match cache.cache.get_mut(&event.stamp) {
+            if stamp.large != event.client_stamp {
+                let adjusted_stamp = event.server_stamp - 1;
+                match cache.cache.get_mut(&adjusted_stamp) {
                     Some(map) => match map.get_mut(&event.entity) {
                         Some(c) => {
                             c.transform.translation = event.position;
@@ -205,18 +207,18 @@ pub(crate) fn apply_peer_sync_look_transform(
                     None => {
                         warn!(
                             "Missed peer position for looktransform. {:?}:{} current tick: {}",
-                            event.entity, event.stamp, stamp.large
+                            event.entity, adjusted_stamp, stamp.large
                         );
                     }
                 }
-                match priority.cache.get_mut(&event.stamp) {
+                match priority.cache.get_mut(&adjusted_stamp) {
                     Some(map) => {
                         map.insert(event.entity, PriorityUpdate::Position(event.position));
                     }
                     None => {
                         let mut map = HashMap::new();
                         map.insert(event.entity, PriorityUpdate::Position(event.position));
-                        priority.cache.insert(event.stamp, map);
+                        priority.cache.insert(adjusted_stamp, map);
                     }
                 }
             }
@@ -327,6 +329,7 @@ pub(crate) fn process_peer_input(
                                 *position,
                                 *look_transform_target,
                                 large_client_stamp,
+                                message.stamp,
                             )),
                         });
                         new_correction = true;
@@ -483,8 +486,9 @@ pub(crate) fn process_peer_input(
                                     entity: *peer,
                                     target: *target,
                                     handle: ClientId::from_raw(message.message.peer_handle.into()),
-                                    stamp: e,
+                                    client_stamp: e,
                                     position: *position,
+                                    server_stamp: message.stamp,
                                 });
 
                                 new_correction = true;
@@ -796,6 +800,7 @@ pub(crate) fn controller_input(
     mut look_cache: ResMut<LookTransformCache>,
     stampres: Res<TickRateStamp>,
     mut priority: ResMut<PriorityPhysicsCache>,
+    mut controller_cache: ResMut<ControllerCache>,
 ) {
     for new_event in movement_input_event.read() {
         let player_entity = new_event.entity;
@@ -823,13 +828,13 @@ pub(crate) fn controller_input(
                 player_input_component.movement_vector += additive;
 
                 match new_event.peer_data {
-                    Some((position, look_target, stamp)) => {
+                    Some((position, look_target, client_stamp, server_stamp)) => {
                         look_transform.target = look_target;
 
-                        if stamp == stampres.large {
+                        if client_stamp == stampres.large {
                             transform.translation = position;
                         } else {
-                            match look_cache.cache.get_mut(&stamp) {
+                            match look_cache.cache.get_mut(&client_stamp) {
                                 Some(map) => match map.get_mut(&player_entity) {
                                     Some(l) => {
                                         l.target = look_target;
@@ -842,17 +847,18 @@ pub(crate) fn controller_input(
                                     warn!("Missed look cache.");
                                 }
                             }
-                            match priority.cache.get_mut(&stamp) {
+                            let adjusted_stamp = server_stamp - 1;
+                            match priority.cache.get_mut(&adjusted_stamp) {
                                 Some(map) => {
                                     map.insert(player_entity, PriorityUpdate::Position(position));
                                 }
                                 None => {
                                     let mut map = HashMap::new();
                                     map.insert(player_entity, PriorityUpdate::Position(position));
-                                    priority.cache.insert(stamp, map);
+                                    priority.cache.insert(adjusted_stamp, map);
                                 }
                             }
-                            match cache.cache.get_mut(&stamp) {
+                            match cache.cache.get_mut(&adjusted_stamp) {
                                 Some(map) => match map.get_mut(&player_entity) {
                                     Some(c) => {
                                         c.transform.translation = position;
@@ -863,6 +869,37 @@ pub(crate) fn controller_input(
                                 },
                                 None => {
                                     warn!("Missed physics cache.");
+                                }
+                            }
+                        }
+
+                        for controller_cache_key in client_stamp..stampres.large {
+                            match controller_cache.cache.get_mut(&controller_cache_key) {
+                                Some(map) => {
+                                    map.insert(player_entity, player_input_component.clone());
+                                }
+                                None => {
+                                    let mut map = HashMap::new();
+                                    map.insert(player_entity, player_input_component.clone());
+                                    controller_cache.cache.insert(controller_cache_key, map);
+                                }
+                            }
+                        }
+
+                        for controller_cache_key in controller_cache.cache.clone().keys().sorted() {
+                            if controller_cache_key >= &client_stamp {
+                                let cached_data = controller_cache
+                                    .cache
+                                    .get_mut(controller_cache_key)
+                                    .unwrap();
+                                match cached_data.get_mut(&player_entity) {
+                                    Some(cached_controller) => {
+                                        *cached_controller = player_input_component.clone();
+                                    }
+                                    None => {
+                                        cached_data
+                                            .insert(player_entity, player_input_component.clone());
+                                    }
                                 }
                             }
                         }
