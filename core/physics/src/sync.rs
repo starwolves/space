@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use bevy::ecs::component::Component;
 use bevy::ecs::entity::Entity;
 use bevy::ecs::event::Event;
 use bevy::ecs::query::{With, Without};
@@ -22,7 +23,7 @@ use entity::despawn::DespawnEntity;
 use entity::entity_types::BoxedEntityType;
 use entity::spawn::ServerEntityClientEntity;
 use networking::client::IncomingUnreliableServerMessage;
-use networking::server::{ConnectedPlayer, OutgoingUnreliableServerMessage};
+use networking::server::{ConnectedPlayer, HandleToEntity, OutgoingUnreliableServerMessage};
 use networking::{
     client::{
         IncomingReliableServerMessage, NetworkingClientMessage, OutgoingReliableClientMessage,
@@ -39,7 +40,7 @@ use resources::player::SoftPlayer;
 use crate::cache::{
     PhysicsCache, PriorityPhysicsCache, PriorityUpdate, SmallCache, SyncEntitiesPhysics,
 };
-use crate::entity::{RigidBodies, SFRigidBody};
+use crate::entity::{RigidBodies, RigidBodyLink, SFRigidBody};
 use crate::net::PhysicsUnreliableServerMessage;
 use crate::spawn::{rigidbody_builder, RigidBodyBuildData};
 #[derive(Resource, Default)]
@@ -375,45 +376,72 @@ pub(crate) fn sync_correction_world_entities(
         // Correct the data of still existing physics entities now.
     }
 }
-
+pub const DESYNC_FREQUENCY: f32 = 4.;
+#[derive(Component)]
+pub struct DisableSync;
 /// Send low frequency rigidbody data to clients for transform and velocities desync checks.
 pub(crate) fn send_desync_check(
     query: Query<(Entity, &Transform, &LinearVelocity, &AngularVelocity), With<SFRigidBody>>,
+    pawn_query: Query<Option<&DisableSync>, With<RigidBodyLink>>,
     rigid_bodies: Res<RigidBodies>,
     mut net: EventWriter<OutgoingUnreliableServerMessage<PhysicsUnreliableServerMessage>>,
     players: Query<&ConnectedPlayer, Without<SoftPlayer>>,
     mut local: Local<u8>,
     rate: Res<TickRate>,
+    handle_to_entity: Res<HandleToEntity>,
 ) {
     *local += 1;
-    if *local as f32 >= rate.fixed_rate as f32 / 4. {
+    if *local as f32 >= rate.fixed_rate as f32 / DESYNC_FREQUENCY {
         *local = 0;
     } else {
         return;
     }
-    let mut small_cache = vec![];
-    for (rb_entity, transform, linear_velocity, angular_velocity) in query.iter() {
-        match rigid_bodies.get_rigidbody_entity(&rb_entity) {
-            Some(entity) => {
-                small_cache.push(SmallCache {
-                    entity: *entity,
-                    linear_velocity: linear_velocity.0,
-                    angular_velocity: angular_velocity.0,
-                    translation: transform.translation,
-                    rotation: transform.rotation,
-                });
+    for connected_player in players.iter() {
+        let player_entity;
+        match handle_to_entity.map.get(&connected_player.handle) {
+            Some(ent) => {
+                player_entity = *ent;
             }
             None => {
-                //warn!("Couldnt find rigidbody entity. {:?}", rb_entity);
+                warn!("no handle entity found.");
+                continue;
             }
         }
-    }
-    if small_cache.len() > 0 {
-        for c in players.iter() {
-            if c.connected {
+        let mut small_cache = vec![];
+        for (rb_entity, transform, linear_velocity, angular_velocity) in query.iter() {
+            match rigid_bodies.get_rigidbody_entity(&rb_entity) {
+                Some(entity) => {
+                    let disabled;
+                    match pawn_query.get(*entity) {
+                        Ok(d) => {
+                            disabled = d;
+                        }
+                        Err(_) => {
+                            warn!("Couldnt find pawn query.");
+                            continue;
+                        }
+                    }
+                    if disabled.is_some() && *entity != player_entity {
+                        continue;
+                    }
+                    small_cache.push(SmallCache {
+                        entity: *entity,
+                        linear_velocity: linear_velocity.0,
+                        angular_velocity: angular_velocity.0,
+                        translation: transform.translation,
+                        rotation: transform.rotation,
+                    });
+                }
+                None => {
+                    //warn!("Couldnt find rigidbody entity. {:?}", rb_entity);
+                }
+            }
+        }
+        if small_cache.len() > 0 {
+            if connected_player.connected {
                 net.send(OutgoingUnreliableServerMessage {
                     message: PhysicsUnreliableServerMessage::DesyncCheck(small_cache.clone()),
-                    handle: c.handle,
+                    handle: connected_player.handle,
                 });
             }
         }

@@ -1,7 +1,9 @@
 use std::collections::HashMap;
 
-use bevy::ecs::system::Local;
+use bevy::ecs::entity::Entity;
+use bevy::ecs::system::Commands;
 use bevy::ecs::system::ResMut;
+use bevy::ecs::system::Resource;
 use bevy::log::warn;
 use bevy::prelude::EventWriter;
 use bevy::prelude::Query;
@@ -25,10 +27,14 @@ use networking::stamp::TickRateStamp;
 use pawn::net::UnreliableControllerClientMessage;
 use pawn::net::UnreliablePeerControllerClientMessage;
 use physics::entity::RigidBodyLink;
+use physics::sync::DisableSync;
+use physics::sync::DESYNC_FREQUENCY;
+use resources::core::TickRate;
 use serde::Deserialize;
 use serde::Serialize;
 use typename::TypeName;
 
+use crate::controller::ControllerInput;
 use crate::input::InputMovementInput;
 use crate::net::PeerControllerClientMessage;
 
@@ -61,6 +67,42 @@ pub struct PeerUnreliableControllerMessage {
     pub client_stamp: u8,
 }
 
+pub(crate) fn syncable_entity(
+    latest: Res<PeerLatestLookSync>,
+    mut commands: Commands,
+    handle_to_entity: Res<HandleToEntity>,
+    query: Query<(Entity, Option<&DisableSync>), With<ControllerInput>>,
+    stamp: Res<TickRateStamp>,
+    tickrate: Res<TickRate>,
+) {
+    for (entity, disabled) in query.iter() {
+        match handle_to_entity.inv_map.get(&entity) {
+            Some(handle) => match latest.0.get(handle) {
+                Some((last_input_stamp, _)) => {
+                    if stamp.large
+                        > *last_input_stamp + (tickrate.fixed_rate as f32 / DESYNC_FREQUENCY) as u64
+                    {
+                        if disabled.is_some() {
+                            commands.entity(entity).remove::<DisableSync>();
+                        }
+                    } else {
+                        if disabled.is_none() {
+                            commands.entity(entity).insert(DisableSync);
+                        }
+                    }
+                }
+                None => {}
+            },
+            None => {
+                warn!("Couldnt find handle entity.");
+            }
+        }
+    }
+}
+
+#[derive(Resource, Default)]
+pub struct PeerLatestLookSync(HashMap<ClientId, (u64, u8)>);
+
 /// Replicate client input to peers from Update schedule.
 /// Will make use of generic systems one day.
 pub(crate) fn peer_replicate_input_messages(
@@ -72,7 +114,7 @@ pub(crate) fn peer_replicate_input_messages(
     query: Query<(&Transform, &LookTransform), With<RigidBodyLink>>,
     stamp: Res<TickRateStamp>,
     handle_to_entity: Res<HandleToEntity>,
-    mut latest_look_transform_sync: Local<HashMap<ClientId, (u64, u8)>>,
+    mut latest_look_transform_sync: ResMut<PeerLatestLookSync>,
 ) {
     let mut reliable_peer_messages: HashMap<ClientId, Vec<ReliableMessage>> = HashMap::new();
     let mut unreliable_peer_messages: HashMap<ClientId, Vec<UnreliableMessage>> = HashMap::new();
@@ -182,13 +224,14 @@ pub(crate) fn peer_replicate_input_messages(
                                         ) => {
                                             let large =
                                                 stamp.calculate_large(batch.0.message.stamp);
-                                            match latest_look_transform_sync.get(&batch.0.handle) {
+                                            match latest_look_transform_sync.0.get(&batch.0.handle)
+                                            {
                                                 Some((tick, id)) => {
                                                     if large >= *tick
                                                         || (large == *tick && new_id > *id)
                                                     {
                                                         latest = true;
-                                                        latest_look_transform_sync.insert(
+                                                        latest_look_transform_sync.0.insert(
                                                             batch.0.handle,
                                                             (large, new_id),
                                                         );
@@ -197,6 +240,7 @@ pub(crate) fn peer_replicate_input_messages(
                                                 None => {
                                                     latest = true;
                                                     latest_look_transform_sync
+                                                        .0
                                                         .insert(batch.0.handle, (large, new_id));
                                                 }
                                             }

@@ -12,8 +12,8 @@ use crate::input::{
 };
 use crate::net::ControllerClientMessage;
 use crate::networking::{
-    incoming_messages, peer_replicate_input_messages, PeerReliableControllerMessage,
-    PeerUnreliableControllerMessage,
+    incoming_messages, peer_replicate_input_messages, syncable_entity, PeerLatestLookSync,
+    PeerReliableControllerMessage, PeerUnreliableControllerMessage,
 };
 use bevy::app::Update;
 use bevy::ecs::schedule::common_conditions::resource_exists;
@@ -52,15 +52,19 @@ impl Plugin for ControllerPlugin {
                 app.add_systems(
                     FixedUpdate,
                     (
-                        controller_input_entity_update.in_set(EntityUpdatesSet::BuildUpdates),
-                        look_transform_entity_update.in_set(EntityUpdatesSet::BuildUpdates),
-                    )
-                        .in_set(MainSet::PostUpdate),
+                        (
+                            controller_input_entity_update.in_set(EntityUpdatesSet::BuildUpdates),
+                            look_transform_entity_update.in_set(EntityUpdatesSet::BuildUpdates),
+                        )
+                            .in_set(MainSet::PostUpdate),
+                        syncable_entity.in_set(MainSet::Update),
+                    ),
                 )
                 .add_systems(
                     Update,
                     peer_replicate_input_messages.in_set(MainSet::Update),
-                );
+                )
+                .init_resource::<PeerLatestLookSync>();
             }
             app.add_event::<BoardingPlayer>().add_systems(
                 FixedUpdate,
