@@ -445,31 +445,31 @@ pub(crate) fn desync_check_correction(
     mut priority: ResMut<PriorityPhysicsCache>,
 ) {
     for message in messages.read() {
-        let message_desync_stamp = message.stamp;
+        let message_stamp = message.stamp;
         match &message.message {
             PhysicsUnreliableServerMessage::DesyncCheck(_) => match &latest_desync.0 {
-                Some((cached_latest_stamp, _)) => {
-                    if message_desync_stamp < *cached_latest_stamp {
+                Some((latest_stamp, _)) => {
+                    if *latest_stamp >= message_stamp {
                         continue;
                     }
-                    if cached_latest_stamp <= &stamp.large && message_desync_stamp > stamp.large {
+                    if latest_stamp <= &stamp.large && message_stamp > stamp.large {
                         continue;
                     }
-                    latest_desync.0 = Some((message_desync_stamp, message.message.clone()));
+                    latest_desync.0 = Some((message_stamp, message.message.clone()));
                 }
                 None => {
-                    latest_desync.0 = Some((message_desync_stamp, message.message.clone()));
+                    latest_desync.0 = Some((message_stamp, message.message.clone()));
                 }
             },
         }
     }
     let mut clear_pending = false;
     match &latest_desync.0 {
-        Some((latest_desync_stamp, message)) => {
-            if latest_desync_stamp > &stamp.large {
+        Some((latest_stamp, message)) => {
+            if latest_stamp > &stamp.large {
                 return;
             }
-            match cache.cache.get_mut(&latest_desync_stamp) {
+            match cache.cache.get_mut(&latest_stamp) {
                 Some(physics_cache) => match &message {
                     PhysicsUnreliableServerMessage::DesyncCheck(caches) => {
                         let mut tosync = vec![];
@@ -487,7 +487,7 @@ pub(crate) fn desync_check_correction(
                                                 ..Default::default()
                                             };
                                             tosync.push(c.entity);
-                                            match priority.cache.get_mut(&latest_desync_stamp) {
+                                            match priority.cache.get_mut(&latest_stamp) {
                                                 Some(cac) => {
                                                     cac.insert(
                                                         c.entity,
@@ -500,9 +500,7 @@ pub(crate) fn desync_check_correction(
                                                         c.entity,
                                                         PriorityUpdate::SmallCache(s.clone()),
                                                     );
-                                                    priority
-                                                        .cache
-                                                        .insert(*latest_desync_stamp, map);
+                                                    priority.cache.insert(*latest_stamp, map);
                                                 }
                                             }
 
@@ -516,12 +514,12 @@ pub(crate) fn desync_check_correction(
                             }
                         }
 
-                        if latest_desync_stamp == &stamp.large {
+                        if latest_stamp == &stamp.large {
                             info!("Perfect desync check.");
                             syncs.send(SyncEntitiesPhysics { entities: tosync });
                         } else {
                             correction.send(StartCorrection {
-                                start_tick: *latest_desync_stamp,
+                                start_tick: *latest_stamp,
                                 last_tick: stamp.large,
                             });
                         }
