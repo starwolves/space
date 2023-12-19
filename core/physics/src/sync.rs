@@ -520,7 +520,7 @@ pub(crate) fn desync_check_correction(
                             syncs.send(SyncEntitiesPhysics { entities: tosync });
                         } else {
                             correction.send(StartCorrection {
-                                start_tick: *latest_stamp,
+                                start_tick: adjusted_latest,
                                 last_tick: stamp.large,
                             });
                         }
