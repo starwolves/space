@@ -216,7 +216,7 @@ pub fn sync_entities(
 ) {
     for sync in syncs.read() {
         for entity in sync.entities.iter() {
-            match physics_cache.cache.get(&stamp.large) {
+            match physics_cache.cache.get(&(&stamp.large - 1)) {
                 Some(sync_tick_cache) => {
                     let cache;
                     match sync_tick_cache.get(entity) {

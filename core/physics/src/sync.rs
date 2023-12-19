@@ -469,7 +469,8 @@ pub(crate) fn desync_check_correction(
             if latest_stamp > &stamp.large {
                 return;
             }
-            match cache.cache.get_mut(&latest_stamp) {
+            let adjusted_latest = *latest_stamp - 1;
+            match cache.cache.get_mut(&adjusted_latest) {
                 Some(physics_cache) => match &message {
                     PhysicsUnreliableServerMessage::DesyncCheck(caches) => {
                         let mut tosync = vec![];
@@ -487,7 +488,7 @@ pub(crate) fn desync_check_correction(
                                                 ..Default::default()
                                             };
                                             tosync.push(c.entity);
-                                            match priority.cache.get_mut(&latest_stamp) {
+                                            match priority.cache.get_mut(&adjusted_latest) {
                                                 Some(cac) => {
                                                     cac.insert(
                                                         c.entity,
@@ -500,7 +501,7 @@ pub(crate) fn desync_check_correction(
                                                         c.entity,
                                                         PriorityUpdate::SmallCache(s.clone()),
                                                     );
-                                                    priority.cache.insert(*latest_stamp, map);
+                                                    priority.cache.insert(adjusted_latest, map);
                                                 }
                                             }
 
@@ -514,7 +515,7 @@ pub(crate) fn desync_check_correction(
                             }
                         }
 
-                        if latest_stamp == &stamp.large {
+                        if adjusted_latest == &stamp.large - 1 {
                             info!("Perfect desync check.");
                             syncs.send(SyncEntitiesPhysics { entities: tosync });
                         } else {
