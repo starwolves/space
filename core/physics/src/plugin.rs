@@ -1,10 +1,7 @@
-use std::time::Duration;
-
 use bevy::{
     app::Startup,
     ecs::schedule::common_conditions::resource_exists,
     prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, Update},
-    time::common_conditions::on_timer,
 };
 use bevy_renet::renet::RenetClient;
 use bevy_xpbd_3d::{prelude::PhysicsPlugins, resources::SubstepCount};
@@ -72,12 +69,7 @@ impl Plugin for PhysicsPlugin {
                 .add_event::<SpawningSimulationRigidBody>();
             }
             if is_server() {
-                app.add_systems(
-                    FixedUpdate,
-                    (send_desync_check
-                        .in_set(MainSet::Update)
-                        .run_if(on_timer(Duration::from_secs_f32(0.25))),),
-                );
+                app.add_systems(FixedUpdate, send_desync_check.in_set(MainSet::Update));
             }
         } else {
             app.add_systems(

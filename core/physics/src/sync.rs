@@ -382,7 +382,15 @@ pub(crate) fn send_desync_check(
     rigid_bodies: Res<RigidBodies>,
     mut net: EventWriter<OutgoingUnreliableServerMessage<PhysicsUnreliableServerMessage>>,
     players: Query<&ConnectedPlayer, Without<SoftPlayer>>,
+    mut local: Local<u8>,
+    rate: Res<TickRate>,
 ) {
+    *local += 1;
+    if *local as f32 >= rate.fixed_rate as f32 / 4. {
+        *local = 0;
+    } else {
+        return;
+    }
     let mut small_cache = vec![];
     for (rb_entity, transform, linear_velocity, angular_velocity) in query.iter() {
         match rigid_bodies.get_rigidbody_entity(&rb_entity) {
