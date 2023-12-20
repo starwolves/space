@@ -382,11 +382,11 @@ pub struct SetCell {
 pub(crate) fn export_debug_map() {
     let mut data: Vec<CellDataExport> = vec![];
 
-    let floor_length = 10;
+    let floor_length = 20;
 
     let mut x = -floor_length / 2;
     let mut y = -floor_length / 2;
-    for _ in 0..floor_length * floor_length {
+    for _ in 0..(floor_length * floor_length) - 1 {
         data.push(CellDataExport {
             id: Vec3Int { x: x, y: 0, z: y },
             orientation: 0,
@@ -410,7 +410,6 @@ pub(crate) fn export_debug_map() {
     info!("Exported debug map!");
 }
 */
-
 impl Gridmap {
     pub fn export_binary(&self) -> Vec<u8> {
         let mut data = vec![];
