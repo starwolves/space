@@ -80,7 +80,8 @@ pub(crate) fn syncable_entity(
             Some(handle) => match latest.0.get(handle) {
                 Some((last_input_stamp, _)) => {
                     if stamp.large
-                        > *last_input_stamp + (tickrate.fixed_rate as f32 / DESYNC_FREQUENCY) as u64
+                        > *last_input_stamp
+                            + (tickrate.fixed_rate as f32 / (DESYNC_FREQUENCY * 2.)) as u64
                     {
                         if disabled.is_some() {
                             commands.entity(entity).remove::<DisableSync>();
