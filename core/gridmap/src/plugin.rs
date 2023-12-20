@@ -135,6 +135,7 @@ impl Plugin for GridmapPlugin {
         } else {
             app.init_resource::<NewGhostBuffer>()
                 .init_resource::<CellGraphicsBuffer>()
+                //  .add_systems(Startup, export_debug_map)
                 .add_systems(
                     FixedUpdate,
                     (

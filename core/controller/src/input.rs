@@ -337,6 +337,10 @@ pub(crate) fn process_peer_input(
                         if e < earliest_tick || earliest_tick == 0 {
                             earliest_tick = e;
                         }
+                        let e = message.stamp - 1;
+                        if e < earliest_tick || earliest_tick == 0 {
+                            earliest_tick = e;
+                        }
                     }
                     None => {
                         warn!("Couldnt find peer pawn.");
@@ -365,6 +369,10 @@ pub(crate) fn process_peer_input(
 
                         new_correction = true;
                         let e = stamp.calculate_large(message.message.client_stamp);
+                        if e < earliest_tick || earliest_tick == 0 {
+                            earliest_tick = e;
+                        }
+                        let e = message.stamp - 1;
                         if e < earliest_tick || earliest_tick == 0 {
                             earliest_tick = e;
                         }
@@ -493,6 +501,10 @@ pub(crate) fn process_peer_input(
 
                                 new_correction = true;
 
+                                if e < earliest_tick || earliest_tick == 0 {
+                                    earliest_tick = e;
+                                }
+                                let e = message.stamp - 1;
                                 if e < earliest_tick || earliest_tick == 0 {
                                     earliest_tick = e;
                                 }

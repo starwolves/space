@@ -378,6 +378,38 @@ pub struct SetCell {
     pub tile_id: u16,
     pub face: CellFace,
 }
+/*
+pub(crate) fn export_debug_map() {
+    let mut data: Vec<CellDataExport> = vec![];
+
+    let floor_length = 10;
+
+    let mut x = -floor_length / 2;
+    let mut y = -floor_length / 2;
+    for _ in 0..floor_length * floor_length {
+        data.push(CellDataExport {
+            id: Vec3Int { x: x, y: 0, z: y },
+            orientation: 0,
+            face: CellFace::Floor,
+            item: ItemExport::Cell(CellTypeName("generic_floor".to_string())),
+        });
+        x += 1;
+        if x > floor_length / 2 {
+            x = -floor_length / 2;
+            y += 1;
+        }
+    }
+
+    let dats = bincode::serialize(&data).unwrap();
+    let path = Path::new("data")
+        .join("maps")
+        .join("bullseye")
+        .join("test_map.bin");
+    let mut file = File::create(path.clone()).unwrap();
+    file.write_all(&dats).unwrap();
+    info!("Exported debug map!");
+}
+*/
 
 impl Gridmap {
     pub fn export_binary(&self) -> Vec<u8> {
