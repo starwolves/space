@@ -610,7 +610,10 @@ pub(crate) fn apply_correction_results(
                 }
             }
             None => {
-                warn!("Couldnt find the right tickrate: {}", stamp.large);
+                warn!(
+                    "Correction results did not contain current tick: {}",
+                    stamp.large
+                );
             }
         }
     }

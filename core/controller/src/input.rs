@@ -198,17 +198,17 @@ pub(crate) fn apply_peer_sync_look_transform(
                             c.transform.translation = event.position;
                         }
                         None => {
-                            warn!(
+                            /*warn!(
                                 "Missed peer position for looktransform 1. {:?}",
                                 event.entity
-                            );
+                            );*/
                         }
                     },
                     None => {
-                        warn!(
+                        /*warn!(
                             "Missed peer position for looktransform. {:?}:{} current tick: {}",
                             event.entity, adjusted_stamp, stamp.large
-                        );
+                        );*/
                     }
                 }
                 match priority.cache.get_mut(&adjusted_stamp) {
