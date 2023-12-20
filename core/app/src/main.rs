@@ -134,7 +134,7 @@ pub(crate) fn start_app(mode: AppMode) {
 
     let num_threads;
     if is_correction_mode(&mut app) {
-        num_threads = 1;
+        num_threads = 2;
     } else {
         num_threads = 4;
     }
