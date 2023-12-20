@@ -709,7 +709,7 @@ pub(crate) fn sync_test_client(
         if *skip > ((rate.fixed_rate as f32 * 2.) / 16 as f32).ceil() as u16 {
             first.0 .1 += 1;
 
-            if first.0 .1 > 16 {
+            if first.0 .1 > 8 {
                 first.0 .0 = false;
                 first.0 .1 = 0;
             } else {
