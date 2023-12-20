@@ -21,12 +21,12 @@ use crate::{
     client::{
         confirm_connection, connect_to_server, connected, detect_client_world_loaded,
         is_client_connected, on_disconnect, receive_incoming_reliable_server_messages,
-        receive_incoming_unreliable_server_messages, starwolves_response, step_buffer,
-        step_incoming_reliable_server_messages, sync_frequency, sync_test_client,
+        receive_incoming_unreliable_server_messages, start_sync_frequency, starwolves_response,
+        step_buffer, step_incoming_reliable_server_messages, sync_frequency, sync_test_client,
         token_assign_server, AssignTokenToServer, AssigningServerToken, ClientGameWorldLoaded,
         ConnectToServer, Connection, ConnectionPreferences, IncomingRawReliableServerMessage,
         IncomingRawUnreliableServerMessage, LoadedGameWorldBuffer, NetworkingClientMessage,
-        OutgoingBuffer, RawServerMessageQueue, SyncClient, TokenAssignServer,
+        OutgoingBuffer, RawServerMessageQueue, StartSyncStage, SyncClient, TokenAssignServer,
     },
     messaging::{
         generate_typenames, register_reliable_message, register_unreliable_message, MessageSender,
@@ -152,6 +152,9 @@ impl Plugin for NetworkingPlugin {
                     sync_frequency
                         .before(sync_test_client)
                         .run_if(on_timer(Duration::from_secs_f32(1.))),
+                    start_sync_frequency
+                        .before(sync_test_client)
+                        .run_if(on_timer(Duration::from_secs_f32(0.1))),
                     sync_test_client
                         .run_if(is_client_connected)
                         .after(confirm_connection),
@@ -173,7 +176,8 @@ impl Plugin for NetworkingPlugin {
                 detect_client_world_loaded.in_set(MainSet::Update),
             )
             .init_resource::<LoadedGameWorldBuffer>()
-            .add_event::<ClientGameWorldLoaded>();
+            .add_event::<ClientGameWorldLoaded>()
+            .init_resource::<StartSyncStage>();
         }
 
         app.init_resource::<TickRateStamp>()

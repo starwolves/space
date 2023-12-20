@@ -690,6 +690,13 @@ pub(crate) struct SyncClient((bool, u8));
 pub(crate) fn sync_frequency(mut first: ResMut<SyncClient>) {
     first.0 .0 = true;
 }
+#[derive(Resource, Default)]
+pub struct StartSyncStage(pub bool);
+pub(crate) fn start_sync_frequency(mut first: ResMut<SyncClient>, stage: Res<StartSyncStage>) {
+    if stage.0 {
+        first.0 .0 = true;
+    }
+}
 
 pub(crate) fn sync_test_client(
     mut first: ResMut<SyncClient>,

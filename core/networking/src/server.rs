@@ -538,8 +538,7 @@ pub struct Latency {
 }
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct AdjustSync {
-    pub tick: i8,
-    pub iteration: u64,
+    pub tick: i16,
 }
 
 pub(crate) fn adjust_clients(
@@ -547,7 +546,6 @@ pub(crate) fn adjust_clients(
     tickrate: Res<TickRate>,
     mut net: EventWriter<OutgoingReliableServerMessage<NetworkingServerMessage>>,
     mut confirmations: ResMut<SyncConfirmations>,
-    stamp: Res<TickRateStamp>,
     synced_clients: Res<ClientsReadyForSync>,
 ) {
     for (handle, tickrate_differences) in latency.tickrate_differences.iter_mut() {
@@ -591,15 +589,12 @@ pub(crate) fn adjust_clients(
                 if average_latency > 0. {
                     advance = -1;
                 } else {
-                    advance = average_latency.floor() as i8 - 1;
+                    advance = average_latency.floor() as i16 - 1;
                 }
 
                 net.send(OutgoingReliableServerMessage {
                     handle: *handle,
-                    message: NetworkingServerMessage::AdjustSync(AdjustSync {
-                        tick: advance,
-                        iteration: stamp.iteration,
-                    }),
+                    message: NetworkingServerMessage::AdjustSync(AdjustSync { tick: advance }),
                 });
 
                 tickrate_differences.clear();
@@ -619,8 +614,7 @@ pub(crate) fn adjust_clients(
                 net.send(OutgoingReliableServerMessage {
                     handle: *handle,
                     message: NetworkingServerMessage::AdjustSync(AdjustSync {
-                        tick: average_latency.ceil() as i8 - max_latency.floor() as i8,
-                        iteration: stamp.iteration,
+                        tick: average_latency.ceil() as i16 - max_latency.floor() as i16,
                     }),
                 });
                 tickrate_differences.clear();

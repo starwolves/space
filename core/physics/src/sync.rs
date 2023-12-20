@@ -22,7 +22,7 @@ use bevy_xpbd_3d::prelude::{Physics, PhysicsTime};
 use entity::despawn::DespawnEntity;
 use entity::entity_types::BoxedEntityType;
 use entity::spawn::ServerEntityClientEntity;
-use networking::client::IncomingUnreliableServerMessage;
+use networking::client::{IncomingUnreliableServerMessage, StartSyncStage};
 use networking::server::{ConnectedPlayer, HandleToEntity, OutgoingUnreliableServerMessage};
 use networking::{
     client::{
@@ -67,6 +67,8 @@ pub(crate) fn start_sync(
     mut tickrate: ResMut<TickRate>,
     mut physics_loop: ResMut<Time<Physics>>,
     mut start: ResMut<ClientStartedSyncing>,
+    mut stage: ResMut<StartSyncStage>,
+    mut i: Local<u16>,
 ) {
     for message in out.read() {
         match &message.message {
@@ -75,8 +77,17 @@ pub(crate) fn start_sync(
                 *tickrate = start_sync.tick_rate.clone();
                 physics_loop.unpause();
                 start.0 = true;
+                stage.0 = true;
+                *i = 0;
             }
             _ => (),
+        }
+    }
+    // Send heartbeat messages at higher frequency the first few seconds of connection.
+    if stage.0 {
+        *i += 1;
+        if *i > tickrate.fixed_rate as u16 * 5 {
+            stage.0 = false;
         }
     }
 }
@@ -94,7 +105,6 @@ pub(crate) fn sync_loop(
     mut fixed_time: ResMut<Time<Fixed>>,
     mut fast_forwarding: ResMut<FastForwarding>,
     mut p: ResMut<PauseTickStep>,
-    stamp: Res<TickRateStamp>,
 ) {
     if physics_loop.is_paused() {
         paused.i += 1;
@@ -148,9 +158,7 @@ pub(crate) fn sync_loop(
     match adjustment_option {
         Some(adjustment) => {
             if !physics_loop.is_paused() {
-                let delta = (((stamp.iteration as i128 - adjustment.iteration as i128)
-                    * u8::MAX as i128)
-                    + adjustment.tick as i128) as i16;
+                let delta = adjustment.tick;
 
                 if delta > 0 {
                     paused.duration = delta as u16;
