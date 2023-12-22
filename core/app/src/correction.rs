@@ -32,7 +32,6 @@ use controller::{
 };
 use entity::entity_macros::Identity;
 use gridmap::grid::{Gridmap, GridmapCache};
-use itertools::Itertools;
 use networking::stamp::{step_tickrate_stamp, PauseTickStep, TickRateStamp};
 use physics::{
     cache::{Cache, PhysicsCache, PriorityPhysicsCache, PriorityUpdate},
@@ -151,7 +150,7 @@ pub(crate) fn finish_correction(
             }
         }
 
-        info!("=================");
+        /*info!("=================");
         info!("finish_correction report:");
         info!(
             "first:{} last:{} at stamp: {}",
@@ -159,7 +158,7 @@ pub(crate) fn finish_correction(
         );
         for s in new_storage.cache.keys().sorted() {
             info!("{}", s);
-        }
+        }*/
 
         match send
             .sender

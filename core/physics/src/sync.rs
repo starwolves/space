@@ -223,8 +223,13 @@ pub fn init_physics_data(
     correction: Res<StartCorrection>,
     mut commands: Commands,
     link: Res<CorrectionServerRigidBodyLink>,
+    mut skip: Local<bool>,
 ) {
+    // Its still first tick, its just in postphysics after clear_sync_world so wait one more tick until entities spawned in.
     if sync.second_tick {
+        *skip = true;
+    } else if *skip {
+        *skip = false;
         match cache.cache.get(&correction.start_tick) {
             Some(physics_cache) => {
                 for (_, cache) in physics_cache.iter() {
@@ -366,15 +371,14 @@ pub(crate) fn sync_correction_world_entities(
                     }
                 }
                 if !found {
-                    match link.get_client(&correction_entity) {
+                    /*match link.get_client(&correction_entity) {
                         Some(cid) => {
                             info!("Correction despawn {:?}, cid:{:?}", correction_entity, cid);
                         }
                         None => {
                             warn!("Correction despawn (nolink) {:?}", correction_entity);
                         }
-                    }
-                    //link.map.remove(&q);
+                    }*/
                     despawn.send(DespawnEntity {
                         entity: correction_entity,
                     });
@@ -460,7 +464,7 @@ pub(crate) fn sync_correction_world_entities(
                         entity,
                         entity_type: cache.entity_type.clone(),
                     });
-                    info!("Correction spawn {:?}, cid:{:?}", entity, cache.entity);
+                    //info!("Correction spawn {:?}, cid:{:?}", entity, cache.entity);
                 }
             }
         }
