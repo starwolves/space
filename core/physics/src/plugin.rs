@@ -30,10 +30,10 @@ use crate::{
     mirror_physics_transform::rigidbody_link_transform,
     net::PhysicsUnreliableServerMessage,
     sync::{
-        apply_priority_cache, correction_sync_physics_data, desync_check_correction, pause_loop,
+        apply_priority_cache, desync_check_correction, init_physics_data, pause_loop,
         send_desync_check, start_sync, sync_correction_world_entities, sync_loop,
         ClientStartedSyncing, CorrectionServerRigidBodyLink, FastForwarding, PendingDesync,
-        SpawningSimulation, SpawningSimulationRigidBody, SyncPause,
+        SimulationStorage, SpawningSimulation, SpawningSimulationRigidBody, SyncPause,
     },
 };
 
@@ -59,14 +59,15 @@ impl Plugin for PhysicsPlugin {
                             .after(CorrectionSet::Start)
                             .in_set(MainSet::Update)
                             .before(SpawningSimulation::Spawn),
-                        correction_sync_physics_data.in_set(MainSet::PostPhysics),
+                        init_physics_data.in_set(MainSet::PostPhysics),
                         apply_priority_cache
                             .in_set(MainSet::PostPhysics)
-                            .after(correction_sync_physics_data),
+                            .after(init_physics_data),
                     ),
                 )
                 .init_resource::<CorrectionServerRigidBodyLink>()
-                .add_event::<SpawningSimulationRigidBody>();
+                .add_event::<SpawningSimulationRigidBody>()
+                .init_resource::<SimulationStorage>();
             }
             if is_server() {
                 app.add_systems(FixedUpdate, send_desync_check.in_set(MainSet::Update));

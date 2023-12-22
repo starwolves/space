@@ -32,12 +32,13 @@ use controller::{
 };
 use entity::entity_macros::Identity;
 use gridmap::grid::{Gridmap, GridmapCache};
+use itertools::Itertools;
 use networking::stamp::{step_tickrate_stamp, PauseTickStep, TickRateStamp};
 use physics::{
     cache::{Cache, PhysicsCache, PriorityPhysicsCache, PriorityUpdate},
     correction_mode::CorrectionResults,
     entity::{RigidBodies, SFRigidBody},
-    sync::{apply_priority_cache, CorrectionServerRigidBodyLink},
+    sync::{apply_priority_cache, CorrectionServerRigidBodyLink, SimulationStorage},
 };
 use resources::{
     content::SF_CONTENT_PREFIX,
@@ -102,8 +103,7 @@ impl Plugin for CorrectionServerPlugin {
         )
         .init_resource::<StartCorrection>()
         .init_resource::<IsCorrecting>()
-        .init_resource::<SyncWorld>()
-        .init_resource::<SimulationStorage>();
+        .init_resource::<SyncWorld>();
     }
 }
 #[derive(Resource, Default)]
@@ -132,19 +132,33 @@ pub(crate) fn finish_correction(
 
         for ncache in new_storage.cache.iter_mut() {
             for (_, cache) in ncache.1 {
-                match link.map.get(&cache.entity) {
-                    Some(l) => {
-                        cache.entity = *l;
-                    }
-                    None => {
-                        warn!(
-                            "Couldnt find CorrectionServerRigidBodyLink link: {:?}, len: {}",
-                            cache.entity,
-                            link.map.len()
-                        );
+                let mut found = false;
+                for (client, sims) in link.map.iter() {
+                    for e in sims.iter() {
+                        if *e == cache.entity {
+                            cache.entity = *client;
+                            found = true;
+                        }
                     }
                 }
+                if !found {
+                    warn!(
+                        "Couldnt find CorrectionServerRigidBodyLink link: {:?}, len: {}",
+                        cache.entity,
+                        link.map.len()
+                    );
+                }
             }
+        }
+
+        info!("=================");
+        info!("finish_correction report:");
+        info!(
+            "first:{} last:{} at stamp: {}",
+            start.start_tick, start.last_tick, stamp.large
+        );
+        for s in new_storage.cache.keys().sorted() {
+            info!("{}", s);
         }
 
         match send
@@ -185,7 +199,6 @@ pub(crate) fn server_start_correcting(
     mut cache: ResMut<PhysicsCache>,
     mut fixed: ResMut<Time<Fixed>>,
     mut correction: ResMut<StartCorrection>,
-    mut correcting: ResMut<IsCorrecting>,
     mut input_cache: ResMut<RecordedControllerInput>,
     mut gridmap: ResMut<Gridmap>,
     mut rebuild: ResMut<SyncWorld>,
@@ -195,6 +208,8 @@ pub(crate) fn server_start_correcting(
     mut look_cache: ResMut<LookTransformCache>,
     mut pause_stamp: ResMut<PauseTickStep>,
     mut priority: ResMut<PriorityPhysicsCache>,
+    query: Query<Entity, With<RigidBody>>,
+    mut correcting: ResMut<IsCorrecting>,
 ) {
     match &queued_message_reciever.receiver_option {
         Some(receiver) => loop {
@@ -216,12 +231,14 @@ pub(crate) fn server_start_correcting(
                         for t in fixed_cache.cache.iter_mut() {
                             for (_, cache) in t.1.iter_mut() {
                                 let mut found: bool = false;
-                                for (sim, client) in link.map.iter() {
-                                    if *client == cache.entity {
-                                        cache.entity = *sim;
-                                        found = true;
+                                for (client, sims) in link.map.iter() {
+                                    for sim in sims.iter() {
+                                        if *client == cache.entity {
+                                            cache.entity = *sim;
+                                            found = true;
 
-                                        break;
+                                            break;
+                                        }
                                     }
                                 }
                                 if !found {
@@ -234,25 +251,42 @@ pub(crate) fn server_start_correcting(
                             let mut new_tick_map = HashMap::new();
                             for (pentity, update) in t.1.iter() {
                                 let mut found: bool = false;
-                                for (sim, client) in link.map.iter() {
+                                for (client, sims) in link.map.iter() {
                                     if client == pentity {
-                                        let new_update = update.clone();
-                                        match new_update {
-                                            physics::cache::PriorityUpdate::SmallCache(
-                                                mut small,
-                                            ) => {
-                                                small.entity = *sim;
-                                                new_tick_map.insert(
-                                                    *sim,
-                                                    PriorityUpdate::SmallCache(small),
-                                                );
-                                            }
-                                            _ => {
-                                                new_tick_map.insert(*sim, new_update);
+                                        let mut f = None;
+
+                                        for sim in sims.iter() {
+                                            match query.get(*sim) {
+                                                Ok(_) => {
+                                                    f = Some(*sim);
+                                                    break;
+                                                }
+                                                Err(_) => {}
                                             }
                                         }
-                                        found = true;
-
+                                        match f {
+                                            Some(sim) => {
+                                                let new_update = update.clone();
+                                                match new_update {
+                                                    physics::cache::PriorityUpdate::SmallCache(
+                                                        mut small,
+                                                    ) => {
+                                                        small.entity = sim;
+                                                        new_tick_map.insert(
+                                                            sim,
+                                                            PriorityUpdate::SmallCache(small),
+                                                        );
+                                                    }
+                                                    _ => {
+                                                        new_tick_map.insert(sim, new_update);
+                                                    }
+                                                }
+                                                found = true;
+                                            }
+                                            None => {
+                                                warn!("Nothing found.");
+                                            }
+                                        }
                                         break;
                                     }
                                 }
@@ -266,7 +300,6 @@ pub(crate) fn server_start_correcting(
                         fixed.set_timestep_seconds(0.000000001);
                         *correction = start_correction_data.clone();
                         *input_cache = input;
-                        correcting.0 = true;
                         gridmap.updates_cache = gridmap_cache;
 
                         rebuild.rebuild = true;
@@ -276,6 +309,7 @@ pub(crate) fn server_start_correcting(
                         *stamp = TickRateStamp::new(start_correction_data.start_tick);
                         pause_stamp.0 = true;
                         priority.cache = new_pcache;
+                        correcting.0 = true;
                     }
                 },
                 Err(_) => {
@@ -437,8 +471,6 @@ pub(crate) fn receive_correction_server_messages(
         }
     }
 }
-#[derive(Resource, Default)]
-pub(crate) struct SimulationStorage(PhysicsCache);
 
 /// Correction server system.
 pub(crate) fn store_tick_data(
@@ -467,9 +499,13 @@ pub(crate) fn store_tick_data(
     >,
     mut storage: ResMut<SimulationStorage>,
     stamp: Res<TickRateStamp>,
+    correcting: Res<IsCorrecting>,
 ) {
-    let adjusted_stamp = stamp.large + 1;
-    storage.0.cache.insert(adjusted_stamp, HashMap::new());
+    if !correcting.0 {
+        return;
+    }
+    let adjustment_stamp = stamp.large;
+    storage.0.cache.insert(adjustment_stamp, HashMap::new());
 
     for (t0, collider_friction) in query.iter() {
         let (
@@ -489,7 +525,7 @@ pub(crate) fn store_tick_data(
             locked_axes,
             collision_layers,
         ) = t0;
-        let tick_cache = storage.0.cache.get_mut(&adjusted_stamp).unwrap();
+        let tick_cache = storage.0.cache.get_mut(&adjustment_stamp).unwrap();
         tick_cache.insert(
             rb_entity,
             Cache {
@@ -648,13 +684,14 @@ pub(crate) fn apply_humanoid_caches(
         }
     }
     for (entity, mut look, mut controller) in query.iter_mut() {
-        let mut rb = entity;
-        match link.map.get(&entity) {
-            Some(e) => {
-                rb = *e;
+        let rb;
+        match link.get_client(&entity) {
+            Some(sims) => {
+                rb = *sims;
             }
             None => {
-                warn!("Couldnt find link of query. {:?}", entity);
+                warn!("Couldnt find link of query. continueing. {:?}", entity);
+                continue;
             }
         }
         match controller_t.get(&rb) {

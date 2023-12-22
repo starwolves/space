@@ -1,6 +1,9 @@
+use std::fs::File;
+use std::io::Write;
+use std::path::Path;
 use std::{collections::HashMap, f32::consts::PI, ops::Deref};
 
-use bevy::log::warn;
+use bevy::log::{info, warn};
 use bevy::{
     gltf::GltfMesh,
     prelude::{
@@ -378,8 +381,11 @@ pub struct SetCell {
     pub tile_id: u16,
     pub face: CellFace,
 }
-/*
+pub const EXPORT_TEST_MAP: bool = false;
 pub(crate) fn export_debug_map() {
+    if !EXPORT_TEST_MAP {
+        return;
+    }
     let mut data: Vec<CellDataExport> = vec![];
 
     let floor_length = 20;
@@ -409,7 +415,7 @@ pub(crate) fn export_debug_map() {
     file.write_all(&dats).unwrap();
     info!("Exported debug map!");
 }
-*/
+
 impl Gridmap {
     pub fn export_binary(&self) -> Vec<u8> {
         let mut data = vec![];

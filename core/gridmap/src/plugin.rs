@@ -29,8 +29,8 @@ use crate::{
     graphics::{set_cell_graphics, CellGraphicsBuffer},
     grid::{
         add_cell_client, add_tile, add_tile_collision, add_tile_net, cache_updates,
-        remove_cell_client, remove_tile, remove_tile_net, removed_tile, spawn_group, AddGroup,
-        AddTile, EditTileSet, Gridmap, RemoveTile,
+        export_debug_map, remove_cell_client, remove_tile, remove_tile_net, removed_tile,
+        spawn_group, AddGroup, AddTile, EditTileSet, Gridmap, RemoveTile,
     },
     init::{
         init_tile_groups, init_tile_properties, load_ron_gridmap, startup_misc_resources,
@@ -135,7 +135,7 @@ impl Plugin for GridmapPlugin {
         } else {
             app.init_resource::<NewGhostBuffer>()
                 .init_resource::<CellGraphicsBuffer>()
-                //  .add_systems(Startup, export_debug_map)
+                .add_systems(Startup, export_debug_map)
                 .add_systems(
                     FixedUpdate,
                     (

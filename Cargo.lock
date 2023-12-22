@@ -257,6 +257,7 @@ dependencies = [
  "human_male",
  "humanoid",
  "inventory",
+ "itertools 0.12.0",
  "jumpsuit_security",
  "line_arrow",
  "main_menu",
