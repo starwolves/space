@@ -31,8 +31,22 @@ pub enum PriorityUpdate {
     Position(Vec3),
 }
 
-pub(crate) fn clear_priority_cache(mut cache: ResMut<PriorityPhysicsCache>) {
-    cache.cache.clear();
+pub(crate) fn clear_priority_cache(
+    mut cache: ResMut<PriorityPhysicsCache>,
+    stamp: Res<TickRateStamp>,
+) {
+    // Clean cache.
+    let mut to_remove = vec![];
+    for recorded_stamp in cache.cache.keys() {
+        if stamp.large >= MAX_CACHE_TICKS_AMNT
+            && recorded_stamp < &(stamp.large - MAX_CACHE_TICKS_AMNT)
+        {
+            to_remove.push(*recorded_stamp);
+        }
+    }
+    for i in to_remove {
+        cache.cache.remove(&i);
+    }
 }
 
 #[derive(Clone)]
