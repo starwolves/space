@@ -80,8 +80,8 @@ impl Plugin for PhysicsPlugin {
                         .in_set(MainSet::PostPhysics)
                         .after(PhysicsSet::Correct),
                     cache_data
-                        .in_set(MainSet::PostPhysics)
-                        .after(PhysicsSet::Correct),
+                        .in_set(MainSet::PreUpdate)
+                        .after(step_tickrate_stamp),
                     desync_check_correction
                         .run_if(resource_exists::<RenetClient>())
                         .in_set(MainSet::Update)

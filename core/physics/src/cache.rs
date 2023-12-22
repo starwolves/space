@@ -79,6 +79,7 @@ pub struct SmallCache {
     pub rotation: Quat,
 }
 
+/// Should run in preupdate and cache previous tick. This way we cache data of entities spawned with data point of last frame.
 pub(crate) fn cache_data(
     query: Query<
         (
@@ -109,6 +110,8 @@ pub(crate) fn cache_data(
     types: Query<&EntityData>,
 ) {
     for (t0, collider_friction) in query.iter() {
+        let adjusted_stamp = stamp.large - 1;
+
         let (
             rb_entity,
             transform,
@@ -175,14 +178,14 @@ pub(crate) fn cache_data(
             entity_type,
         };
 
-        match cache.cache.get_mut(&stamp.large) {
+        match cache.cache.get_mut(&adjusted_stamp) {
             Some(c) => {
                 c.insert(ncache.entity, ncache);
             }
             None => {
                 let mut m = HashMap::new();
                 m.insert(ncache.entity, ncache);
-                cache.cache.insert(stamp.large, m);
+                cache.cache.insert(adjusted_stamp, m);
             }
         }
     }
