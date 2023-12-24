@@ -523,6 +523,9 @@ pub fn deserialize_incoming_reliable_server_message<
     let mut processed_stamp = None;
     let bound_queue = queue.clone();
     for i in bound_queue.keys().sorted() {
+        if *i > stamp.large {
+            break;
+        }
         let msgs = queue.get(i).unwrap();
 
         for m in msgs {
