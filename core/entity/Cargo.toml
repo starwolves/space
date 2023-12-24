@@ -23,6 +23,7 @@ ron = "0.8.0"
 dyn-clone = "1.0.12"
 bevy_renet = "0.0.10"
 bincode = "1.3.3"
+itertools = "0.12.0"
 
 doryen_fov = { path = "../doryen_fov" }
 networking = { path = "../networking" }

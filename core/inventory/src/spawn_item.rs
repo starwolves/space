@@ -170,7 +170,6 @@ pub(crate) fn spawn_entity_for_client(
                         entity: load_entity_event.entity,
                         physics_data: PhysicsData {
                             translation: transform.translation,
-                            scale: transform.scale,
                             rotation: transform.rotation,
                             velocity: *linear_velocity,
                             angular_velocity: *angular_velocity,

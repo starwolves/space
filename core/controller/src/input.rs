@@ -27,10 +27,7 @@ use networking::{
     plugin::RENET_RELIABLE_ORDERED_ID,
     stamp::TickRateStamp,
 };
-use physics::{
-    cache::{PhysicsCache, PriorityPhysicsCache, PriorityUpdate},
-    sync::ClientStartedSyncing,
-};
+use physics::{cache::PhysicsCache, sync::ClientStartedSyncing};
 use resources::{
     core::TickRate,
     correction::{StartCorrection, MAX_CACHE_TICKS_AMNT},
@@ -38,6 +35,7 @@ use resources::{
         InputBuffer, KeyBind, KeyBinds, KeyCodeEnum, HOLD_SPRINT_BIND, JUMP_BIND,
         MOVE_BACKWARD_BIND, MOVE_FORWARD_BIND, MOVE_LEFT_BIND, MOVE_RIGHT_BIND,
     },
+    physics::{PriorityPhysicsCache, PriorityUpdate},
 };
 use typename::TypeName;
 

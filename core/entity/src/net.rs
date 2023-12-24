@@ -48,7 +48,6 @@ pub struct LoadEntity {
 }
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct PhysicsData {
-    pub scale: Vec3,
     pub rotation: Quat,
     pub velocity: Vec3,
     pub translation: Vec3,

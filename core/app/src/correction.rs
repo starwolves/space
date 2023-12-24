@@ -34,7 +34,7 @@ use entity::entity_macros::Identity;
 use gridmap::grid::{Gridmap, GridmapCache};
 use networking::stamp::{step_tickrate_stamp, PauseTickStep, TickRateStamp};
 use physics::{
-    cache::{Cache, PhysicsCache, PriorityPhysicsCache, PriorityUpdate},
+    cache::{Cache, PhysicsCache},
     correction_mode::CorrectionResults,
     entity::{RigidBodies, SFRigidBody},
     sync::{apply_priority_cache, CorrectionServerRigidBodyLink, SimulationStorage},
@@ -43,7 +43,7 @@ use resources::{
     content::SF_CONTENT_PREFIX,
     correction::{CorrectionServerSet, StartCorrection, SyncWorld},
     modes::is_server,
-    physics::PhysicsSet,
+    physics::{PhysicsSet, PriorityPhysicsCache, PriorityUpdate},
     sets::MainSet,
 };
 
@@ -267,9 +267,7 @@ pub(crate) fn server_start_correcting(
                                             Some(sim) => {
                                                 let new_update = update.clone();
                                                 match new_update {
-                                                    physics::cache::PriorityUpdate::SmallCache(
-                                                        mut small,
-                                                    ) => {
+                                                    PriorityUpdate::SmallCache(mut small) => {
                                                         small.entity = sim;
                                                         new_tick_map.insert(
                                                             sim,
@@ -499,8 +497,9 @@ pub(crate) fn store_tick_data(
     mut storage: ResMut<SimulationStorage>,
     stamp: Res<TickRateStamp>,
     correcting: Res<IsCorrecting>,
+    sync: Res<SyncWorld>,
 ) {
-    if !correcting.0 {
+    if !correcting.0 || sync.second_tick {
         return;
     }
     let adjustment_stamp = stamp.large;

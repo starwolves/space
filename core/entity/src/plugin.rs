@@ -15,7 +15,7 @@ use crate::examine::{
     incoming_messages, ExamineEntityMessages, InputExamineEntity,
 };
 use crate::init::load_ron_entities;
-use crate::loading::link_peer;
+use crate::loading::{link_peer, NewToBeCachedSpawnedEntities};
 use crate::net::{EntityClientMessage, EntityServerMessage};
 use crate::spawn::{PawnId, PeerPawns, ServerEntityClientEntity};
 use crate::spawning_events::{
@@ -74,7 +74,8 @@ impl Plugin for EntityPlugin {
                             .before(TypenamesSet::SendRawEvents),
                     ),
                 )
-                .init_resource::<QueuedSpawnEntityUpdates>();
+                .init_resource::<QueuedSpawnEntityUpdates>()
+                .init_resource::<NewToBeCachedSpawnedEntities>();
         }
         app.add_event::<DespawnEntity>()
             .add_event::<RawSpawnEvent>()

@@ -135,7 +135,6 @@ pub fn build_base_human_males<T: BaseEntityBuilder<HumanMaleBuildData> + 'static
                         entity: spawn_event.spawn_data.entity,
                         physics_data: PhysicsData {
                             translation: spawn_event.spawn_data.entity_transform.translation,
-                            scale: spawn_event.spawn_data.entity_transform.scale,
                             rotation: spawn_event.spawn_data.entity_transform.rotation,
                             velocity: Vec3::ZERO,
                             angular_velocity: Vec3::ZERO,

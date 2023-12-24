@@ -172,7 +172,6 @@ pub fn build_base_entities<T: BaseEntityBuilder<NoData> + 'static>(
 
                         physics_data: PhysicsData {
                             translation: spawn_event.spawn_data.entity_transform.translation,
-                            scale: spawn_event.spawn_data.entity_transform.scale,
                             rotation: spawn_event.spawn_data.entity_transform.rotation,
                             velocity: Vec3::ZERO,
                             angular_velocity: Vec3::ZERO,

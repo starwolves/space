@@ -3,7 +3,6 @@ use std::collections::HashMap;
 use bevy::ecs::event::{Event, EventReader};
 use bevy::ecs::system::Commands;
 use bevy::log::warn;
-use bevy::math::{Quat, Vec3};
 use bevy::prelude::{Entity, Query, Res, ResMut, Resource, Transform, With};
 use bevy_xpbd_3d::components::{Collider, CollisionLayers, Friction, LockedAxes, Sleeping};
 use bevy_xpbd_3d::prelude::{
@@ -12,25 +11,18 @@ use bevy_xpbd_3d::prelude::{
 };
 use entity::entity_data::EntityData;
 use entity::entity_types::BoxedEntityType;
+use entity::loading::NewToBeCachedSpawnedEntities;
 use networking::stamp::TickRateStamp;
 use resources::correction::MAX_CACHE_TICKS_AMNT;
-use serde::{Deserialize, Serialize};
+use resources::physics::PriorityPhysicsCache;
 
 use crate::entity::{RigidBodies, SFRigidBody};
+
+/// Correction server sometimes stores client-side entity ID when it is not yet spawned in.
 #[derive(Resource, Default, Clone)]
 pub struct PhysicsCache {
     pub cache: HashMap<u64, HashMap<Entity, Cache>>,
 }
-#[derive(Resource, Default, Clone)]
-pub struct PriorityPhysicsCache {
-    pub cache: HashMap<u64, HashMap<Entity, PriorityUpdate>>,
-}
-#[derive(Clone)]
-pub enum PriorityUpdate {
-    SmallCache(SmallCache),
-    Position(Vec3),
-}
-
 pub(crate) fn clear_priority_cache(
     mut cache: ResMut<PriorityPhysicsCache>,
     stamp: Res<TickRateStamp>,
@@ -70,13 +62,43 @@ pub struct Cache {
     pub collider_friction: Friction,
     pub entity_type: BoxedEntityType,
 }
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct SmallCache {
-    pub entity: Entity,
-    pub linear_velocity: Vec3,
-    pub angular_velocity: Vec3,
-    pub translation: Vec3,
-    pub rotation: Quat,
+
+pub(crate) fn cache_newly_spawned(
+    mut new: ResMut<NewToBeCachedSpawnedEntities>,
+    mut cache: ResMut<PhysicsCache>,
+    stampres: Res<TickRateStamp>,
+) {
+    let mut adjusted_stamp = stampres.large;
+    if adjusted_stamp > 0 {
+        adjusted_stamp -= 1;
+    }
+    for (stamp, entity) in new.list.iter() {
+        match cache.cache.clone().get(&adjusted_stamp) {
+            Some(physics_cache) => match physics_cache.get(entity) {
+                Some(data) => {
+                    for i in *stamp..adjusted_stamp {
+                        match cache.cache.get_mut(&i) {
+                            Some(physics_cache) => {
+                                physics_cache.insert(*entity, data.clone());
+                            }
+                            None => {
+                                let mut map = HashMap::new();
+                                map.insert(*entity, data.clone());
+                                cache.cache.insert(i, map);
+                            }
+                        }
+                    }
+                }
+                None => {
+                    warn!("Couldnt find new spawned entity old entity cache.");
+                }
+            },
+            None => {
+                warn!("Couldnt find new spawned entity old cache.");
+            }
+        }
+    }
+    new.list.clear();
 }
 
 /// Should run in preupdate and cache previous tick. This way we cache data of entities spawned with data point of last frame.

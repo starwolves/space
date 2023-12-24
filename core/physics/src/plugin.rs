@@ -13,13 +13,13 @@ use resources::{
     core::TickRate,
     correction::CorrectionSet,
     modes::{is_correction_mode, is_server, is_server_mode},
-    physics::PhysicsSet,
+    physics::{PhysicsSet, PriorityPhysicsCache},
     sets::MainSet,
 };
 
 use crate::{
     cache::{
-        cache_data, clear_priority_cache, sync_entities, PhysicsCache, PriorityPhysicsCache,
+        cache_data, cache_newly_spawned, clear_priority_cache, sync_entities, PhysicsCache,
         SyncEntitiesPhysics,
     },
     correction_mode::CorrectionResults,
@@ -61,8 +61,8 @@ impl Plugin for PhysicsPlugin {
                             .before(SpawningSimulation::Spawn),
                         init_physics_data.in_set(MainSet::PostPhysics),
                         apply_priority_cache
-                            .in_set(MainSet::PostPhysics)
-                            .after(init_physics_data),
+                            .in_set(MainSet::PreUpdate)
+                            .after(cache_data),
                     ),
                 )
                 .init_resource::<CorrectionServerRigidBodyLink>()
@@ -82,6 +82,9 @@ impl Plugin for PhysicsPlugin {
                     cache_data
                         .in_set(MainSet::PreUpdate)
                         .after(step_tickrate_stamp),
+                    cache_newly_spawned
+                        .after(cache_data)
+                        .in_set(MainSet::PreUpdate),
                     desync_check_correction
                         .run_if(resource_exists::<RenetClient>())
                         .in_set(MainSet::Update)

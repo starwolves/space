@@ -2128,6 +2128,7 @@ dependencies = [
  "doryen_fov",
  "dyn-clone",
  "entity_macros",
+ "itertools 0.12.0",
  "networking",
  "resources",
  "ron",
