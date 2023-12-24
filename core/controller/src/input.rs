@@ -508,7 +508,7 @@ pub(crate) fn process_peer_input(
                                 }
                             }
                             None => {
-                                warn!("Couldnt find peer pawn 2.");
+                                warn!("Couldnt find peer pawn 2. {}", message.message.peer_handle);
                             }
                         }
                     }

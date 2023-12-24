@@ -76,7 +76,7 @@ pub(crate) fn cache_newly_spawned(
         match cache.cache.clone().get(&adjusted_stamp) {
             Some(physics_cache) => match physics_cache.get(entity) {
                 Some(data) => {
-                    for i in *stamp..adjusted_stamp {
+                    for i in *stamp..stampres.large {
                         match cache.cache.get_mut(&i) {
                             Some(physics_cache) => {
                                 physics_cache.insert(*entity, data.clone());

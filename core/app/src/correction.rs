@@ -497,9 +497,9 @@ pub(crate) fn store_tick_data(
     mut storage: ResMut<SimulationStorage>,
     stamp: Res<TickRateStamp>,
     correcting: Res<IsCorrecting>,
-    sync: Res<SyncWorld>,
+    correction: Res<StartCorrection>,
 ) {
-    if !correcting.0 || sync.second_tick {
+    if !correcting.0 || correction.start_tick == stamp.large {
         return;
     }
     let adjustment_stamp = stamp.large;

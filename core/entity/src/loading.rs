@@ -59,20 +59,22 @@ pub fn load_entity<T: Send + Sync + 'static + Default + EntityType>(
 
     for message in client.read() {
         match &message.message {
-            EntityServerMessage::LoadEntity(_) => match load_entity_queue.get_mut(&message.stamp) {
-                Some(entity_messages) => {
-                    entity_messages.push(message.clone());
+            EntityServerMessage::LoadEntity(_) => {
+                match load_entity_queue.get_mut(&(message.stamp - 1)) {
+                    Some(entity_messages) => {
+                        entity_messages.push(message.clone());
+                    }
+                    None => {
+                        load_entity_queue.insert(message.stamp - 1, vec![message.clone()]);
+                    }
                 }
-                None => {
-                    load_entity_queue.insert(message.stamp, vec![message.clone()]);
-                }
-            },
+            }
             _ => {}
         }
     }
 
     for server_tick in load_entity_queue.clone().keys().sorted() {
-        if server_tick > &(stamp.large + 1) {
+        if server_tick > &(stamp.large) {
             break;
         }
         match load_entity_queue.get(server_tick) {
@@ -140,7 +142,7 @@ pub fn load_entity<T: Send + Sync + 'static + Default + EntityType>(
                                     );
                                 }
 
-                                if *server_tick != stamp.large + 1 {
+                                if *server_tick != stamp.large {
                                     let small_cache = PriorityUpdate::SmallCache(SmallCache {
                                         entity: c_id,
                                         linear_velocity: load_entity.physics_data.velocity,
@@ -148,7 +150,7 @@ pub fn load_entity<T: Send + Sync + 'static + Default + EntityType>(
                                         translation: load_entity.physics_data.translation,
                                         rotation: load_entity.physics_data.rotation,
                                     });
-                                    let adjusted_tick = server_tick - 1;
+                                    let adjusted_tick = *server_tick;
                                     match priority.cache.get_mut(&adjusted_tick) {
                                         Some(priority_cache) => {
                                             priority_cache.insert(c_id, small_cache);
@@ -193,6 +195,7 @@ pub(crate) fn link_peer(
                 let mut found = false;
                 for (s, c) in links.map.iter() {
                     if s == &link.server_entity {
+                        info!("Peer pawn insert {}", link.handle);
                         peers.map.insert(ClientId::from_raw(link.handle.into()), *c);
                         found = true;
                         break;

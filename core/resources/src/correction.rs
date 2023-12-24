@@ -2,8 +2,9 @@ use bevy::ecs::{event::Event, schedule::SystemSet, system::Resource};
 
 #[derive(Debug, Event, Clone, Resource, Default)]
 pub struct StartCorrection {
+    /// The tick at which correction simulation should sync. This tick does not get returned and re-applied in correction results.
     pub start_tick: u64,
-    /// The last tick that is calculated.
+    /// The last tick that is calculated. This should always be equal to TickRateStamp.large of the loop it gets called in.
     pub last_tick: u64,
 }
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
