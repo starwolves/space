@@ -22,6 +22,7 @@ pub struct SmallCache {
     pub rotation: Quat,
 }
 
+/// Contains known authorative physics data.
 #[derive(Resource, Default, Clone)]
 pub struct PriorityPhysicsCache {
     pub cache: HashMap<u64, HashMap<Entity, PriorityUpdate>>,
@@ -30,4 +31,12 @@ pub struct PriorityPhysicsCache {
 pub enum PriorityUpdate {
     SmallCache(SmallCache),
     Position(Vec3),
+    PhysicsSpawn(PhysicsSpawn),
+}
+
+/// Currently only support spawning bodies with transform parameter. In the future other inits like velocity will be added.
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct PhysicsSpawn {
+    pub translation: Vec3,
+    pub rotation: Quat,
 }

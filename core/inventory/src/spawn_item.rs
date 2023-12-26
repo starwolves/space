@@ -3,11 +3,13 @@ use bevy::prelude::{Commands, Entity, EventReader};
 use bevy::prelude::{EventWriter, Query, Res};
 use bevy_xpbd_3d::components::{AngularVelocity, LinearVelocity};
 use bevy_xpbd_3d::prelude::RigidBody;
-use entity::net::{EntityServerMessage, LinkPeer, LoadEntity, PhysicsData};
+use entity::net::{EntityServerMessage, LinkPeer, LoadData, LoadEntity, PhysicsData};
 use entity::spawn::{EntityBuildData, SpawnEntity};
 use entity::spawning_events::SpawnClientEntity;
+use networking::stamp::TickRateStamp;
 use physics::entity::{RigidBodies, SFRigidBody};
 use physics::mirror_physics_transform::MirrorPhysicsTransform;
+use physics::spawn::NewlySpawnedRigidbodies;
 
 use crate::server::combat::{MeleeCombat, ProjectileCombat};
 
@@ -106,6 +108,8 @@ pub(crate) fn spawn_entity_for_client(
     rigidbodies: Res<RigidBodies>,
     rigid_query: Query<(&LinearVelocity, &AngularVelocity), With<SFRigidBody>>,
     serialized_updates: Res<EntityUpdatesSerialized>,
+    new: Res<NewlySpawnedRigidbodies>,
+    stamp: Res<TickRateStamp>,
 ) {
     for load_entity_event in load_entity_events.read() {
         match entity_query.get(load_entity_event.entity) {
@@ -160,6 +164,30 @@ pub(crate) fn spawn_entity_for_client(
                     None => {}
                 }
 
+                let physics_data;
+                match new.cache.get(&(stamp.large - 1)) {
+                    Some(previous_spawns) => match previous_spawns.get(&load_entity_event.entity) {
+                        Some(newly_spawned) => {
+                            physics_data = PhysicsData::SpawnData(newly_spawned.clone());
+                        }
+                        None => {
+                            physics_data = PhysicsData::LoadData(LoadData {
+                                translation: transform.translation,
+                                rotation: transform.rotation,
+                                velocity: *linear_velocity,
+                                angular_velocity: *angular_velocity,
+                            });
+                        }
+                    },
+                    None => {
+                        physics_data = PhysicsData::LoadData(LoadData {
+                            translation: transform.translation,
+                            rotation: transform.rotation,
+                            velocity: *linear_velocity,
+                            angular_velocity: *angular_velocity,
+                        });
+                    }
+                }
                 server.send(OutgoingReliableServerMessage {
                     handle: load_entity_event.loader_handle,
                     message: EntityServerMessage::LoadEntity(LoadEntity {
@@ -168,12 +196,7 @@ pub(crate) fn spawn_entity_for_client(
                             .get(&entity_data.entity_type.get_identity())
                             .unwrap(),
                         entity: load_entity_event.entity,
-                        physics_data: PhysicsData {
-                            translation: transform.translation,
-                            rotation: transform.rotation,
-                            velocity: *linear_velocity,
-                            angular_velocity: *angular_velocity,
-                        },
+                        physics_data,
                         holder_entity: holder_option,
                         entity_updates_reliable: reliable,
                         entity_updates_unreliable: unreliable,

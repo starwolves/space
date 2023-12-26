@@ -32,7 +32,7 @@ use crate::spawn::SpawnEntity;
 
 #[derive(Resource, Default)]
 pub struct NewToBeCachedSpawnedEntities {
-    pub list: Vec<(u64, Entity)>,
+    pub list: Vec<(u64, Entity, PriorityUpdate)>,
 }
 
 /// Client loads in entities.
@@ -60,12 +60,13 @@ pub fn load_entity<T: Send + Sync + 'static + Default + EntityType>(
     for message in client.read() {
         match &message.message {
             EntityServerMessage::LoadEntity(_) => {
-                match load_entity_queue.get_mut(&(message.stamp - 1)) {
+                let adjusted_stamp = message.stamp;
+                match load_entity_queue.get_mut(&adjusted_stamp) {
                     Some(entity_messages) => {
                         entity_messages.push(message.clone());
                     }
                     None => {
-                        load_entity_queue.insert(message.stamp - 1, vec![message.clone()]);
+                        load_entity_queue.insert(adjusted_stamp, vec![message.clone()]);
                     }
                 }
             }
@@ -96,12 +97,23 @@ pub fn load_entity<T: Send + Sync + 'static + Default + EntityType>(
                                     continue;
                                 }
                             }
-
-                            let transform = Transform {
-                                translation: load_entity.physics_data.translation,
-                                rotation: load_entity.physics_data.rotation,
-                                ..Default::default()
-                            };
+                            let transform;
+                            match &load_entity.physics_data {
+                                crate::net::PhysicsData::LoadData(data) => {
+                                    transform = Transform {
+                                        translation: data.translation,
+                                        rotation: data.rotation,
+                                        ..Default::default()
+                                    };
+                                }
+                                crate::net::PhysicsData::SpawnData(data) => {
+                                    transform = Transform {
+                                        translation: data.translation,
+                                        rotation: data.rotation,
+                                        ..Default::default()
+                                    };
+                                }
+                            }
 
                             let entity_default = T::default();
 
@@ -117,6 +129,11 @@ pub fn load_entity<T: Send + Sync + 'static + Default + EntityType>(
                                     load_entity.entity_updates_reliable.len()
                                         + load_entity.entity_updates_unreliable.len()
                                 );
+
+                                /*info!(
+                                    "Loading pos {:?} for tick {} at tick {}",
+                                    transform.translation, server_tick, stamp.large
+                                );*/
 
                                 spawn_events.send(SpawnEntity {
                                     spawn_data: EntityBuildData {
@@ -142,32 +159,50 @@ pub fn load_entity<T: Send + Sync + 'static + Default + EntityType>(
                                     );
                                 }
 
-                                if *server_tick != stamp.large {
-                                    let small_cache = PriorityUpdate::SmallCache(SmallCache {
-                                        entity: c_id,
-                                        linear_velocity: load_entity.physics_data.velocity,
-                                        angular_velocity: load_entity.physics_data.angular_velocity,
-                                        translation: load_entity.physics_data.translation,
-                                        rotation: load_entity.physics_data.rotation,
-                                    });
-                                    let adjusted_tick = *server_tick;
-                                    match priority.cache.get_mut(&adjusted_tick) {
-                                        Some(priority_cache) => {
-                                            priority_cache.insert(c_id, small_cache);
-                                        }
-                                        None => {
-                                            let mut map = HashMap::new();
-                                            map.insert(c_id, small_cache);
-                                            priority.cache.insert(adjusted_tick, map);
-                                        }
+                                let compare_tick;
+                                let mut adjusted_tick = *server_tick - 1;
+                                let priority_update;
+
+                                match &load_entity.physics_data {
+                                    crate::net::PhysicsData::LoadData(data) => {
+                                        compare_tick = *server_tick;
+                                        let scache = SmallCache {
+                                            entity: c_id,
+                                            linear_velocity: data.velocity,
+                                            angular_velocity: data.angular_velocity,
+                                            translation: data.translation,
+                                            rotation: data.rotation,
+                                        };
+                                        priority_update =
+                                            PriorityUpdate::SmallCache(scache.clone());
                                     }
-                                    new.list.push((adjusted_tick, c_id));
+                                    crate::net::PhysicsData::SpawnData(data) => {
+                                        compare_tick = *server_tick - 1;
+                                        adjusted_tick -= 1;
+                                        priority_update =
+                                            PriorityUpdate::PhysicsSpawn(data.clone());
+                                    }
+                                }
+
+                                if compare_tick != stamp.large {
+                                    new.list
+                                        .push((adjusted_tick, c_id, priority_update.clone()));
                                     start_correction_queue.push(StartCorrection {
-                                        start_tick: adjusted_tick,
+                                        start_tick: *server_tick - 1,
                                         last_tick: stamp.large + 1,
                                     });
                                 } else {
                                     info!("Perfect load entity sync.");
+                                }
+                                match priority.cache.get_mut(&adjusted_tick) {
+                                    Some(priority_cache) => {
+                                        priority_cache.insert(c_id, priority_update);
+                                    }
+                                    None => {
+                                        let mut map = HashMap::new();
+                                        map.insert(c_id, priority_update);
+                                        priority.cache.insert(adjusted_tick, map);
+                                    }
                                 }
                             }
                         }

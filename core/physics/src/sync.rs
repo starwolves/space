@@ -673,7 +673,7 @@ pub(crate) fn desync_check_correction(
                             }
                         }
 
-                        if adjusted_latest == &stamp.large - 1 {
+                        if *latest_stamp == stamp.large {
                             info!("Perfect desync check.");
                             syncs.send(SyncEntitiesPhysics { entities: tosync });
                         } else {
@@ -730,9 +730,17 @@ pub fn apply_priority_cache(
                                             transform.rotation = cache.rotation;
                                             linear_velocity.0 = cache.linear_velocity;
                                             angular_velocity.0 = cache.angular_velocity;
+                                            /*info!(
+                                                "Applying priority update: {:?} for tick {}",
+                                                cache.translation, adjusted_stamp
+                                            );*/
                                         }
                                         PriorityUpdate::Position(p) => {
                                             transform.translation = *p;
+                                        }
+                                        PriorityUpdate::PhysicsSpawn(data) => {
+                                            transform.translation = data.translation;
+                                            transform.rotation = data.rotation;
                                         }
                                     }
                                     found = true;

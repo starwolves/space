@@ -1,9 +1,12 @@
+use std::collections::HashMap;
+
 use crate::{
     entity::{RigidBodies, RigidBodyLink, SFRigidBody},
     physics::{get_bit_masks, ColliderGroup},
     rigid_body::RigidBodyData,
 };
 use bevy::{
+    ecs::system::Resource,
     prelude::{Commands, Entity, EventReader, Res, ResMut, Transform},
     transform::TransformBundle,
 };
@@ -211,7 +214,30 @@ pub trait RigidBodyBuilder<Y>: Send + Sync {
     fn get_bundle(&self, spawn_data: &EntityBuildData, entity_data_option: Y) -> RigidBodyBundle;
 }
 use entity::spawn::{NoData, SpawnEntity};
-use resources::modes::{is_server, Mode};
+use networking::stamp::TickRateStamp;
+use resources::{
+    correction::MAX_CACHE_TICKS_AMNT,
+    modes::{is_server, Mode},
+    physics::PhysicsSpawn,
+};
+
+#[derive(Resource, Default)]
+pub struct NewlySpawnedRigidbodies {
+    pub cache: HashMap<u64, HashMap<Entity, PhysicsSpawn>>,
+}
+pub(crate) fn clear_new(mut cache: ResMut<NewlySpawnedRigidbodies>, stamp: Res<TickRateStamp>) {
+    let mut to_remove = vec![];
+    for recorded_stamp in cache.cache.keys() {
+        if stamp.large >= MAX_CACHE_TICKS_AMNT
+            && recorded_stamp < &(stamp.large - MAX_CACHE_TICKS_AMNT)
+        {
+            to_remove.push(*recorded_stamp);
+        }
+    }
+    for i in to_remove {
+        cache.cache.remove(&i);
+    }
+}
 
 /// Rigid body spawning.
 pub fn build_rigid_bodies<T: RigidBodyBuilder<NoData> + 'static>(
@@ -219,11 +245,36 @@ pub fn build_rigid_bodies<T: RigidBodyBuilder<NoData> + 'static>(
     mut commands: Commands,
     mut rigidbodies: ResMut<RigidBodies>,
     app_mode: Res<Mode>,
+    mut new: ResMut<NewlySpawnedRigidbodies>,
+    stamp: Res<TickRateStamp>,
 ) {
     for spawn_event in spawn_events.read() {
         let rigidbody_bundle = spawn_event
             .entity_type
             .get_bundle(&spawn_event.spawn_data, NoData);
+
+        match new.cache.get_mut(&stamp.large) {
+            Some(l) => {
+                l.insert(
+                    spawn_event.spawn_data.entity,
+                    PhysicsSpawn {
+                        translation: spawn_event.spawn_data.entity_transform.translation,
+                        rotation: spawn_event.spawn_data.entity_transform.rotation,
+                    },
+                );
+            }
+            None => {
+                let mut map = HashMap::new();
+                map.insert(
+                    spawn_event.spawn_data.entity,
+                    PhysicsSpawn {
+                        translation: spawn_event.spawn_data.entity_transform.translation,
+                        rotation: spawn_event.spawn_data.entity_transform.rotation,
+                    },
+                );
+                new.cache.insert(stamp.large, map);
+            }
+        }
 
         rigidbody_builder(
             &mut commands,

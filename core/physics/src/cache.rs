@@ -61,6 +61,7 @@ pub struct Cache {
     pub locked_axes: LockedAxes,
     pub collider_friction: Friction,
     pub entity_type: BoxedEntityType,
+    pub spawn_frame: bool,
 }
 
 pub(crate) fn cache_newly_spawned(
@@ -72,14 +73,39 @@ pub(crate) fn cache_newly_spawned(
     if adjusted_stamp > 0 {
         adjusted_stamp -= 1;
     }
-    for (stamp, entity) in new.list.iter() {
+    for (stamp, entity, priority_update) in new.list.iter() {
         match cache.cache.clone().get(&adjusted_stamp) {
             Some(physics_cache) => match physics_cache.get(entity) {
                 Some(data) => {
                     for i in *stamp..stampres.large {
                         match cache.cache.get_mut(&i) {
                             Some(physics_cache) => {
-                                physics_cache.insert(*entity, data.clone());
+                                let mut d = data.clone();
+                                if i == *stamp {
+                                    match priority_update {
+                                        resources::physics::PriorityUpdate::SmallCache(sdata) => {
+                                            d.transform.translation = sdata.translation;
+                                            d.transform.rotation = sdata.rotation;
+                                            d.linear_velocity.0 = sdata.linear_velocity;
+                                            d.angular_velocity.0 = sdata.angular_velocity;
+                                        }
+                                        resources::physics::PriorityUpdate::PhysicsSpawn(sdata) => {
+                                            d.transform.translation = sdata.translation;
+                                            d.transform.rotation = sdata.rotation;
+                                            d.spawn_frame = true;
+                                        }
+                                        _ => {
+                                            warn!("unsupported loadentity update");
+                                            return;
+                                        }
+                                    }
+
+                                    /*info!(
+                                        "setting newly spawned: {:?} for tick {} at tick {}",
+                                        d.transform.translation, i, stampres.large
+                                    );*/
+                                }
+                                physics_cache.insert(*entity, d);
                             }
                             None => {
                                 let mut map = HashMap::new();
@@ -198,6 +224,7 @@ pub(crate) fn cache_data(
             locked_axes: *locked_axes,
             collider_friction: *collider_friction,
             entity_type,
+            spawn_frame: false,
         };
 
         match cache.cache.get_mut(&adjusted_stamp) {

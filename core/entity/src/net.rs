@@ -1,6 +1,7 @@
 use bevy::prelude::Entity;
 use bevy::prelude::Quat;
 use bevy::prelude::Vec3;
+use resources::physics::PhysicsSpawn;
 use serde::Deserialize;
 use serde::Serialize;
 use typename::TypeName;
@@ -47,7 +48,15 @@ pub struct LoadEntity {
     pub entity_updates_unreliable: Vec<Vec<u8>>,
 }
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct PhysicsData {
+pub enum PhysicsData {
+    // Entity already existed.
+    LoadData(LoadData),
+    // Entity just spawned.
+    SpawnData(PhysicsSpawn),
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct LoadData {
     pub rotation: Quat,
     pub velocity: Vec3,
     pub translation: Vec3,

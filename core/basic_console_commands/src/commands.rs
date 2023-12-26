@@ -242,7 +242,6 @@ pub fn rcon_spawn_entity<T: EntityType + Clone + Send + Sync + 'static>(
                     event.entity_type.clone(),
                     individual_transform,
                     &mut commands,
-                    true,
                     None,
                     None,
                     None,

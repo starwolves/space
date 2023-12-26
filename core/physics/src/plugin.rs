@@ -29,6 +29,7 @@ use crate::{
     },
     mirror_physics_transform::rigidbody_link_transform,
     net::PhysicsUnreliableServerMessage,
+    spawn::{clear_new, NewlySpawnedRigidbodies},
     sync::{
         apply_priority_cache, desync_check_correction, init_physics_data, pause_loop,
         send_desync_check, start_sync, sync_correction_world_entities, sync_loop,
@@ -130,7 +131,9 @@ impl Plugin for PhysicsPlugin {
             .add_systems(FixedUpdate, remove_links.in_set(MainSet::PostUpdate))
             .insert_resource(SubstepCount(TickRate::default().physics_substep.into()))
             .init_resource::<PhysicsCache>()
-            .init_resource::<PriorityPhysicsCache>();
+            .init_resource::<PriorityPhysicsCache>()
+            .init_resource::<NewlySpawnedRigidbodies>()
+            .add_systems(FixedUpdate, clear_new.in_set(MainSet::Update));
         register_unreliable_message::<PhysicsUnreliableServerMessage>(app, MessageSender::Server);
     }
 }

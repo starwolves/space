@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use crate::{
     entity_data::BlankEntityType,
     entity_types::{BoxedEntityType, EntityType},
-    net::{LoadEntity, PhysicsData},
+    net::{LoadData, LoadEntity, PhysicsData},
     showcase::{Showcase, ShowcaseData},
 };
 use bevy::{
@@ -170,12 +170,12 @@ pub fn build_base_entities<T: BaseEntityBuilder<NoData> + 'static>(
                         type_id: *types.netcode_types.get(&entity_type).unwrap(),
                         entity: spawn_event.spawn_data.entity,
 
-                        physics_data: PhysicsData {
+                        physics_data: PhysicsData::LoadData(LoadData {
                             translation: spawn_event.spawn_data.entity_transform.translation,
                             rotation: spawn_event.spawn_data.entity_transform.rotation,
                             velocity: Vec3::ZERO,
                             angular_velocity: Vec3::ZERO,
-                        },
+                        }),
                         holder_entity: spawn_event.spawn_data.holder_entity_option,
                         entity_updates_reliable: vec![],
                         entity_updates_unreliable: vec![],
@@ -246,7 +246,6 @@ pub fn spawn_entity<T: EntityType + Send + Sync + 'static>(
     entity_type: T,
     transform: Transform,
     commands: &mut Commands,
-    correct_transform: bool,
     held_data_option: Option<Entity>,
     raw_entity_option: Option<RawEntityRon>,
     showcase_handle_option: Option<ShowcaseData>,
@@ -268,7 +267,6 @@ pub fn spawn_entity<T: EntityType + Send + Sync + 'static>(
     default_spawner.send(SpawnEntity {
         spawn_data: EntityBuildData {
             entity_transform: transform,
-            correct_transform,
             holder_entity_option: held,
             raw_entity_option: raw_entity_option,
             showcase_data_option: showcase_handle_option,

@@ -180,7 +180,7 @@ pub(crate) fn apply_peer_sync_look_transform(
             match query.get_mut(event.entity) {
                 Ok((mut l, mut t)) => {
                     l.target = event.target;
-                    if stamp.large == event.client_stamp {
+                    if stamp.large == event.server_stamp {
                         t.translation = event.position;
                     }
                 }
@@ -188,8 +188,9 @@ pub(crate) fn apply_peer_sync_look_transform(
                     warn!("Couldnt find looktransform for sync.");
                 }
             }
-            if stamp.large != event.client_stamp {
-                let adjusted_stamp = event.server_stamp - 1;
+            let adjusted_stamp = event.server_stamp - 1;
+
+            if stamp.large != event.server_stamp {
                 match cache.cache.get_mut(&adjusted_stamp) {
                     Some(map) => match map.get_mut(&event.entity) {
                         Some(c) => {
@@ -209,15 +210,17 @@ pub(crate) fn apply_peer_sync_look_transform(
                         );*/
                     }
                 }
-                match priority.cache.get_mut(&adjusted_stamp) {
-                    Some(map) => {
-                        map.insert(event.entity, PriorityUpdate::Position(event.position));
-                    }
-                    None => {
-                        let mut map = HashMap::new();
-                        map.insert(event.entity, PriorityUpdate::Position(event.position));
-                        priority.cache.insert(adjusted_stamp, map);
-                    }
+            } else {
+                //info!("Perfect apply peer look transform.");
+            }
+            match priority.cache.get_mut(&adjusted_stamp) {
+                Some(map) => {
+                    map.insert(event.entity, PriorityUpdate::Position(event.position));
+                }
+                None => {
+                    let mut map = HashMap::new();
+                    map.insert(event.entity, PriorityUpdate::Position(event.position));
+                    priority.cache.insert(adjusted_stamp, map);
                 }
             }
         }
@@ -840,34 +843,34 @@ pub(crate) fn controller_input(
                 match new_event.peer_data {
                     Some((position, look_target, client_stamp, server_stamp)) => {
                         look_transform.target = look_target;
+                        let adjusted_stamp = server_stamp - 1;
 
-                        if client_stamp == stampres.large {
+                        match priority.cache.get_mut(&adjusted_stamp) {
+                            Some(map) => {
+                                map.insert(player_entity, PriorityUpdate::Position(position));
+                            }
+                            None => {
+                                let mut map = HashMap::new();
+                                map.insert(player_entity, PriorityUpdate::Position(position));
+                                priority.cache.insert(adjusted_stamp, map);
+                            }
+                        }
+                        match look_cache.cache.get_mut(&client_stamp) {
+                            Some(map) => match map.get_mut(&player_entity) {
+                                Some(l) => {
+                                    l.target = look_target;
+                                }
+                                None => {
+                                    warn!("Missed look cache. 0");
+                                }
+                            },
+                            None => {
+                                warn!("Missed look cache.");
+                            }
+                        }
+                        if server_stamp == stampres.large {
                             transform.translation = position;
                         } else {
-                            match look_cache.cache.get_mut(&client_stamp) {
-                                Some(map) => match map.get_mut(&player_entity) {
-                                    Some(l) => {
-                                        l.target = look_target;
-                                    }
-                                    None => {
-                                        warn!("Missed look cache. 0");
-                                    }
-                                },
-                                None => {
-                                    warn!("Missed look cache.");
-                                }
-                            }
-                            let adjusted_stamp = server_stamp - 1;
-                            match priority.cache.get_mut(&adjusted_stamp) {
-                                Some(map) => {
-                                    map.insert(player_entity, PriorityUpdate::Position(position));
-                                }
-                                None => {
-                                    let mut map = HashMap::new();
-                                    map.insert(player_entity, PriorityUpdate::Position(position));
-                                    priority.cache.insert(adjusted_stamp, map);
-                                }
-                            }
                             match cache.cache.get_mut(&adjusted_stamp) {
                                 Some(map) => match map.get_mut(&player_entity) {
                                     Some(c) => {
