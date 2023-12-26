@@ -541,7 +541,6 @@ pub(crate) fn store_tick_data(
                 collider_friction: *collider_friction,
                 entity_type: Box::new(SimulationType::default()),
                 spawn_frame: false,
-                spawn_filler: false,
             },
         );
     }

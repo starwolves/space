@@ -47,14 +47,8 @@ pub fn load_entity<T: Send + Sync + 'static + Default + EntityType>(
     mut load_entity_queue: Local<
         HashMap<u64, Vec<IncomingReliableServerMessage<EntityServerMessage>>>,
     >,
-    mut start_correction_queue: Local<Vec<StartCorrection>>,
     mut new: ResMut<NewToBeCachedSpawnedEntities>,
 ) {
-    for c in start_correction_queue.iter() {
-        correction.send(c.clone());
-    }
-    start_correction_queue.clear();
-
     for message in client.read() {
         match &message.message {
             EntityServerMessage::LoadEntity(_) => {
@@ -185,9 +179,9 @@ pub fn load_entity<T: Send + Sync + 'static + Default + EntityType>(
                                 if compare_tick != stamp.large {
                                     new.list
                                         .push((adjusted_tick, c_id, priority_update.clone()));
-                                    start_correction_queue.push(StartCorrection {
+                                    correction.send(StartCorrection {
                                         start_tick: adjusted_tick,
-                                        last_tick: stamp.large + 1,
+                                        last_tick: stamp.large,
                                     });
                                 } else {
                                     info!("Perfect load entity sync.");

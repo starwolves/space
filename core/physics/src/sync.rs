@@ -238,7 +238,7 @@ pub fn init_physics_data(
         match cache.cache.get(&stamp.large) {
             Some(physics_cache) => {
                 for (_, cache) in physics_cache.iter() {
-                    if cache.spawn_filler || cache.spawn_frame {
+                    if cache.spawn_frame {
                         continue;
                     }
                     let client_entity;
@@ -346,7 +346,6 @@ pub(crate) fn sync_correction_world_entities(
     correction: Res<StartCorrection>,
     mut event: EventWriter<SpawningSimulationRigidBody>,
     stamp: Res<TickRateStamp>,
-    sync: Res<SyncWorld>,
 ) {
     let cache_tick = stamp.large;
     if stamp.large >= correction.last_tick {
@@ -650,6 +649,7 @@ pub(crate) fn desync_check_correction(
                                 }
                                 None => {
                                     warn!("Couldnt find server client entity.");
+                                    continue;
                                 }
                             }
                         }
