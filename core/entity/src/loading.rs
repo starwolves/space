@@ -17,7 +17,6 @@ use networking::client::IncomingReliableServerMessage;
 use bevy::prelude::Res;
 use networking::stamp::TickRateStamp;
 use resources::correction::StartCorrection;
-use resources::physics::PriorityPhysicsCache;
 use resources::physics::PriorityUpdate;
 use resources::physics::SmallCache;
 
@@ -49,7 +48,6 @@ pub fn load_entity<T: Send + Sync + 'static + Default + EntityType>(
         HashMap<u64, Vec<IncomingReliableServerMessage<EntityServerMessage>>>,
     >,
     mut start_correction_queue: Local<Vec<StartCorrection>>,
-    mut priority: ResMut<PriorityPhysicsCache>,
     mut new: ResMut<NewToBeCachedSpawnedEntities>,
 ) {
     for c in start_correction_queue.iter() {
@@ -188,13 +186,13 @@ pub fn load_entity<T: Send + Sync + 'static + Default + EntityType>(
                                     new.list
                                         .push((adjusted_tick, c_id, priority_update.clone()));
                                     start_correction_queue.push(StartCorrection {
-                                        start_tick: *server_tick - 1,
+                                        start_tick: adjusted_tick,
                                         last_tick: stamp.large + 1,
                                     });
                                 } else {
                                     info!("Perfect load entity sync.");
                                 }
-                                match priority.cache.get_mut(&adjusted_tick) {
+                                /*match priority.cache.get_mut(&adjusted_tick) {
                                     Some(priority_cache) => {
                                         priority_cache.insert(c_id, priority_update);
                                     }
@@ -203,7 +201,7 @@ pub fn load_entity<T: Send + Sync + 'static + Default + EntityType>(
                                         map.insert(c_id, priority_update);
                                         priority.cache.insert(adjusted_tick, map);
                                     }
-                                }
+                                }*/
                             }
                         }
                         _ => {

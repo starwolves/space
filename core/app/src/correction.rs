@@ -32,7 +32,7 @@ use controller::{
 };
 use entity::entity_macros::Identity;
 use gridmap::grid::{Gridmap, GridmapCache};
-use networking::stamp::{step_tickrate_stamp, PauseTickStep, TickRateStamp};
+use networking::stamp::{step_tickrate_stamp, TickRateStamp};
 use physics::{
     cache::{Cache, PhysicsCache},
     correction_mode::CorrectionResults,
@@ -176,15 +176,11 @@ pub(crate) fn finish_correction(
     }
 }
 
-pub(crate) fn clear_sync_world(
-    mut sync: ResMut<SyncWorld>,
-    mut pause_stamp: ResMut<PauseTickStep>,
-) {
+pub(crate) fn clear_sync_world(mut sync: ResMut<SyncWorld>) {
     if sync.rebuild && !sync.second_tick {
         sync.second_tick = true;
     }
     if !sync.rebuild && sync.second_tick {
-        pause_stamp.0 = false;
         sync.second_tick = false;
     }
 
@@ -205,7 +201,6 @@ pub(crate) fn server_start_correcting(
     link: Res<CorrectionServerRigidBodyLink>,
     mut controller_cache: ResMut<ControllerCache>,
     mut look_cache: ResMut<LookTransformCache>,
-    mut pause_stamp: ResMut<PauseTickStep>,
     mut priority: ResMut<PriorityPhysicsCache>,
     query: Query<Entity, With<RigidBody>>,
     mut correcting: ResMut<IsCorrecting>,
@@ -293,9 +288,11 @@ pub(crate) fn server_start_correcting(
                             }
                             new_pcache.insert(*t.0, new_tick_map);
                         }
+                        let mut adjusted_start = start_correction_data.clone();
+                        adjusted_start.start_tick -= 1;
                         *cache = fixed_cache;
                         fixed.set_timestep_seconds(0.000000001);
-                        *correction = start_correction_data.clone();
+                        *correction = adjusted_start.clone();
                         *input_cache = input;
                         gridmap.updates_cache = gridmap_cache;
 
@@ -303,8 +300,7 @@ pub(crate) fn server_start_correcting(
                         rebuild.second_tick = false;
                         *controller_cache = controller_cachec;
                         *look_cache = look_cachec;
-                        *stamp = TickRateStamp::new(start_correction_data.start_tick);
-                        pause_stamp.0 = true;
+                        *stamp = TickRateStamp::new(adjusted_start.start_tick);
                         priority.cache = new_pcache;
                         correcting.0 = true;
                     }
@@ -502,8 +498,7 @@ pub(crate) fn store_tick_data(
     if !correcting.0 || correction.start_tick == stamp.large {
         return;
     }
-    let adjustment_stamp = stamp.large;
-    storage.0.cache.insert(adjustment_stamp, HashMap::new());
+    storage.0.cache.insert(stamp.large, HashMap::new());
 
     for (t0, collider_friction) in query.iter() {
         let (
@@ -523,7 +518,7 @@ pub(crate) fn store_tick_data(
             locked_axes,
             collision_layers,
         ) = t0;
-        let tick_cache = storage.0.cache.get_mut(&adjustment_stamp).unwrap();
+        let tick_cache = storage.0.cache.get_mut(&stamp.large).unwrap();
         tick_cache.insert(
             rb_entity,
             Cache {
@@ -546,6 +541,7 @@ pub(crate) fn store_tick_data(
                 collider_friction: *collider_friction,
                 entity_type: Box::new(SimulationType::default()),
                 spawn_frame: false,
+                spawn_filler: false,
             },
         );
     }

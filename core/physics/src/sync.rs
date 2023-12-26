@@ -219,19 +219,28 @@ pub fn init_physics_data(
     >,
     sync: Res<SyncWorld>,
     cache: Res<PhysicsCache>,
-    correction: Res<StartCorrection>,
     mut commands: Commands,
     link: Res<CorrectionServerRigidBodyLink>,
     mut skip: Local<bool>,
+    stamp: Res<TickRateStamp>,
 ) {
+    let mut go = false;
     // Its still first tick, its just in postphysics after clear_sync_world so wait one more tick until entities spawned in.
     if sync.second_tick {
         *skip = true;
+        go = true;
     } else if *skip {
         *skip = false;
-        match cache.cache.get(&correction.start_tick) {
+        go = true;
+    }
+    // Fire in rebuild and second_tick.
+    if go {
+        match cache.cache.get(&stamp.large) {
             Some(physics_cache) => {
                 for (_, cache) in physics_cache.iter() {
+                    if cache.spawn_filler || cache.spawn_frame {
+                        continue;
+                    }
                     let client_entity;
                     match link.get_client(&cache.entity) {
                         Some(c) => {
@@ -328,7 +337,6 @@ pub struct SimulationStorage(pub PhysicsCache);
 /// Sync entities on the correction server.
 pub(crate) fn sync_correction_world_entities(
     cache: Res<PhysicsCache>,
-    sync: Res<SyncWorld>,
     query: Query<Entity, (With<SFRigidBody>, Without<TileCollider>)>,
     mut despawn: EventWriter<DespawnEntity>,
     mut commands: Commands,
@@ -338,21 +346,14 @@ pub(crate) fn sync_correction_world_entities(
     correction: Res<StartCorrection>,
     mut event: EventWriter<SpawningSimulationRigidBody>,
     stamp: Res<TickRateStamp>,
+    sync: Res<SyncWorld>,
 ) {
-    let cache_tick;
-    let data_tick;
-    if sync.rebuild {
-        cache_tick = correction.start_tick;
-        data_tick = correction.start_tick;
-    } else {
-        if stamp.large >= correction.last_tick {
-            return;
-        }
-
-        // + 1 because spawning/despawning takes one frame.
-        cache_tick = stamp.large;
-        data_tick = stamp.large;
+    let cache_tick = stamp.large;
+    if stamp.large >= correction.last_tick {
+        return;
     }
+
+    let mut spawns = vec![];
 
     match cache.cache.get(&cache_tick) {
         Some(physics_cache) => {
@@ -369,15 +370,17 @@ pub(crate) fn sync_correction_world_entities(
                         continue;
                     }
                 }
+                let mut spawn_frame = false;
                 for (_, c) in physics_cache.iter() {
                     for sim in sims.iter() {
                         if c.entity == *sim {
                             found = true;
+                            spawn_frame = c.spawn_frame;
                             break;
                         }
                     }
                 }
-                if !found {
+                if !found || spawn_frame {
                     /*match link.get_client(&correction_entity) {
                         Some(cid) => {
                             info!("Correction despawn {:?}, cid:{:?}", correction_entity, cid);
@@ -391,7 +394,7 @@ pub(crate) fn sync_correction_world_entities(
                     });
                 }
             }
-            // Spawn new entities.
+            // Spawn loaded entities.
             for (_, ncache) in physics_cache.iter() {
                 let sims;
                 let client_entity;
@@ -420,90 +423,68 @@ pub(crate) fn sync_correction_world_entities(
                     }
                 }
                 if !found {
-                    // Strictly spawn rigidbodies.
-                    // Try to manually call rigidbodybuilder and spawn function. Dont use SpawnEntity.
-
-                    let fixed_data;
-
-                    match cache.cache.get(&data_tick) {
-                        Some(old_cache) => {
-                            let mut old_entity_ref = Entity::from_bits(0);
-                            let mut found = false;
-                            for sim in sims.iter() {
-                                if old_cache.get(sim).is_some() {
-                                    old_entity_ref = *sim;
-                                    found = true;
-                                    break;
-                                }
-                            }
-                            if old_cache.get(&client_entity).is_some() {
-                                old_entity_ref = client_entity;
-                                found = true;
-                            }
-                            if !found {
-                                continue;
-                            }
-                            fixed_data = old_cache.get(&old_entity_ref).unwrap().clone();
-                        }
-                        None => {
-                            continue;
-                        }
-                    }
-                    let entity = commands.spawn(()).id();
-                    match link.map.get_mut(&client_entity) {
-                        Some(sims) => sims.push(entity),
-                        None => {
-                            link.map.insert(client_entity.clone(), vec![entity]);
-                        }
-                    }
-                    let dynamic;
-                    match fixed_data.rigidbody {
-                        RigidBody::Dynamic => {
-                            dynamic = true;
-                        }
-                        _ => {
-                            dynamic = false;
-                        }
-                    }
-
-                    rigidbody_builder(
-                        &mut commands,
-                        RigidBodyBuildData {
-                            rigidbody_dynamic: dynamic,
-                            rigid_transform: fixed_data.transform,
-                            external_force: fixed_data.external_force,
-                            linear_velocity: fixed_data.linear_velocity,
-                            sleeping: fixed_data.sleeping,
-                            entity_is_stored_item: false,
-                            collider: fixed_data.collider.clone(),
-                            friction: fixed_data.collider_friction,
-                            collider_collision_layers: fixed_data.collision_layers,
-                            collision_events: false,
-                            mesh_offset: Transform::default(),
-                            locked_axes: fixed_data.locked_axes,
-                            linear_damping: fixed_data.linear_damping,
-                            angular_damping: fixed_data.angular_damping,
-                            angular_velocity: fixed_data.angular_velocity,
-                            external_torque: fixed_data.external_torque,
-                            external_angular_impulse: fixed_data.external_angular_impulse,
-                            external_impulse: fixed_data.external_impulse,
-                        },
-                        entity,
-                        false,
-                        &mut rigid_bodies,
-                        &app_mode,
-                    );
-                    event.send(SpawningSimulationRigidBody {
-                        entity,
-                        entity_type: fixed_data.entity_type.clone(),
-                    });
-                    //info!("Correction spawn {:?}, cid:{:?}", entity, cache.entity);
+                    spawns.push((client_entity, ncache.clone()));
                 }
             }
         }
         None => {
             //warn!("Missed cache ({})", cache_tick,);
         }
+    }
+
+    for (client_entity, ncache) in spawns {
+        // Strictly spawn rigidbodies.
+        // Try to manually call rigidbodybuilder and spawn function. Dont use SpawnEntity.
+
+        let entity = commands.spawn(()).id();
+        match link.map.get_mut(&client_entity) {
+            Some(sims) => sims.push(entity),
+            None => {
+                link.map.insert(client_entity.clone(), vec![entity]);
+            }
+        }
+        let dynamic;
+        match ncache.rigidbody {
+            RigidBody::Dynamic => {
+                dynamic = true;
+            }
+            _ => {
+                dynamic = false;
+            }
+        }
+
+        rigidbody_builder(
+            &mut commands,
+            RigidBodyBuildData {
+                rigidbody_dynamic: dynamic,
+                rigid_transform: ncache.transform,
+                external_force: ncache.external_force,
+                linear_velocity: ncache.linear_velocity,
+                sleeping: ncache.sleeping,
+                entity_is_stored_item: false,
+                collider: ncache.collider.clone(),
+                friction: ncache.collider_friction,
+                collider_collision_layers: ncache.collision_layers,
+                collision_events: false,
+                mesh_offset: Transform::default(),
+                locked_axes: ncache.locked_axes,
+                linear_damping: ncache.linear_damping,
+                angular_damping: ncache.angular_damping,
+                angular_velocity: ncache.angular_velocity,
+                external_torque: ncache.external_torque,
+                external_angular_impulse: ncache.external_angular_impulse,
+                external_impulse: ncache.external_impulse,
+            },
+            entity,
+            false,
+            &mut rigid_bodies,
+            &app_mode,
+        );
+        event.send(SpawningSimulationRigidBody {
+            entity,
+            entity_type: ncache.entity_type.clone(),
+        });
+        //info!("Correction spawn {:?}, cid:{:?}", entity, cache.entity);
     }
 }
 pub const DESYNC_FREQUENCY: f32 = 4.;
@@ -708,7 +689,7 @@ pub fn apply_priority_cache(
     sync: Res<SyncWorld>,
     link: Res<CorrectionServerRigidBodyLink>,
 ) {
-    if sync.rebuild || sync.second_tick {
+    if sync.rebuild {
         return;
     }
     let mut adjusted_stamp = stamp.large;

@@ -62,9 +62,10 @@ pub struct Cache {
     pub collider_friction: Friction,
     pub entity_type: BoxedEntityType,
     pub spawn_frame: bool,
+    pub spawn_filler: bool,
 }
 
-pub(crate) fn cache_newly_spawned(
+pub(crate) fn cache_data_newly_spawned(
     mut new: ResMut<NewToBeCachedSpawnedEntities>,
     mut cache: ResMut<PhysicsCache>,
     stampres: Res<TickRateStamp>,
@@ -76,27 +77,32 @@ pub(crate) fn cache_newly_spawned(
     for (stamp, entity, priority_update) in new.list.iter() {
         match cache.cache.clone().get(&adjusted_stamp) {
             Some(physics_cache) => match physics_cache.get(entity) {
-                Some(data) => {
+                Some(stepped_data) => {
                     for i in *stamp..stampres.large {
                         match cache.cache.get_mut(&i) {
                             Some(physics_cache) => {
-                                let mut d = data.clone();
+                                let mut d = stepped_data.clone();
                                 if i == *stamp {
                                     match priority_update {
-                                        resources::physics::PriorityUpdate::SmallCache(sdata) => {
-                                            d.transform.translation = sdata.translation;
-                                            d.transform.rotation = sdata.rotation;
-                                            d.linear_velocity.0 = sdata.linear_velocity;
-                                            d.angular_velocity.0 = sdata.angular_velocity;
+                                        resources::physics::PriorityUpdate::SmallCache(
+                                            authorative_data,
+                                        ) => {
+                                            d.transform.translation = authorative_data.translation;
+                                            d.transform.rotation = authorative_data.rotation;
+                                            d.linear_velocity.0 = authorative_data.linear_velocity;
+                                            d.angular_velocity.0 =
+                                                authorative_data.angular_velocity;
                                         }
-                                        resources::physics::PriorityUpdate::PhysicsSpawn(sdata) => {
-                                            d.transform.translation = sdata.translation;
-                                            d.transform.rotation = sdata.rotation;
+                                        resources::physics::PriorityUpdate::PhysicsSpawn(
+                                            authorative_data,
+                                        ) => {
+                                            d.transform.translation = authorative_data.translation;
+                                            d.transform.rotation = authorative_data.rotation;
                                             d.spawn_frame = true;
                                         }
                                         _ => {
                                             warn!("unsupported loadentity update");
-                                            return;
+                                            continue;
                                         }
                                     }
 
@@ -104,12 +110,14 @@ pub(crate) fn cache_newly_spawned(
                                         "setting newly spawned: {:?} for tick {} at tick {}",
                                         d.transform.translation, i, stampres.large
                                     );*/
+                                } else {
+                                    d.spawn_filler = true;
                                 }
                                 physics_cache.insert(*entity, d);
                             }
                             None => {
                                 let mut map = HashMap::new();
-                                map.insert(*entity, data.clone());
+                                map.insert(*entity, stepped_data.clone());
                                 cache.cache.insert(i, map);
                             }
                         }
@@ -225,6 +233,7 @@ pub(crate) fn cache_data(
             collider_friction: *collider_friction,
             entity_type,
             spawn_frame: false,
+            spawn_filler: false,
         };
 
         match cache.cache.get_mut(&adjusted_stamp) {

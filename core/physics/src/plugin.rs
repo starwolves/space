@@ -19,7 +19,7 @@ use resources::{
 
 use crate::{
     cache::{
-        cache_data, cache_newly_spawned, clear_priority_cache, sync_entities, PhysicsCache,
+        cache_data, cache_data_newly_spawned, clear_priority_cache, sync_entities, PhysicsCache,
         SyncEntitiesPhysics,
     },
     correction_mode::CorrectionResults,
@@ -83,7 +83,7 @@ impl Plugin for PhysicsPlugin {
                     cache_data
                         .in_set(MainSet::PreUpdate)
                         .after(step_tickrate_stamp),
-                    cache_newly_spawned
+                    cache_data_newly_spawned
                         .after(cache_data)
                         .in_set(MainSet::PreUpdate),
                     desync_check_correction
