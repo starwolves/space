@@ -2,7 +2,8 @@ use std::time::Duration;
 
 use crate::connections::connections;
 use crate::controller::{
-    cache_controller, controller_input_entity_update, look_transform_entity_update, ControllerCache,
+    clean_controller_cache, controller_input_entity_update, look_transform_entity_update,
+    ControllerCache,
 };
 use crate::input::{
     apply_peer_sync_look_transform, clean_recorded_input, controller_input, create_input_map,
@@ -96,7 +97,7 @@ impl Plugin for ControllerPlugin {
                     FixedUpdate,
                     (
                         clean_recorded_input.in_set(MainSet::PreUpdate),
-                        cache_controller
+                        clean_controller_cache
                             .after(MainSet::PostUpdate)
                             .in_set(PhysicsSet::Cache),
                         apply_peer_sync_look_transform

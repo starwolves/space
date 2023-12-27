@@ -2,10 +2,12 @@ use std::collections::HashMap;
 
 use bevy::{
     ecs::system::{Query, Res, ResMut, Resource},
+    log::info,
     prelude::{Component, Entity, Vec2},
     transform::components::Transform,
 };
 use cameras::LookTransform;
+use itertools::Itertools;
 use networking::{
     server::{ConnectedPlayer, ConstructEntityUpdates, EntityUpdates},
     stamp::TickRateStamp,
@@ -34,38 +36,29 @@ impl Default for ControllerInput {
 }
 #[derive(Resource, Default, Clone)]
 pub struct ControllerCache {
-    pub cache: HashMap<u64, HashMap<Entity, ControllerInput>>,
+    pub cache: HashMap<Entity, HashMap<u64, ControllerInput>>,
 }
 
-pub(crate) fn cache_controller(
-    query: Query<(Entity, &ControllerInput)>,
+pub(crate) fn clean_controller_cache(
     stamp: Res<TickRateStamp>,
     mut cache: ResMut<ControllerCache>,
 ) {
-    for (entity, controller) in query.iter() {
-        match cache.cache.get_mut(&stamp.large) {
-            Some(map) => {
-                map.insert(entity, controller.clone());
-            }
-            None => {
-                let mut map = HashMap::new();
-                map.insert(entity, controller.clone());
-                cache.cache.insert(stamp.large, map);
-            }
-        }
-    }
-
     // Clean cache.
-    let mut to_remove = vec![];
-    for recorded_stamp in cache.cache.keys() {
-        if stamp.large >= MAX_CACHE_TICKS_AMNT
-            && recorded_stamp < &(stamp.large - MAX_CACHE_TICKS_AMNT)
-        {
-            to_remove.push(*recorded_stamp);
+    for (_, cache) in cache.cache.iter_mut() {
+        let mut j = 0;
+        for i in cache.clone().keys().sorted() {
+            if j as usize == cache.len() - 1 {
+                break;
+            }
+            if cache.len() > MAX_CACHE_TICKS_AMNT as usize
+                && stamp.large >= MAX_CACHE_TICKS_AMNT
+                && i < &(stamp.large - MAX_CACHE_TICKS_AMNT)
+            {
+                cache.remove(i);
+                info!("removed {}, len{}", i, cache.len());
+            }
+            j += 1;
         }
-    }
-    for i in to_remove {
-        cache.cache.remove(&i);
     }
 }
 

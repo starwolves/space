@@ -22,7 +22,7 @@ impl Plugin for LookTransformPlugin {
             .add_systems(
                 FixedUpdate,
                 (
-                    cache_look_transform
+                    cache_client_pawn_look_transform
                         .after(MainSet::PostUpdate)
                         .in_set(PhysicsSet::Cache),
                     apply_look_cache_to_peers.in_set(MainSet::PostUpdate),
@@ -38,71 +38,70 @@ pub struct LookTransformBundle {
 }
 #[derive(Resource, Default, Clone)]
 pub struct LookTransformCache {
-    pub cache: HashMap<u64, HashMap<Entity, LookTransform>>,
+    pub cache: HashMap<Entity, HashMap<u64, LookTransform>>,
 }
 
 pub(crate) fn apply_look_cache_to_peers(
     cache: Res<LookTransformCache>,
     mut query: Query<(Entity, &mut LookTransform), (Without<ClientPawn>, Without<Camera>)>,
     stamp: Res<TickRateStamp>,
-    mut latest: Local<HashMap<Entity, u64>>,
 ) {
     for (entity, mut look_transform) in query.iter_mut() {
-        for i in cache.cache.keys().sorted().rev() {
-            if i > &stamp.large {
-                continue;
-            }
-            match latest.get(&entity) {
-                Some(l) => {
-                    if l > i {
-                        break;
+        match cache.cache.get(&entity) {
+            Some(look_cache) => {
+                for i in look_cache.keys().sorted().rev() {
+                    if i > &stamp.large {
+                        continue;
+                    }
+                    match look_cache.get(&i) {
+                        Some(look_cache) => {
+                            *look_transform = *look_cache;
+                            break;
+                        }
+                        None => {}
                     }
                 }
-                None => {}
             }
-            match cache.cache.get(&i) {
-                Some(look_cache) => {
-                    if let Some(look_cache) = look_cache.get(&entity) {
-                        *look_transform = *look_cache;
-                        latest.insert(entity, *i);
-                        break;
-                    }
-                }
-                None => {}
-            }
+            None => {}
         }
     }
 }
 
-pub(crate) fn cache_look_transform(
+pub(crate) fn cache_client_pawn_look_transform(
     query: Query<(Entity, &LookTransform), With<ClientPawn>>,
     stamp: Res<TickRateStamp>,
     mut cache: ResMut<LookTransformCache>,
 ) {
     for (entity, controller) in query.iter() {
-        match cache.cache.get_mut(&stamp.large) {
+        match cache.cache.get_mut(&entity) {
             Some(map) => {
-                map.insert(entity, controller.clone());
+                map.insert(stamp.large, controller.clone());
             }
             None => {
                 let mut map = HashMap::new();
-                map.insert(entity, controller.clone());
-                cache.cache.insert(stamp.large, map);
+                map.insert(stamp.large, controller.clone());
+                cache.cache.insert(entity, map);
             }
         }
     }
 
     // Clean cache.
-    let mut to_remove = vec![];
-    for recorded_stamp in cache.cache.keys() {
-        if stamp.large >= MAX_CACHE_TICKS_AMNT
-            && recorded_stamp < &(stamp.large - MAX_CACHE_TICKS_AMNT)
-        {
-            to_remove.push(*recorded_stamp);
+    for (_, cache) in cache.cache.iter_mut() {
+        let mut j = 0;
+
+        for i in cache.clone().keys().sorted() {
+            if j as usize == cache.len() - 1 {
+                break;
+            }
+            if cache.len() > MAX_CACHE_TICKS_AMNT as usize
+                && stamp.large >= MAX_CACHE_TICKS_AMNT
+                && i < &(stamp.large - MAX_CACHE_TICKS_AMNT)
+            {
+                cache.remove(i);
+            }
+
+            j += 1;
         }
-    }
-    for i in to_remove {
-        cache.cache.remove(&i);
     }
 }
 

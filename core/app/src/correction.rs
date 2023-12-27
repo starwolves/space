@@ -656,22 +656,8 @@ pub(crate) fn apply_humanoid_caches(
     mut query: Query<(Entity, &mut LookTransform, &mut ControllerInput)>,
     stamp: Res<TickRateStamp>,
     link: Res<CorrectionServerRigidBodyLink>,
-    mut highest: Local<HashMap<Entity, u64>>,
 ) {
-    let controller_t;
-    match controller_cache.cache.get(&stamp.large) {
-        Some(c) => controller_t = c,
-        None => {
-            /*if stamp.large != 0 {
-                warn!("Missed input cache ({})", stamp.large);
-            }*/
-            return;
-        }
-    }
-
     for (entity, mut look, mut controller) in query.iter_mut() {
-        let mut look_t = None;
-
         let client_entity;
         match link.get_client(&entity) {
             Some(client) => {
@@ -682,40 +668,51 @@ pub(crate) fn apply_humanoid_caches(
                 continue;
             }
         }
-        for i in look_cache.cache.keys().sorted().rev() {
-            if i > &stamp.large {
-                continue;
-            }
-            match highest.get(&client_entity) {
-                Some(l) => {
-                    if *l > *i {
-                        break;
+
+        let mut look_t = None;
+
+        let mut controller_t = None;
+
+        match controller_cache.cache.get(&client_entity) {
+            Some(controller_cache2) => {
+                for i in controller_cache2.keys().sorted().rev() {
+                    if i > &stamp.large {
+                        continue;
                     }
+                    controller_t = Some(controller_cache2.get(i).unwrap());
+                    break;
                 }
-                None => {}
-            }
-            let r = look_cache.cache.get(i).unwrap();
-            if r.get(&client_entity).is_some() {
-                highest.insert(client_entity, *i);
-                look_t = Some(r);
-                break;
-            }
-        }
-        match controller_t.get(&client_entity) {
-            Some(component) => {
-                *controller = component.clone();
             }
             None => {}
+        }
+        match look_cache.cache.get(&client_entity) {
+            Some(look_cache2) => {
+                for i in look_cache2.keys().sorted().rev() {
+                    if i > &stamp.large {
+                        continue;
+                    }
+                    look_t = Some(look_cache2.get(i).unwrap());
+                    break;
+                }
+            }
+            None => {}
+        }
+
+        match controller_t {
+            Some(controller_t) => {
+                *controller = controller_t.clone();
+            }
+            None => {
+                //warn!("No available controller cache.");
+            }
         }
         match look_t {
-            Some(look_t) => match look_t.get(&client_entity) {
-                Some(component) => {
-                    //info!("correction: {:?}", component.target);
-                    *look = component.clone();
-                }
-                None => {}
-            },
-            None => {}
+            Some(look_t) => {
+                *look = look_t.clone();
+            }
+            None => {
+                //warn!("No available look cache.");
+            }
         }
     }
 }

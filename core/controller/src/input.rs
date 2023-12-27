@@ -62,6 +62,7 @@ pub struct InputMovementInput {
 pub struct SyncControllerInput {
     pub entity: Entity,
     pub sync: ControllerInput,
+    pub server_stamp: u64,
 }
 
 impl Default for InputMovementInput {
@@ -189,23 +190,23 @@ pub(crate) fn apply_peer_sync_look_transform(
         if go {
             match query.get_mut(event.entity) {
                 Ok((mut l, mut t)) => {
-                    match look_cache.cache.get_mut(&event.client_stamp) {
-                        Some(c) => match c.get_mut(&event.entity) {
+                    match look_cache.cache.get_mut(&event.entity) {
+                        Some(c) => match c.get_mut(&event.client_stamp) {
                             Some(l) => {
                                 l.target = event.target;
                             }
                             None => {
                                 let mut l = default_look_transform();
                                 l.target = event.target;
-                                c.insert(event.entity, l);
+                                c.insert(event.client_stamp, l);
                             }
                         },
                         None => {
                             let mut m = HashMap::new();
                             let mut l = default_look_transform();
                             l.target = event.target;
-                            m.insert(event.entity, l);
-                            look_cache.cache.insert(event.client_stamp, m);
+                            m.insert(event.client_stamp, l);
+                            look_cache.cache.insert(event.entity, m);
                         }
                     }
                     if stamp.large == event.client_stamp {
@@ -397,6 +398,7 @@ pub(crate) fn process_peer_input(
                         sync_controller.send(SyncControllerInput {
                             entity: *peer,
                             sync: input.clone(),
+                            server_stamp: message.stamp,
                         });
 
                         new_correction = true;
@@ -601,11 +603,22 @@ pub(crate) fn process_peer_input(
 pub(crate) fn sync_controller_input(
     mut events: EventReader<SyncControllerInput>,
     mut query: Query<&mut ControllerInput>,
+    mut cache: ResMut<ControllerCache>,
 ) {
     for event in events.read() {
         match query.get_mut(event.entity) {
             Ok(mut controller_input) => {
                 *controller_input = event.sync.clone();
+                match cache.cache.get_mut(&event.entity) {
+                    Some(c) => {
+                        c.insert(event.server_stamp, event.sync.clone());
+                    }
+                    None => {
+                        let mut map = HashMap::new();
+                        map.insert(event.server_stamp, event.sync.clone());
+                        cache.cache.insert(event.entity, map);
+                    }
+                }
             }
             Err(_) => {
                 warn!("Couldnt find entity to sync for.");
@@ -871,9 +884,11 @@ pub(crate) fn controller_input(
 
                 player_input_component.movement_vector += additive;
 
+                let input_stamp;
+
                 match new_event.peer_data {
                     Some((position, look_target, client_stamp, server_stamp)) => {
-                        look_transform.target = look_target;
+                        input_stamp = client_stamp;
                         let adjusted_stamp = server_stamp - 1;
 
                         match priority.cache.get_mut(&adjusted_stamp) {
@@ -886,24 +901,27 @@ pub(crate) fn controller_input(
                                 priority.cache.insert(adjusted_stamp, map);
                             }
                         }
-                        match look_cache.cache.get_mut(&client_stamp) {
-                            Some(c) => match c.get_mut(&player_entity) {
+                        match look_cache.cache.get_mut(&player_entity) {
+                            Some(c) => match c.get_mut(&client_stamp) {
                                 Some(l) => {
                                     l.target = look_target;
                                 }
                                 None => {
                                     let mut l = default_look_transform();
                                     l.target = look_target;
-                                    c.insert(player_entity, l);
+                                    c.insert(client_stamp, l);
                                 }
                             },
                             None => {
                                 let mut m = HashMap::new();
                                 let mut l = default_look_transform();
                                 l.target = look_target;
-                                m.insert(player_entity, l);
-                                look_cache.cache.insert(client_stamp, m);
+                                m.insert(client_stamp, l);
+                                look_cache.cache.insert(player_entity, m);
                             }
+                        }
+                        if client_stamp == stampres.large {
+                            look_transform.target = look_target;
                         }
                         if server_stamp == stampres.large {
                             transform.translation = position;
@@ -922,39 +940,21 @@ pub(crate) fn controller_input(
                                 }
                             }
                         }
-
-                        for controller_cache_key in client_stamp..stampres.large {
-                            match controller_cache.cache.get_mut(&controller_cache_key) {
-                                Some(map) => {
-                                    map.insert(player_entity, player_input_component.clone());
-                                }
-                                None => {
-                                    let mut map = HashMap::new();
-                                    map.insert(player_entity, player_input_component.clone());
-                                    controller_cache.cache.insert(controller_cache_key, map);
-                                }
-                            }
-                        }
-
-                        for controller_cache_key in controller_cache.cache.clone().keys().sorted() {
-                            if controller_cache_key >= &client_stamp {
-                                let cached_data = controller_cache
-                                    .cache
-                                    .get_mut(controller_cache_key)
-                                    .unwrap();
-                                match cached_data.get_mut(&player_entity) {
-                                    Some(cached_controller) => {
-                                        *cached_controller = player_input_component.clone();
-                                    }
-                                    None => {
-                                        cached_data
-                                            .insert(player_entity, player_input_component.clone());
-                                    }
-                                }
-                            }
-                        }
                     }
-                    None => {}
+                    None => {
+                        input_stamp = stampres.large;
+                    }
+                }
+
+                match controller_cache.cache.get_mut(&player_entity) {
+                    Some(map) => {
+                        map.insert(input_stamp, player_input_component.clone());
+                    }
+                    None => {
+                        let mut map = HashMap::new();
+                        map.insert(input_stamp, player_input_component.clone());
+                        controller_cache.cache.insert(player_entity, map);
+                    }
                 }
             }
             Err(_rr) => {
