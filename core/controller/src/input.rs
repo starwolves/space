@@ -154,6 +154,15 @@ pub struct LastPeerLookTransform {
     pub map: HashMap<ClientId, u64>,
 }
 
+pub fn default_look_transform() -> LookTransform {
+    LookTransform::new(
+        Vec3::new(0., 1.8 - R, 0.),
+        Vec3::new(0., 1.8 - R, -2.),
+        Vec3::Y,
+    )
+}
+pub const R: f32 = 0.5;
+
 pub(crate) fn apply_peer_sync_look_transform(
     mut events: EventReader<PeerSyncLookTransform>,
     mut query: Query<(&mut LookTransform, &mut Transform)>,
@@ -161,6 +170,7 @@ pub(crate) fn apply_peer_sync_look_transform(
     mut cache: ResMut<PhysicsCache>,
     stamp: Res<TickRateStamp>,
     mut priority: ResMut<PriorityPhysicsCache>,
+    mut look_cache: ResMut<LookTransformCache>,
 ) {
     for event in events.read() {
         let mut go = false;
@@ -179,7 +189,28 @@ pub(crate) fn apply_peer_sync_look_transform(
         if go {
             match query.get_mut(event.entity) {
                 Ok((mut l, mut t)) => {
-                    l.target = event.target;
+                    match look_cache.cache.get_mut(&event.client_stamp) {
+                        Some(c) => match c.get_mut(&event.entity) {
+                            Some(l) => {
+                                l.target = event.target;
+                            }
+                            None => {
+                                let mut l = default_look_transform();
+                                l.target = event.target;
+                                c.insert(event.entity, l);
+                            }
+                        },
+                        None => {
+                            let mut m = HashMap::new();
+                            let mut l = default_look_transform();
+                            l.target = event.target;
+                            m.insert(event.entity, l);
+                            look_cache.cache.insert(event.client_stamp, m);
+                        }
+                    }
+                    if stamp.large == event.client_stamp {
+                        l.target = event.target;
+                    }
                     if stamp.large == event.server_stamp {
                         t.translation = event.position;
                     }
@@ -856,16 +887,22 @@ pub(crate) fn controller_input(
                             }
                         }
                         match look_cache.cache.get_mut(&client_stamp) {
-                            Some(map) => match map.get_mut(&player_entity) {
+                            Some(c) => match c.get_mut(&player_entity) {
                                 Some(l) => {
                                     l.target = look_target;
                                 }
                                 None => {
-                                    warn!("Missed look cache. 0");
+                                    let mut l = default_look_transform();
+                                    l.target = look_target;
+                                    c.insert(player_entity, l);
                                 }
                             },
                             None => {
-                                warn!("Missed look cache.");
+                                let mut m = HashMap::new();
+                                let mut l = default_look_transform();
+                                l.target = look_target;
+                                m.insert(player_entity, l);
+                                look_cache.cache.insert(client_stamp, m);
                             }
                         }
                         if server_stamp == stampres.large {

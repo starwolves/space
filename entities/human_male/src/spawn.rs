@@ -15,6 +15,8 @@ use cameras::{
     controllers::fps::{ActiveCamera, FpsCameraController},
     LookTransform, LookTransformBundle, Smoother,
 };
+use controller::input::default_look_transform;
+use controller::input::R;
 use entity::net::LoadData;
 use entity::net::PhysicsData;
 use entity::{
@@ -38,7 +40,7 @@ use inventory::server::{
 };
 use map::map::Map;
 use networking::client::LoadedGameWorldBuffer;
-use pawn::pawn::{ClientPawn, DataLink, DataLinkType, PawnBuilder};
+use pawn::pawn::{DataLink, DataLinkType, PawnBuilder};
 use pawn::pawn::{PawnDesignation, ShipAuthorization, ShipAuthorizationEnum, SpawnPawnData};
 use physics::physics::CHARACTER_FLOOR_FRICTION;
 use physics::spawn::{RigidBodyBuilder, RigidBodyBundle};
@@ -170,8 +172,6 @@ impl Default for HumanMaleType {
     }
 }
 
-pub const R: f32 = 0.5;
-
 impl RigidBodyBuilder<NoData> for HumanMaleType {
     fn get_bundle(&self, _spawn_data: &EntityBuildData, _entity_data: NoData) -> RigidBodyBundle {
         let mut friction = Friction::new(CHARACTER_FLOOR_FRICTION);
@@ -203,6 +203,7 @@ impl PawnBuilder for HumanMaleType {
 }
 
 use controller::controller::ControllerInput;
+use resources::pawn::ClientPawn;
 #[derive(Resource, Default)]
 pub struct AddSlotBuffer {
     pub buffer: Vec<AddSlot>,
@@ -218,13 +219,6 @@ pub(crate) fn process_add_slot_buffer(
     add_slot.buffer.clear();
 }
 
-fn default_look_transform() -> LookTransform {
-    LookTransform::new(
-        Vec3::new(0., 1.8 - R, 0.),
-        Vec3::new(0., 1.8 - R, -2.),
-        Vec3::Y,
-    )
-}
 pub fn attach_human_male_camera(
     mut commands: Commands,
     mut spawn_events: EventReader<SpawnEntity<HumanMaleType>>,

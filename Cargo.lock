@@ -1425,6 +1425,7 @@ dependencies = [
  "approx",
  "bevy",
  "bevy_xpbd_3d",
+ "itertools 0.12.0",
  "networking",
  "resources",
  "serde",

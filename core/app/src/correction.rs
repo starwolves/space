@@ -32,6 +32,7 @@ use controller::{
 };
 use entity::entity_macros::Identity;
 use gridmap::grid::{Gridmap, GridmapCache};
+use itertools::Itertools;
 use networking::stamp::{step_tickrate_stamp, TickRateStamp};
 use physics::{
     cache::{Cache, PhysicsCache},
@@ -655,6 +656,7 @@ pub(crate) fn apply_humanoid_caches(
     mut query: Query<(Entity, &mut LookTransform, &mut ControllerInput)>,
     stamp: Res<TickRateStamp>,
     link: Res<CorrectionServerRigidBodyLink>,
+    mut highest: Local<HashMap<Entity, u64>>,
 ) {
     let controller_t;
     match controller_cache.cache.get(&stamp.large) {
@@ -667,37 +669,52 @@ pub(crate) fn apply_humanoid_caches(
         }
     }
 
-    let look_t;
-    match look_cache.cache.get(&stamp.large) {
-        Some(c) => {
-            look_t = c;
-        }
-        None => {
-            warn!("Couldnt find look_cache for tick {}", stamp.large);
-            return;
-        }
-    }
     for (entity, mut look, mut controller) in query.iter_mut() {
-        let rb;
+        let mut look_t = None;
+
+        let client_entity;
         match link.get_client(&entity) {
-            Some(sims) => {
-                rb = *sims;
+            Some(client) => {
+                client_entity = *client;
             }
             None => {
                 warn!("Couldnt find link of query. continueing. {:?}", entity);
                 continue;
             }
         }
-        match controller_t.get(&rb) {
+        for i in look_cache.cache.keys().sorted().rev() {
+            if i > &stamp.large {
+                continue;
+            }
+            match highest.get(&client_entity) {
+                Some(l) => {
+                    if *l > *i {
+                        break;
+                    }
+                }
+                None => {}
+            }
+            let r = look_cache.cache.get(i).unwrap();
+            if r.get(&client_entity).is_some() {
+                highest.insert(client_entity, *i);
+                look_t = Some(r);
+                break;
+            }
+        }
+        match controller_t.get(&client_entity) {
             Some(component) => {
                 *controller = component.clone();
             }
             None => {}
         }
-        match look_t.get(&rb) {
-            Some(component) => {
-                *look = component.clone();
-            }
+        match look_t {
+            Some(look_t) => match look_t.get(&client_entity) {
+                Some(component) => {
+                    //info!("correction: {:?}", component.target);
+                    *look = component.clone();
+                }
+                None => {}
+            },
             None => {}
         }
     }

@@ -4,10 +4,14 @@ use bevy::{
     app::prelude::*,
     ecs::{bundle::Bundle, prelude::*},
     math::prelude::*,
+    render::camera::Camera,
     transform::components::Transform,
 };
+use itertools::Itertools;
 use networking::stamp::TickRateStamp;
-use resources::{correction::MAX_CACHE_TICKS_AMNT, physics::PhysicsSet, sets::MainSet};
+use resources::{
+    correction::MAX_CACHE_TICKS_AMNT, pawn::ClientPawn, physics::PhysicsSet, sets::MainSet,
+};
 
 pub struct LookTransformPlugin;
 
@@ -17,9 +21,12 @@ impl Plugin for LookTransformPlugin {
             .init_resource::<LookTransformCache>()
             .add_systems(
                 FixedUpdate,
-                cache_look_transform
-                    .after(MainSet::PostUpdate)
-                    .in_set(PhysicsSet::Cache),
+                (
+                    cache_look_transform
+                        .after(MainSet::PostUpdate)
+                        .in_set(PhysicsSet::Cache),
+                    apply_look_cache_to_peers.in_set(MainSet::PostUpdate),
+                ),
             );
     }
 }
@@ -34,8 +41,41 @@ pub struct LookTransformCache {
     pub cache: HashMap<u64, HashMap<Entity, LookTransform>>,
 }
 
+pub(crate) fn apply_look_cache_to_peers(
+    cache: Res<LookTransformCache>,
+    mut query: Query<(Entity, &mut LookTransform), (Without<ClientPawn>, Without<Camera>)>,
+    stamp: Res<TickRateStamp>,
+    mut latest: Local<HashMap<Entity, u64>>,
+) {
+    for (entity, mut look_transform) in query.iter_mut() {
+        for i in cache.cache.keys().sorted().rev() {
+            if i > &stamp.large {
+                continue;
+            }
+            match latest.get(&entity) {
+                Some(l) => {
+                    if l > i {
+                        break;
+                    }
+                }
+                None => {}
+            }
+            match cache.cache.get(&i) {
+                Some(look_cache) => {
+                    if let Some(look_cache) = look_cache.get(&entity) {
+                        *look_transform = *look_cache;
+                        latest.insert(entity, *i);
+                        break;
+                    }
+                }
+                None => {}
+            }
+        }
+    }
+}
+
 pub(crate) fn cache_look_transform(
-    query: Query<(Entity, &LookTransform)>,
+    query: Query<(Entity, &LookTransform), With<ClientPawn>>,
     stamp: Res<TickRateStamp>,
     mut cache: ResMut<LookTransformCache>,
 ) {
