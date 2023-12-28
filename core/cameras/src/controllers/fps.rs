@@ -73,7 +73,7 @@ impl Default for FpsCameraController {
     fn default() -> Self {
         Self {
             enabled: true,
-            mouse_rotate_sensitivity: Vec2::splat(0.1),
+            mouse_rotate_sensitivity: Vec2::splat(0.5),
             translate_sensitivity: 6.0,
             smoothing_weight: 0.4,
         }
@@ -109,8 +109,13 @@ pub fn default_input_map(
     } = *controller;
 
     let mut cursor_delta = Vec2::ZERO;
+    let mut read = false;
     for event in mouse_motion_events.read() {
-        cursor_delta += event.delta;
+        if read {
+            continue;
+        }
+        cursor_delta = event.delta;
+        read = true;
     }
 
     events.send(ControlEvent::Rotate(
