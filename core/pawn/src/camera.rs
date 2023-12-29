@@ -11,10 +11,12 @@ use bevy_renet::renet::{ClientId, RenetClient};
 use bevy_xpbd_3d::prelude::{Physics, PhysicsTime};
 use cameras::{controllers::fps::ActiveCamera, LookTransform};
 use entity::spawn::PawnId;
+use itertools::Itertools;
 use networking::messaging::{Typenames, UnreliableClientMessageBatch, UnreliableMessage};
 use networking::plugin::RENET_UNRELIABLE_CHANNEL_ID;
 use networking::server::{HandleToEntity, IncomingUnreliableClientMessage};
 use networking::stamp::TickRateStamp;
+use resources::correction::MAX_CACHE_TICKS_AMNT;
 use typename::TypeName;
 
 use crate::net::UnreliableControllerClientMessage;
@@ -23,10 +25,6 @@ use crate::net::UnreliableControllerClientMessage;
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
 pub enum LookTransformSet {
     Sync,
-}
-#[derive(Resource, Default)]
-pub struct ServerMouseInputStamps {
-    pub map: HashMap<ClientId, (u64, u8)>,
 }
 #[derive(Resource, Default)]
 pub struct MouseInputStamps {
@@ -43,9 +41,6 @@ impl MouseInputStamps {
 }
 pub(crate) fn clear_mouse_stamps(mut mouse_stamps: ResMut<MouseInputStamps>) {
     mouse_stamps.i = 0;
-}
-pub(crate) fn clear_mouse_stamps_server(mut mouse_stamps: ResMut<ServerMouseInputStamps>) {
-    mouse_stamps.map.clear();
 }
 pub(crate) fn client_sync_look_transform(
     mut look_transform_query: Query<&mut LookTransform>,
@@ -123,44 +118,73 @@ pub(crate) fn server_sync_look_transform(
     mut humanoids: Query<&mut LookTransform>,
     mut messages: EventReader<IncomingUnreliableClientMessage<UnreliableControllerClientMessage>>,
     handle_to_entity: Res<HandleToEntity>,
-    mut mouse_stamps: ResMut<ServerMouseInputStamps>,
+    mut queue: Local<HashMap<ClientId, HashMap<u64, HashMap<u8, Vec3>>>>,
+    stamp: Res<TickRateStamp>,
 ) {
-    let mut apply_look_transform = None;
     for msg in messages.read() {
         match msg.message {
             UnreliableControllerClientMessage::UpdateLookTransform(target, id) => {
-                match mouse_stamps.map.get_mut(&msg.handle) {
-                    Some((tick, sub)) => {
-                        if msg.stamp < *tick || (msg.stamp == *tick && id < *sub) {
-                            continue;
+                match queue.get_mut(&msg.handle) {
+                    Some(q1) => match q1.get_mut(&msg.stamp) {
+                        Some(q2) => {
+                            q2.insert(id, target);
                         }
-                        *sub = id;
-                        *tick = msg.stamp;
-                        apply_look_transform = Some((msg.handle, target));
-                    }
+                        None => {
+                            let mut m = HashMap::new();
+                            m.insert(id, target);
+                            q1.insert(msg.stamp, m);
+                        }
+                    },
                     None => {
-                        mouse_stamps.map.insert(msg.handle, (msg.stamp, id));
-                        apply_look_transform = Some((msg.handle, target));
+                        let mut n = HashMap::new();
+                        n.insert(id, target);
+                        let mut m = HashMap::new();
+                        m.insert(msg.stamp, n);
+                        queue.insert(msg.handle, m);
                     }
                 }
             }
         }
     }
 
-    match apply_look_transform {
-        Some((handle, target)) => match handle_to_entity.map.get(&handle) {
-            Some(entity) => match humanoids.get_mut(*entity) {
-                Ok(mut look_transform) => {
-                    look_transform.target = target;
-                }
-                Err(_) => {
-                    warn!("Couldnt find client entity components.");
-                }
-            },
-            None => {
-                warn!("Couldnt find handle entity.");
+    for (handle, q) in queue.iter() {
+        for i in q.keys().sorted().rev() {
+            if i > &stamp.large {
+                continue;
             }
-        },
-        None => {}
+            let q2 = q.get(i).unwrap();
+            for sub in q2.keys().sorted().rev() {
+                let target = *q2.get(sub).unwrap();
+
+                match handle_to_entity.map.get(&handle) {
+                    Some(entity) => match humanoids.get_mut(*entity) {
+                        Ok(mut look_transform) => {
+                            look_transform.target = target;
+                        }
+                        Err(_) => {
+                            warn!("Couldnt find client entity components.");
+                        }
+                    },
+                    None => {
+                        warn!("Couldnt find handle entity.");
+                    }
+                }
+                break;
+            }
+            break;
+        }
+    }
+
+    // Clean cache.
+    for (_, cache) in queue.iter_mut() {
+        if cache.len() > MAX_CACHE_TICKS_AMNT as usize {
+            let mut j = 0;
+            for i in cache.clone().keys().sorted().rev() {
+                if j >= MAX_CACHE_TICKS_AMNT {
+                    cache.remove(i);
+                }
+                j += 1;
+            }
+        }
     }
 }

@@ -12,6 +12,7 @@ use bevy_xpbd_3d::prelude::{
 use entity::entity_data::EntityData;
 use entity::entity_types::BoxedEntityType;
 use entity::loading::NewToBeCachedSpawnedEntities;
+use itertools::Itertools;
 use networking::stamp::TickRateStamp;
 use resources::correction::MAX_CACHE_TICKS_AMNT;
 use resources::physics::PriorityPhysicsCache;
@@ -23,21 +24,18 @@ use crate::entity::{RigidBodies, SFRigidBody};
 pub struct PhysicsCache {
     pub cache: HashMap<u64, HashMap<Entity, Cache>>,
 }
-pub(crate) fn clear_priority_cache(
-    mut cache: ResMut<PriorityPhysicsCache>,
-    stamp: Res<TickRateStamp>,
-) {
+pub(crate) fn clear_priority_cache(mut cache: ResMut<PriorityPhysicsCache>) {
     // Clean cache.
-    let mut to_remove = vec![];
-    for recorded_stamp in cache.cache.keys() {
-        if stamp.large >= MAX_CACHE_TICKS_AMNT
-            && recorded_stamp < &(stamp.large - MAX_CACHE_TICKS_AMNT)
-        {
-            to_remove.push(*recorded_stamp);
+    for (_, cache) in cache.cache.iter_mut() {
+        if cache.len() > MAX_CACHE_TICKS_AMNT as usize {
+            let mut j = 0;
+            for i in cache.clone().keys().sorted().rev() {
+                if j >= MAX_CACHE_TICKS_AMNT {
+                    cache.remove(i);
+                }
+                j += 1;
+            }
         }
-    }
-    for i in to_remove {
-        cache.cache.remove(&i);
     }
 }
 
@@ -240,16 +238,16 @@ pub(crate) fn cache_data(
         }
     }
     // Clean cache.
-    let mut to_remove = vec![];
-    for recorded_stamp in cache.cache.keys() {
-        if stamp.large >= MAX_CACHE_TICKS_AMNT
-            && recorded_stamp < &(stamp.large - MAX_CACHE_TICKS_AMNT)
-        {
-            to_remove.push(*recorded_stamp);
+    for (_, cache) in cache.cache.iter_mut() {
+        if cache.len() > MAX_CACHE_TICKS_AMNT as usize {
+            let mut j = 0;
+            for i in cache.clone().keys().sorted().rev() {
+                if j >= MAX_CACHE_TICKS_AMNT {
+                    cache.remove(i);
+                }
+                j += 1;
+            }
         }
-    }
-    for i in to_remove {
-        cache.cache.remove(&i);
     }
 }
 #[derive(Event, Default)]

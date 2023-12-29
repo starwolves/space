@@ -6,10 +6,10 @@ use crate::controller::{
     ControllerCache,
 };
 use crate::input::{
-    apply_peer_sync_look_transform, clean_recorded_input, controller_input, create_input_map,
-    get_client_input, process_peer_input, send_client_input_to_server, sync_controller_input,
-    ControllerSet, InputMovementInput, InputSet, LastPeerLookTransform, PeerInputCache,
-    PeerSyncLookTransform, RecordedControllerInput, SyncControllerInput,
+    apply_peer_sync_look_transform, controller_input, create_input_map, get_client_input,
+    process_peer_input, send_client_input_to_server, sync_controller_input, ControllerSet,
+    InputMovementInput, InputSet, LastPeerLookTransform, PeerInputCache, PeerSyncLookTransform,
+    SyncControllerInput,
 };
 use crate::net::ControllerClientMessage;
 use crate::networking::{
@@ -96,7 +96,6 @@ impl Plugin for ControllerPlugin {
                 .add_systems(
                     FixedUpdate,
                     (
-                        clean_recorded_input.in_set(MainSet::PreUpdate),
                         clean_controller_cache
                             .after(MainSet::PostUpdate)
                             .in_set(PhysicsSet::Cache),
@@ -121,7 +120,6 @@ impl Plugin for ControllerPlugin {
                 .in_set(MainSet::Update)
                 .in_set(ControllerSet::Input),
         )
-        .init_resource::<RecordedControllerInput>()
         .init_resource::<ControllerCache>()
         .add_event::<InputMovementInput>()
         .add_event::<SyncControllerInput>();

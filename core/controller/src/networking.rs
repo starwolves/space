@@ -2,9 +2,11 @@ use std::collections::HashMap;
 
 use bevy::ecs::entity::Entity;
 use bevy::ecs::system::Commands;
+use bevy::ecs::system::Local;
 use bevy::ecs::system::ResMut;
 use bevy::ecs::system::Resource;
 use bevy::log::warn;
+use bevy::math::Vec3;
 use bevy::prelude::EventWriter;
 use bevy::prelude::Query;
 use bevy::prelude::Res;
@@ -13,6 +15,7 @@ use bevy::transform::components::Transform;
 use bevy_renet::renet::ClientId;
 use bevy_renet::renet::RenetServer;
 use cameras::LookTransform;
+use itertools::Itertools;
 use networking::messaging::ReliableMessage;
 use networking::messaging::ReliableServerMessageBatch;
 use networking::messaging::Typenames;
@@ -30,6 +33,7 @@ use physics::entity::RigidBodyLink;
 use physics::sync::DisableSync;
 use physics::sync::DESYNC_FREQUENCY;
 use resources::core::TickRate;
+use resources::correction::MAX_CACHE_TICKS_AMNT;
 use serde::Deserialize;
 use serde::Serialize;
 use typename::TypeName;
@@ -116,6 +120,7 @@ pub(crate) fn peer_replicate_input_messages(
     stamp: Res<TickRateStamp>,
     handle_to_entity: Res<HandleToEntity>,
     mut latest_look_transform_sync: ResMut<PeerLatestLookSync>,
+    mut queue: Local<HashMap<ClientId, HashMap<u64, HashMap<u8, Vec3>>>>,
 ) {
     let mut reliable_peer_messages: HashMap<ClientId, Vec<ReliableMessage>> = HashMap::new();
     let mut unreliable_peer_messages: HashMap<ClientId, Vec<UnreliableMessage>> = HashMap::new();
@@ -220,18 +225,45 @@ pub(crate) fn peer_replicate_input_messages(
                                     let mut latest = false;
                                     match client_message {
                                         UnreliableControllerClientMessage::UpdateLookTransform(
-                                            _,
+                                            target,
                                             new_id,
                                         ) => {
                                             let large =
                                                 stamp.calculate_large(batch.0.message.stamp);
+                                            match queue.get_mut(&connected.handle) {
+                                                Some(q1) => match q1.get_mut(&large) {
+                                                    Some(q2) => {
+                                                        q2.insert(new_id, target);
+                                                        for i in q2.keys().sorted().rev() {
+                                                            if new_id > *i {
+                                                                latest = true;
+                                                            }
+                                                            break;
+                                                        }
+                                                    }
+                                                    None => {
+                                                        let mut m = HashMap::new();
+                                                        m.insert(new_id, target);
+                                                        q1.insert(large, m);
+                                                        latest = true;
+                                                    }
+                                                },
+                                                None => {
+                                                    let mut n = HashMap::new();
+                                                    n.insert(new_id, target);
+                                                    let mut m = HashMap::new();
+                                                    m.insert(large, n);
+                                                    queue.insert(connected.handle, m);
+                                                    latest = true;
+                                                }
+                                            }
+
                                             match latest_look_transform_sync.0.get(&batch.0.handle)
                                             {
                                                 Some((tick, id)) => {
                                                     if large >= *tick
                                                         || (large == *tick && new_id > *id)
                                                     {
-                                                        latest = true;
                                                         latest_look_transform_sync.0.insert(
                                                             batch.0.handle,
                                                             (large, new_id),
@@ -239,7 +271,6 @@ pub(crate) fn peer_replicate_input_messages(
                                                     }
                                                 }
                                                 None => {
-                                                    latest = true;
                                                     latest_look_transform_sync
                                                         .0
                                                         .insert(batch.0.handle, (large, new_id));
@@ -333,6 +364,19 @@ pub(crate) fn peer_replicate_input_messages(
             })
             .unwrap(),
         );
+    }
+
+    // Clean cache.
+    for (_, cache) in queue.iter_mut() {
+        if cache.len() > MAX_CACHE_TICKS_AMNT as usize {
+            let mut j = 0;
+            for i in cache.clone().keys().sorted().rev() {
+                if j >= MAX_CACHE_TICKS_AMNT {
+                    cache.remove(i);
+                }
+                j += 1;
+            }
+        }
     }
 }
 

@@ -26,10 +26,7 @@ use bevy_xpbd_3d::components::{
     LockedAxes, RigidBody, Sleeping,
 };
 use cameras::{LookTransform, LookTransformCache};
-use controller::{
-    controller::{ControllerCache, ControllerInput},
-    input::RecordedControllerInput,
-};
+use controller::controller::{ControllerCache, ControllerInput};
 use entity::entity_macros::Identity;
 use gridmap::grid::{Gridmap, GridmapCache};
 use itertools::Itertools;
@@ -195,7 +192,6 @@ pub(crate) fn server_start_correcting(
     mut cache: ResMut<PhysicsCache>,
     mut fixed: ResMut<Time<Fixed>>,
     mut correction: ResMut<StartCorrection>,
-    mut input_cache: ResMut<RecordedControllerInput>,
     mut gridmap: ResMut<Gridmap>,
     mut rebuild: ResMut<SyncWorld>,
     mut stamp: ResMut<TickRateStamp>,
@@ -215,7 +211,6 @@ pub(crate) fn server_start_correcting(
                     ClientCorrectionMessage::StartCorrecting(
                         start_correction_data,
                         new_cache,
-                        input,
                         gridmap_cache,
                         controller_cachec,
                         look_cachec,
@@ -294,7 +289,6 @@ pub(crate) fn server_start_correcting(
                         *cache = fixed_cache;
                         fixed.set_timestep_seconds(0.000000001);
                         *correction = adjusted_start.clone();
-                        *input_cache = input;
                         gridmap.updates_cache = gridmap_cache;
 
                         rebuild.rebuild = true;
@@ -345,7 +339,6 @@ pub enum ClientCorrectionMessage {
     StartCorrecting(
         StartCorrection,
         PhysicsCache,
-        RecordedControllerInput,
         GridmapCache,
         ControllerCache,
         LookTransformCache,
@@ -378,7 +371,6 @@ pub struct CorrectionEnabled(pub bool);
 
 pub(crate) fn start_correction(
     mut events: EventReader<StartCorrection>,
-    input_cache: Res<RecordedControllerInput>,
     physics_cache: Res<PhysicsCache>,
     //mut iterative_i: ResMut<CorrectionResource>,
     correction_server: Res<CorrectionServerData>,
@@ -418,7 +410,6 @@ pub(crate) fn start_correction(
                 last_tick: highest_end,
             },
             physics_cache.clone(),
-            input_cache.clone(),
             grid.updates_cache.clone(),
             controller_cache.clone(),
             look_cache.clone(),

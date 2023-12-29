@@ -2,7 +2,6 @@ use std::collections::HashMap;
 
 use bevy::{
     ecs::system::{Query, Res, ResMut, Resource},
-    log::info,
     prelude::{Component, Entity, Vec2},
     transform::components::Transform,
 };
@@ -12,7 +11,7 @@ use networking::{
     server::{ConnectedPlayer, ConstructEntityUpdates, EntityUpdates},
     stamp::TickRateStamp,
 };
-use pawn::net::UnreliablePeerControllerClientMessage;
+use pawn::net::{PeerUpdateLookTransform, UnreliablePeerControllerClientMessage};
 use resources::correction::MAX_CACHE_TICKS_AMNT;
 use serde::{Deserialize, Serialize};
 
@@ -39,25 +38,22 @@ pub struct ControllerCache {
     pub cache: HashMap<Entity, HashMap<u64, ControllerInput>>,
 }
 
-pub(crate) fn clean_controller_cache(
-    stamp: Res<TickRateStamp>,
-    mut cache: ResMut<ControllerCache>,
-) {
+pub(crate) fn clean_controller_cache(mut cache: ResMut<ControllerCache>) {
     // Clean cache.
     for (_, cache) in cache.cache.iter_mut() {
-        let mut j = 0;
-        for i in cache.clone().keys().sorted() {
-            if j as usize == cache.len() - 1 {
-                break;
+        if cache.len() > MAX_CACHE_TICKS_AMNT as usize {
+            let mut j = 0;
+
+            for i in cache.clone().keys().sorted() {
+                if j as usize == cache.len() - MAX_CACHE_TICKS_AMNT as usize {
+                    continue;
+                }
+                if j >= MAX_CACHE_TICKS_AMNT {
+                    cache.remove(i);
+                }
+
+                j += 1;
             }
-            if cache.len() > MAX_CACHE_TICKS_AMNT as usize
-                && stamp.large >= MAX_CACHE_TICKS_AMNT
-                && i < &(stamp.large - MAX_CACHE_TICKS_AMNT)
-            {
-                cache.remove(i);
-                info!("removed {}, len{}", i, cache.len());
-            }
-            j += 1;
         }
     }
 }
@@ -75,9 +71,11 @@ pub(crate) fn look_transform_entity_update(
                     entity,
                     vec![PeerUnreliableControllerMessage {
                         message: UnreliablePeerControllerClientMessage::UpdateLookTransform(
-                            look_transform.target,
-                            transform.translation,
-                            u8::MAX,
+                            PeerUpdateLookTransform {
+                                position: transform.translation,
+                                target: look_transform.target,
+                                sub_tick: u8::MAX,
+                            },
                         ),
                         peer_handle: connected_player.handle.raw() as u16,
                         client_stamp: stamp.tick,

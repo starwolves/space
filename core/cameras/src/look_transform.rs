@@ -87,20 +87,19 @@ pub(crate) fn cache_client_pawn_look_transform(
 
     // Clean cache.
     for (_, cache) in cache.cache.iter_mut() {
-        let mut j = 0;
+        if cache.len() > MAX_CACHE_TICKS_AMNT as usize {
+            let mut j = 0;
 
-        for i in cache.clone().keys().sorted() {
-            if j as usize == cache.len() - 1 {
-                break;
-            }
-            if cache.len() > MAX_CACHE_TICKS_AMNT as usize
-                && stamp.large >= MAX_CACHE_TICKS_AMNT
-                && i < &(stamp.large - MAX_CACHE_TICKS_AMNT)
-            {
-                cache.remove(i);
-            }
+            for i in cache.clone().keys().sorted() {
+                if j as usize == cache.len() - MAX_CACHE_TICKS_AMNT as usize {
+                    continue;
+                }
+                if j >= MAX_CACHE_TICKS_AMNT {
+                    cache.remove(i);
+                }
 
-            j += 1;
+                j += 1;
+            }
         }
     }
 }
