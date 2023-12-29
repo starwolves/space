@@ -30,7 +30,6 @@ use networking::{
 use pawn::net::{PeerUpdateLookTransform, UnreliablePeerControllerClientMessage};
 use physics::{cache::PhysicsCache, sync::ClientStartedSyncing};
 use resources::{
-    core::TickRate,
     correction::{StartCorrection, MAX_CACHE_TICKS_AMNT},
     input::{
         InputBuffer, KeyBind, KeyBinds, KeyCodeEnum, HOLD_SPRINT_BIND, JUMP_BIND,
@@ -288,8 +287,6 @@ pub(crate) fn process_peer_input(
     mut start_correction: EventWriter<StartCorrection>,
     mut sync_controller: EventWriter<SyncControllerInput>,
     mut input_cache: ResMut<PeerInputCache>,
-    client: Res<RenetClient>,
-    tickrate: Res<TickRate>,
     pawnid: Res<PawnId>,
     mut queue: Local<HashMap<ClientId, HashMap<u64, HashMap<u8, LookTick>>>>,
 ) {
@@ -315,8 +312,7 @@ pub(crate) fn process_peer_input(
             }
         }
     }
-    let latency_in_ticks = (client.rtt() as f32 / (1. / tickrate.fixed_rate as f32)).floor() as u64;
-    let desired_tick = stamp.large - latency_in_ticks - latency_in_ticks;
+    let desired_tick = stamp.large;
     let mut reliables = vec![];
     for (_, reliable_cache) in input_cache.reliable.iter_mut() {
         for i in reliable_cache.clone().keys().sorted() {
