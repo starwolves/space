@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use bevy::log::warn;
+use bevy::log::{info, warn};
 use bevy::{
     prelude::{Component, Entity, Query, Res, ResMut, Vec2, Vec3, With},
     time::{Time, Timer, TimerMode},

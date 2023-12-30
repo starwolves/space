@@ -6,7 +6,7 @@ use crate::{
     networking::{PeerReliableControllerMessage, PeerUnreliableControllerMessage},
 };
 use bevy::{
-    ecs::system::Local,
+    ecs::{query::Without, system::Local},
     input::Input,
     log::info,
     prelude::{
@@ -35,6 +35,7 @@ use resources::{
         InputBuffer, KeyBind, KeyBinds, KeyCodeEnum, HOLD_SPRINT_BIND, JUMP_BIND,
         MOVE_BACKWARD_BIND, MOVE_FORWARD_BIND, MOVE_LEFT_BIND, MOVE_RIGHT_BIND,
     },
+    pawn::ClientPawn,
     physics::{PriorityPhysicsCache, PriorityUpdate},
 };
 use typename::TypeName;
@@ -780,6 +781,28 @@ pub enum ControllerSet {
     Input,
 }
 
+pub(crate) fn apply_controller_cache_to_peers(
+    cache: Res<ControllerCache>,
+    mut query: Query<(Entity, &mut ControllerInput), Without<ClientPawn>>,
+    stamp: Res<TickRateStamp>,
+) {
+    for (entity, mut input_component) in query.iter_mut() {
+        match cache.cache.get(&entity) {
+            Some(input_cache) => {
+                for i in input_cache.keys().sorted().rev() {
+                    if i > &stamp.large {
+                        continue;
+                    }
+                    let input = input_cache.get(i).unwrap();
+                    *input_component = input.clone();
+                    break;
+                }
+            }
+            None => {}
+        }
+    }
+}
+
 /// Manage controller input for humanoid. The controller can be controlled by a player or AI.
 pub(crate) fn controller_input(
     mut humanoids_query: Query<(&mut ControllerInput, &mut LookTransform, &mut Transform)>,
@@ -794,6 +817,18 @@ pub(crate) fn controller_input(
         let player_entity = new_event.entity;
 
         let player_input_component_result = humanoids_query.get_mut(player_entity);
+
+        let mut processed_input = ControllerInput::default();
+
+        match controller_cache.cache.get(&player_entity) {
+            Some(c) => {
+                for i in c.keys().sorted().rev() {
+                    processed_input = c.get(i).unwrap().clone();
+                    break;
+                }
+            }
+            None => {}
+        }
 
         match player_input_component_result {
             Ok((mut player_input_component, mut look_transform, mut transform)) => {
@@ -813,7 +848,7 @@ pub(crate) fn controller_input(
                     additive *= -1.;
                 }
 
-                player_input_component.movement_vector += additive;
+                processed_input.movement_vector += additive;
 
                 let input_stamp;
 
@@ -853,6 +888,7 @@ pub(crate) fn controller_input(
                         }
                         if client_stamp == stampres.large {
                             look_transform.target = look_target;
+                            *player_input_component = processed_input.clone();
                         }
                         if server_stamp == stampres.large {
                             transform.translation = position;
@@ -874,16 +910,17 @@ pub(crate) fn controller_input(
                     }
                     None => {
                         input_stamp = stampres.large;
+                        *player_input_component = processed_input.clone();
                     }
                 }
 
                 match controller_cache.cache.get_mut(&player_entity) {
                     Some(map) => {
-                        map.insert(input_stamp, player_input_component.clone());
+                        map.insert(input_stamp, processed_input.clone());
                     }
                     None => {
                         let mut map = HashMap::new();
-                        map.insert(input_stamp, player_input_component.clone());
+                        map.insert(input_stamp, processed_input.clone());
                         controller_cache.cache.insert(player_entity, map);
                     }
                 }

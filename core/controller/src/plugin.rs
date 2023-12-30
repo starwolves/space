@@ -6,10 +6,10 @@ use crate::controller::{
     ControllerCache,
 };
 use crate::input::{
-    apply_peer_sync_look_transform, controller_input, create_input_map, get_client_input,
-    process_peer_input, send_client_input_to_server, sync_controller_input, ControllerSet,
-    InputMovementInput, InputSet, LastPeerLookTransform, PeerInputCache, PeerSyncLookTransform,
-    SyncControllerInput,
+    apply_controller_cache_to_peers, apply_peer_sync_look_transform, controller_input,
+    create_input_map, get_client_input, process_peer_input, send_client_input_to_server,
+    sync_controller_input, ControllerSet, InputMovementInput, InputSet, LastPeerLookTransform,
+    PeerInputCache, PeerSyncLookTransform, SyncControllerInput,
 };
 use crate::net::ControllerClientMessage;
 use crate::networking::{
@@ -26,6 +26,7 @@ use networking::messaging::{
     register_reliable_message, register_unreliable_message, MessageSender, MessagingSet,
 };
 use networking::server::EntityUpdatesSet;
+use networking::stamp::step_tickrate_stamp;
 use player::boarding::BoardingPlayer;
 use resources::modes::{is_correction_mode, is_server_mode};
 use resources::physics::PhysicsSet;
@@ -105,6 +106,9 @@ impl Plugin for ControllerPlugin {
                         sync_controller_input
                             .after(InputSet::First)
                             .in_set(MainSet::Update),
+                        apply_controller_cache_to_peers
+                            .in_set(MainSet::PreUpdate)
+                            .after(step_tickrate_stamp),
                     ),
                 )
                 .add_event::<PeerSyncLookTransform>()

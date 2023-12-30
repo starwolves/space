@@ -8,7 +8,7 @@ use bevy::{
     transform::components::Transform,
 };
 use itertools::Itertools;
-use networking::stamp::TickRateStamp;
+use networking::stamp::{step_tickrate_stamp, TickRateStamp};
 use resources::{
     correction::MAX_CACHE_TICKS_AMNT, pawn::ClientPawn, physics::PhysicsSet, sets::MainSet,
 };
@@ -25,7 +25,9 @@ impl Plugin for LookTransformPlugin {
                     cache_client_pawn_look_transform
                         .after(MainSet::PostUpdate)
                         .in_set(PhysicsSet::Cache),
-                    apply_look_cache_to_peers.in_set(MainSet::PostUpdate),
+                    apply_look_cache_to_peers
+                        .in_set(MainSet::PreUpdate)
+                        .after(step_tickrate_stamp),
                 ),
             );
     }
