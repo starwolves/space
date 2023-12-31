@@ -678,8 +678,7 @@ pub(crate) fn desync_check_correction(
     }
 }
 
-/// Correction server system.
-pub fn apply_priority_cache(
+pub fn correction_server_apply_priority_cache(
     priority: Res<PriorityPhysicsCache>,
     mut query: Query<
         (&mut Transform, &mut LinearVelocity, &mut AngularVelocity),

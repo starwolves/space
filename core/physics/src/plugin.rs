@@ -31,8 +31,8 @@ use crate::{
     net::PhysicsUnreliableServerMessage,
     spawn::{clear_new, NewlySpawnedRigidbodies},
     sync::{
-        apply_priority_cache, desync_check_correction, init_physics_data, pause_loop,
-        send_desync_check, start_sync, sync_correction_world_entities, sync_loop,
+        correction_server_apply_priority_cache, desync_check_correction, init_physics_data,
+        pause_loop, send_desync_check, start_sync, sync_correction_world_entities, sync_loop,
         ClientStartedSyncing, CorrectionServerRigidBodyLink, FastForwarding, PendingDesync,
         SimulationStorage, SpawningSimulation, SpawningSimulationRigidBody, SyncPause,
     },
@@ -61,7 +61,7 @@ impl Plugin for PhysicsPlugin {
                             .in_set(MainSet::Update)
                             .before(SpawningSimulation::Spawn),
                         init_physics_data.in_set(MainSet::PostPhysics),
-                        apply_priority_cache
+                        correction_server_apply_priority_cache
                             .in_set(MainSet::PreUpdate)
                             .after(cache_data),
                     ),

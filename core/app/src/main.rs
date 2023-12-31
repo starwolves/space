@@ -193,8 +193,10 @@ pub(crate) fn start_app(mode: AppMode) {
         .insert_resource(WinitSettings::game())
         .add_plugins(EguiPlugin)
         .add_plugins(GraphicsPlugin)
-        .add_plugins(CorrectionPlugin);
-        app.insert_resource(ClientInformation {
+        .add_plugins(CorrectionPlugin)
+        //.add_plugins(FrameTimeDiagnosticsPlugin::default())
+        //.add_plugins(LogDiagnosticsPlugin::default())
+        .insert_resource(ClientInformation {
             version: APP_VERSION.to_string(),
         });
     }

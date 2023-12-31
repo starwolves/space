@@ -35,7 +35,9 @@ use physics::{
     cache::{Cache, PhysicsCache},
     correction_mode::CorrectionResults,
     entity::{RigidBodies, SFRigidBody},
-    sync::{apply_priority_cache, CorrectionServerRigidBodyLink, SimulationStorage},
+    sync::{
+        correction_server_apply_priority_cache, CorrectionServerRigidBodyLink, SimulationStorage,
+    },
 };
 use resources::{
     content::SF_CONTENT_PREFIX,
@@ -84,7 +86,7 @@ impl Plugin for CorrectionServerPlugin {
                 finish_correction.in_set(MainSet::PostUpdate),
                 store_tick_data
                     .in_set(MainSet::PostPhysics)
-                    .after(apply_priority_cache),
+                    .after(correction_server_apply_priority_cache),
                 clear_sync_world.in_set(MainSet::PostUpdate),
                 apply_humanoid_caches
                     .in_set(MainSet::PreUpdate)

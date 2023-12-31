@@ -168,93 +168,75 @@ pub const R: f32 = 0.5;
 pub(crate) fn apply_peer_sync_look_transform(
     mut events: EventReader<PeerSyncLookTransform>,
     mut query: Query<(&mut LookTransform, &mut Transform)>,
-    mut last: ResMut<LastPeerLookTransform>,
     mut cache: ResMut<PhysicsCache>,
     stamp: Res<TickRateStamp>,
     mut priority: ResMut<PriorityPhysicsCache>,
     mut look_cache: ResMut<LookTransformCache>,
 ) {
     for event in events.read() {
-        let mut go = false;
-        match last.map.get_mut(&event.handle) {
-            Some(old_stamp) => {
-                if event.client_stamp > *old_stamp {
-                    *old_stamp = event.client_stamp;
-                    go = true;
-                }
-            }
-            None => {
-                go = true;
-                last.map.insert(event.handle, event.client_stamp);
-            }
-        }
-        if go {
-            match query.get_mut(event.entity) {
-                Ok((mut l, mut t)) => {
-                    match look_cache.cache.get_mut(&event.entity) {
-                        Some(c) => match c.get_mut(&event.client_stamp) {
-                            Some(l) => {
-                                l.target = event.target;
-                            }
-                            None => {
-                                let mut l = default_look_transform();
-                                l.target = event.target;
-                                c.insert(event.client_stamp, l);
-                            }
-                        },
+        match query.get_mut(event.entity) {
+            Ok((mut l, mut t)) => {
+                match look_cache.cache.get_mut(&event.entity) {
+                    Some(c) => match c.get_mut(&event.client_stamp) {
+                        Some(l) => {
+                            l.target = event.target;
+                        }
                         None => {
-                            let mut m = HashMap::new();
                             let mut l = default_look_transform();
                             l.target = event.target;
-                            m.insert(event.client_stamp, l);
-                            look_cache.cache.insert(event.entity, m);
-                        }
-                    }
-                    if stamp.large == event.client_stamp {
-                        l.target = event.target;
-                    }
-                    if stamp.large == event.server_stamp {
-                        t.translation = event.position;
-                    }
-                }
-                Err(_) => {
-                    warn!("Couldnt find looktransform for sync.");
-                }
-            }
-            let adjusted_stamp = event.server_stamp - 1;
-
-            if stamp.large != event.server_stamp {
-                match cache.cache.get_mut(&adjusted_stamp) {
-                    Some(map) => match map.get_mut(&event.entity) {
-                        Some(c) => {
-                            c.transform.translation = event.position;
-                        }
-                        None => {
-                            /*warn!(
-                                "Missed peer position for looktransform 1. {:?}",
-                                event.entity
-                            );*/
+                            c.insert(event.client_stamp, l);
                         }
                     },
                     None => {
-                        /*warn!(
-                            "Missed peer position for looktransform. {:?}:{} current tick: {}",
-                            event.entity, adjusted_stamp, stamp.large
-                        );*/
+                        let mut m = HashMap::new();
+                        let mut l = default_look_transform();
+                        l.target = event.target;
+                        m.insert(event.client_stamp, l);
+                        look_cache.cache.insert(event.entity, m);
                     }
                 }
-            } else {
-                //info!("Perfect apply peer look transform.");
+                if stamp.large == event.client_stamp {
+                    l.target = event.target;
+                }
+                if stamp.large == event.server_stamp {
+                    t.translation = event.position;
+                }
             }
-            match priority.cache.get_mut(&adjusted_stamp) {
-                Some(map) => {
-                    map.insert(event.entity, PriorityUpdate::Position(event.position));
-                }
+            Err(_) => {
+                warn!("Couldnt find looktransform for sync.");
+            }
+        }
+        let adjusted_stamp = event.server_stamp - 1;
+
+        if stamp.large != event.server_stamp {
+            match cache.cache.get_mut(&adjusted_stamp) {
+                Some(map) => match map.get_mut(&event.entity) {
+                    Some(c) => {
+                        c.transform.translation = event.position;
+                    }
+                    None => {
+                        /*warn!(
+                            "Missed peer position for looktransform 1. {:?}",
+                            event.entity
+                        );*/
+                    }
+                },
                 None => {
-                    let mut map = HashMap::new();
-                    map.insert(event.entity, PriorityUpdate::Position(event.position));
-                    priority.cache.insert(adjusted_stamp, map);
+                    /*warn!(
+                        "Missed peer position for looktransform. {:?}:{} current tick: {}",
+                        event.entity, adjusted_stamp, stamp.large
+                    );*/
                 }
+            }
+        }
+        match priority.cache.get_mut(&adjusted_stamp) {
+            Some(map) => {
+                map.insert(event.entity, PriorityUpdate::Position(event.position));
+            }
+            None => {
+                let mut map = HashMap::new();
+                map.insert(event.entity, PriorityUpdate::Position(event.position));
+                priority.cache.insert(adjusted_stamp, map);
             }
         }
     }
@@ -274,6 +256,7 @@ pub struct LookTick {
     peer_handle: ClientId,
     client_stamp: u64,
     server_stamp: u64,
+    start_correction: bool,
 }
 
 pub(crate) fn process_peer_input(
@@ -314,6 +297,7 @@ pub(crate) fn process_peer_input(
         }
     }
     let desired_tick = stamp.large;
+
     let mut reliables = vec![];
     for (_, reliable_cache) in input_cache.reliable.iter_mut() {
         for i in reliable_cache.clone().keys().sorted() {
@@ -418,6 +402,7 @@ pub(crate) fn process_peer_input(
                     peer_handle: client_id,
                     client_stamp: large_client_stamp,
                     server_stamp: u.stamp,
+                    start_correction: false,
                 };
                 match queue.get_mut(&client_id) {
                     Some(q1) => match q1.get_mut(&u.stamp) {
@@ -449,6 +434,7 @@ pub(crate) fn process_peer_input(
                 if !latest {
                     continue;
                 }
+                // This shouldnt trigger a StartCorrection
                 match input_cache.look_transform_best_ticks.get_mut(&client_id) {
                     Some(v) => {
                         v.push(up);
@@ -464,10 +450,11 @@ pub(crate) fn process_peer_input(
     }
 
     for (client, netcode_updates) in queue.iter() {
-        match netcode_updates.get(&stamp.large) {
+        match netcode_updates.get(&desired_tick) {
             Some(ups) => {
                 for i in ups.keys().sorted().rev() {
-                    let look_tick = ups.get(i).unwrap().clone();
+                    let mut look_tick = ups.get(i).unwrap().clone();
+                    look_tick.start_correction = true;
                     match input_cache.look_transform_best_ticks.get_mut(client) {
                         Some(bests) => {
                             bests.push(look_tick);
@@ -505,14 +492,16 @@ pub(crate) fn process_peer_input(
                         e, update.server_stamp, update.update.sub_tick
                     );*/
 
-                    new_correction = true;
+                    if update.start_correction {
+                        new_correction = true;
 
-                    if e < earliest_tick || earliest_tick == 0 {
-                        earliest_tick = e;
-                    }
-                    let e = update.server_stamp - 1;
-                    if e < earliest_tick || earliest_tick == 0 {
-                        earliest_tick = e;
+                        if e < earliest_tick || earliest_tick == 0 {
+                            earliest_tick = e;
+                        }
+                        let e = update.server_stamp - 1;
+                        if e < earliest_tick || earliest_tick == 0 {
+                            earliest_tick = e;
+                        }
                     }
                 }
                 None => {
@@ -892,19 +881,18 @@ pub(crate) fn controller_input(
                         }
                         if server_stamp == stampres.large {
                             transform.translation = position;
-                        } else {
-                            match cache.cache.get_mut(&adjusted_stamp) {
-                                Some(map) => match map.get_mut(&player_entity) {
-                                    Some(c) => {
-                                        c.transform.translation = position;
-                                    }
-                                    None => {
-                                        warn!("Missed physics cache1.");
-                                    }
-                                },
-                                None => {
-                                    warn!("Missed physics cache.");
+                        }
+                        match cache.cache.get_mut(&adjusted_stamp) {
+                            Some(map) => match map.get_mut(&player_entity) {
+                                Some(c) => {
+                                    c.transform.translation = position;
                                 }
+                                None => {
+                                    warn!("Missed physics cache1.");
+                                }
+                            },
+                            None => {
+                                warn!("Missed physics cache.");
                             }
                         }
                     }
