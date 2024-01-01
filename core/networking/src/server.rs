@@ -581,20 +581,26 @@ pub(crate) fn adjust_clients(
         let average_latency = accumulative as f32 / length as f32;
 
         let max_latency = 3. * (tickrate.fixed_rate as f32 / 60.);
+        let min_latency = 2. * (tickrate.fixed_rate as f32 / 60.);
 
         if length >= 16 {
-            if average_latency < 1. {
+            if average_latency < min_latency {
                 // Tell client to fast-forward x ticks.
                 let advance;
                 if average_latency > 0. {
-                    advance = -1;
+                    advance = min_latency - average_latency;
                 } else {
-                    advance = average_latency.floor() as i16 - 1;
+                    advance = average_latency.abs() + min_latency;
+                }
+                if advance.floor() as i16 == 0 {
+                    continue;
                 }
 
                 net.send(OutgoingReliableServerMessage {
                     handle: *handle,
-                    message: NetworkingServerMessage::AdjustSync(AdjustSync { tick: advance }),
+                    message: NetworkingServerMessage::AdjustSync(AdjustSync {
+                        tick: -advance.floor() as i16,
+                    }),
                 });
 
                 tickrate_differences.clear();
@@ -632,7 +638,7 @@ pub(crate) fn adjust_clients(
         }
 
         if length > 16 {
-            tickrate_differences.remove(0);
+            tickrate_differences.clear();
         }
     }
 }

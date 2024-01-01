@@ -92,7 +92,7 @@ pub(crate) fn syncable_entity(
                         }
                     } else {
                         if disabled.is_none() {
-                            //commands.entity(entity).insert(DisableSync);
+                            commands.entity(entity).insert(DisableSync);
                         }
                     }
                 }
