@@ -32,7 +32,7 @@ use networking::{
     stamp::{PauseTickStep, TickRateStamp},
 };
 use resources::core::TickRate;
-use resources::correction::{StartCorrection, SyncWorld};
+use resources::correction::{StartCorrection, SyncWorld, MAX_CACHE_TICKS_AMNT};
 use resources::grid::TileCollider;
 use resources::modes::Mode;
 use resources::physics::{PriorityPhysicsCache, PriorityUpdate, SmallCache};
@@ -309,6 +309,41 @@ pub fn init_physics_data(
         }
     }
 }
+
+pub(crate) fn clean_link(
+    mut link: ResMut<CorrectionServerRigidBodyLink>,
+    mut last_seen: Local<HashMap<Entity, u64>>,
+    query: Query<Entity, (With<SFRigidBody>, Without<TileCollider>)>,
+    stamp: Res<TickRateStamp>,
+) {
+    for entity in query.iter() {
+        if let Some(last_seen) = last_seen.get_mut(&entity) {
+            *last_seen = stamp.large;
+        } else {
+            last_seen.insert(entity, stamp.large);
+        }
+    }
+    for (entity, i) in last_seen.clone().iter() {
+        if *i > stamp.large - MAX_CACHE_TICKS_AMNT {
+            continue;
+        }
+        last_seen.remove(entity);
+        for (_, sims) in link.map.iter_mut() {
+            let mut i = 0;
+            let mut is = vec![];
+            for sim in sims.iter() {
+                if *sim == *entity {
+                    is.push(i);
+                }
+                i += 1;
+            }
+            for i in is.iter().rev() {
+                sims.remove(*i);
+            }
+        }
+    }
+}
+
 #[derive(Resource, Default)]
 pub struct CorrectionServerRigidBodyLink {
     // Client entity, sim entities (they get (de)spawned acrosss time, varying IDs.)
