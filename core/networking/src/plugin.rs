@@ -2,7 +2,7 @@ use std::time::Duration;
 
 use bevy::{
     app::Update,
-    ecs::schedule::IntoSystemSetConfigs,
+    ecs::schedule::{IntoSystemSetConfigs, ScheduleLabel},
     prelude::{resource_exists, App, FixedUpdate, IntoSystemConfigs, Plugin, Startup},
     time::common_conditions::on_timer,
 };
@@ -44,10 +44,15 @@ use crate::{
     },
     stamp::{step_tickrate_stamp, PauseTickStep, TickRateStamp},
 };
+use bevy_renet::NetSchedules;
 pub struct NetworkingPlugin;
 
 impl Plugin for NetworkingPlugin {
     fn build(&self, app: &mut App) {
+        let schedules = NetSchedules {
+            pre: Update.intern(),
+            post: Update.intern(),
+        };
         if is_server_mode(app) {
             if !is_correction_mode(app) {
                 let res = startup_server_listen_connections();
@@ -93,22 +98,26 @@ impl Plugin for NetworkingPlugin {
                     .init_resource::<ClientsReadyForSync>();
             }
 
-            app.add_plugins(RenetServerPlugin)
-                .add_plugins(NetcodeServerPlugin)
-                .init_resource::<Latency>()
-                .init_resource::<SyncConfirmations>()
-                .add_systems(FixedUpdate, souls.in_set(MainSet::Update))
-                .add_event::<IncomingRawReliableClientMessage>()
-                .add_event::<IncomingRawUnreliableClientMessage>()
-                .add_systems(
-                    FixedUpdate,
-                    (
-                        clear_construct_entity_updates.in_set(MainSet::PreUpdate),
-                        clear_serialized_entity_updates.in_set(MainSet::PreUpdate),
-                    ),
-                )
-                .init_resource::<ConstructEntityUpdates>()
-                .init_resource::<EntityUpdatesSerialized>();
+            app.add_plugins(RenetServerPlugin {
+                schedules: schedules,
+            })
+            .add_plugins(NetcodeServerPlugin {
+                schedules: schedules,
+            })
+            .init_resource::<Latency>()
+            .init_resource::<SyncConfirmations>()
+            .add_systems(FixedUpdate, souls.in_set(MainSet::Update))
+            .add_event::<IncomingRawReliableClientMessage>()
+            .add_event::<IncomingRawUnreliableClientMessage>()
+            .add_systems(
+                FixedUpdate,
+                (
+                    clear_construct_entity_updates.in_set(MainSet::PreUpdate),
+                    clear_serialized_entity_updates.in_set(MainSet::PreUpdate),
+                ),
+            )
+            .init_resource::<ConstructEntityUpdates>()
+            .init_resource::<EntityUpdatesSerialized>();
         } else {
             app.add_systems(
                 FixedUpdate,
@@ -120,8 +129,12 @@ impl Plugin for NetworkingPlugin {
                     .in_set(MainSet::Update),
             )
             .add_event::<ConnectToServer>()
-            .add_plugins(RenetClientPlugin)
-            .add_plugins(NetcodeClientPlugin)
+            .add_plugins(RenetClientPlugin {
+                schedules: schedules,
+            })
+            .add_plugins(NetcodeClientPlugin {
+                schedules: schedules,
+            })
             .add_event::<AssignTokenToServer>()
             .init_resource::<ConnectionPreferences>()
             .init_resource::<Connection>()

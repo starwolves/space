@@ -20,7 +20,7 @@ default-features = false
 bevy_xpbd_3d = { version = "0.3.2" , features = ["enhanced-determinism"]}
 serde = "1.0.177"
 typename = "0.1.2"
-bevy_renet = "0.0.10"
+bevy_renet = { version = "0.0.10", git = "https://github.com/starwolfy/renet.git"}
 itertools = "0.12.0"
 
 entity = { path = "../entity"}

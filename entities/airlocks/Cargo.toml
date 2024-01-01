@@ -18,7 +18,7 @@ default-features = false
 [dependencies]
 bevy_xpbd_3d = { version = "0.3.2" , features = ["enhanced-determinism"]}
 const_format = "0.2.31"
-bevy_renet = "0.0.10"
+bevy_renet = { version = "0.0.10", git = "https://github.com/starwolfy/renet.git"}
 
 entity = { path = "../../core/entity" }
 networking = { path = "../../core/networking" }

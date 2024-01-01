@@ -21,3 +21,4 @@ image = "0.24.6"
 # Must match winit version used by Bevy.
 winit = { version = "0.28", default-features = false }
 serde = "1.0.177"
+bevy_renet = { version = "0.0.10", git = "https://github.com/starwolfy/renet.git"}

@@ -17,7 +17,7 @@ default-features = false
 
 [dependencies]
 bevy_xpbd_3d = { version = "0.3.2" , features = ["enhanced-determinism"]}
-bevy_renet = "0.0.10"
+bevy_renet = { version = "0.0.10", git = "https://github.com/starwolfy/renet.git"}
 
 entity = { path = "../../core/entity" }
 gridmap = { path = "../../core/gridmap" }
