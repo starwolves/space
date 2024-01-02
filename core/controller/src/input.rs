@@ -256,7 +256,7 @@ pub struct LookTick {
     peer_handle: ClientId,
     client_stamp: u64,
     server_stamp: u64,
-    start_correction: bool,
+    client_sub_id: u8,
 }
 
 pub(crate) fn process_peer_input(
@@ -390,60 +390,81 @@ pub(crate) fn process_peer_input(
         }
     }
 
+    let mut ordered_unreliables: HashMap<u64, HashMap<u8, LookTick>> = HashMap::new();
     for u in unreliables_reader.read() {
         let client_id = ClientId::from_raw(u.message.peer_handle as u64);
         let large_client_stamp = stamp.calculate_large(u.message.client_stamp);
+
         match &u.message.message {
             UnreliablePeerControllerClientMessage::UpdateLookTransform(update) => {
-                let mut latest = false;
-
                 let up = LookTick {
                     update: update.clone(),
                     peer_handle: client_id,
                     client_stamp: large_client_stamp,
                     server_stamp: u.stamp,
-                    start_correction: false,
+                    client_sub_id: update.sub_tick,
                 };
-                match queue.get_mut(&client_id) {
-                    Some(q1) => match q1.get_mut(&u.stamp) {
-                        Some(q2) => {
-                            q2.insert(update.sub_tick, up.clone());
-                            for i in q2.keys().sorted().rev() {
-                                if update.sub_tick > *i {
-                                    latest = true;
-                                }
-                                break;
-                            }
-                        }
-                        None => {
-                            let mut m = HashMap::new();
-                            m.insert(update.sub_tick, up.clone());
-                            q1.insert(u.stamp, m);
-                            latest = true;
-                        }
-                    },
+
+                match ordered_unreliables.get_mut(&large_client_stamp) {
+                    Some(m) => {
+                        m.insert(update.sub_tick, up);
+                    }
                     None => {
-                        let mut n = HashMap::new();
-                        n.insert(update.sub_tick, up.clone());
                         let mut m = HashMap::new();
-                        m.insert(u.stamp, n);
-                        queue.insert(client_id, m);
+                        m.insert(update.sub_tick, up);
+                        ordered_unreliables.insert(large_client_stamp, m);
+                    }
+                }
+            }
+        }
+    }
+
+    for client_stamp in ordered_unreliables.keys().sorted().rev() {
+        let subs = ordered_unreliables.get(client_stamp).unwrap();
+        for sub in subs.keys().sorted().rev() {
+            let up: LookTick = subs.get(sub).unwrap().clone();
+            let client_id = up.peer_handle;
+            let large_client_stamp = up.client_stamp;
+            let mut latest = false;
+
+            match queue.get_mut(&client_id) {
+                Some(q1) => match q1.get_mut(&large_client_stamp) {
+                    Some(q2) => {
+                        for i in q2.keys().sorted().rev() {
+                            if up.client_sub_id > *i {
+                                latest = true;
+                            }
+                            break;
+                        }
+                        q2.insert(up.client_sub_id, up.clone());
+                    }
+                    None => {
+                        let mut m = HashMap::new();
+                        m.insert(up.client_sub_id, up.clone());
+                        q1.insert(large_client_stamp, m);
                         latest = true;
                     }
+                },
+                None => {
+                    let mut n = HashMap::new();
+                    n.insert(up.client_sub_id, up.clone());
+                    let mut m = HashMap::new();
+                    m.insert(large_client_stamp, n);
+                    queue.insert(client_id, m);
+                    latest = true;
                 }
-                if !latest {
-                    continue;
+            }
+            if !latest || large_client_stamp > desired_tick {
+                continue;
+            }
+            match input_cache.look_transform_best_ticks.get_mut(&client_id) {
+                Some(v) => {
+                    v.push(up);
                 }
-                // This shouldnt trigger a StartCorrection
-                match input_cache.look_transform_best_ticks.get_mut(&client_id) {
-                    Some(v) => {
-                        v.push(up);
-                    }
-                    None => {
-                        input_cache
-                            .look_transform_best_ticks
-                            .insert(client_id, vec![up]);
-                    }
+                None => {
+                    input_cache
+                        .look_transform_best_ticks
+                        .insert(client_id, vec![up]);
                 }
             }
         }
@@ -453,11 +474,22 @@ pub(crate) fn process_peer_input(
         match netcode_updates.get(&desired_tick) {
             Some(ups) => {
                 for i in ups.keys().sorted().rev() {
-                    let mut look_tick = ups.get(i).unwrap().clone();
-                    look_tick.start_correction = true;
+                    let look_tick = ups.get(i).unwrap().clone();
                     match input_cache.look_transform_best_ticks.get_mut(client) {
                         Some(bests) => {
-                            bests.push(look_tick);
+                            let mut found = false;
+                            for l in bests.iter_mut() {
+                                if l.client_sub_id == look_tick.client_sub_id
+                                    && l.client_stamp == look_tick.client_stamp
+                                {
+                                    *l = look_tick.clone();
+                                    found = true;
+                                    break;
+                                }
+                            }
+                            if !found {
+                                bests.push(look_tick);
+                            }
                         }
                         None => {
                             input_cache
@@ -492,16 +524,14 @@ pub(crate) fn process_peer_input(
                         e, update.server_stamp, update.update.sub_tick
                     );*/
 
-                    if update.start_correction {
-                        new_correction = true;
+                    new_correction = true;
 
-                        if e < earliest_tick || earliest_tick == 0 {
-                            earliest_tick = e;
-                        }
-                        let e = update.server_stamp - 1;
-                        if e < earliest_tick || earliest_tick == 0 {
-                            earliest_tick = e;
-                        }
+                    if e < earliest_tick || earliest_tick == 0 {
+                        earliest_tick = e;
+                    }
+                    let e = update.server_stamp - 1;
+                    if e < earliest_tick || earliest_tick == 0 {
+                        earliest_tick = e;
                     }
                 }
                 None => {
