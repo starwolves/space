@@ -272,7 +272,7 @@ pub(crate) fn process_peer_input(
     mut sync_controller: EventWriter<SyncControllerInput>,
     mut input_cache: ResMut<PeerInputCache>,
     pawnid: Res<PawnId>,
-    mut queue: Local<HashMap<ClientId, HashMap<u64, HashMap<u8, LookTick>>>>,
+    mut look_update_queue: Local<HashMap<ClientId, HashMap<u64, HashMap<u8, LookTick>>>>,
 ) {
     let mut new_correction = false;
     let mut earliest_tick = 0;
@@ -427,7 +427,7 @@ pub(crate) fn process_peer_input(
             let large_client_stamp = up.client_stamp;
             let mut latest = false;
 
-            match queue.get_mut(&client_id) {
+            match look_update_queue.get_mut(&client_id) {
                 Some(q1) => match q1.get_mut(&large_client_stamp) {
                     Some(q2) => {
                         for i in q2.keys().sorted().rev() {
@@ -450,11 +450,13 @@ pub(crate) fn process_peer_input(
                     n.insert(up.client_sub_id, up.clone());
                     let mut m = HashMap::new();
                     m.insert(large_client_stamp, n);
-                    queue.insert(client_id, m);
+                    look_update_queue.insert(client_id, m);
                     latest = true;
                 }
             }
-            if !latest || large_client_stamp > desired_tick {
+            if !latest
+            /*|| (large_client_stamp > desired_tick || up.server_stamp > desired_tick)*/
+            {
                 continue;
             }
             match input_cache.look_transform_best_ticks.get_mut(&client_id) {
@@ -470,19 +472,22 @@ pub(crate) fn process_peer_input(
         }
     }
 
-    for (client, netcode_updates) in queue.iter() {
+    for (client, netcode_updates) in look_update_queue.iter() {
         match netcode_updates.get(&desired_tick) {
             Some(ups) => {
                 for i in ups.keys().sorted().rev() {
                     let look_tick = ups.get(i).unwrap().clone();
+                    /*if look_tick.client_stamp > desired_tick
+                    {
+                        continue;
+                    }*/
                     match input_cache.look_transform_best_ticks.get_mut(client) {
                         Some(bests) => {
                             let mut found = false;
-                            for l in bests.iter_mut() {
+                            for l in bests.iter() {
                                 if l.client_sub_id == look_tick.client_sub_id
                                     && l.client_stamp == look_tick.client_stamp
                                 {
-                                    *l = look_tick.clone();
                                     found = true;
                                     break;
                                 }
@@ -554,7 +559,7 @@ pub(crate) fn process_peer_input(
         });
     }
     // Clean cache.
-    for (_, cache) in queue.iter_mut() {
+    for (_, cache) in look_update_queue.iter_mut() {
         if cache.len() > MAX_CACHE_TICKS_AMNT as usize {
             let mut j = 0;
             for i in cache.clone().keys().sorted().rev() {

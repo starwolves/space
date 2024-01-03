@@ -592,15 +592,14 @@ pub(crate) fn adjust_clients(
                 } else {
                     advance = average_latency.abs() + min_latency;
                 }
-                if advance.floor() as i16 == 0 {
+                let num = advance.round() as i16;
+                if num == 0 {
                     continue;
                 }
 
                 net.send(OutgoingReliableServerMessage {
                     handle: *handle,
-                    message: NetworkingServerMessage::AdjustSync(AdjustSync {
-                        tick: -advance.floor() as i16,
-                    }),
+                    message: NetworkingServerMessage::AdjustSync(AdjustSync { tick: -num }),
                 });
 
                 tickrate_differences.clear();
@@ -617,11 +616,13 @@ pub(crate) fn adjust_clients(
             } else if average_latency > max_latency {
                 // Tell client freeze x ticks.
 
+                let num = average_latency.round() as i16 - max_latency.round() as i16;
+                if num == 0 {
+                    continue;
+                }
                 net.send(OutgoingReliableServerMessage {
                     handle: *handle,
-                    message: NetworkingServerMessage::AdjustSync(AdjustSync {
-                        tick: average_latency.ceil() as i16 - max_latency.floor() as i16,
-                    }),
+                    message: NetworkingServerMessage::AdjustSync(AdjustSync { tick: num }),
                 });
                 tickrate_differences.clear();
                 length = 0;
@@ -638,7 +639,9 @@ pub(crate) fn adjust_clients(
         }
 
         if length > 16 {
-            tickrate_differences.clear();
+            for _ in 0..length - 16 {
+                tickrate_differences.remove(0);
+            }
         }
     }
 }
