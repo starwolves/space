@@ -7,6 +7,7 @@ use crate::{
 };
 use bevy::{
     ecs::system::Resource,
+    log::info,
     prelude::{Commands, Entity, EventReader, Res, ResMut, Transform},
     transform::TransformBundle,
 };
@@ -102,9 +103,9 @@ pub fn rigidbody_builder(
     entity: Entity,
     is_showcase: bool,
     rigidbodies: &mut ResMut<RigidBodies>,
-    app_mode: &Res<Mode>,
+    app_mode: &Res<AppMode>,
 ) {
-    let correction_mode = matches!(**app_mode, Mode::Correction);
+    let correction_mode = matches!(**app_mode, AppMode::Correction);
     let rigidbody;
     let masks;
 
@@ -133,6 +134,7 @@ pub fn rigidbody_builder(
         builder = commands.entity(entity);
     } else {
         builder = commands.spawn(());
+        info!("Coupled rb {:?} to {:?}", builder.id(), entity);
     }
     builder.insert((
         t.clone(),
@@ -217,7 +219,7 @@ use entity::spawn::{NoData, SpawnEntity};
 use networking::stamp::TickRateStamp;
 use resources::{
     correction::MAX_CACHE_TICKS_AMNT,
-    modes::{is_server, Mode},
+    modes::{is_server, AppMode},
     physics::PhysicsSpawn,
 };
 
@@ -244,7 +246,7 @@ pub fn build_rigid_bodies<T: RigidBodyBuilder<NoData> + 'static>(
     mut spawn_events: EventReader<SpawnEntity<T>>,
     mut commands: Commands,
     mut rigidbodies: ResMut<RigidBodies>,
-    app_mode: Res<Mode>,
+    app_mode: Res<AppMode>,
     mut new: ResMut<NewlySpawnedRigidbodies>,
     stamp: Res<TickRateStamp>,
 ) {

@@ -7,10 +7,12 @@ use crate::{
     showcase::{Showcase, ShowcaseData},
 };
 use bevy::{
+    log::info,
     math::Vec3,
     prelude::{Commands, Entity, Event, EventReader, EventWriter, Resource, SystemSet, Transform},
 };
 use bevy_renet::renet::ClientId;
+use resources::modes::is_server;
 use serde::Deserialize;
 
 use crate::{
@@ -147,6 +149,14 @@ pub fn build_base_entities<T: BaseEntityBuilder<NoData> + 'static>(
             .get_bundle(&spawn_event.spawn_data, NoData);
 
         let entity_type = base_entity_bundle.entity_type.get_identity();
+
+        if is_server() {
+            info!(
+                "Spawning {} {:?}",
+                base_entity_bundle.entity_type.get_identity(),
+                spawn_event.spawn_data.entity
+            );
+        }
 
         base_entity_builder(
             &mut commands,

@@ -4,7 +4,7 @@ use bevy::{
     prelude::{AssetServer, Handle, Res, ResMut, Resource},
     text::Font,
 };
-use resources::modes::{is_server, Mode};
+use resources::modes::{is_server, AppMode};
 
 pub const ARIZONE_FONT: &str = "fonts/ArizoneUnicaseRegular.ttf";
 pub const EMPIRE_FONT: &str = "fonts/AAbsoluteEmpire.ttf";
@@ -20,17 +20,21 @@ pub struct Fonts {
 }
 
 impl Fonts {
-    pub fn add(&mut self, path: String, asset_server: &Res<AssetServer>, app_mode: &Res<Mode>) {
+    pub fn add(&mut self, path: String, asset_server: &Res<AssetServer>, app_mode: &Res<AppMode>) {
         self.map.insert(self.i, path.clone());
         self.inv_map.insert(path.clone(), self.i);
-        if !(is_server() || matches!(**app_mode, Mode::Correction)) {
+        if !(is_server() || matches!(**app_mode, AppMode::Correction)) {
             self.handles.insert(path.clone(), asset_server.load(path));
         }
         self.i += 1;
     }
 }
 
-pub fn init_fonts(mut fonts: ResMut<Fonts>, asset_server: Res<AssetServer>, app_mode: Res<Mode>) {
+pub fn init_fonts(
+    mut fonts: ResMut<Fonts>,
+    asset_server: Res<AssetServer>,
+    app_mode: Res<AppMode>,
+) {
     fonts.add(ARIZONE_FONT.to_string(), &asset_server, &app_mode);
     fonts.add(EMPIRE_FONT.to_string(), &asset_server, &app_mode);
     fonts.add(NESATHOBERYL_FONT.to_string(), &asset_server, &app_mode);

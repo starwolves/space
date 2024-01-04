@@ -79,7 +79,7 @@ use resources::core::TickRate;
 use resources::modes::is_correction_mode;
 use resources::modes::is_server;
 use resources::modes::is_server_mode;
-use resources::modes::Mode;
+use resources::modes::AppMode;
 use resources::plugin::ResourcesPlugin;
 use resources::sets::StartupSet;
 use setup_menu::plugin::SetupMenuPlugin;
@@ -92,7 +92,7 @@ pub mod correction;
 
 /// The function that launches the server on application start.
 fn main() {
-    start_app(AppMode::Standard);
+    start_app(Mode::Standard);
 }
 
 /// Prints "Live." from main module for fancy text output.
@@ -103,7 +103,7 @@ fn live() {
 /// Version of this crate as defined in this Cargo.toml.
 const APP_VERSION: &'static str = env!("CARGO_PKG_VERSION");
 
-pub enum AppMode {
+pub(crate) enum Mode {
     Standard,
     Correction(
         CorrectionServerReceiveMessage,
@@ -112,7 +112,7 @@ pub enum AppMode {
 }
 
 /// Start client or server. Optionally start client in simulation correction mode and return new data.
-pub(crate) fn start_app(mode: AppMode) {
+pub(crate) fn start_app(mode: Mode) {
     let binding = current_dir().unwrap();
     let mut test_path = binding.as_path();
     let binding = test_path.join("assets");
@@ -120,14 +120,14 @@ pub(crate) fn start_app(mode: AppMode) {
     let mut app = App::new();
 
     match mode {
-        AppMode::Standard => {
-            app.insert_resource(Mode::Standard);
+        Mode::Standard => {
+            app.insert_resource(AppMode::Standard);
         }
-        AppMode::Correction(receiver, sender) => {
+        Mode::Correction(receiver, sender) => {
             if !is_server() {
                 app.insert_non_send_resource(receiver)
                     .insert_resource(CorrectionServerSendMessage { sender })
-                    .insert_resource(Mode::Correction);
+                    .insert_resource(AppMode::Correction);
             }
         }
     }

@@ -6,7 +6,7 @@ use bevy::{
 };
 use bevy_xpbd_3d::prelude::Collider;
 use entity::examine::RichName;
-use resources::modes::{is_server, Mode};
+use resources::modes::{is_server, AppMode};
 
 use crate::{
     grid::{CellType, CellTypeName, TileProperties},
@@ -18,10 +18,10 @@ use super::generic_assets::GenericMeshes;
 pub(crate) fn init_generic_diagonal_ceiling(
     mut init: ResMut<InitTileProperties>,
     meshes: Res<GenericMeshes>,
-    app_mode: Res<Mode>,
+    app_mode: Res<AppMode>,
 ) {
     let mesh_option: Option<Handle<GltfMesh>>;
-    if !is_server() || matches!(*app_mode, Mode::Correction) {
+    if !is_server() || matches!(*app_mode, AppMode::Correction) {
         mesh_option = Some(meshes.diagonal_template.clone());
     } else {
         mesh_option = None;

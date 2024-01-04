@@ -34,7 +34,7 @@ use networking::{
 use resources::core::TickRate;
 use resources::correction::{StartCorrection, SyncWorld};
 use resources::grid::TileCollider;
-use resources::modes::Mode;
+use resources::modes::AppMode;
 use resources::physics::{PriorityPhysicsCache, PriorityUpdate, SmallCache};
 use resources::player::SoftPlayer;
 
@@ -343,7 +343,7 @@ pub(crate) fn sync_correction_world_entities(
     mut despawn: EventWriter<DespawnEntity>,
     mut commands: Commands,
     mut rigid_bodies: ResMut<RigidBodies>,
-    app_mode: Res<Mode>,
+    app_mode: Res<AppMode>,
     mut link: ResMut<CorrectionServerRigidBodyLink>,
     correction: Res<StartCorrection>,
     mut event: EventWriter<SpawningSimulationRigidBody>,

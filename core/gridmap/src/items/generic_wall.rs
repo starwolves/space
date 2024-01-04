@@ -3,7 +3,7 @@ use bevy::prelude::{
 };
 use bevy_xpbd_3d::prelude::Collider;
 use entity::examine::RichName;
-use resources::modes::{is_server, Mode};
+use resources::modes::{is_server, AppMode};
 
 use crate::{
     grid::{CellType, CellTypeName, TileGroup, TileProperties},
@@ -47,7 +47,7 @@ pub(crate) fn init_generic_wall(
     mut init: ResMut<InitTileProperties>,
     meshes: Res<GenericMeshes>,
     mat: Res<GenericWallMaterial>,
-    app_mode: Res<Mode>,
+    app_mode: Res<AppMode>,
 ) {
     let mut default_isometry = Transform::IDENTITY;
 
@@ -55,7 +55,7 @@ pub(crate) fn init_generic_wall(
 
     let mesh_option;
     let material_option;
-    if !is_server() || matches!(*app_mode, Mode::Correction) {
+    if !is_server() || matches!(*app_mode, AppMode::Correction) {
         mesh_option = Some(meshes.wall.clone());
 
         material_option = Some(mat.material_handle.clone());

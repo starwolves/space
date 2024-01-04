@@ -47,7 +47,7 @@ use resources::{
     sets::MainSet,
 };
 
-use crate::{start_app, AppMode};
+use crate::{start_app, Mode};
 
 /// Creates a headless app instance in correction mode.
 pub struct CorrectionPlugin;
@@ -360,7 +360,7 @@ pub(crate) fn start_correction_server(world: &mut World) {
 
     let (tx2, rx2) = mpsc::sync_channel(64);
 
-    let app = std::thread::spawn(move || start_app(AppMode::Correction(message_receiver, tx2)));
+    let app = std::thread::spawn(move || start_app(Mode::Correction(message_receiver, tx2)));
     info!("Physics correction server started.");
     world.insert_resource(CorrectionServerData {
         message_sender: tx,

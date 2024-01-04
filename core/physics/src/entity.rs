@@ -1,5 +1,7 @@
 use std::collections::{hash_map::Entry, HashMap};
 
+use bevy::ecs::system::Commands;
+use bevy::hierarchy::DespawnRecursiveExt;
 use bevy::log::warn;
 use bevy::{
     prelude::{
@@ -108,8 +110,20 @@ impl RigidBodies {
 pub(crate) fn remove_links(
     mut rigidbodies: ResMut<RigidBodies>,
     mut events: EventReader<DespawnEntity>,
+    mut commands: Commands,
 ) {
     for event in events.read() {
+        match rigidbodies.get_entity_rigidbody(&event.entity) {
+            Some(rb) => {
+                commands.entity(*rb).despawn_recursive();
+            }
+            None => {
+                if rigidbodies.get_rigidbody_entity(&event.entity).is_some() {
+                    warn!("Ignoring despawn event for rb.");
+                    continue;
+                }
+            }
+        }
         rigidbodies.remove_linked_entity(&event.entity);
         rigidbodies.remove_linked_tile(&event.entity);
         rigidbodies.remove_entity_rigidbody(&event.entity);

@@ -32,7 +32,7 @@ use resources::player::SoftPlayer;
 use resources::{
     grid::TargetCell,
     math::{cell_id_to_world, Vec3Int},
-    modes::Mode,
+    modes::AppMode,
 };
 use resources::{
     grid::{CellFace, Tile},
@@ -1050,7 +1050,7 @@ pub(crate) fn add_tile_collision(
     mut commands: Commands,
     gridmap_data: Res<Gridmap>,
     mut rigidbodies: ResMut<RigidBodies>,
-    app_mode: Res<Mode>,
+    app_mode: Res<AppMode>,
 ) {
     for event in events.read() {
         let cell_properties;
@@ -1102,7 +1102,7 @@ pub(crate) fn add_tile_collision(
         let mut entity_builder = commands.entity(event.entity);
         entity_builder.insert((Cell { id: event.id }, RigidBodyLink::default()));
 
-        if is_server() || matches!(*app_mode, Mode::Correction) {
+        if is_server() || matches!(*app_mode, AppMode::Correction) {
             entity_builder.insert(TransformBundle::from(world_position));
         }
     }

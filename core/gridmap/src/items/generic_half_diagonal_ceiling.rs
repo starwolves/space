@@ -11,7 +11,7 @@ use entity::examine::RichName;
 use resources::{
     grid::CellFace,
     math::Vec3Int,
-    modes::{is_server, Mode},
+    modes::{is_server, AppMode},
 };
 
 use crate::{
@@ -67,12 +67,12 @@ pub(crate) fn init_generic_half_diagonal_ceiling_low(
     mut init: ResMut<InitTileProperties>,
     meshes: Res<GenericMeshes>,
     mat: Res<GenericHalfDiagonalCeilingMaterial>,
-    app_mode: Res<Mode>,
+    app_mode: Res<AppMode>,
 ) {
     let mesh_option: Option<Handle<GltfMesh>>;
     let material_option;
 
-    if !is_server() || matches!(*app_mode, Mode::Correction) {
+    if !is_server() || matches!(*app_mode, AppMode::Correction) {
         mesh_option = Some(meshes.half_diagonal_template_low.clone());
         material_option = Some(mat.low_material_handle.clone());
     } else {
@@ -110,12 +110,12 @@ pub(crate) fn init_generic_half_diagonal_ceiling_high(
     mut init: ResMut<InitTileProperties>,
     meshes: Res<GenericMeshes>,
     mat: Res<GenericHalfDiagonalCeilingMaterial>,
-    app_mode: Res<Mode>,
+    app_mode: Res<AppMode>,
 ) {
     let mesh_option: Option<Handle<GltfMesh>>;
     let material_option;
 
-    if !is_server() || matches!(*app_mode, Mode::Correction) {
+    if !is_server() || matches!(*app_mode, AppMode::Correction) {
         mesh_option = Some(meshes.half_diagonal_template_high.clone());
         material_option = Some(mat.high_material_handle.clone());
     } else {

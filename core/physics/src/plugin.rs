@@ -29,6 +29,7 @@ use crate::{
     },
     mirror_physics_transform::rigidbody_link_transform,
     net::PhysicsUnreliableServerMessage,
+    out_of_bounds::despawn_out_of_bounds,
     spawn::{clear_new, NewlySpawnedRigidbodies},
     sync::{
         correction_server_apply_priority_cache, desync_check_correction, init_physics_data,
@@ -134,6 +135,9 @@ impl Plugin for PhysicsPlugin {
             .init_resource::<PriorityPhysicsCache>()
             .init_resource::<NewlySpawnedRigidbodies>()
             .add_systems(FixedUpdate, clear_new.in_set(MainSet::Update));
+        if !is_correction_mode(app) {
+            app.add_systems(FixedUpdate, despawn_out_of_bounds.in_set(MainSet::Update));
+        }
         register_unreliable_message::<PhysicsUnreliableServerMessage>(app, MessageSender::Server);
     }
 }
