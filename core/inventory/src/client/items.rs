@@ -4,10 +4,11 @@ use bevy::prelude::{
     SystemSet, Transform, Vec3, Visibility,
 };
 
-use bevy_xpbd_3d::prelude::Sleeping;
+use bevy_xpbd_3d::components::RigidBody;
 use cameras::controllers::fps::ActiveCamera;
 use entity::{entity_data::EntityData, entity_types::EntityType, spawn::ServerEntityClientEntity};
 use networking::client::IncomingReliableServerMessage;
+use physics::entity::RigidBodies;
 
 use crate::{
     net::InventoryServerMessage,
@@ -88,6 +89,7 @@ pub fn set_active_item(
     mut commands: Commands,
 
     mut events: EventWriter<ActiveItemCamera>,
+    rigidbodies: Res<RigidBodies>,
 ) {
     for event in net.read() {
         match event.message {
@@ -113,7 +115,14 @@ pub fn set_active_item(
                     Some(ent) => match visible_query.get_mut(*ent) {
                         Ok((entt, mut comp)) => {
                             *comp = Visibility::Inherited;
-                            commands.entity(entt).insert(Sleeping);
+                            match rigidbodies.get_entity_rigidbody(&entt) {
+                                Some(rb) => {
+                                    commands.entity(*rb).remove::<RigidBody>();
+                                }
+                                None => {
+                                    warn!("Couldnt find rigidbody.");
+                                }
+                            }
                             match state.option {
                                 Some(camera_entity) => {
                                     commands.entity(camera_entity).add_child(*ent);

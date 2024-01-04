@@ -16,6 +16,7 @@ use entity::{
     despawn::DespawnEntity,
     entity_data::{WorldMode, WorldModes},
 };
+use resources::modes::AppMode;
 use resources::{core::TickRate, grid::Tile};
 
 /// A rigidbody that is linked to a decoupled entity.
@@ -107,20 +108,23 @@ impl RigidBodies {
     }
 }
 
-pub(crate) fn remove_links(
+pub(crate) fn remove_rigidbody_links(
     mut rigidbodies: ResMut<RigidBodies>,
     mut events: EventReader<DespawnEntity>,
     mut commands: Commands,
+    app_mode: Res<AppMode>,
 ) {
     for event in events.read() {
-        match rigidbodies.get_entity_rigidbody(&event.entity) {
-            Some(rb) => {
-                commands.entity(*rb).despawn_recursive();
-            }
-            None => {
-                if rigidbodies.get_rigidbody_entity(&event.entity).is_some() {
-                    warn!("Ignoring despawn event for rb.");
-                    continue;
+        if !matches!(*app_mode, AppMode::Correction) {
+            match rigidbodies.get_entity_rigidbody(&event.entity) {
+                Some(rb) => {
+                    commands.entity(*rb).despawn_recursive();
+                }
+                None => {
+                    if rigidbodies.get_rigidbody_entity(&event.entity).is_some() {
+                        warn!("Ignoring despawn event for rb.");
+                        continue;
+                    }
                 }
             }
         }

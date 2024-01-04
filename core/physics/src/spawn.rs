@@ -115,15 +115,7 @@ pub fn rigidbody_builder(
         masks = CollisionLayers::from_bits(m.0, m.1);
     } else if rigidbody_spawn_data.rigidbody_dynamic {
         rigidbody = RigidBody::Dynamic;
-        match rigidbody_spawn_data.entity_is_stored_item {
-            true => {
-                let m = get_bit_masks(ColliderGroup::NoCollision);
-                masks = CollisionLayers::from_bits(m.0, m.1);
-            }
-            false => {
-                masks = rigidbody_spawn_data.collider_collision_layers;
-            }
-        }
+        masks = rigidbody_spawn_data.collider_collision_layers;
     } else {
         rigidbody = RigidBody::Static;
         masks = rigidbody_spawn_data.collider_collision_layers;
@@ -138,7 +130,6 @@ pub fn rigidbody_builder(
     }
     builder.insert((
         t.clone(),
-        rigidbody,
         rigidbody_spawn_data.external_force,
         rigidbody_spawn_data.linear_velocity,
         RigidBodyData {
@@ -160,10 +151,6 @@ pub fn rigidbody_builder(
     builder.insert((rigidbody_spawn_data.external_impulse,));
 
     let rigid_entity = builder.id();
-
-    if rigidbody_spawn_data.entity_is_stored_item {
-        builder.insert(Sleeping);
-    }
 
     if !(is_server() || correction_mode) {
         t.local.translation += rigidbody_spawn_data.mesh_offset.translation;
@@ -205,8 +192,8 @@ pub fn rigidbody_builder(
     if !correction_mode {
         builder = commands.entity(rigid_entity);
     }
-    if !rigidbody_enabled {
-        builder.insert(Sleeping);
+    if rigidbody_enabled || !rigidbody_spawn_data.entity_is_stored_item {
+        builder.insert(rigidbody);
     }
 
     rigidbodies.link_entity(entity, rigid_entity)
