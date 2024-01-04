@@ -9,7 +9,6 @@ use bevy::{
     transform::components::Transform,
 };
 use entity::despawn::DespawnEntity;
-use resources::modes::AppMode;
 
 use crate::entity::{RigidBodies, SFRigidBody};
 
@@ -19,7 +18,6 @@ pub(crate) fn despawn_out_of_bounds(
     query: Query<(Entity, &Transform), With<SFRigidBody>>,
     rigidbodies: Res<RigidBodies>,
     mut despawn: EventWriter<DespawnEntity>,
-    app_mode: Res<AppMode>,
 ) {
     for (entity, transform) in query.iter() {
         if transform.translation.x > MAX_BOUNDS
@@ -41,10 +39,7 @@ pub(crate) fn despawn_out_of_bounds(
             }
             despawn.send(DespawnEntity { entity: ent });
 
-            info!(
-                "Despawned out of bounds entity {:?}. {:?} app.",
-                ent, *app_mode
-            );
+            info!("Despawning {:?}.", ent,);
         }
     }
 }

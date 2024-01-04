@@ -215,7 +215,7 @@ pub fn process_response(
                             handle: token.handle,
                         });
 
-                        info!("Set account name {} for {}", d.name, token.handle);
+                        info!("Set account name {} for {}.", d.name, token.handle);
                     }
                     despawn.send(DespawnEntity { entity });
                 }

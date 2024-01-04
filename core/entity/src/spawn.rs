@@ -152,7 +152,7 @@ pub fn build_base_entities<T: BaseEntityBuilder<NoData> + 'static>(
 
         if is_server() {
             info!(
-                "Spawning {} {:?}",
+                "Spawning {} {:?}.",
                 base_entity_bundle.entity_type.get_identity(),
                 spawn_event.spawn_data.entity
             );

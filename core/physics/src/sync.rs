@@ -21,6 +21,7 @@ use bevy_xpbd_3d::components::{
 use bevy_xpbd_3d::prelude::{Physics, PhysicsTime};
 use entity::despawn::DespawnEntity;
 use entity::entity_types::BoxedEntityType;
+use entity::net::EntityServerMessage;
 use entity::spawn::ServerEntityClientEntity;
 use networking::client::{IncomingUnreliableServerMessage, StartSyncStage};
 use networking::server::{ConnectedPlayer, HandleToEntity, OutgoingUnreliableServerMessage};
@@ -740,5 +741,38 @@ pub fn correction_server_apply_priority_cache(
             }
         }
         None => {}
+    }
+}
+
+pub(crate) fn client_despawn_clean_cache(
+    mut net: EventReader<IncomingReliableServerMessage<EntityServerMessage>>,
+    links: Res<ServerEntityClientEntity>,
+    mut cache: ResMut<PhysicsCache>,
+    stamp: Res<TickRateStamp>,
+    mut start: EventWriter<StartCorrection>,
+) {
+    for message in net.read() {
+        match message.message {
+            EntityServerMessage::UnloadEntity(entity) => match links.map.get(&entity) {
+                Some(client_entity) => {
+                    for i in message.stamp..stamp.large {
+                        match cache.cache.get_mut(&i) {
+                            Some(c) => {
+                                c.remove(client_entity);
+                            }
+                            None => {}
+                        }
+                    }
+                    start.send(StartCorrection {
+                        start_tick: message.stamp,
+                        last_tick: stamp.large,
+                    });
+                }
+                None => {
+                    warn!("Couldnt find client entity for server entity: {:?}", entity);
+                }
+            },
+            _ => (),
+        }
     }
 }

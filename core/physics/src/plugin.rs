@@ -12,7 +12,7 @@ use networking::{
 use resources::{
     core::TickRate,
     correction::CorrectionSet,
-    modes::{is_correction_mode, is_server, is_server_mode},
+    modes::{is_correction_mode, is_server_mode},
     physics::{PhysicsSet, PriorityPhysicsCache},
     sets::MainSet,
 };
@@ -32,10 +32,11 @@ use crate::{
     out_of_bounds::despawn_out_of_bounds,
     spawn::{clear_new, NewlySpawnedRigidbodies},
     sync::{
-        correction_server_apply_priority_cache, desync_check_correction, init_physics_data,
-        pause_loop, send_desync_check, start_sync, sync_correction_world_entities, sync_loop,
-        ClientStartedSyncing, CorrectionServerRigidBodyLink, FastForwarding, PendingDesync,
-        SimulationStorage, SpawningSimulation, SpawningSimulationRigidBody, SyncPause,
+        client_despawn_clean_cache, correction_server_apply_priority_cache,
+        desync_check_correction, init_physics_data, pause_loop, send_desync_check, start_sync,
+        sync_correction_world_entities, sync_loop, ClientStartedSyncing,
+        CorrectionServerRigidBodyLink, FastForwarding, PendingDesync, SimulationStorage,
+        SpawningSimulation, SpawningSimulationRigidBody, SyncPause,
     },
 };
 
@@ -50,10 +51,13 @@ impl Plugin for PhysicsPlugin {
             if !is_correction_mode(app) {
                 app.add_systems(
                     FixedUpdate,
-                    server_mirror_link_transform.in_set(MainSet::PreUpdate),
+                    (
+                        server_mirror_link_transform.in_set(MainSet::PreUpdate),
+                        despawn_out_of_bounds.in_set(MainSet::Update),
+                        send_desync_check.in_set(MainSet::Update),
+                    ),
                 );
-            }
-            if is_correction_mode(app) {
+            } else {
                 app.add_systems(
                     FixedUpdate,
                     (
@@ -70,9 +74,6 @@ impl Plugin for PhysicsPlugin {
                 .init_resource::<CorrectionServerRigidBodyLink>()
                 .add_event::<SpawningSimulationRigidBody>()
                 .init_resource::<SimulationStorage>();
-            }
-            if is_server() {
-                app.add_systems(FixedUpdate, send_desync_check.in_set(MainSet::Update));
             }
         } else {
             app.add_systems(
@@ -93,6 +94,7 @@ impl Plugin for PhysicsPlugin {
                         .in_set(CorrectionSet::Start)
                         .before(sync_entities),
                     sync_entities.in_set(MainSet::Update),
+                    client_despawn_clean_cache.in_set(MainSet::Update),
                 ),
             )
             .add_systems(Startup, pause_loop)
@@ -138,9 +140,7 @@ impl Plugin for PhysicsPlugin {
             .init_resource::<PriorityPhysicsCache>()
             .init_resource::<NewlySpawnedRigidbodies>()
             .add_systems(FixedUpdate, clear_new.in_set(MainSet::Update));
-        if !is_correction_mode(app) {
-            app.add_systems(FixedUpdate, despawn_out_of_bounds.in_set(MainSet::Update));
-        }
+
         register_unreliable_message::<PhysicsUnreliableServerMessage>(app, MessageSender::Server);
     }
 }

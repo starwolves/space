@@ -48,7 +48,7 @@ pub fn player_boarded(
 ) {
     for boarded_player in events.read() {
         info!(
-            "{} has boarded as \"{}\". [{}][{:?}]",
+            "{} has boarded as \"{}\" [{}] {:?}.",
             boarded_player.account_name,
             boarded_player.character_name,
             boarded_player.handle,

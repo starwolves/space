@@ -126,7 +126,7 @@ pub fn rigidbody_builder(
         builder = commands.entity(entity);
     } else {
         builder = commands.spawn(());
-        info!("Coupled rb {:?} to {:?}", builder.id(), entity);
+        info!("rb {:?} for {:?}.", builder.id(), entity);
     }
     builder.insert((
         t.clone(),

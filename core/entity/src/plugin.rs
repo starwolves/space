@@ -7,7 +7,7 @@ use networking::server::EntityUpdatesSet;
 use resources::modes::is_server_mode;
 use resources::sets::{ActionsSet, BuildingSet, MainSet, PostUpdateSet, StartupSet};
 
-use crate::despawn::{despawn_entities, DespawnEntity};
+use crate::despawn::{client_despawn_entity, despawn_entities, DespawnEntity};
 use crate::entity_data::{fire_queued_entity_updates, QueuedSpawnEntityUpdates, RawSpawnEvent};
 use crate::entity_types::{finalize_register_entity_types, EntityTypeLabel, EntityTypes};
 use crate::examine::{
@@ -72,6 +72,7 @@ impl Plugin for EntityPlugin {
                         fire_queued_entity_updates
                             .in_set(MainSet::PreUpdate)
                             .before(TypenamesSet::SendRawEvents),
+                        client_despawn_entity.in_set(MainSet::Update),
                     ),
                 )
                 .init_resource::<QueuedSpawnEntityUpdates>()

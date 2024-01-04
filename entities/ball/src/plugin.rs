@@ -32,7 +32,6 @@ impl Plugin for BallPlugin {
                 build_balls::<BallType>.after(SpawnItemSet::SpawnHeldItem),
                 (build_base_entities::<BallType>).after(SpawnItemSet::SpawnHeldItem),
                 (build_rigid_bodies::<BallType>).after(SpawnItemSet::SpawnHeldItem),
-                shoot_ball_server.in_set(BuildingSet::TriggerBuild),
             )
                 .in_set(MainSet::Update),
         );
@@ -50,6 +49,13 @@ impl Plugin for BallPlugin {
                         .in_set(CorrectionSet::Start),
                 )
                     .in_set(MainSet::Update),
+            );
+        } else {
+            app.add_systems(
+                FixedUpdate,
+                (shoot_ball_server
+                    .in_set(BuildingSet::TriggerBuild)
+                    .in_set(MainSet::Update),),
             );
         }
         register_reliable_message::<BallClientMessage>(app, MessageSender::Client, true);

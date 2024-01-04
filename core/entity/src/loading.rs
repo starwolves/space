@@ -114,7 +114,7 @@ pub fn load_entity<T: Send + Sync + 'static + Default + EntityType>(
 
                                 map.map.insert(load_entity.entity, c_id);
                                 info!(
-                                    "Spawning {} sid:{:?}, cid:{:?}, updates:{}",
+                                    "Spawning {} sid:{:?}, cid:{:?}, updates:{}.",
                                     identity,
                                     load_entity.entity,
                                     c_id,

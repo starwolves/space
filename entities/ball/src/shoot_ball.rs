@@ -81,13 +81,13 @@ pub(crate) fn shoot_ball_server(
                 }
 
                 let offset = (camera_transform.target - camera_transform.eye).normalize();
-
+                let new = commands.spawn(()).id();
                 spawner.send(SpawnEntity {
                     spawn_data: EntityBuildData {
                         entity_transform: Transform::from_translation(
                             entity_transform.translation + camera_transform.eye + offset * 2.,
                         ),
-                        entity: commands.spawn(()).id(),
+                        entity: new,
                         ..Default::default()
                     },
                     entity_type: BallType::default(),
