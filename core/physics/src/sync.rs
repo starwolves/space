@@ -23,7 +23,7 @@ use entity::despawn::DespawnEntity;
 use entity::entity_types::BoxedEntityType;
 use entity::net::EntityServerMessage;
 use entity::spawn::ServerEntityClientEntity;
-use networking::client::{IncomingUnreliableServerMessage, StartSyncStage};
+use networking::client::IncomingUnreliableServerMessage;
 use networking::server::{ConnectedPlayer, HandleToEntity, OutgoingUnreliableServerMessage};
 use networking::{
     client::{
@@ -56,6 +56,7 @@ pub const DEBUG_FAST_FORWARD: bool = false;
 pub struct SyncPause {
     pub duration: u16,
     pub i: u16,
+    pub paused: bool,
 }
 
 #[derive(Resource, Default)]
@@ -63,11 +64,10 @@ pub struct ClientStartedSyncing(pub bool);
 
 pub(crate) fn start_sync(
     mut out: EventReader<IncomingReliableServerMessage<NetworkingServerMessage>>,
+    mut net: EventWriter<OutgoingReliableClientMessage<NetworkingClientMessage>>,
     mut stamp: ResMut<TickRateStamp>,
     mut tickrate: ResMut<TickRate>,
-    mut physics_loop: ResMut<Time<Physics>>,
     mut start: ResMut<ClientStartedSyncing>,
-    mut stage: ResMut<StartSyncStage>,
     mut i: Local<u16>,
 ) {
     for message in out.read() {
@@ -75,25 +75,15 @@ pub(crate) fn start_sync(
             NetworkingServerMessage::StartSync(start_sync) => {
                 *stamp = start_sync.stamp.clone();
                 *tickrate = start_sync.tick_rate.clone();
-                physics_loop.unpause();
                 start.0 = true;
-                stage.0 = true;
                 *i = 0;
+                net.send(OutgoingReliableClientMessage {
+                    message: NetworkingClientMessage::StartSyncConfirmation,
+                });
             }
             _ => (),
         }
     }
-    // Send heartbeat messages at higher frequency the first few seconds of connection.
-    if stage.0 {
-        *i += 1;
-        if *i > tickrate.fixed_rate as u16 * 5 {
-            stage.0 = false;
-        }
-    }
-}
-
-pub(crate) fn pause_loop(mut physics_loop: ResMut<Time<Physics>>) {
-    physics_loop.pause();
 }
 
 pub(crate) fn sync_loop(
@@ -106,13 +96,14 @@ pub(crate) fn sync_loop(
     mut fast_forwarding: ResMut<FastForwarding>,
     mut p: ResMut<PauseTickStep>,
 ) {
-    if physics_loop.is_paused() {
+    if paused.paused {
         paused.i += 1;
         if paused.i >= paused.duration {
             physics_loop.unpause();
             out.send(OutgoingReliableClientMessage {
                 message: NetworkingClientMessage::SyncConfirmation,
             });
+            paused.paused = false;
         }
     } else if fast_forwarding.forwarding {
         fast_forwarding.i += 1;
@@ -122,6 +113,7 @@ pub(crate) fn sync_loop(
             out.send(OutgoingReliableClientMessage {
                 message: NetworkingClientMessage::SyncConfirmation,
             });
+
             p.0 = false;
         }
     }
@@ -157,13 +149,14 @@ pub(crate) fn sync_loop(
 
     match adjustment_option {
         Some(adjustment) => {
-            if !physics_loop.is_paused() {
+            if !paused.paused {
                 let delta = adjustment.tick;
 
                 if delta > 0 {
                     paused.duration = delta as u16;
                     paused.i = 0;
                     physics_loop.pause();
+                    paused.paused = true;
                     if process_queue {
                         erase_queue = true;
                         info!("- {} ticks (from queue)", paused.duration);
@@ -172,6 +165,7 @@ pub(crate) fn sync_loop(
                     }
                 } else {
                     if process_queue {
+                        erase_queue = true;
                         info!("+ {} ticks (from queue)", delta.abs());
                     } else {
                         info!("+ {} ticks", delta.abs());

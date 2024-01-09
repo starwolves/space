@@ -1,5 +1,4 @@
 use bevy::{
-    app::Startup,
     ecs::schedule::common_conditions::resource_exists,
     prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, Update},
 };
@@ -33,7 +32,7 @@ use crate::{
     spawn::{clear_new, NewlySpawnedRigidbodies},
     sync::{
         client_despawn_clean_cache, correction_server_apply_priority_cache,
-        desync_check_correction, init_physics_data, pause_loop, send_desync_check, start_sync,
+        desync_check_correction, init_physics_data, send_desync_check, start_sync,
         sync_correction_world_entities, sync_loop, ClientStartedSyncing,
         CorrectionServerRigidBodyLink, FastForwarding, PendingDesync, SimulationStorage,
         SpawningSimulation, SpawningSimulationRigidBody, SyncPause,
@@ -97,7 +96,6 @@ impl Plugin for PhysicsPlugin {
                     client_despawn_clean_cache.in_set(MainSet::Update),
                 ),
             )
-            .add_systems(Startup, pause_loop)
             .add_systems(
                 Update,
                 client_interpolate_link_transform

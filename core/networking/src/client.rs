@@ -693,26 +693,27 @@ pub(crate) struct SyncClient((bool, u8));
 pub(crate) fn sync_frequency(mut first: ResMut<SyncClient>) {
     first.0 .0 = true;
 }
-#[derive(Resource, Default)]
-pub struct StartSyncStage(pub bool);
-pub(crate) fn start_sync_frequency(mut first: ResMut<SyncClient>, stage: Res<StartSyncStage>) {
-    if stage.0 {
-        first.0 .0 = true;
-    }
-}
+pub(crate) const NEW_SYNC_FREQUENCY: f32 = 0.1;
+const TEST_MESSAGES_AMOUNT: u8 = 2;
+// Waits this amount of ticks per sync message send.
+const TEST_MESSAGES_FREQUENCY: f32 = 4.;
 
 pub(crate) fn sync_test_client(
     mut first: ResMut<SyncClient>,
     mut net: EventWriter<OutgoingReliableClientMessage<NetworkingClientMessage>>,
-    mut skip: Local<u16>,
+    mut skip: Local<u8>,
     rate: Res<TickRate>,
 ) {
     if first.0 .0 {
-        *skip += 1;
-        if *skip > ((rate.fixed_rate as f32 * 2.) / 16 as f32).ceil() as u16 {
+        if *skip == u8::MAX {
+            *skip = 0;
+        } else {
+            *skip += 1;
+        }
+        if *skip > (TEST_MESSAGES_FREQUENCY * (rate.fixed_rate as f32 / 60.)).round() as u8 {
             first.0 .1 += 1;
 
-            if first.0 .1 > 8 {
+            if first.0 .1 > TEST_MESSAGES_AMOUNT {
                 first.0 .0 = false;
                 first.0 .1 = 0;
             } else {
@@ -749,15 +750,12 @@ pub fn detect_client_world_loaded(
 pub(crate) fn confirm_connection(
     mut client1: EventReader<IncomingReliableServerMessage<NetworkingServerMessage>>,
     mut connected_state: ResMut<Connection>,
-    mut first: ResMut<SyncClient>,
 ) {
     for message in client1.read() {
         let player_message = message.message.clone();
         match player_message {
             NetworkingServerMessage::Awoo => {
                 connected_state.status = ConnectionStatus::Connected;
-                first.0 .0 = true;
-                first.0 .1 = 0;
                 info!("Connected to game server.");
             }
             _ => (),
@@ -790,4 +788,5 @@ pub enum NetworkingClientMessage {
     HeartBeat,
     SyncConfirmation,
     LoadedGameWorld,
+    StartSyncConfirmation,
 }

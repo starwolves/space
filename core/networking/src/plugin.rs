@@ -21,12 +21,12 @@ use crate::{
     client::{
         confirm_connection, connect_to_server, connected, detect_client_world_loaded,
         is_client_connected, on_disconnect, receive_incoming_reliable_server_messages,
-        receive_incoming_unreliable_server_messages, start_sync_frequency, starwolves_response,
-        step_buffer, step_incoming_reliable_server_messages, sync_frequency, sync_test_client,
+        receive_incoming_unreliable_server_messages, starwolves_response, step_buffer,
+        step_incoming_reliable_server_messages, sync_frequency, sync_test_client,
         token_assign_server, AssignTokenToServer, AssigningServerToken, ClientGameWorldLoaded,
         ConnectToServer, Connection, ConnectionPreferences, IncomingRawReliableServerMessage,
         IncomingRawUnreliableServerMessage, LoadedGameWorldBuffer, NetworkingClientMessage,
-        OutgoingBuffer, RawServerMessageQueue, StartSyncStage, SyncClient, TokenAssignServer,
+        OutgoingBuffer, RawServerMessageQueue, SyncClient, TokenAssignServer, NEW_SYNC_FREQUENCY,
     },
     messaging::{
         generate_typenames, register_reliable_message, register_unreliable_message, MessageSender,
@@ -34,9 +34,10 @@ use crate::{
     },
     server::{
         adjust_clients, clear_construct_entity_updates, clear_serialized_entity_updates,
-        client_loaded_game_world, receive_incoming_reliable_client_messages,
-        receive_incoming_unreliable_client_messages, step_incoming_client_messages,
-        ClientsReadyForSync, ConstructEntityUpdates, EarlyIncomingRawReliableClientMessage,
+        client_loaded_game_world, process_sync_confirmation,
+        receive_incoming_reliable_client_messages, receive_incoming_unreliable_client_messages,
+        start_sync_confirmation, step_incoming_client_messages, ClientsReadyForSync,
+        ConstructEntityUpdates, EarlyIncomingRawReliableClientMessage,
         EarlyIncomingRawUnreliableClientMessage, EntityUpdatesSerialized, EntityUpdatesSet,
         HandleToEntity, IncomingRawReliableClientMessage, IncomingRawUnreliableClientMessage,
         Latency, NetworkingChatServerMessage, NetworkingServerMessage, SyncConfirmations,
@@ -79,6 +80,8 @@ impl Plugin for NetworkingPlugin {
                                 .in_set(MainSet::PreUpdate)
                                 .after(step_tickrate_stamp),
                             client_loaded_game_world.in_set(MainSet::Update),
+                            start_sync_confirmation.in_set(MainSet::Update),
+                            process_sync_confirmation.in_set(MainSet::Update),
                         ),
                     )
                     .configure_sets(
@@ -164,10 +167,10 @@ impl Plugin for NetworkingPlugin {
                     confirm_connection.run_if(is_client_connected),
                     sync_frequency
                         .before(sync_test_client)
-                        .run_if(on_timer(Duration::from_secs_f32(1.))),
-                    start_sync_frequency
-                        .before(sync_test_client)
-                        .run_if(on_timer(Duration::from_secs_f32(0.1))),
+                        .run_if(on_timer(Duration::from_secs_f32(NEW_SYNC_FREQUENCY))),
+                    /*start_sync_frequency
+                    .before(sync_test_client)
+                    .run_if(on_timer(Duration::from_secs_f32(0.1))),*/
                     sync_test_client
                         .run_if(is_client_connected)
                         .after(confirm_connection),
@@ -189,8 +192,7 @@ impl Plugin for NetworkingPlugin {
                 detect_client_world_loaded.in_set(MainSet::Update),
             )
             .init_resource::<LoadedGameWorldBuffer>()
-            .add_event::<ClientGameWorldLoaded>()
-            .init_resource::<StartSyncStage>();
+            .add_event::<ClientGameWorldLoaded>();
         }
 
         app.init_resource::<TickRateStamp>()

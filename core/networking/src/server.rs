@@ -98,12 +98,10 @@ pub(crate) fn client_loaded_game_world(
     mut start: EventWriter<OutgoingReliableServerMessage<NetworkingServerMessage>>,
     stamp: Res<TickRateStamp>,
     tickrate: Res<TickRate>,
-    mut cache: ResMut<ClientsReadyForSync>,
 ) {
     for message in messages.read() {
         match message.message {
             NetworkingClientMessage::LoadedGameWorld => {
-                cache.0.insert(message.handle, true);
                 start.send(OutgoingReliableServerMessage {
                     handle: message.handle,
                     message: NetworkingServerMessage::StartSync(StartSync {
@@ -111,6 +109,20 @@ pub(crate) fn client_loaded_game_world(
                         stamp: stamp.clone(),
                     }),
                 });
+            }
+            _ => (),
+        }
+    }
+}
+
+pub(crate) fn start_sync_confirmation(
+    mut net: EventReader<IncomingReliableClientMessage<NetworkingClientMessage>>,
+    mut cache: ResMut<ClientsReadyForSync>,
+) {
+    for msg in net.read() {
+        match &msg.message {
+            NetworkingClientMessage::StartSyncConfirmation => {
+                cache.0.insert(msg.handle, true);
             }
             _ => (),
         }
@@ -534,12 +546,14 @@ pub struct LatencyReport {
 /// Vectors containing adjustment iteration and tick difference linked by connection handle.
 #[derive(Resource, Default)]
 pub struct Latency {
-    pub tickrate_differences: HashMap<ClientId, Vec<LatencyReport>>,
+    pub reports: HashMap<ClientId, Vec<LatencyReport>>,
 }
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct AdjustSync {
     pub tick: i16,
 }
+
+const MIN_REQUIRED_MESSAGES_FOR_ADJUSTMENT: i32 = 8;
 
 pub(crate) fn adjust_clients(
     mut latency: ResMut<Latency>,
@@ -548,7 +562,7 @@ pub(crate) fn adjust_clients(
     mut confirmations: ResMut<SyncConfirmations>,
     synced_clients: Res<ClientsReadyForSync>,
 ) {
-    for (handle, tickrate_differences) in latency.tickrate_differences.iter_mut() {
+    for (handle, tickrate_differences) in latency.reports.iter_mut() {
         let mut ready = false;
         match synced_clients.0.get(handle) {
             Some(b) => {
@@ -559,21 +573,22 @@ pub(crate) fn adjust_clients(
         if !ready {
             continue;
         }
-        let server_side_sync_iteration;
+        let server_sync;
 
         match confirmations.server_sync.get(handle) {
             Some(x) => {
-                server_side_sync_iteration = *x;
+                server_sync = *x;
             }
             None => {
-                server_side_sync_iteration = 0;
+                server_sync = 0;
             }
         }
 
         let mut accumulative = 0;
         let mut length = 0;
         for difference in tickrate_differences.iter() {
-            if difference.client_sync_iteration >= server_side_sync_iteration {
+            //info!("{}=={}", difference.client_sync_iteration, server_sync);
+            if difference.client_sync_iteration == server_sync {
                 accumulative += difference.tick_difference as i16;
                 length += 1;
             }
@@ -583,7 +598,7 @@ pub(crate) fn adjust_clients(
         let min_latency = 2. * (tickrate.fixed_rate as f32 / 60.);
         let max_latency = 3. * (tickrate.fixed_rate as f32 / 60.);
 
-        if length >= 16 {
+        if length >= MIN_REQUIRED_MESSAGES_FOR_ADJUSTMENT {
             if average_latency < min_latency {
                 // Tell client to fast-forward x ticks.
                 let advance;
@@ -601,9 +616,6 @@ pub(crate) fn adjust_clients(
                     handle: *handle,
                     message: NetworkingServerMessage::AdjustSync(AdjustSync { tick: -num }),
                 });
-
-                tickrate_differences.clear();
-                length = 0;
 
                 match confirmations.server_sync.get_mut(handle) {
                     Some(x) => {
@@ -624,8 +636,6 @@ pub(crate) fn adjust_clients(
                     handle: *handle,
                     message: NetworkingServerMessage::AdjustSync(AdjustSync { tick: num }),
                 });
-                tickrate_differences.clear();
-                length = 0;
 
                 match confirmations.server_sync.get_mut(handle) {
                     Some(x) => {
@@ -638,8 +648,8 @@ pub(crate) fn adjust_clients(
             }
         }
 
-        if length > 16 {
-            for _ in 0..length - 16 {
+        if length > MIN_REQUIRED_MESSAGES_FOR_ADJUSTMENT {
+            for _ in 0..length - MIN_REQUIRED_MESSAGES_FOR_ADJUSTMENT {
                 tickrate_differences.remove(0);
             }
         }
@@ -649,10 +659,10 @@ pub(crate) fn step_incoming_client_messages(
     mut queue: ResMut<UpdateIncomingRawClientMessage>,
     mut events: EventWriter<IncomingRawReliableClientMessage>,
     mut eventsu: EventWriter<IncomingRawUnreliableClientMessage>,
-    mut confirmations: ResMut<SyncConfirmations>,
-    mut sync: ResMut<Latency>,
-    typenames: Res<Typenames>,
+    confirmations: Res<SyncConfirmations>,
+    mut latency: ResMut<Latency>,
     stampres: Res<TickRateStamp>,
+    synced_clients: Res<ClientsReadyForSync>,
 ) {
     let mut lowest_reliable_stamp = HashMap::new();
     for (stamp, (_, m)) in queue.reliable.iter() {
@@ -679,7 +689,7 @@ pub(crate) fn step_incoming_client_messages(
         if message.message.not_timed {
             continue;
         }
-        for m in message.message.messages.iter() {
+        /*for m in message.message.messages.iter() {
             if m.typename_net
                 == *typenames
                     .reliable_net_types
@@ -689,6 +699,9 @@ pub(crate) fn step_incoming_client_messages(
                 match bincode::deserialize::<NetworkingClientMessage>(&m.serialized) {
                     Ok(cl) => match cl {
                         NetworkingClientMessage::SyncConfirmation => {
+                            if *latency_reported {
+                                continue;
+                            }
                             match confirmations.incremental.get_mut(&message.handle) {
                                 Some(a) => {
                                     *a += 1;
@@ -705,7 +718,7 @@ pub(crate) fn step_incoming_client_messages(
                     }
                 }
             }
-        }
+        }*/
         if *latency_reported {
             continue;
         }
@@ -724,13 +737,23 @@ pub(crate) fn step_incoming_client_messages(
             tick_difference: stampres.get_difference(message.message.stamp),
         };
 
-        match sync.tickrate_differences.get_mut(&message.handle) {
+        let mut ready = false;
+        match synced_clients.0.get(&message.handle) {
+            Some(b) => {
+                ready = *b;
+            }
+            None => {}
+        }
+        if !ready {
+            continue;
+        }
+
+        match latency.reports.get_mut(&message.handle) {
             Some(v) => {
                 v.push(report);
             }
             None => {
-                sync.tickrate_differences
-                    .insert(message.handle, vec![report]);
+                latency.reports.insert(message.handle, vec![report]);
             }
         }
     }
@@ -758,17 +781,37 @@ pub(crate) fn step_incoming_client_messages(
             client_sync_iteration: c,
             tick_difference: stampres.get_difference(message.message.stamp),
         };
-        match sync.tickrate_differences.get_mut(&message.handle) {
+        match latency.reports.get_mut(&message.handle) {
             Some(v) => {
                 v.push(report);
             }
             None => {
-                sync.tickrate_differences
-                    .insert(message.handle, vec![report]);
+                latency.reports.insert(message.handle, vec![report]);
             }
         }
     }
     queue.unreliable.clear();
+}
+
+pub(crate) fn process_sync_confirmation(
+    mut messages: EventReader<IncomingReliableClientMessage<NetworkingClientMessage>>,
+    mut confirmations: ResMut<SyncConfirmations>,
+) {
+    for message in messages.read() {
+        match &message.message {
+            NetworkingClientMessage::SyncConfirmation => {
+                match confirmations.incremental.get_mut(&message.handle) {
+                    Some(a) => {
+                        *a += 1;
+                    }
+                    None => {
+                        confirmations.incremental.insert(message.handle, 1);
+                    }
+                }
+            }
+            _ => (),
+        }
+    }
 }
 
 #[derive(Resource, Default)]

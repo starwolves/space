@@ -201,7 +201,10 @@ pub fn process_response(
                         );
                         server.disconnect(token.handle);
                     } else {
-                        info!("[Starwolves.io] Successfully verified [{}]", token.handle);
+                        info!(
+                            "[starwolves.io] Successfully verified {} [{}]",
+                            d.name, token.handle
+                        );
 
                         used_names.used_account_names.push(d.name.clone());
                         accounts.list.insert(token.handle, d.name.clone());
@@ -214,8 +217,6 @@ pub fn process_response(
                         configure.send(SendServerConfiguration {
                             handle: token.handle,
                         });
-
-                        info!("Set account name {} for {}.", d.name, token.handle);
                     }
                     despawn.send(DespawnEntity { entity });
                 }
