@@ -30,6 +30,7 @@ use networking::{
 use pawn::net::{PeerUpdateLookTransform, UnreliablePeerControllerClientMessage};
 use physics::{cache::PhysicsCache, sync::ClientStartedSyncing};
 use resources::{
+    core::TickRate,
     correction::{StartCorrection, MAX_CACHE_TICKS_AMNT},
     input::{
         InputBuffer, KeyBind, KeyBinds, KeyCodeEnum, HOLD_SPRINT_BIND, JUMP_BIND,
@@ -273,6 +274,8 @@ pub(crate) fn process_peer_input(
     mut input_cache: ResMut<PeerInputCache>,
     pawnid: Res<PawnId>,
     mut look_update_queue: Local<HashMap<ClientId, HashMap<u64, HashMap<u8, LookTick>>>>,
+    client: Res<RenetClient>,
+    tickrate: Res<TickRate>,
 ) {
     let mut new_correction = false;
     let mut earliest_tick = 0;
@@ -296,7 +299,22 @@ pub(crate) fn process_peer_input(
             }
         }
     }
-    let desired_tick = stamp.large;
+
+    /*let latency_in_ticks =
+        ((client.rtt() as f32 / (1. / tickrate.fixed_rate as f32)).round() * 2.) as u64;
+    let desired_tick;
+    if stamp.large < latency_in_ticks {
+        desired_tick = 0;
+    } else {
+        desired_tick = stamp.large - latency_in_ticks;
+    }*/
+
+    let latency_in_ticks = ((client.rtt() as f32 / (1. / tickrate.fixed_rate as f32)) * 2.)
+        .round()
+        .clamp(2., f32::MAX) as u64;
+    let desired_tick = stamp.large - latency_in_ticks;
+
+    //info!("{} = {} - {}", desired_tick, stamp.large, latency_in_ticks);
 
     let mut reliables = vec![];
     for (_, reliable_cache) in input_cache.reliable.iter_mut() {
@@ -454,9 +472,7 @@ pub(crate) fn process_peer_input(
                     latest = true;
                 }
             }
-            if !latest
-            /*|| (large_client_stamp > desired_tick || up.server_stamp > desired_tick)*/
-            {
+            if !latest || large_client_stamp > desired_tick {
                 continue;
             }
             match input_cache.look_transform_best_ticks.get_mut(&client_id) {
@@ -477,8 +493,7 @@ pub(crate) fn process_peer_input(
             Some(ups) => {
                 for i in ups.keys().sorted().rev() {
                     let look_tick = ups.get(i).unwrap().clone();
-                    /*if look_tick.client_stamp > desired_tick
-                    {
+                    /*if look_tick.server_stamp > desired_tick {
                         continue;
                     }*/
                     match input_cache.look_transform_best_ticks.get_mut(client) {

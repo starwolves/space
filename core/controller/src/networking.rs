@@ -209,11 +209,11 @@ pub(crate) fn peer_replicate_input_messages(
                 .get(&UnreliableControllerClientMessage::type_name())
             {
                 Some(id) => {
-                    match bincode::deserialize::<UnreliableControllerClientMessage>(
-                        &message.serialized,
-                    ) {
-                        Ok(client_message) => {
-                            if id == &message.typename_net {
+                    if id == &message.typename_net {
+                        match bincode::deserialize::<UnreliableControllerClientMessage>(
+                            &message.serialized,
+                        ) {
+                            Ok(client_message) => {
                                 for connected in players.iter() {
                                     if !connected.connected {
                                         continue;
@@ -330,9 +330,9 @@ pub(crate) fn peer_replicate_input_messages(
                                     }
                                 }
                             }
-                        }
-                        Err(_) => {
-                            warn!("Couldnt deserialize client message 1.");
+                            Err(_) => {
+                                warn!("Couldnt deserialize client message 1.");
+                            }
                         }
                     }
                 }

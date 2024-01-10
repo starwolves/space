@@ -77,7 +77,7 @@ use crate::{
 /// Obtain player souls, mwahahhaa. (=^.^=)
 
 pub(crate) fn souls(
-    mut server: EventReader<IncomingReliableClientMessage<NetworkingClientMessage>>,
+    mut server: EventReader<IncomingUnreliableClientMessage<NetworkingUnreliableClientMessage>>,
 ) {
     for message in server.read() {
         let client_message = message.message.clone();
@@ -85,8 +85,7 @@ pub(crate) fn souls(
             //                                          |
             // Where the souls of the players are       |
             //   while they're connected.               V
-            NetworkingClientMessage::HeartBeat => { /* <3 */ }
-            _ => (),
+            NetworkingUnreliableClientMessage::HeartBeat => { /* <3 */ }
         }
     }
 }
@@ -401,7 +400,7 @@ pub fn send_outgoing_reliable_server_messages<T: TypeName + Send + Sync + Serial
         }
     }
 }
-use crate::client::get_unreliable_message;
+use crate::client::{get_unreliable_message, NetworkingUnreliableClientMessage};
 use bevy::prelude::EventWriter;
 
 pub(crate) fn deserialize_incoming_unreliable_client_message<
@@ -587,7 +586,6 @@ pub(crate) fn adjust_clients(
         let mut accumulative = 0;
         let mut length = 0;
         for difference in tickrate_differences.iter() {
-            //info!("{}=={}", difference.client_sync_iteration, server_sync);
             if difference.client_sync_iteration == server_sync {
                 accumulative += difference.tick_difference as i16;
                 length += 1;
@@ -595,8 +593,8 @@ pub(crate) fn adjust_clients(
         }
         let average_latency = accumulative as f32 / length as f32;
 
-        let min_latency = 2. * (tickrate.fixed_rate as f32 / 60.);
-        let max_latency = 3. * (tickrate.fixed_rate as f32 / 60.);
+        let min_latency = 0. * (tickrate.fixed_rate as f32 / 60.);
+        let max_latency = 1. * (tickrate.fixed_rate as f32 / 60.);
 
         if length >= MIN_REQUIRED_MESSAGES_FOR_ADJUSTMENT {
             if average_latency < min_latency {

@@ -13,6 +13,7 @@ use bevy::{
     time::{Fixed, Time},
 };
 
+use bevy_renet::renet::RenetClient;
 use bevy_xpbd_3d::components::{
     AngularDamping, AngularVelocity, CollisionLayers, ExternalAngularImpulse, ExternalForce,
     ExternalImpulse, ExternalTorque, Friction, LinearDamping, LinearVelocity, LockedAxes,
@@ -23,7 +24,8 @@ use entity::despawn::DespawnEntity;
 use entity::entity_types::BoxedEntityType;
 use entity::net::EntityServerMessage;
 use entity::spawn::ServerEntityClientEntity;
-use networking::client::IncomingUnreliableServerMessage;
+use itertools::Itertools;
+use networking::client::{IncomingUnreliableServerMessage, TotalAdjustment};
 use networking::server::{ConnectedPlayer, HandleToEntity, OutgoingUnreliableServerMessage};
 use networking::{
     client::{
@@ -33,7 +35,7 @@ use networking::{
     stamp::{PauseTickStep, TickRateStamp},
 };
 use resources::core::TickRate;
-use resources::correction::{StartCorrection, SyncWorld};
+use resources::correction::{StartCorrection, SyncWorld, MAX_CACHE_TICKS_AMNT};
 use resources::grid::TileCollider;
 use resources::modes::AppMode;
 use resources::physics::{PriorityPhysicsCache, PriorityUpdate, SmallCache};
@@ -95,6 +97,7 @@ pub(crate) fn sync_loop(
     mut fixed_time: ResMut<Time<Fixed>>,
     mut fast_forwarding: ResMut<FastForwarding>,
     mut p: ResMut<PauseTickStep>,
+    mut latency: ResMut<TotalAdjustment>,
 ) {
     if paused.paused {
         paused.i += 1;
@@ -163,6 +166,7 @@ pub(crate) fn sync_loop(
                     } else {
                         info!("- {} ticks", paused.duration);
                     }
+                    latency.latency -= paused.duration as i16;
                 } else {
                     if process_queue {
                         erase_queue = true;
@@ -170,6 +174,7 @@ pub(crate) fn sync_loop(
                     } else {
                         info!("+ {} ticks", delta.abs());
                     }
+                    latency.latency += delta.abs() as i16;
 
                     fixed_time.set_timestep_seconds(
                         (1. / TickRate::default().fixed_rate as f64) / (delta.abs() + 1) as f64,
@@ -567,7 +572,7 @@ pub enum SpawningSimulation {
     Spawn,
 }
 #[derive(Resource, Default)]
-pub struct PendingDesync(Option<(u64, PhysicsUnreliableServerMessage)>);
+pub struct PendingDesync(HashMap<u64, PhysicsUnreliableServerMessage>);
 
 pub(crate) fn desync_check_correction(
     mut messages: EventReader<IncomingUnreliableServerMessage<PhysicsUnreliableServerMessage>>,
@@ -578,33 +583,23 @@ pub(crate) fn desync_check_correction(
     mut latest_desync: ResMut<PendingDesync>,
     mut syncs: EventWriter<SyncEntitiesPhysics>,
     mut priority: ResMut<PriorityPhysicsCache>,
+    client: Res<RenetClient>,
+    tickrate: Res<TickRate>,
 ) {
     for message in messages.read() {
-        let message_stamp = message.stamp;
-        match &message.message {
-            PhysicsUnreliableServerMessage::DesyncCheck(_) => match &latest_desync.0 {
-                Some((latest_stamp, _)) => {
-                    if *latest_stamp >= message_stamp {
-                        continue;
-                    }
-                    if latest_stamp <= &stamp.large && message_stamp > stamp.large {
-                        continue;
-                    }
-                    latest_desync.0 = Some((message_stamp, message.message.clone()));
-                }
-                None => {
-                    latest_desync.0 = Some((message_stamp, message.message.clone()));
-                }
-            },
-        }
+        latest_desync
+            .0
+            .insert(message.stamp, message.message.clone());
     }
-    let mut clear_pending = false;
-    match &latest_desync.0 {
-        Some((latest_stamp, message)) => {
-            if latest_stamp > &stamp.large {
-                return;
-            }
-            let adjusted_latest = *latest_stamp - 1;
+    let latency_in_ticks = ((client.rtt() as f32 / (1. / tickrate.fixed_rate as f32)) * 2.)
+        .round()
+        .clamp(2., f32::MAX) as u64;
+
+    let desired_tick = stamp.large - latency_in_ticks;
+    match &latest_desync.0.get(&desired_tick) {
+        Some(message) => {
+            let adjusted_latest = desired_tick - 1;
+            //info!("Applying desync check.");
             match cache.cache.get_mut(&adjusted_latest) {
                 Some(physics_cache) => match &message {
                     PhysicsUnreliableServerMessage::DesyncCheck(caches) => {
@@ -651,7 +646,7 @@ pub(crate) fn desync_check_correction(
                             }
                         }
 
-                        if *latest_stamp == stamp.large {
+                        if desired_tick == stamp.large {
                             info!("Perfect desync check.");
                             syncs.send(SyncEntitiesPhysics { entities: tosync });
                         } else {
@@ -660,7 +655,6 @@ pub(crate) fn desync_check_correction(
                                 last_tick: stamp.large,
                             });
                         }
-                        clear_pending = true;
                     }
                 },
                 None => {
@@ -670,8 +664,16 @@ pub(crate) fn desync_check_correction(
         }
         None => {}
     }
-    if clear_pending {
-        latest_desync.0 = None;
+
+    // Clean cache.
+    if latest_desync.0.len() > MAX_CACHE_TICKS_AMNT as usize {
+        let mut j = 0;
+        for i in latest_desync.0.clone().keys().sorted().rev() {
+            if j >= MAX_CACHE_TICKS_AMNT {
+                latest_desync.0.remove(i);
+            }
+            j += 1;
+        }
     }
 }
 

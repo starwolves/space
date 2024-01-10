@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use bevy::ecs::entity::Entity;
 use bevy::ecs::event::EventWriter;
 use bevy::ecs::system::{Res, ResMut, Resource};
-use bevy::log::{info, warn};
+use bevy::log::warn;
 use bevy::prelude::{Component, Event, SystemSet, Transform};
 use entity_macros::Identity;
 use networking::client::{IncomingRawReliableServerMessage, IncomingRawUnreliableServerMessage};
@@ -127,7 +127,7 @@ pub(crate) fn fire_queued_entity_updates(
     mut send_unreliable: EventWriter<IncomingRawUnreliableServerMessage>,
     stamp: Res<TickRateStamp>,
 ) {
-    for (e, updates) in queue.reliable.drain() {
+    for (_, updates) in queue.reliable.drain() {
         let mut msgs = vec![];
         for update in updates {
             match bincode::deserialize::<ReliableMessage>(&update) {
@@ -146,10 +146,9 @@ pub(crate) fn fire_queued_entity_updates(
                 stamp: stamp.tick,
             },
         });
-        info!("Forward entity update: {:?}", e);
     }
 
-    for (e, updates) in queue.unreliable.drain() {
+    for (_, updates) in queue.unreliable.drain() {
         let mut msgs = vec![];
         for update in updates {
             match bincode::deserialize::<UnreliableMessage>(&update) {
@@ -168,6 +167,5 @@ pub(crate) fn fire_queued_entity_updates(
                 stamp: stamp.tick,
             },
         });
-        info!("Forward u entity update: {:?}", e);
     }
 }

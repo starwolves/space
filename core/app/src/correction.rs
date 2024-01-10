@@ -6,7 +6,7 @@ use std::{
 
 use bevy::{
     ecs::{entity::Entity, system::Commands},
-    log::warn,
+    log::{error, warn},
 };
 use bevy::{
     ecs::{query::With, system::Query},
@@ -360,13 +360,21 @@ pub(crate) fn start_correction_server(world: &mut World) {
 
     let (tx2, rx2) = mpsc::sync_channel(64);
 
-    let app = std::thread::spawn(move || start_app(Mode::Correction(message_receiver, tx2)));
-    info!("Physics correction server started.");
-    world.insert_resource(CorrectionServerData {
-        message_sender: tx,
-        app_handle: app,
-    });
-    world.insert_non_send_resource(CorrectionServerMessageReceiver { receiver: rx2 });
+    let builder = std::thread::Builder::new().name("Correction Server".to_string());
+
+    match builder.spawn(move || start_app(Mode::Correction(message_receiver, tx2))) {
+        Ok(app) => {
+            info!("Physics correction server started.");
+            world.insert_resource(CorrectionServerData {
+                message_sender: tx,
+                app_handle: app,
+            });
+            world.insert_non_send_resource(CorrectionServerMessageReceiver { receiver: rx2 });
+        }
+        Err(_) => {
+            error!("Couldnt spawn correction server thread.");
+        }
+    }
 }
 #[derive(Default, Resource)]
 pub struct CorrectionEnabled(pub bool);

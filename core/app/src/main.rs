@@ -36,6 +36,7 @@ use bevy::window::Window;
 use bevy::window::WindowMode;
 use bevy::window::WindowPlugin;
 use bevy::window::WindowPosition;
+use bevy::winit::UpdateMode;
 use bevy::winit::WinitSettings;
 use bevy::DefaultPlugins;
 use bevy_egui::EguiPlugin;
@@ -190,7 +191,11 @@ pub(crate) fn start_app(mode: Mode) {
                 .set(ImagePlugin::default_nearest())
                 .set(task_pool),
         )
-        .insert_resource(WinitSettings::game())
+        .insert_resource(WinitSettings {
+            focused_mode: UpdateMode::Continuous,
+            unfocused_mode: UpdateMode::Continuous,
+            ..Default::default()
+        })
         .add_plugins(EguiPlugin)
         .add_plugins(GraphicsPlugin)
         .add_plugins(CorrectionPlugin)

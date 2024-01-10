@@ -686,6 +686,11 @@ pub fn get_unreliable_message<T: TypeName + Serialize + for<'a> Deserialize<'a>>
     }
 }
 
+/// Total latency including fps drop compensations. Not reflective of network latency.
+#[derive(Resource, Default)]
+pub struct TotalAdjustment {
+    pub latency: i16,
+}
 use crate::server::NetworkingServerMessage;
 #[derive(Resource, Default)]
 pub(crate) struct SyncClient((bool, u8));
@@ -700,7 +705,7 @@ const TEST_MESSAGES_FREQUENCY: f32 = 4.;
 
 pub(crate) fn sync_test_client(
     mut first: ResMut<SyncClient>,
-    mut net: EventWriter<OutgoingReliableClientMessage<NetworkingClientMessage>>,
+    mut net: EventWriter<OutgoingUnreliableClientMessage<NetworkingUnreliableClientMessage>>,
     mut skip: Local<u8>,
     rate: Res<TickRate>,
 ) {
@@ -717,8 +722,8 @@ pub(crate) fn sync_test_client(
                 first.0 .0 = false;
                 first.0 .1 = 0;
             } else {
-                net.send(OutgoingReliableClientMessage {
-                    message: NetworkingClientMessage::HeartBeat,
+                net.send(OutgoingUnreliableClientMessage {
+                    message: NetworkingUnreliableClientMessage::HeartBeat,
                 });
             }
             *skip = 0;
@@ -785,8 +790,13 @@ pub(crate) fn on_disconnect(
 #[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
 
 pub enum NetworkingClientMessage {
-    HeartBeat,
     SyncConfirmation,
     LoadedGameWorld,
     StartSyncConfirmation,
+}
+/// Gets serialized and sent over the net, this is the client message.
+#[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
+
+pub enum NetworkingUnreliableClientMessage {
+    HeartBeat,
 }

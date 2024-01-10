@@ -26,7 +26,8 @@ use crate::{
         token_assign_server, AssignTokenToServer, AssigningServerToken, ClientGameWorldLoaded,
         ConnectToServer, Connection, ConnectionPreferences, IncomingRawReliableServerMessage,
         IncomingRawUnreliableServerMessage, LoadedGameWorldBuffer, NetworkingClientMessage,
-        OutgoingBuffer, RawServerMessageQueue, SyncClient, TokenAssignServer, NEW_SYNC_FREQUENCY,
+        NetworkingUnreliableClientMessage, OutgoingBuffer, RawServerMessageQueue, SyncClient,
+        TokenAssignServer, TotalAdjustment, NEW_SYNC_FREQUENCY,
     },
     messaging::{
         generate_typenames, register_reliable_message, register_unreliable_message, MessageSender,
@@ -142,6 +143,7 @@ impl Plugin for NetworkingPlugin {
             .init_resource::<ConnectionPreferences>()
             .init_resource::<Connection>()
             .init_resource::<AssigningServerToken>()
+            .init_resource::<TotalAdjustment>()
             .add_systems(
                 FixedUpdate,
                 (
@@ -205,6 +207,10 @@ impl Plugin for NetworkingPlugin {
         register_unreliable_message::<UnreliableServerMessage>(app, MessageSender::Server);
         register_reliable_message::<NetworkingChatServerMessage>(app, MessageSender::Server, true);
         register_reliable_message::<NetworkingServerMessage>(app, MessageSender::Server, true);
+        register_unreliable_message::<NetworkingUnreliableClientMessage>(
+            app,
+            MessageSender::Client,
+        );
     }
 }
 
