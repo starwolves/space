@@ -13,7 +13,6 @@ use bevy::{
     time::{Fixed, Time},
 };
 
-use bevy_renet::renet::RenetClient;
 use bevy_xpbd_3d::components::{
     AngularDamping, AngularVelocity, CollisionLayers, ExternalAngularImpulse, ExternalForce,
     ExternalImpulse, ExternalTorque, Friction, LinearDamping, LinearVelocity, LockedAxes,
@@ -583,88 +582,86 @@ pub(crate) fn desync_check_correction(
     mut latest_desync: ResMut<PendingDesync>,
     mut syncs: EventWriter<SyncEntitiesPhysics>,
     mut priority: ResMut<PriorityPhysicsCache>,
-    client: Res<RenetClient>,
-    tickrate: Res<TickRate>,
 ) {
     for message in messages.read() {
         latest_desync
             .0
             .insert(message.stamp, message.message.clone());
     }
-    let latency_in_ticks = ((client.rtt() as f32 / (1. / tickrate.fixed_rate as f32)) * 2.)
-        .round()
-        .clamp(2., f32::MAX) as u64;
-
-    let desired_tick = stamp.large - latency_in_ticks;
-    match &latest_desync.0.get(&desired_tick) {
-        Some(message) => {
-            let adjusted_latest = desired_tick - 1;
-            //info!("Applying desync check.");
-            match cache.cache.get_mut(&adjusted_latest) {
-                Some(physics_cache) => match &message {
-                    PhysicsUnreliableServerMessage::DesyncCheck(caches) => {
-                        let mut tosync = vec![];
-                        for s in caches {
-                            match server_client_entity.map.get(&s.entity) {
-                                Some(entity) => {
-                                    for (_, c) in physics_cache.iter_mut() {
-                                        if c.entity == *entity {
-                                            c.angular_velocity =
-                                                AngularVelocity(s.angular_velocity);
-                                            c.linear_velocity = LinearVelocity(s.linear_velocity);
-                                            c.transform = Transform {
-                                                translation: s.translation,
-                                                rotation: s.rotation,
-                                                ..Default::default()
-                                            };
-                                            tosync.push(c.entity);
-                                            match priority.cache.get_mut(&adjusted_latest) {
-                                                Some(cac) => {
-                                                    cac.insert(
-                                                        c.entity,
-                                                        PriorityUpdate::SmallCache(s.clone()),
-                                                    );
-                                                }
-                                                None => {
-                                                    let mut map = HashMap::new();
-                                                    map.insert(
-                                                        c.entity,
-                                                        PriorityUpdate::SmallCache(s.clone()),
-                                                    );
-                                                    priority.cache.insert(adjusted_latest, map);
-                                                }
+    let desired_tick = stamp.large;
+    let mut processed_is = vec![];
+    for i in latest_desync.0.keys().sorted() {
+        if *i > desired_tick {
+            break;
+        }
+        processed_is.push(*i);
+        let message = latest_desync.0.get(i).unwrap();
+        let adjusted_latest = i - 1;
+        //info!("Applying desync check.");
+        match cache.cache.get_mut(&adjusted_latest) {
+            Some(physics_cache) => match message {
+                PhysicsUnreliableServerMessage::DesyncCheck(caches) => {
+                    let mut tosync = vec![];
+                    for s in caches {
+                        match server_client_entity.map.get(&s.entity) {
+                            Some(entity) => {
+                                for (_, c) in physics_cache.iter_mut() {
+                                    if c.entity == *entity {
+                                        c.angular_velocity = AngularVelocity(s.angular_velocity);
+                                        c.linear_velocity = LinearVelocity(s.linear_velocity);
+                                        c.transform = Transform {
+                                            translation: s.translation,
+                                            rotation: s.rotation,
+                                            ..Default::default()
+                                        };
+                                        tosync.push(c.entity);
+                                        match priority.cache.get_mut(&adjusted_latest) {
+                                            Some(cac) => {
+                                                cac.insert(
+                                                    c.entity,
+                                                    PriorityUpdate::SmallCache(s.clone()),
+                                                );
                                             }
-
-                                            break;
+                                            None => {
+                                                let mut map = HashMap::new();
+                                                map.insert(
+                                                    c.entity,
+                                                    PriorityUpdate::SmallCache(s.clone()),
+                                                );
+                                                priority.cache.insert(adjusted_latest, map);
+                                            }
                                         }
+
+                                        break;
                                     }
                                 }
-                                None => {
-                                    warn!("Couldnt find server client entity.");
-                                    continue;
-                                }
+                            }
+                            None => {
+                                warn!("Couldnt find server client entity.");
+                                continue;
                             }
                         }
-
-                        if desired_tick == stamp.large {
-                            info!("Perfect desync check.");
-                            syncs.send(SyncEntitiesPhysics { entities: tosync });
-                        } else {
-                            correction.send(StartCorrection {
-                                start_tick: adjusted_latest,
-                                last_tick: stamp.large,
-                            });
-                        }
                     }
-                },
-                None => {
-                    //warn!("Missed desync check ({})", latest_desync_stamp);
+
+                    if *i == stamp.large {
+                        info!("Perfect desync check.");
+                        syncs.send(SyncEntitiesPhysics { entities: tosync });
+                    } else {
+                        correction.send(StartCorrection {
+                            start_tick: adjusted_latest,
+                            last_tick: stamp.large,
+                        });
+                    }
                 }
+            },
+            None => {
+                //warn!("Missed desync check ({})", latest_desync_stamp);
             }
         }
-        None => {}
     }
-
+    for i in processed_is {
+        latest_desync.0.remove(&i);
+    }
     // Clean cache.
     if latest_desync.0.len() > MAX_CACHE_TICKS_AMNT as usize {
         let mut j = 0;

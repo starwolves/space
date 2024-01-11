@@ -133,12 +133,7 @@ pub(crate) fn start_app(mode: Mode) {
         }
     }
 
-    let num_threads;
-    if is_correction_mode(&mut app) {
-        num_threads = 2;
-    } else {
-        num_threads = 4;
-    }
+    let num_threads = 2;
 
     let task_pool = TaskPoolPlugin {
         task_pool_options: TaskPoolOptions::with_num_threads(num_threads),

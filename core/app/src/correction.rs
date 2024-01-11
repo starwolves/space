@@ -389,6 +389,8 @@ pub(crate) fn start_correction(
     look_cache: Res<LookTransformCache>,
     controller_cache: Res<ControllerCache>,
     priority: Res<PriorityPhysicsCache>,
+    stamp: Res<TickRateStamp>,
+    mut previous_lowest_start: Local<u64>,
 ) {
     let mut lowest_start = 0;
     let mut highest_end = 1;
@@ -412,6 +414,18 @@ pub(crate) fn start_correction(
     if !one_event {
         return;
     }
+    if highest_end != stamp.large {
+        warn!("StartCorrection received last tick that is not equal to stamp.large");
+    }
+    if lowest_start < *previous_lowest_start {
+        warn!("StartCorrection received start tick that is less than previous lowest start.");
+    } else {
+        *previous_lowest_start = lowest_start;
+    }
+    /*info!(
+        "Start correction {}-{} at tick {}",
+        lowest_start, highest_end, stamp.large
+    );*/
     match correction_server
         .message_sender
         .send(ClientCorrectionMessage::StartCorrecting(

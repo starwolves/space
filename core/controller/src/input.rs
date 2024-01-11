@@ -30,7 +30,6 @@ use networking::{
 use pawn::net::{PeerUpdateLookTransform, UnreliablePeerControllerClientMessage};
 use physics::{cache::PhysicsCache, sync::ClientStartedSyncing};
 use resources::{
-    core::TickRate,
     correction::{StartCorrection, MAX_CACHE_TICKS_AMNT},
     input::{
         InputBuffer, KeyBind, KeyBinds, KeyCodeEnum, HOLD_SPRINT_BIND, JUMP_BIND,
@@ -258,6 +257,7 @@ pub struct LookTick {
     client_stamp: u64,
     server_stamp: u64,
     client_sub_id: u8,
+    correct: bool,
 }
 
 pub(crate) fn process_peer_input(
@@ -274,8 +274,6 @@ pub(crate) fn process_peer_input(
     mut input_cache: ResMut<PeerInputCache>,
     pawnid: Res<PawnId>,
     mut look_update_queue: Local<HashMap<ClientId, HashMap<u64, HashMap<u8, LookTick>>>>,
-    client: Res<RenetClient>,
-    tickrate: Res<TickRate>,
 ) {
     let mut new_correction = false;
     let mut earliest_tick = 0;
@@ -300,28 +298,14 @@ pub(crate) fn process_peer_input(
         }
     }
 
-    /*let latency_in_ticks =
-        ((client.rtt() as f32 / (1. / tickrate.fixed_rate as f32)).round() * 2.) as u64;
-    let desired_tick;
-    if stamp.large < latency_in_ticks {
-        desired_tick = 0;
-    } else {
-        desired_tick = stamp.large - latency_in_ticks;
-    }*/
-
-    let latency_in_ticks = ((client.rtt() as f32 / (1. / tickrate.fixed_rate as f32)) * 2.)
-        .round()
-        .clamp(2., f32::MAX) as u64;
-    let desired_tick = stamp.large - latency_in_ticks;
-
-    //info!("{} = {} - {}", desired_tick, stamp.large, latency_in_ticks);
+    let desired_tick = stamp.large;
 
     let mut reliables = vec![];
     for (_, reliable_cache) in input_cache.reliable.iter_mut() {
         for i in reliable_cache.clone().keys().sorted() {
-            if i > &desired_tick {
+            /*if i > &desired_tick {
                 break;
-            }
+            } not needed because reliable messages get queued in networking crate already*/
             for e in reliable_cache.get(i).unwrap() {
                 reliables.push(e.clone());
             }
@@ -407,7 +391,6 @@ pub(crate) fn process_peer_input(
             }
         }
     }
-
     let mut ordered_unreliables: HashMap<u64, HashMap<u8, LookTick>> = HashMap::new();
     for u in unreliables_reader.read() {
         let client_id = ClientId::from_raw(u.message.peer_handle as u64);
@@ -421,6 +404,7 @@ pub(crate) fn process_peer_input(
                     client_stamp: large_client_stamp,
                     server_stamp: u.stamp,
                     client_sub_id: update.sub_tick,
+                    correct: false,
                 };
 
                 match ordered_unreliables.get_mut(&large_client_stamp) {
@@ -472,7 +456,9 @@ pub(crate) fn process_peer_input(
                     latest = true;
                 }
             }
-            if !latest || large_client_stamp > desired_tick {
+            if !latest || large_client_stamp > desired_tick
+            /*|| (large_client_stamp > desired_tick || up.server_stamp > desired_tick)*/
+            {
                 continue;
             }
             match input_cache.look_transform_best_ticks.get_mut(&client_id) {
@@ -492,26 +478,31 @@ pub(crate) fn process_peer_input(
         match netcode_updates.get(&desired_tick) {
             Some(ups) => {
                 for i in ups.keys().sorted().rev() {
-                    let look_tick = ups.get(i).unwrap().clone();
+                    let mut look_tick = ups.get(i).unwrap().clone();
+                    look_tick.correct = true;
                     /*if look_tick.server_stamp > desired_tick {
                         continue;
                     }*/
                     match input_cache.look_transform_best_ticks.get_mut(client) {
                         Some(bests) => {
                             let mut found = false;
-                            for l in bests.iter() {
+                            for l in bests.iter_mut() {
                                 if l.client_sub_id == look_tick.client_sub_id
                                     && l.client_stamp == look_tick.client_stamp
                                 {
                                     found = true;
+                                    l.correct = look_tick.correct;
                                     break;
                                 }
                             }
                             if !found {
                                 bests.push(look_tick);
                             }
+
+                            //info!("Applying look update.");
                         }
                         None => {
+                            //info!("Applying look update.1");
                             input_cache
                                 .look_transform_best_ticks
                                 .insert(*client, vec![look_tick]);
@@ -543,7 +534,9 @@ pub(crate) fn process_peer_input(
                         "process_peer_input client stamp {} server stamp {} subid {}",
                         e, update.server_stamp, update.update.sub_tick
                     );*/
-
+                    if !update.correct {
+                        continue;
+                    }
                     new_correction = true;
 
                     if e < earliest_tick || earliest_tick == 0 {

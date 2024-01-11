@@ -553,6 +553,10 @@ pub struct AdjustSync {
 }
 
 const MIN_REQUIRED_MESSAGES_FOR_ADJUSTMENT: i32 = 8;
+// In ticks.
+pub const MIN_LATENCY: f32 = 2.;
+// In ticks.
+pub const MAX_LATENCY: f32 = 3.;
 
 pub(crate) fn adjust_clients(
     mut latency: ResMut<Latency>,
@@ -593,8 +597,8 @@ pub(crate) fn adjust_clients(
         }
         let average_latency = accumulative as f32 / length as f32;
 
-        let min_latency = 0. * (tickrate.fixed_rate as f32 / 60.);
-        let max_latency = 1. * (tickrate.fixed_rate as f32 / 60.);
+        let min_latency = MIN_LATENCY * (tickrate.fixed_rate as f32 / 60.);
+        let max_latency = MAX_LATENCY * (tickrate.fixed_rate as f32 / 60.);
 
         if length >= MIN_REQUIRED_MESSAGES_FOR_ADJUSTMENT {
             if average_latency < min_latency {
