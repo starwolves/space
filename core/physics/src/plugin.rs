@@ -4,10 +4,7 @@ use bevy::{
 };
 use bevy_renet::renet::RenetClient;
 use bevy_xpbd_3d::{prelude::PhysicsPlugins, resources::SubstepCount};
-use networking::{
-    messaging::{register_unreliable_message, MessageSender, MessagingSet},
-    stamp::step_tickrate_stamp,
-};
+use networking::messaging::{register_unreliable_message, MessageSender, MessagingSet};
 use resources::{
     core::TickRate,
     correction::CorrectionSet,
@@ -31,10 +28,10 @@ use crate::{
     out_of_bounds::despawn_out_of_bounds,
     spawn::{clear_new, NewlySpawnedRigidbodies},
     sync::{
-        client_despawn_clean_cache, correction_server_apply_priority_cache,
-        desync_check_correction, init_physics_data, send_desync_check, start_sync,
-        sync_correction_world_entities, sync_loop, ClientStartedSyncing,
-        CorrectionServerRigidBodyLink, FastForwarding, PendingDesync, SimulationStorage,
+        client_apply_priority_cache, client_despawn_and_clean_cache,
+        correction_server_apply_priority_cache, desync_check_correction, init_physics_data,
+        send_desync_check, start_sync, sync_correction_world_entities, sync_loop,
+        ClientStartedSyncing, CorrectionServerRigidBodyLink, FastForwarding, SimulationStorage,
         SpawningSimulation, SpawningSimulationRigidBody, SyncPause,
     },
 };
@@ -81,9 +78,7 @@ impl Plugin for PhysicsPlugin {
                     client_mirror_link_target_transform
                         .in_set(MainSet::PostPhysics)
                         .after(PhysicsSet::Correct),
-                    cache_data
-                        .in_set(MainSet::PreUpdate)
-                        .after(step_tickrate_stamp),
+                    cache_data.in_set(MainSet::PreUpdate),
                     cache_data_newly_spawned
                         .after(cache_data)
                         .in_set(MainSet::PreUpdate),
@@ -93,7 +88,10 @@ impl Plugin for PhysicsPlugin {
                         .in_set(CorrectionSet::Start)
                         .before(sync_entities),
                     sync_entities.in_set(MainSet::Update),
-                    client_despawn_clean_cache.in_set(MainSet::Update),
+                    client_despawn_and_clean_cache.in_set(MainSet::Update),
+                    client_apply_priority_cache
+                        .in_set(MainSet::PreUpdate)
+                        .before(cache_data),
                 ),
             )
             .add_systems(
@@ -108,12 +106,10 @@ impl Plugin for PhysicsPlugin {
                 FixedUpdate,
                 (
                     sync_loop
-                        .after(step_tickrate_stamp)
                         .after(MessagingSet::DeserializeIncoming)
                         .in_set(MainSet::PreUpdate),
                     start_sync
                         .in_set(MainSet::PreUpdate)
-                        .after(step_tickrate_stamp)
                         .after(MessagingSet::DeserializeIncoming)
                         .before(sync_loop),
                     clear_priority_cache
@@ -123,7 +119,6 @@ impl Plugin for PhysicsPlugin {
             )
             .init_resource::<FastForwarding>()
             .add_event::<CorrectionResults>()
-            .init_resource::<PendingDesync>()
             .init_resource::<ClientStartedSyncing>()
             .add_event::<SyncEntitiesPhysics>();
         }

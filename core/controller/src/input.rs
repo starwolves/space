@@ -25,11 +25,13 @@ use networking::{
     client::{IncomingReliableServerMessage, IncomingUnreliableServerMessage},
     messaging::{ReliableClientMessageBatch, ReliableMessage, Typenames},
     plugin::RENET_RELIABLE_ORDERED_ID,
+    server::MIN_LATENCY,
     stamp::TickRateStamp,
 };
 use pawn::net::{PeerUpdateLookTransform, UnreliablePeerControllerClientMessage};
 use physics::{cache::PhysicsCache, sync::ClientStartedSyncing};
 use resources::{
+    core::TickRate,
     correction::{StartCorrection, MAX_CACHE_TICKS_AMNT},
     input::{
         InputBuffer, KeyBind, KeyBinds, KeyCodeEnum, HOLD_SPRINT_BIND, JUMP_BIND,
@@ -39,12 +41,6 @@ use resources::{
     physics::{PriorityPhysicsCache, PriorityUpdate},
 };
 use typename::TypeName;
-
-/// Label for systems ordering.
-#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
-pub enum InputSet {
-    First,
-}
 
 /// Client input movement event.
 #[derive(Event, Debug)]
@@ -141,7 +137,7 @@ pub enum RecordedInput {
     Reliable(PeerReliableControllerMessage),
     Unreliable(PeerUnreliableControllerMessage),
 }
-#[derive(Event)]
+#[derive(Event, Debug)]
 pub struct PeerSyncLookTransform {
     pub entity: Entity,
     pub target: Vec3,
@@ -165,7 +161,7 @@ pub fn default_look_transform() -> LookTransform {
 }
 pub const R: f32 = 0.5;
 
-pub(crate) fn apply_peer_sync_look_transform(
+pub(crate) fn cache_peer_sync_look_transform(
     mut events: EventReader<PeerSyncLookTransform>,
     mut query: Query<(&mut LookTransform, &mut Transform)>,
     mut cache: ResMut<PhysicsCache>,
@@ -178,20 +174,20 @@ pub(crate) fn apply_peer_sync_look_transform(
             Ok((mut l, mut t)) => {
                 match look_cache.cache.get_mut(&event.entity) {
                     Some(c) => match c.get_mut(&event.client_stamp) {
-                        Some(l) => {
-                            l.target = event.target;
+                        Some(cache_data) => {
+                            cache_data.target = event.target;
                         }
                         None => {
-                            let mut l = default_look_transform();
-                            l.target = event.target;
-                            c.insert(event.client_stamp, l);
+                            let mut cache_data = default_look_transform();
+                            cache_data.target = event.target;
+                            c.insert(event.client_stamp, cache_data);
                         }
                     },
                     None => {
                         let mut m = HashMap::new();
-                        let mut l = default_look_transform();
-                        l.target = event.target;
-                        m.insert(event.client_stamp, l);
+                        let mut cache_data = default_look_transform();
+                        cache_data.target = event.target;
+                        m.insert(event.client_stamp, cache_data);
                         look_cache.cache.insert(event.entity, m);
                     }
                 }
@@ -215,17 +211,17 @@ pub(crate) fn apply_peer_sync_look_transform(
                         c.transform.translation = event.position;
                     }
                     None => {
-                        /*warn!(
+                        warn!(
                             "Missed peer position for looktransform 1. {:?}",
                             event.entity
-                        );*/
+                        );
                     }
                 },
                 None => {
-                    /*warn!(
+                    warn!(
                         "Missed peer position for looktransform. {:?}:{} current tick: {}",
                         event.entity, adjusted_stamp, stamp.large
-                    );*/
+                    );
                 }
             }
         }
@@ -274,47 +270,13 @@ pub(crate) fn process_peer_input(
     mut input_cache: ResMut<PeerInputCache>,
     pawnid: Res<PawnId>,
     mut look_update_queue: Local<HashMap<ClientId, HashMap<u64, HashMap<u8, LookTick>>>>,
+    client: Res<RenetClient>,
+    tickrate: Res<TickRate>,
 ) {
     let mut new_correction = false;
     let mut earliest_tick = 0;
 
-    for r in reliables_reader.read() {
-        let handle = ClientId::from_raw(r.message.peer_handle as u64);
-        let large = stamp.calculate_large(r.message.client_stamp);
-        match input_cache.reliable.get_mut(&handle) {
-            Some(map) => match map.get_mut(&large) {
-                Some(list) => {
-                    list.push(r.clone());
-                }
-                None => {
-                    map.insert(large, vec![r.clone()]);
-                }
-            },
-            None => {
-                let mut map = HashMap::new();
-                map.insert(large, vec![r.clone()]);
-                input_cache.reliable.insert(handle, map);
-            }
-        }
-    }
-
-    let desired_tick = stamp.large;
-
-    let mut reliables = vec![];
-    for (_, reliable_cache) in input_cache.reliable.iter_mut() {
-        for i in reliable_cache.clone().keys().sorted() {
-            /*if i > &desired_tick {
-                break;
-            } not needed because reliable messages get queued in networking crate already*/
-            for e in reliable_cache.get(i).unwrap() {
-                reliables.push(e.clone());
-            }
-            reliable_cache.remove(i);
-            break;
-        }
-    }
-
-    for message in reliables.iter() {
+    for message in reliables_reader.read() {
         let large_client_stamp = stamp.calculate_large(message.message.client_stamp);
 
         match &message.message.message {
@@ -391,6 +353,7 @@ pub(crate) fn process_peer_input(
             }
         }
     }
+
     let mut ordered_unreliables: HashMap<u64, HashMap<u8, LookTick>> = HashMap::new();
     for u in unreliables_reader.read() {
         let client_id = ClientId::from_raw(u.message.peer_handle as u64);
@@ -398,13 +361,13 @@ pub(crate) fn process_peer_input(
 
         match &u.message.message {
             UnreliablePeerControllerClientMessage::UpdateLookTransform(update) => {
-                let up = LookTick {
+                let up: LookTick = LookTick {
                     update: update.clone(),
                     peer_handle: client_id,
                     client_stamp: large_client_stamp,
                     server_stamp: u.stamp,
                     client_sub_id: update.sub_tick,
-                    correct: false,
+                    correct: true,
                 };
 
                 match ordered_unreliables.get_mut(&large_client_stamp) {
@@ -421,10 +384,18 @@ pub(crate) fn process_peer_input(
         }
     }
 
+    let latency_in_ticks = ((client.rtt() as f32 / (1. / tickrate.fixed_rate as f32)) * 2.)
+        .round()
+        .clamp(MIN_LATENCY * 2., f32::MAX) as u64;
+    let desired_tick = stamp.large - latency_in_ticks;
+
     for client_stamp in ordered_unreliables.keys().sorted().rev() {
         let subs = ordered_unreliables.get(client_stamp).unwrap();
         for sub in subs.keys().sorted().rev() {
-            let up: LookTick = subs.get(sub).unwrap().clone();
+            let mut up = subs.get(sub).unwrap().clone();
+            if *client_stamp == desired_tick {
+                up.correct = true;
+            }
             let client_id = up.peer_handle;
             let large_client_stamp = up.client_stamp;
             let mut latest = false;
@@ -456,7 +427,7 @@ pub(crate) fn process_peer_input(
                     latest = true;
                 }
             }
-            if !latest || large_client_stamp > desired_tick
+            if !latest
             /*|| (large_client_stamp > desired_tick || up.server_stamp > desired_tick)*/
             {
                 continue;
@@ -474,69 +445,23 @@ pub(crate) fn process_peer_input(
         }
     }
 
-    for (client, netcode_updates) in look_update_queue.iter() {
-        match netcode_updates.get(&desired_tick) {
-            Some(ups) => {
-                for i in ups.keys().sorted().rev() {
-                    let mut look_tick = ups.get(i).unwrap().clone();
-                    look_tick.correct = true;
-                    /*if look_tick.server_stamp > desired_tick {
-                        continue;
-                    }*/
-                    match input_cache.look_transform_best_ticks.get_mut(client) {
-                        Some(bests) => {
-                            let mut found = false;
-                            for l in bests.iter_mut() {
-                                if l.client_sub_id == look_tick.client_sub_id
-                                    && l.client_stamp == look_tick.client_stamp
-                                {
-                                    found = true;
-                                    l.correct = look_tick.correct;
-                                    break;
-                                }
-                            }
-                            if !found {
-                                bests.push(look_tick);
-                            }
-
-                            //info!("Applying look update.");
-                        }
-                        None => {
-                            //info!("Applying look update.1");
-                            input_cache
-                                .look_transform_best_ticks
-                                .insert(*client, vec![look_tick]);
-                        }
-                    }
-
-                    break;
-                }
-            }
-            None => {}
-        }
-    }
-
     for (_, updates) in input_cache.look_transform_best_ticks.iter() {
         for update in updates.iter() {
             match peer_pawns.map.get(&update.peer_handle) {
                 Some(peer) => {
                     let e = update.client_stamp;
-                    sync.send(PeerSyncLookTransform {
+                    let msg = PeerSyncLookTransform {
                         entity: *peer,
                         target: update.update.target,
                         handle: update.peer_handle,
                         client_stamp: e,
                         position: update.update.position,
                         server_stamp: update.server_stamp,
-                    });
+                    };
+                    //info!("debug0 at tick {}: {:?}", stamp.large, msg);
 
-                    /*info!(
-                        "process_peer_input client stamp {} server stamp {} subid {}",
-                        e, update.server_stamp, update.update.sub_tick
-                    );*/
-                    if !update.correct {
-                        continue;
-                    }
+                    sync.send(msg);
+
                     new_correction = true;
 
                     if e < earliest_tick || earliest_tick == 0 {
@@ -565,6 +490,7 @@ pub(crate) fn process_peer_input(
             start_tick: earliest_tick,
             last_tick: stamp.large,
         });
+        //info!("Correcting {}-{}", earliest_tick, stamp.large);
     }
     // Clean cache.
     for (_, cache) in look_update_queue.iter_mut() {

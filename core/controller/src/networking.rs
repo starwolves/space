@@ -122,8 +122,9 @@ pub(crate) fn peer_replicate_input_messages(
     mut latest_look_transform_sync: ResMut<PeerLatestLookSync>,
     mut queue: Local<HashMap<ClientId, HashMap<u64, HashMap<u8, Vec3>>>>,
 ) {
-    let mut reliable_peer_messages: HashMap<ClientId, Vec<ReliableMessage>> = HashMap::new();
-    let mut unreliable_peer_messages: HashMap<ClientId, Vec<UnreliableMessage>> = HashMap::new();
+    let mut reliable_peer_messages: HashMap<ClientId, Vec<(u8, ReliableMessage)>> = HashMap::new();
+    let mut unreliable_peer_messages: HashMap<ClientId, Vec<(u8, UnreliableMessage)>> =
+        HashMap::new();
     for batch in reliable.read() {
         for message in batch.0.message.messages.iter() {
             match typenames
@@ -182,10 +183,14 @@ pub(crate) fn peer_replicate_input_messages(
                                     };
 
                                     match reliable_peer_messages.get_mut(&connected.handle) {
-                                        Some(messages) => messages.push(reliable_message),
+                                        Some(messages) => {
+                                            messages.push((batch.0.message.stamp, reliable_message))
+                                        }
                                         None => {
-                                            reliable_peer_messages
-                                                .insert(connected.handle, vec![reliable_message]);
+                                            reliable_peer_messages.insert(
+                                                connected.handle,
+                                                vec![(batch.0.message.stamp, reliable_message)],
+                                            );
                                         }
                                     }
                                 }
@@ -322,10 +327,13 @@ pub(crate) fn peer_replicate_input_messages(
                                         typename_net: *sub_id,
                                     };
                                     match unreliable_peer_messages.get_mut(&connected.handle) {
-                                        Some(messages) => messages.push(unreliable_message),
+                                        Some(messages) => messages
+                                            .push((batch.0.message.stamp, unreliable_message)),
                                         None => {
-                                            unreliable_peer_messages
-                                                .insert(connected.handle, vec![unreliable_message]);
+                                            unreliable_peer_messages.insert(
+                                                connected.handle,
+                                                vec![(batch.0.message.stamp, unreliable_message)],
+                                            );
                                         }
                                     }
                                 }
@@ -344,26 +352,32 @@ pub(crate) fn peer_replicate_input_messages(
     }
 
     for (id, msgs) in reliable_peer_messages {
-        server.send_message(
-            id,
-            RENET_RELIABLE_ORDERED_ID,
-            bincode::serialize(&ReliableServerMessageBatch {
-                messages: msgs,
-                stamp: stamp.tick,
-            })
-            .unwrap(),
-        );
+        for (client_stamp, msg) in msgs {
+            server.send_message(
+                id,
+                RENET_RELIABLE_ORDERED_ID,
+                bincode::serialize(&ReliableServerMessageBatch {
+                    messages: vec![msg],
+                    stamp: stamp.tick,
+                    client_stamp_option: Some(client_stamp),
+                })
+                .unwrap(),
+            );
+        }
     }
     for (id, msgs) in unreliable_peer_messages {
-        server.send_message(
-            id,
-            RENET_UNRELIABLE_CHANNEL_ID,
-            bincode::serialize(&UnreliableServerMessageBatch {
-                messages: msgs,
-                stamp: stamp.tick,
-            })
-            .unwrap(),
-        );
+        for (client_stamp, msg) in msgs {
+            server.send_message(
+                id,
+                RENET_UNRELIABLE_CHANNEL_ID,
+                bincode::serialize(&UnreliableServerMessageBatch {
+                    messages: vec![msg],
+                    stamp: stamp.tick,
+                    client_stamp_option: Some(client_stamp),
+                })
+                .unwrap(),
+            );
+        }
     }
 
     // Clean cache.

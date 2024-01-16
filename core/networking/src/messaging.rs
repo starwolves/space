@@ -154,7 +154,8 @@ pub fn register_reliable_message<
             deserialize_incoming_reliable_server_message::<T>
                 .after(TypenamesSet::SendRawEvents)
                 .in_set(MessagingSet::DeserializeIncoming)
-                .in_set(MainSet::PreUpdate),
+                .in_set(MainSet::PreUpdate)
+                .run_if(resource_exists::<RenetClient>()),
         );
     }
     app.add_event::<OutgoingReliableClientMessage<T>>();
@@ -247,7 +248,8 @@ pub fn register_unreliable_message<
                 deserialize_incoming_unreliable_server_message::<T>
                     .after(TypenamesSet::SendRawEvents)
                     .in_set(MessagingSet::DeserializeIncoming)
-                    .in_set(MainSet::PreUpdate),
+                    .in_set(MainSet::PreUpdate)
+                    .run_if(resource_exists::<RenetClient>()),
             );
     }
     if client_is_sender && !is_server_mode(app) {
@@ -288,6 +290,9 @@ pub struct ReliableServerMessageBatch {
     pub messages: Vec<ReliableMessage>,
     // The confirmed tick stamp.
     pub stamp: u8,
+    // Used if this is a replication message batch. They are separated in their own their own batches.
+    // Replicated peer messages get forwarded from server Update schedule and you cant rely on server stamp for sync calculations.
+    pub client_stamp_option: Option<u8>,
 }
 
 /// Batch of reliable client messages.
@@ -302,6 +307,7 @@ pub struct ReliableClientMessageBatch {
 pub struct UnreliableServerMessageBatch {
     pub messages: Vec<UnreliableMessage>,
     pub stamp: u8,
+    pub client_stamp_option: Option<u8>,
 }
 /// Batch of unreliable messages.
 #[derive(Serialize, Deserialize, Clone)]

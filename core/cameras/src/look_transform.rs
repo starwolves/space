@@ -8,9 +8,10 @@ use bevy::{
     transform::components::Transform,
 };
 use itertools::Itertools;
-use networking::stamp::{step_tickrate_stamp, TickRateStamp};
+use networking::stamp::TickRateStamp;
 use resources::{
-    correction::MAX_CACHE_TICKS_AMNT, pawn::ClientPawn, physics::PhysicsSet, sets::MainSet,
+    correction::MAX_CACHE_TICKS_AMNT, input::InputSet, modes::is_server_mode, pawn::ClientPawn,
+    physics::PhysicsSet, sets::MainSet,
 };
 
 pub struct LookTransformPlugin;
@@ -21,15 +22,18 @@ impl Plugin for LookTransformPlugin {
             .init_resource::<LookTransformCache>()
             .add_systems(
                 FixedUpdate,
-                (
-                    cache_client_pawn_look_transform
-                        .after(MainSet::PostUpdate)
-                        .in_set(PhysicsSet::Cache),
-                    apply_look_cache_to_peers
-                        .in_set(MainSet::PreUpdate)
-                        .after(step_tickrate_stamp),
-                ),
+                (cache_client_pawn_look_transform
+                    .after(MainSet::PostUpdate)
+                    .in_set(PhysicsSet::Cache),),
             );
+        if !is_server_mode(app) {
+            app.add_systems(
+                FixedUpdate,
+                (apply_look_cache_to_peers
+                    .in_set(MainSet::Update)
+                    .in_set(InputSet::ApplyLiveCache),),
+            );
+        }
     }
 }
 
@@ -42,7 +46,6 @@ pub struct LookTransformBundle {
 pub struct LookTransformCache {
     pub cache: HashMap<Entity, HashMap<u64, LookTransform>>,
 }
-
 pub(crate) fn apply_look_cache_to_peers(
     cache: Res<LookTransformCache>,
     mut query: Query<(Entity, &mut LookTransform), (Without<ClientPawn>, Without<Camera>)>,
@@ -55,13 +58,18 @@ pub(crate) fn apply_look_cache_to_peers(
                     if i > &stamp.large {
                         continue;
                     }
-                    match look_cache.get(&i) {
-                        Some(look_cache) => {
-                            *look_transform = *look_cache;
-                            break;
-                        }
-                        None => {}
+                    let lk = look_cache.get(&i).unwrap();
+
+                    if look_transform.target != lk.target {
+                        /*info!(
+                            "apply_look_cache_to_peers tick {} entity {:?} target {:?}",
+                            stamp.large, entity, lk.target
+                        );*/
                     }
+
+                    *look_transform = *lk;
+
+                    break;
                 }
             }
             None => {}

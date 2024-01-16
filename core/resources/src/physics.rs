@@ -27,7 +27,7 @@ pub struct SmallCache {
 pub struct PriorityPhysicsCache {
     pub cache: HashMap<u64, HashMap<Entity, PriorityUpdate>>,
 }
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub enum PriorityUpdate {
     SmallCache(SmallCache),
     Position(Vec3),

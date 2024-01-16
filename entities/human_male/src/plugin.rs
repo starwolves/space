@@ -6,7 +6,7 @@ use entity::{
     spawn::SpawnItemSet,
 };
 
-use networking::{client::detect_client_world_loaded, stamp::step_tickrate_stamp};
+use networking::client::detect_client_world_loaded;
 use physics::{spawn::build_rigid_bodies, sync::SpawningSimulation};
 use player::boarding::player_boarded;
 use resources::{
@@ -89,11 +89,7 @@ impl Plugin for HumanMalePlugin {
         )
         .add_systems(
             FixedUpdate,
-            (
-                process_add_item_slot_buffer.after(step_tickrate_stamp),
-                process_add_slot_buffer,
-            )
-                .in_set(MainSet::PreUpdate),
+            (process_add_item_slot_buffer, process_add_slot_buffer).in_set(MainSet::PreUpdate),
         )
         .init_resource::<AddItemToSlotBuffer>()
         .init_resource::<AddSlotBuffer>();

@@ -161,7 +161,7 @@ pub fn build_base_entities<T: BaseEntityBuilder<NoData> + 'static>(
         base_entity_builder(
             &mut commands,
             BaseEntityData {
-                entity_type: base_entity_bundle.entity_type,
+                entity_type: base_entity_bundle.entity_type.clone(),
                 examinable: base_entity_bundle.examinable,
                 health: base_entity_bundle.health,
                 entity_group: base_entity_bundle.entity_group,

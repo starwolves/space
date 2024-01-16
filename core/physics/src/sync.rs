@@ -23,7 +23,6 @@ use entity::despawn::DespawnEntity;
 use entity::entity_types::BoxedEntityType;
 use entity::net::EntityServerMessage;
 use entity::spawn::ServerEntityClientEntity;
-use itertools::Itertools;
 use networking::client::{IncomingUnreliableServerMessage, TotalAdjustment};
 use networking::server::{ConnectedPlayer, HandleToEntity, OutgoingUnreliableServerMessage};
 use networking::{
@@ -34,7 +33,7 @@ use networking::{
     stamp::{PauseTickStep, TickRateStamp},
 };
 use resources::core::TickRate;
-use resources::correction::{StartCorrection, SyncWorld, MAX_CACHE_TICKS_AMNT};
+use resources::correction::{StartCorrection, SyncWorld};
 use resources::grid::TileCollider;
 use resources::modes::AppMode;
 use resources::physics::{PriorityPhysicsCache, PriorityUpdate, SmallCache};
@@ -361,8 +360,10 @@ pub(crate) fn sync_correction_world_entities(
             for correction_entity in query.iter() {
                 let mut found = false;
                 let sims;
+                let client_entity;
                 match link.get_client(&correction_entity) {
                     Some(client) => {
+                        client_entity = *client;
                         sims = link.map.get(&client).unwrap();
                     }
                     None => {
@@ -373,7 +374,7 @@ pub(crate) fn sync_correction_world_entities(
                 let mut spawn_frame = false;
                 for (_, c) in physics_cache.iter() {
                     for sim in sims.iter() {
-                        if c.entity == *sim {
+                        if c.entity == *sim || c.entity == client_entity {
                             found = true;
                             spawn_frame = c.spawn_frame;
                             break;
@@ -381,14 +382,20 @@ pub(crate) fn sync_correction_world_entities(
                     }
                 }
                 if !found || spawn_frame {
-                    /*match link.get_client(&correction_entity) {
+                    match link.get_client(&correction_entity) {
                         Some(cid) => {
-                            info!("Correction despawn {:?}, cid:{:?}", correction_entity, cid);
+                            info!(
+                                "Tick {} correction despawn {:?}, cid:{:?}",
+                                stamp.large, correction_entity, cid
+                            );
                         }
                         None => {
-                            warn!("Correction despawn (nolink) {:?}", correction_entity);
+                            warn!(
+                                "Tick {} correction despawn (nolink) {:?}",
+                                stamp.large, correction_entity
+                            );
                         }
-                    }*/
+                    }
                     despawn.send(DespawnEntity {
                         entity: correction_entity,
                     });
@@ -407,7 +414,14 @@ pub(crate) fn sync_correction_world_entities(
                     }
                     None => {
                         client_entity = ncache.entity;
-                        sims = vec![];
+                        match link.map.get(&client_entity) {
+                            Some(s) => {
+                                sims = s.clone();
+                            }
+                            None => {
+                                sims = vec![];
+                            }
+                        }
                     }
                 }
 
@@ -484,7 +498,10 @@ pub(crate) fn sync_correction_world_entities(
             entity,
             entity_type: ncache.entity_type.clone(),
         });
-        //info!("Correction spawn {:?}, cid:{:?}", entity, cache.entity);
+        info!(
+            "Tick {} correction spawn {:?}, cid:{:?}, ncache.entity: {:?} ",
+            stamp.large, entity, client_entity, ncache.entity,
+        );
     }
 }
 pub const DESYNC_FREQUENCY: f32 = 4.;
@@ -570,36 +587,19 @@ pub struct SpawningSimulationRigidBody {
 pub enum SpawningSimulation {
     Spawn,
 }
-#[derive(Resource, Default)]
-pub struct PendingDesync(HashMap<u64, PhysicsUnreliableServerMessage>);
-
 pub(crate) fn desync_check_correction(
     mut messages: EventReader<IncomingUnreliableServerMessage<PhysicsUnreliableServerMessage>>,
     mut cache: ResMut<PhysicsCache>,
     mut correction: EventWriter<StartCorrection>,
     stamp: Res<TickRateStamp>,
     server_client_entity: Res<ServerEntityClientEntity>,
-    mut latest_desync: ResMut<PendingDesync>,
     mut syncs: EventWriter<SyncEntitiesPhysics>,
     mut priority: ResMut<PriorityPhysicsCache>,
 ) {
     for message in messages.read() {
-        latest_desync
-            .0
-            .insert(message.stamp, message.message.clone());
-    }
-    let desired_tick = stamp.large;
-    let mut processed_is = vec![];
-    for i in latest_desync.0.keys().sorted() {
-        if *i > desired_tick {
-            break;
-        }
-        processed_is.push(*i);
-        let message = latest_desync.0.get(i).unwrap();
-        let adjusted_latest = i - 1;
-        //info!("Applying desync check.");
+        let adjusted_latest = message.stamp - 1;
         match cache.cache.get_mut(&adjusted_latest) {
-            Some(physics_cache) => match message {
+            Some(physics_cache) => match &message.message {
                 PhysicsUnreliableServerMessage::DesyncCheck(caches) => {
                     let mut tosync = vec![];
                     for s in caches {
@@ -643,7 +643,7 @@ pub(crate) fn desync_check_correction(
                         }
                     }
 
-                    if *i == stamp.large {
+                    if message.stamp == stamp.large {
                         info!("Perfect desync check.");
                         syncs.send(SyncEntitiesPhysics { entities: tosync });
                     } else {
@@ -655,22 +655,53 @@ pub(crate) fn desync_check_correction(
                 }
             },
             None => {
-                //warn!("Missed desync check ({})", latest_desync_stamp);
+                warn!("Missed desync check ({})", adjusted_latest);
             }
         }
     }
-    for i in processed_is {
-        latest_desync.0.remove(&i);
+}
+
+pub(crate) fn client_apply_priority_cache(
+    priority: Res<PriorityPhysicsCache>,
+    mut query: Query<
+        (&mut Transform, &mut LinearVelocity, &mut AngularVelocity),
+        With<SFRigidBody>,
+    >,
+    stamp: Res<TickRateStamp>,
+) {
+    let mut adjusted_stamp = stamp.large;
+    if adjusted_stamp > 0 {
+        adjusted_stamp -= 1;
     }
-    // Clean cache.
-    if latest_desync.0.len() > MAX_CACHE_TICKS_AMNT as usize {
-        let mut j = 0;
-        for i in latest_desync.0.clone().keys().sorted().rev() {
-            if j >= MAX_CACHE_TICKS_AMNT {
-                latest_desync.0.remove(i);
+
+    match priority.cache.get(&adjusted_stamp) {
+        Some(priority_cache) => {
+            for (entity, update) in priority_cache.iter() {
+                match query.get_mut(*entity) {
+                    Ok((mut transform, mut linear_velocity, mut angular_velocity)) => {
+                        match update {
+                            PriorityUpdate::SmallCache(cache) => {
+                                transform.translation = cache.translation;
+                                transform.rotation = cache.rotation;
+                                linear_velocity.0 = cache.linear_velocity;
+                                angular_velocity.0 = cache.angular_velocity;
+                            }
+                            PriorityUpdate::Position(p) => {
+                                transform.translation = *p;
+                            }
+                            PriorityUpdate::PhysicsSpawn(data) => {
+                                transform.translation = data.translation;
+                                transform.rotation = data.rotation;
+                            }
+                        }
+                    }
+                    Err(_) => {
+                        warn!("Couldnt find entity in query.");
+                    }
+                }
             }
-            j += 1;
         }
+        None => {}
     }
 }
 
@@ -700,16 +731,16 @@ pub fn correction_server_apply_priority_cache(
                         for entity in sims.iter() {
                             match query.get_mut(*entity) {
                                 Ok((mut transform, mut linear_velocity, mut angular_velocity)) => {
+                                    /*info!(
+                                        "Applying {:?} priority update: {:?} for tick {}",
+                                        entity, update, adjusted_stamp
+                                    );*/
                                     match update {
                                         PriorityUpdate::SmallCache(cache) => {
                                             transform.translation = cache.translation;
                                             transform.rotation = cache.rotation;
                                             linear_velocity.0 = cache.linear_velocity;
                                             angular_velocity.0 = cache.angular_velocity;
-                                            /*info!(
-                                                "Applying priority update: {:?} for tick {}",
-                                                cache.translation, adjusted_stamp
-                                            );*/
                                         }
                                         PriorityUpdate::Position(p) => {
                                             transform.translation = *p;
@@ -737,7 +768,7 @@ pub fn correction_server_apply_priority_cache(
     }
 }
 
-pub(crate) fn client_despawn_clean_cache(
+pub(crate) fn client_despawn_and_clean_cache(
     mut net: EventReader<IncomingReliableServerMessage<EntityServerMessage>>,
     links: Res<ServerEntityClientEntity>,
     mut cache: ResMut<PhysicsCache>,

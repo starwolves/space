@@ -78,8 +78,7 @@ impl Plugin for NetworkingPlugin {
                                 .before(receive_incoming_reliable_client_messages),
                             adjust_clients
                                 .after(TypenamesSet::SendRawEvents)
-                                .in_set(MainSet::PreUpdate)
-                                .after(step_tickrate_stamp),
+                                .in_set(MainSet::PreUpdate),
                             client_loaded_game_world.in_set(MainSet::Update),
                             start_sync_confirmation.in_set(MainSet::Update),
                             process_sync_confirmation.in_set(MainSet::Update),
@@ -200,7 +199,7 @@ impl Plugin for NetworkingPlugin {
         app.init_resource::<TickRateStamp>()
             .init_resource::<HandleToEntity>()
             .init_resource::<PauseTickStep>()
-            .add_systems(FixedUpdate, step_tickrate_stamp.in_set(MainSet::PreUpdate))
+            .add_systems(FixedUpdate, step_tickrate_stamp.before(MainSet::PreUpdate))
             .init_resource::<Typenames>()
             .add_systems(Startup, generate_typenames.after(TypenamesSet::Generate));
         register_reliable_message::<NetworkingClientMessage>(app, MessageSender::Client, true);

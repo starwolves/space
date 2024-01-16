@@ -115,7 +115,10 @@ pub(crate) fn cache_data_newly_spawned(
                     }
                 }
                 None => {
-                    warn!("Couldnt find new spawned entity old entity cache.");
+                    warn!(
+                        "Couldnt find new spawned entity old entity cache. {:?} adjusted_tick {}",
+                        entity, adjusted_stamp
+                    );
                 }
             },
             None => {

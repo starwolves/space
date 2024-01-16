@@ -4,12 +4,15 @@ use bevy::prelude::{
 use bevy_renet::renet::{RenetClient, RenetServer};
 use networking::messaging::{register_reliable_message, MessageSender, TypenamesSet};
 use networking::server::EntityUpdatesSet;
-use resources::modes::is_server_mode;
+use resources::modes::{is_correction_mode, is_server_mode};
 use resources::sets::{ActionsSet, BuildingSet, MainSet, PostUpdateSet, StartupSet};
 
 use crate::despawn::{client_despawn_entity, despawn_entities, DespawnEntity};
 use crate::entity_data::{fire_queued_entity_updates, QueuedSpawnEntityUpdates, RawSpawnEvent};
-use crate::entity_types::{finalize_register_entity_types, EntityTypeLabel, EntityTypes};
+use crate::entity_types::{
+    clean_entity_type_cache, finalize_register_entity_types, EntityTypeCache, EntityTypeLabel,
+    EntityTypes,
+};
 use crate::examine::{
     examine_entity, examine_entity_health, finalize_entity_examine_input, finalize_examine_entity,
     incoming_messages, ExamineEntityMessages, InputExamineEntity,
@@ -78,6 +81,11 @@ impl Plugin for EntityPlugin {
                 .init_resource::<QueuedSpawnEntityUpdates>()
                 .init_resource::<NewToBeCachedSpawnedEntities>();
         }
+        if !is_server_mode(app) || is_correction_mode(app) {
+            app.init_resource::<EntityTypeCache>()
+                .add_systems(FixedUpdate, clean_entity_type_cache.in_set(MainSet::Update));
+        }
+
         app.add_event::<DespawnEntity>()
             .add_event::<RawSpawnEvent>()
             .init_resource::<PawnId>()

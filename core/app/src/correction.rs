@@ -27,10 +27,10 @@ use bevy_xpbd_3d::components::{
 };
 use cameras::{LookTransform, LookTransformCache};
 use controller::controller::{ControllerCache, ControllerInput};
-use entity::entity_macros::Identity;
+use entity::entity_types::EntityTypeCache;
 use gridmap::grid::{Gridmap, GridmapCache};
 use itertools::Itertools;
-use networking::stamp::{step_tickrate_stamp, TickRateStamp};
+use networking::stamp::TickRateStamp;
 use physics::{
     cache::{Cache, PhysicsCache},
     correction_mode::CorrectionResults,
@@ -40,7 +40,6 @@ use physics::{
     },
 };
 use resources::{
-    content::SF_CONTENT_PREFIX,
     correction::{CorrectionServerSet, StartCorrection, SyncWorld},
     modes::is_server,
     physics::{PhysicsSet, PriorityPhysicsCache, PriorityUpdate},
@@ -88,7 +87,7 @@ impl Plugin for CorrectionServerPlugin {
                     .in_set(MainSet::PostPhysics)
                     .after(correction_server_apply_priority_cache),
                 clear_sync_world.in_set(MainSet::PostUpdate),
-                apply_humanoid_caches
+                apply_controller_caches
                     .in_set(MainSet::PreUpdate)
                     .after(CorrectionServerSet::TriggerSync),
             ),
@@ -97,8 +96,7 @@ impl Plugin for CorrectionServerPlugin {
             Update,
             server_start_correcting
                 .before(MainSet::PreUpdate)
-                .in_set(CorrectionServerSet::TriggerSync)
-                .after(step_tickrate_stamp),
+                .in_set(CorrectionServerSet::TriggerSync),
         )
         .init_resource::<StartCorrection>()
         .init_resource::<IsCorrecting>()
@@ -203,6 +201,7 @@ pub(crate) fn server_start_correcting(
     mut priority: ResMut<PriorityPhysicsCache>,
     query: Query<Entity, With<RigidBody>>,
     mut correcting: ResMut<IsCorrecting>,
+    mut entity_type_cache: ResMut<EntityTypeCache>,
 ) {
     match &queued_message_reciever.receiver_option {
         Some(receiver) => loop {
@@ -217,6 +216,7 @@ pub(crate) fn server_start_correcting(
                         controller_cachec,
                         look_cachec,
                         priorityc,
+                        type_cache,
                     ) => {
                         let mut fixed_cache = new_cache.clone();
 
@@ -300,6 +300,7 @@ pub(crate) fn server_start_correcting(
                         *stamp = TickRateStamp::new(adjusted_start.start_tick);
                         priority.cache = new_pcache;
                         correcting.0 = true;
+                        *entity_type_cache = type_cache;
                     }
                 },
                 Err(_) => {
@@ -345,6 +346,7 @@ pub enum ClientCorrectionMessage {
         ControllerCache,
         LookTransformCache,
         PriorityPhysicsCache,
+        EntityTypeCache,
     ),
 }
 pub enum CorrectionServerMessage {
@@ -391,6 +393,7 @@ pub(crate) fn start_correction(
     priority: Res<PriorityPhysicsCache>,
     stamp: Res<TickRateStamp>,
     mut previous_lowest_start: Local<u64>,
+    entity_type_cache: Res<EntityTypeCache>,
 ) {
     let mut lowest_start = 0;
     let mut highest_end = 1;
@@ -422,6 +425,9 @@ pub(crate) fn start_correction(
     } else {
         *previous_lowest_start = lowest_start;
     }
+    if lowest_start == highest_end {
+        warn!("StartCorrection lowest and highest are equal.");
+    }
     /*info!(
         "Start correction {}-{} at tick {}",
         lowest_start, highest_end, stamp.large
@@ -438,6 +444,7 @@ pub(crate) fn start_correction(
             controller_cache.clone(),
             look_cache.clone(),
             priority.clone(),
+            entity_type_cache.clone(),
         )) {
         Ok(_) => {
             enabled.0 = true;
@@ -510,6 +517,8 @@ pub(crate) fn store_tick_data(
     stamp: Res<TickRateStamp>,
     correcting: Res<IsCorrecting>,
     correction: Res<StartCorrection>,
+    type_cache: Res<EntityTypeCache>,
+    link: Res<CorrectionServerRigidBodyLink>,
 ) {
     if !correcting.0 || correction.start_tick == stamp.large {
         return;
@@ -535,6 +544,22 @@ pub(crate) fn store_tick_data(
             collision_layers,
         ) = t0;
         let tick_cache = storage.0.cache.get_mut(&stamp.large).unwrap();
+        let entity_type;
+        match link.get_client(&rb_entity) {
+            Some(clink) => match type_cache.map.get(clink) {
+                Some(t) => {
+                    entity_type = t.clone();
+                }
+                None => {
+                    warn!("No typecache match. {:?}", clink);
+                    continue;
+                }
+            },
+            None => {
+                warn!("No client link found.");
+                continue;
+            }
+        }
         tick_cache.insert(
             rb_entity,
             Cache {
@@ -555,22 +580,10 @@ pub(crate) fn store_tick_data(
                 collision_layers: *collision_layers,
                 locked_axes: *locked_axes,
                 collider_friction: *collider_friction,
-                entity_type: Box::new(SimulationType::default()),
+                entity_type: entity_type,
                 spawn_frame: false,
             },
         );
-    }
-}
-use entity::entity_types::EntityType;
-#[derive(Clone, Identity)]
-pub struct SimulationType {
-    pub identifier: String,
-}
-impl Default for SimulationType {
-    fn default() -> Self {
-        Self {
-            identifier: SF_CONTENT_PREFIX.to_string() + "simulation_body",
-        }
     }
 }
 /// Runs on client.
@@ -665,7 +678,7 @@ pub(crate) fn apply_correction_results(
     }
 }
 
-pub(crate) fn apply_humanoid_caches(
+pub(crate) fn apply_controller_caches(
     controller_cache: Res<ControllerCache>,
     look_cache: Res<LookTransformCache>,
     mut query: Query<(Entity, &mut LookTransform, &mut ControllerInput)>,
@@ -689,24 +702,24 @@ pub(crate) fn apply_humanoid_caches(
         let mut controller_t = None;
 
         match controller_cache.cache.get(&client_entity) {
-            Some(controller_cache2) => {
-                for i in controller_cache2.keys().sorted().rev() {
-                    if i > &stamp.large {
+            Some(tick_cache) => {
+                for tick in tick_cache.keys().sorted().rev() {
+                    if tick > &stamp.large {
                         continue;
                     }
-                    controller_t = Some(controller_cache2.get(i).unwrap());
+                    controller_t = Some(tick_cache.get(tick).unwrap());
                     break;
                 }
             }
             None => {}
         }
         match look_cache.cache.get(&client_entity) {
-            Some(look_cache2) => {
-                for i in look_cache2.keys().sorted().rev() {
-                    if i > &stamp.large {
+            Some(tick_cache) => {
+                for tick in tick_cache.keys().sorted().rev() {
+                    if tick > &stamp.large {
                         continue;
                     }
-                    look_t = Some(look_cache2.get(i).unwrap());
+                    look_t = Some(tick_cache.get(tick).unwrap());
                     break;
                 }
             }
@@ -723,6 +736,13 @@ pub(crate) fn apply_humanoid_caches(
         }
         match look_t {
             Some(look_t) => {
+                if look.target != look_t.target {
+                    /*info!(
+                        "Correction tick {} applying look transform {:?}",
+                        stamp.large, look.target
+                    );*/
+                }
+
                 *look = look_t.clone();
             }
             None => {

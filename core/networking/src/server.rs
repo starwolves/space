@@ -282,6 +282,7 @@ pub(crate) fn send_outgoing_unreliable_server_messages<T: TypeName + Send + Sync
         match bincode::serialize(&UnreliableServerMessageBatch {
             messages: msgs,
             stamp: stamp.tick,
+            client_stamp_option: None,
         }) {
             Ok(bits) => {
                 server.send_message(handle, RENET_UNRELIABLE_CHANNEL_ID, bits);
@@ -375,6 +376,7 @@ pub fn send_outgoing_reliable_server_messages<T: TypeName + Send + Sync + Serial
         match bincode::serialize(&ReliableServerMessageBatch {
             messages: msgs,
             stamp: stamp.tick,
+            client_stamp_option: None,
         }) {
             Ok(bits) => {
                 server.send_message(handle, RENET_RELIABLE_ORDERED_ID, bits);
@@ -389,6 +391,7 @@ pub fn send_outgoing_reliable_server_messages<T: TypeName + Send + Sync + Serial
         match bincode::serialize(&ReliableServerMessageBatch {
             messages: msgs,
             stamp: stamp.tick,
+            client_stamp_option: None,
         }) {
             Ok(bits) => {
                 server.send_message(handle, RENET_RELIABLE_UNORDERED_ID, bits);

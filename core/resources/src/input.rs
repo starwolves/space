@@ -1,10 +1,17 @@
 use std::collections::HashMap;
 
 use bevy::{
-    ecs::system::Local,
+    ecs::{schedule::SystemSet, system::Local},
     prelude::{Input, KeyCode, MouseButton, Res, ResMut, Resource},
 };
 
+/// Label for systems ordering.
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
+pub enum InputSet {
+    Prepare,
+    Cache,
+    ApplyLiveCache,
+}
 pub const MOVE_FORWARD_BIND: &str = "moveForward";
 pub const MOVE_BACKWARD_BIND: &str = "moveBackward";
 pub const MOVE_LEFT_BIND: &str = "moveLeft";

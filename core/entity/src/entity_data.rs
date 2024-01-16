@@ -144,6 +144,7 @@ pub(crate) fn fire_queued_entity_updates(
             message: ReliableServerMessageBatch {
                 messages: msgs,
                 stamp: stamp.tick,
+                client_stamp_option: None,
             },
         });
     }
@@ -165,6 +166,7 @@ pub(crate) fn fire_queued_entity_updates(
             message: UnreliableServerMessageBatch {
                 messages: msgs,
                 stamp: stamp.tick,
+                client_stamp_option: None,
             },
         });
     }

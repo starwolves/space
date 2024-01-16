@@ -6,9 +6,9 @@ use crate::controller::{
     ControllerCache,
 };
 use crate::input::{
-    apply_controller_cache_to_peers, apply_peer_sync_look_transform, controller_input,
+    apply_controller_cache_to_peers, cache_peer_sync_look_transform, controller_input,
     create_input_map, get_client_input, process_peer_input, send_client_input_to_server,
-    sync_controller_input, ControllerSet, InputMovementInput, InputSet, LastPeerLookTransform,
+    sync_controller_input, ControllerSet, InputMovementInput, LastPeerLookTransform,
     PeerInputCache, PeerSyncLookTransform, SyncControllerInput,
 };
 use crate::net::ControllerClientMessage;
@@ -18,6 +18,7 @@ use crate::networking::{
 };
 use bevy::app::Update;
 use bevy::ecs::schedule::common_conditions::resource_exists;
+use bevy::ecs::schedule::IntoSystemSetConfigs;
 use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, Startup};
 
 use bevy::time::common_conditions::on_timer;
@@ -26,8 +27,9 @@ use networking::messaging::{
     register_reliable_message, register_unreliable_message, MessageSender, MessagingSet,
 };
 use networking::server::EntityUpdatesSet;
-use networking::stamp::step_tickrate_stamp;
+use physics::sync::SpawningSimulation;
 use player::boarding::BoardingPlayer;
+use resources::input::InputSet;
 use resources::modes::{is_correction_mode, is_server_mode};
 use resources::physics::PhysicsSet;
 use resources::sets::{MainSet, UpdateSet};
@@ -71,7 +73,7 @@ impl Plugin for ControllerPlugin {
             app.add_event::<BoardingPlayer>().add_systems(
                 FixedUpdate,
                 incoming_messages
-                    .in_set(InputSet::First)
+                    .in_set(InputSet::Prepare)
                     .in_set(MainSet::PreUpdate)
                     .after(MessagingSet::DeserializeIncoming),
             );
@@ -83,7 +85,7 @@ impl Plugin for ControllerPlugin {
                         get_client_input,
                         process_peer_input.run_if(resource_exists::<RenetClient>()),
                     )
-                        .in_set(InputSet::First)
+                        .in_set(InputSet::Prepare)
                         .before(UpdateSet::StandardCharacters)
                         .in_set(MainSet::Update),
                 )
@@ -98,17 +100,18 @@ impl Plugin for ControllerPlugin {
                     FixedUpdate,
                     (
                         clean_controller_cache
-                            .after(MainSet::PostUpdate)
+                            .in_set(MainSet::Update)
                             .in_set(PhysicsSet::Cache),
-                        apply_peer_sync_look_transform
-                            .after(InputSet::First)
-                            .in_set(MainSet::Update),
+                        cache_peer_sync_look_transform
+                            .in_set(InputSet::Cache)
+                            .in_set(MainSet::Update)
+                            .after(SpawningSimulation::Spawn),
                         sync_controller_input
-                            .after(InputSet::First)
+                            .in_set(InputSet::Cache)
                             .in_set(MainSet::Update),
                         apply_controller_cache_to_peers
-                            .in_set(MainSet::PreUpdate)
-                            .after(step_tickrate_stamp),
+                            .in_set(MainSet::Update)
+                            .in_set(InputSet::ApplyLiveCache),
                     ),
                 )
                 .add_event::<PeerSyncLookTransform>()
@@ -119,10 +122,14 @@ impl Plugin for ControllerPlugin {
         app.add_systems(
             FixedUpdate,
             controller_input
-                .after(InputSet::First)
+                .in_set(InputSet::Cache)
                 .before(UpdateSet::StandardCharacters)
                 .in_set(MainSet::Update)
                 .in_set(ControllerSet::Input),
+        )
+        .configure_sets(
+            FixedUpdate,
+            (InputSet::Prepare, InputSet::Cache, InputSet::ApplyLiveCache).chain(),
         )
         .init_resource::<ControllerCache>()
         .add_event::<InputMovementInput>()

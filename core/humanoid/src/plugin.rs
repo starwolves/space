@@ -3,6 +3,7 @@ use combat::{chat::attacked_by_chat, sfx::health_combat_hit_result_sfx};
 use controller::input::ControllerSet;
 use pawn::camera::LookTransformSet;
 use resources::{
+    input::InputSet,
     modes::is_server_mode,
     sets::{ActionsSet, CombatSet, MainSet, UpdateSet},
 };
@@ -40,6 +41,7 @@ impl Plugin for HumanoidPlugin {
                 .in_set(UpdateSet::StandardCharacters)
                 .in_set(MainSet::Update)
                 .after(ControllerSet::Input)
+                .after(InputSet::ApplyLiveCache)
                 .after(LookTransformSet::Sync),
         );
     }
