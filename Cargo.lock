@@ -1439,6 +1439,7 @@ version = "0.7.0"
 dependencies = [
  "approx",
  "bevy",
+ "bevy_renet",
  "bevy_xpbd_3d",
  "itertools 0.12.0",
  "networking",

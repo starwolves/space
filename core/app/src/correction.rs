@@ -30,17 +30,15 @@ use controller::controller::{ControllerCache, ControllerInput};
 use entity::entity_types::EntityTypeCache;
 use gridmap::grid::{Gridmap, GridmapCache};
 use itertools::Itertools;
-use networking::stamp::TickRateStamp;
+use networking::stamp::{step_tickrate_stamp, TickRateStamp};
 use physics::{
     cache::{Cache, PhysicsCache},
     correction_mode::CorrectionResults,
     entity::{RigidBodies, SFRigidBody},
-    sync::{
-        correction_server_apply_priority_cache, CorrectionServerRigidBodyLink, SimulationStorage,
-    },
+    sync::{CorrectionServerRigidBodyLink, SimulationStorage},
 };
 use resources::{
-    correction::{CorrectionServerSet, StartCorrection, SyncWorld},
+    correction::{CorrectionServerSet, IsCorrecting, StartCorrection},
     modes::is_server,
     physics::{PhysicsSet, PriorityPhysicsCache, PriorityUpdate},
     sets::MainSet,
@@ -82,11 +80,8 @@ impl Plugin for CorrectionServerPlugin {
             FixedUpdate,
             (
                 init_correction_server.in_set(MainSet::PreUpdate),
-                finish_correction.in_set(MainSet::PostUpdate),
-                store_tick_data
-                    .in_set(MainSet::PostPhysics)
-                    .after(correction_server_apply_priority_cache),
-                clear_sync_world.in_set(MainSet::PostUpdate),
+                finish_correction.in_set(MainSet::Fin),
+                store_tick_data.in_set(MainSet::PostPhysics),
                 apply_controller_caches
                     .in_set(MainSet::PreUpdate)
                     .after(CorrectionServerSet::TriggerSync),
@@ -96,16 +91,13 @@ impl Plugin for CorrectionServerPlugin {
             Update,
             server_start_correcting
                 .before(MainSet::PreUpdate)
+                .before(step_tickrate_stamp)
                 .in_set(CorrectionServerSet::TriggerSync),
         )
         .init_resource::<StartCorrection>()
-        .init_resource::<IsCorrecting>()
-        .init_resource::<SyncWorld>();
+        .init_resource::<IsCorrecting>();
     }
 }
-#[derive(Resource, Default)]
-pub struct IsCorrecting(bool);
-
 pub enum ConsoleCommandsSet {
     Input,
     Finalize,
@@ -122,7 +114,7 @@ pub(crate) fn finish_correction(
     mut storage: ResMut<SimulationStorage>,
     link: Res<CorrectionServerRigidBodyLink>,
 ) {
-    if correcting.0 && stamp.large > start.last_tick {
+    if correcting.0 && stamp.large == start.last_tick {
         correcting.0 = false;
 
         let mut new_storage = storage.0.clone();
@@ -148,15 +140,19 @@ pub(crate) fn finish_correction(
             }
         }
 
-        /*info!("=================");
-        info!("finish_correction report:");
-        info!(
-            "first:{} last:{} at stamp: {}",
-            start.start_tick, start.last_tick, stamp.large
-        );
-        for s in new_storage.cache.keys().sorted() {
-            info!("{}", s);
-        }*/
+        for tick in new_storage.cache.keys().sorted() {
+            if *tick > start.last_tick {
+                warn!(
+                    "SimulationStorage contains tick {} greater than last tick {}",
+                    tick, start.last_tick
+                );
+            } else if *tick <= start.start_tick {
+                warn!(
+                    "SimulationStorage contains tick {} less than start tick {}",
+                    tick, start.start_tick
+                );
+            }
+        }
 
         match send
             .sender
@@ -174,17 +170,6 @@ pub(crate) fn finish_correction(
     }
 }
 
-pub(crate) fn clear_sync_world(mut sync: ResMut<SyncWorld>) {
-    if sync.rebuild && !sync.second_tick {
-        sync.second_tick = true;
-    }
-    if !sync.rebuild && sync.second_tick {
-        sync.second_tick = false;
-    }
-
-    sync.rebuild = false;
-}
-
 /// Correction server system.
 /// Messages get created when client spawns in an entity and when new peer input has been received.
 pub(crate) fn server_start_correcting(
@@ -193,7 +178,6 @@ pub(crate) fn server_start_correcting(
     mut fixed: ResMut<Time<Fixed>>,
     mut correction: ResMut<StartCorrection>,
     mut gridmap: ResMut<Gridmap>,
-    mut rebuild: ResMut<SyncWorld>,
     mut stamp: ResMut<TickRateStamp>,
     link: Res<CorrectionServerRigidBodyLink>,
     mut controller_cache: ResMut<ControllerCache>,
@@ -286,18 +270,16 @@ pub(crate) fn server_start_correcting(
                             }
                             new_pcache.insert(*t.0, new_tick_map);
                         }
-                        let mut adjusted_start = start_correction_data.clone();
-                        adjusted_start.start_tick -= 1;
                         *cache = fixed_cache;
                         fixed.set_timestep_seconds(0.000000001);
-                        *correction = adjusted_start.clone();
+                        *correction = start_correction_data.clone();
                         gridmap.updates_cache = gridmap_cache;
 
-                        rebuild.rebuild = true;
-                        rebuild.second_tick = false;
                         *controller_cache = controller_cachec;
                         *look_cache = look_cachec;
-                        *stamp = TickRateStamp::new(adjusted_start.start_tick);
+                        // -1 because this system happens before step_tickrate_stamp system.
+                        // -1 because constructing a physics scene from cache needs an entire frame for itself to initialize.
+                        *stamp = TickRateStamp::new(start_correction_data.start_tick - 2);
                         priority.cache = new_pcache;
                         correcting.0 = true;
                         *entity_type_cache = type_cache;
@@ -421,7 +403,7 @@ pub(crate) fn start_correction(
         warn!("StartCorrection received last tick that is not equal to stamp.large");
     }
     if lowest_start < *previous_lowest_start {
-        warn!("StartCorrection received start tick that is less than previous lowest start.");
+        info!("StartCorrection received start tick that is less than previous lowest start.");
     } else {
         *previous_lowest_start = lowest_start;
     }
@@ -520,7 +502,7 @@ pub(crate) fn store_tick_data(
     type_cache: Res<EntityTypeCache>,
     link: Res<CorrectionServerRigidBodyLink>,
 ) {
-    if !correcting.0 || correction.start_tick == stamp.large {
+    if !correcting.0 || stamp.large <= correction.start_tick {
         return;
     }
     storage.0.cache.insert(stamp.large, HashMap::new());
@@ -684,7 +666,15 @@ pub(crate) fn apply_controller_caches(
     mut query: Query<(Entity, &mut LookTransform, &mut ControllerInput)>,
     stamp: Res<TickRateStamp>,
     link: Res<CorrectionServerRigidBodyLink>,
+    correcting: Res<IsCorrecting>,
+    start: Res<StartCorrection>,
 ) {
+    if !correcting.0 {
+        return;
+    }
+    if stamp.large > start.start_tick {
+        return;
+    }
     for (entity, mut look, mut controller) in query.iter_mut() {
         let client_entity;
         match link.get_client(&entity) {

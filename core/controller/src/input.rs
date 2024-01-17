@@ -301,7 +301,7 @@ pub(crate) fn process_peer_input(
                             )),
                         });
                         new_correction = true;
-                        let e = stamp.calculate_large(message.message.client_stamp);
+                        let e = stamp.calculate_large(message.message.client_stamp) - 1;
                         if e < earliest_tick || earliest_tick == 0 {
                             earliest_tick = e;
                         }
@@ -337,7 +337,7 @@ pub(crate) fn process_peer_input(
                         });
 
                         new_correction = true;
-                        let e = stamp.calculate_large(message.message.client_stamp);
+                        let e = stamp.calculate_large(message.message.client_stamp) - 1;
                         if e < earliest_tick || earliest_tick == 0 {
                             earliest_tick = e;
                         }
@@ -449,12 +449,11 @@ pub(crate) fn process_peer_input(
         for update in updates.iter() {
             match peer_pawns.map.get(&update.peer_handle) {
                 Some(peer) => {
-                    let e = update.client_stamp;
                     let msg = PeerSyncLookTransform {
                         entity: *peer,
                         target: update.update.target,
                         handle: update.peer_handle,
-                        client_stamp: e,
+                        client_stamp: update.client_stamp,
                         position: update.update.position,
                         server_stamp: update.server_stamp,
                     };
@@ -464,8 +463,10 @@ pub(crate) fn process_peer_input(
 
                     new_correction = true;
 
-                    if e < earliest_tick || earliest_tick == 0 {
-                        earliest_tick = e;
+                    let em = update.client_stamp - 1;
+
+                    if em < earliest_tick || earliest_tick == 0 {
+                        earliest_tick = em;
                     }
                     let e = update.server_stamp - 1;
                     if e < earliest_tick || earliest_tick == 0 {

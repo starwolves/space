@@ -33,7 +33,7 @@ use networking::{
     stamp::{PauseTickStep, TickRateStamp},
 };
 use resources::core::TickRate;
-use resources::correction::{StartCorrection, SyncWorld};
+use resources::correction::{IsCorrecting, StartCorrection};
 use resources::grid::TileCollider;
 use resources::modes::AppMode;
 use resources::physics::{PriorityPhysicsCache, PriorityUpdate, SmallCache};
@@ -215,24 +215,13 @@ pub fn init_physics_data(
         ),
         With<SFRigidBody>,
     >,
-    sync: Res<SyncWorld>,
     cache: Res<PhysicsCache>,
     mut commands: Commands,
     link: Res<CorrectionServerRigidBodyLink>,
-    mut skip: Local<bool>,
     stamp: Res<TickRateStamp>,
+    start: Res<StartCorrection>,
 ) {
-    let mut go = false;
-    // Its still first tick, its just in postphysics after clear_sync_world so wait one more tick until entities spawned in.
-    if sync.second_tick {
-        *skip = true;
-        go = true;
-    } else if *skip {
-        *skip = false;
-        go = true;
-    }
-    // Fire in rebuild and second_tick.
-    if go {
+    if stamp.large == start.start_tick {
         match cache.cache.get(&stamp.large) {
             Some(physics_cache) => {
                 for (_, cache) in physics_cache.iter() {
@@ -343,12 +332,12 @@ pub(crate) fn sync_correction_world_entities(
     mut rigid_bodies: ResMut<RigidBodies>,
     app_mode: Res<AppMode>,
     mut link: ResMut<CorrectionServerRigidBodyLink>,
-    correction: Res<StartCorrection>,
     mut event: EventWriter<SpawningSimulationRigidBody>,
     stamp: Res<TickRateStamp>,
+    correcting: Res<IsCorrecting>,
 ) {
     let cache_tick = stamp.large;
-    if stamp.large >= correction.last_tick {
+    if !correcting.0 {
         return;
     }
 
@@ -712,10 +701,10 @@ pub fn correction_server_apply_priority_cache(
         With<SFRigidBody>,
     >,
     stamp: Res<TickRateStamp>,
-    sync: Res<SyncWorld>,
     link: Res<CorrectionServerRigidBodyLink>,
+    start: Res<StartCorrection>,
 ) {
-    if sync.rebuild {
+    if stamp.large <= start.start_tick {
         return;
     }
     let mut adjusted_stamp = stamp.large;

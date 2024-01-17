@@ -40,6 +40,7 @@ impl Plugin for ResourcesPlugin {
             PhysicsSet::Prepare,
             PhysicsSet::Sync,
             MainSet::PostPhysics,
+            MainSet::Fin,
         );
         app.configure_sets(FixedUpdate, sets.clone().chain())
             .configure_sets(

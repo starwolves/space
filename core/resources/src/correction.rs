@@ -13,12 +13,6 @@ pub enum CorrectionSet {
     Start,
 }
 
-#[derive(Resource, Default, Debug)]
-pub struct SyncWorld {
-    pub rebuild: bool,
-    pub second_tick: bool,
-}
-
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
 pub enum CorrectionServerSet {
     TriggerSync,
@@ -26,3 +20,6 @@ pub enum CorrectionServerSet {
 }
 
 pub const MAX_CACHE_TICKS_AMNT: u64 = 256;
+
+#[derive(Resource, Default)]
+pub struct IsCorrecting(pub bool);

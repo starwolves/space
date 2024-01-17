@@ -73,4 +73,5 @@ pub enum MainSet {
     Update,
     PostUpdate,
     PostPhysics,
+    Fin,
 }
