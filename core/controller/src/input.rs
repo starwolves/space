@@ -491,7 +491,7 @@ pub(crate) fn process_peer_input(
             start_tick: earliest_tick,
             last_tick: stamp.large,
         });
-        //info!("Correcting {}-{}", earliest_tick, stamp.large);
+        //info!("Sending StartCorrection {}-{}", earliest_tick, stamp.large);
     }
     // Clean cache.
     for (_, cache) in look_update_queue.iter_mut() {
@@ -848,9 +848,11 @@ pub(crate) fn controller_input(
                         if client_stamp == stampres.large {
                             look_transform.target = look_target;
                             *player_input_component = processed_input.clone();
+                            info!("perfect peer client stamp.");
                         }
                         if server_stamp == stampres.large {
                             transform.translation = position;
+                            info!("perfect peer server stamp.");
                         }
                         match cache.cache.get_mut(&adjusted_stamp) {
                             Some(map) => match map.get_mut(&player_entity) {

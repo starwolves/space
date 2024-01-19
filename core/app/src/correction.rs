@@ -55,9 +55,9 @@ impl Plugin for CorrectionPlugin {
                 FixedUpdate,
                 (
                     start_correction
-                        .after(MainSet::PostUpdate)
-                        .before(receive_correction_server_messages)
-                        .after(PhysicsSet::Cache),
+                        .in_set(MainSet::PostPhysics)
+                        .after(PhysicsSet::CacheNewSpawns)
+                        .before(receive_correction_server_messages),
                     receive_correction_server_messages.in_set(MainSet::PostPhysics),
                     apply_correction_results
                         .after(receive_correction_server_messages)
@@ -645,7 +645,7 @@ pub(crate) fn apply_correction_results(
                             }
                         }
                         Err(_rr) => {
-                            //warn!("Couldnt find entity: {:?}", cache.rb_entity);
+                            warn!("Couldnt find entity: {:?}", cache.rb_entity);
                         }
                     }
                 }
@@ -672,7 +672,7 @@ pub(crate) fn apply_controller_caches(
     if !correcting.0 {
         return;
     }
-    if stamp.large > start.start_tick {
+    if stamp.large <= start.start_tick {
         return;
     }
     for (entity, mut look, mut controller) in query.iter_mut() {
@@ -719,6 +719,10 @@ pub(crate) fn apply_controller_caches(
         match controller_t {
             Some(controller_t) => {
                 *controller = controller_t.clone();
+                /*info!(
+                    "Setting {:?} {:?} at {} start {:?}",
+                    client_entity, controller, stamp.large, start
+                );*/
             }
             None => {
                 //warn!("No available controller cache.");

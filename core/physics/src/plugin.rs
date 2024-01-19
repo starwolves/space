@@ -15,8 +15,8 @@ use resources::{
 
 use crate::{
     cache::{
-        cache_data, cache_data_newly_spawned, clear_priority_cache, sync_entities, PhysicsCache,
-        SyncEntitiesPhysics,
+        apply_newly_spawned_data, cache_data, cache_data_second, clear_priority_cache,
+        sync_entities, PhysicsCache, SyncEntitiesPhysics,
     },
     correction_mode::CorrectionResults,
     entity::{
@@ -62,9 +62,7 @@ impl Plugin for PhysicsPlugin {
                             .in_set(MainSet::Update)
                             .before(SpawningSimulation::Spawn),
                         init_physics_data.in_set(MainSet::PostPhysics),
-                        correction_server_apply_priority_cache
-                            .in_set(MainSet::PreUpdate)
-                            .after(cache_data),
+                        correction_server_apply_priority_cache.in_set(MainSet::PreUpdate),
                     ),
                 )
                 .init_resource::<CorrectionServerRigidBodyLink>()
@@ -79,9 +77,12 @@ impl Plugin for PhysicsPlugin {
                         .in_set(MainSet::PostPhysics)
                         .after(PhysicsSet::Correct),
                     cache_data.in_set(MainSet::PreUpdate),
-                    cache_data_newly_spawned
-                        .after(cache_data)
-                        .in_set(MainSet::PreUpdate),
+                    cache_data_second
+                        .in_set(MainSet::PostPhysics)
+                        .before(PhysicsSet::CacheNewSpawns),
+                    apply_newly_spawned_data
+                        .in_set(MainSet::PostPhysics)
+                        .in_set(PhysicsSet::CacheNewSpawns),
                     desync_check_correction
                         .run_if(resource_exists::<RenetClient>())
                         .in_set(MainSet::Update)

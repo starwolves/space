@@ -158,27 +158,23 @@ pub fn load_entity<T: Send + Sync + 'static + Default + EntityType>(
                     }
 
                     if compare_tick != stamp.large {
-                        new.list
-                            .push((adjusted_tick, c_id, priority_update.clone()));
+                        new.list.push((compare_tick, c_id, priority_update.clone()));
                         correction.send(StartCorrection {
                             start_tick: adjusted_tick,
                             last_tick: stamp.large,
                         });
-                        info!(
-                            "Loading entity {:?} adjusted_tick {} at tick {}",
-                            c_id, adjusted_tick, stamp.large
-                        );
+                        info!("Loading entity {:?} at tick {}", c_id, stamp.large);
                     } else {
                         info!("Perfect load entity sync.");
                     }
-                    /*match priority.cache.get_mut(&adjusted_tick) {
+                    /*match priority.cache.get_mut(&compare_tick) {
                         Some(priority_cache) => {
                             priority_cache.insert(c_id, priority_update);
                         }
                         None => {
                             let mut map = HashMap::new();
                             map.insert(c_id, priority_update);
-                            priority.cache.insert(adjusted_tick, map);
+                            priority.cache.insert(compare_tick, map);
                         }
                     }*/
                 }
