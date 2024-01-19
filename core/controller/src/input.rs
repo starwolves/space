@@ -384,7 +384,7 @@ pub(crate) fn process_peer_input(
         }
     }
 
-    let latency_in_ticks = ((client.rtt() as f32 / (1. / tickrate.fixed_rate as f32)) * 2.)
+    let latency_in_ticks = (client.rtt() as f32 / (1. / tickrate.fixed_rate as f32))
         .round()
         .clamp(MIN_LATENCY * 2., f32::MAX) as u64;
     let desired_tick = stamp.large - latency_in_ticks;
