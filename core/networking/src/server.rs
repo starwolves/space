@@ -555,7 +555,7 @@ pub struct AdjustSync {
     pub tick: i16,
 }
 
-const MIN_REQUIRED_MESSAGES_FOR_ADJUSTMENT: i32 = 8;
+const MIN_REQUIRED_MESSAGES_FOR_ADJUSTMENT: i32 = 15;
 // In ticks.
 pub const MIN_LATENCY: f32 = 2.;
 // In ticks.

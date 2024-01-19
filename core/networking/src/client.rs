@@ -765,42 +765,25 @@ pub struct TotalAdjustment {
     pub latency: i16,
 }
 use crate::server::NetworkingServerMessage;
-#[derive(Resource, Default)]
-pub(crate) struct SyncClient((bool, u8));
 
-pub(crate) fn sync_frequency(mut first: ResMut<SyncClient>) {
-    first.0 .0 = true;
-}
-pub(crate) const NEW_SYNC_FREQUENCY: f32 = 0.1;
-const TEST_MESSAGES_AMOUNT: u8 = 2;
-// Waits this amount of ticks per sync message send.
+// Waits this amount of ticks per sync message send at 60hz.
 const TEST_MESSAGES_FREQUENCY: f32 = 4.;
 
-pub(crate) fn sync_test_client(
-    mut first: ResMut<SyncClient>,
+pub(crate) fn sync_check_client(
     mut net: EventWriter<OutgoingUnreliableClientMessage<NetworkingUnreliableClientMessage>>,
     mut skip: Local<u8>,
     rate: Res<TickRate>,
 ) {
-    if first.0 .0 {
-        if *skip == u8::MAX {
-            *skip = 0;
-        } else {
-            *skip += 1;
-        }
-        if *skip > (TEST_MESSAGES_FREQUENCY * (rate.fixed_rate as f32 / 60.)).round() as u8 {
-            first.0 .1 += 1;
-
-            if first.0 .1 > TEST_MESSAGES_AMOUNT {
-                first.0 .0 = false;
-                first.0 .1 = 0;
-            } else {
-                net.send(OutgoingUnreliableClientMessage {
-                    message: NetworkingUnreliableClientMessage::HeartBeat,
-                });
-            }
-            *skip = 0;
-        }
+    if *skip == u8::MAX {
+        *skip = 0;
+    } else {
+        *skip += 1;
+    }
+    if *skip > (TEST_MESSAGES_FREQUENCY * (rate.fixed_rate as f32 / 60.)).round() as u8 {
+        net.send(OutgoingUnreliableClientMessage {
+            message: NetworkingUnreliableClientMessage::HeartBeat,
+        });
+        *skip = 0;
     }
 }
 
