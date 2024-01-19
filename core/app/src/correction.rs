@@ -542,6 +542,14 @@ pub(crate) fn store_tick_data(
                 continue;
             }
         }
+        match tick_cache.get(&rb_entity) {
+            Some(x) => {
+                if x.spawn_frame {
+                    continue;
+                }
+            }
+            None => {}
+        }
         tick_cache.insert(
             rb_entity,
             Cache {

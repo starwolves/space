@@ -425,7 +425,7 @@ pub(crate) fn sync_correction_world_entities(
                         break;
                     }
                 }
-                if !found {
+                if !found || ncache.spawn_frame {
                     spawns.push((client_entity, ncache.clone()));
                 }
             }
@@ -596,6 +596,9 @@ pub(crate) fn desync_check_correction(
                             Some(entity) => {
                                 for (_, c) in physics_cache.iter_mut() {
                                     if c.entity == *entity {
+                                        if c.spawn_frame {
+                                            break;
+                                        }
                                         c.angular_velocity = AngularVelocity(s.angular_velocity);
                                         c.linear_velocity = LinearVelocity(s.linear_velocity);
                                         c.transform = Transform {

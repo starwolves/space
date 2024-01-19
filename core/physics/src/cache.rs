@@ -225,6 +225,14 @@ pub(crate) fn cache_data_second(
 
         match cache.cache.get_mut(&adjusted_stamp) {
             Some(c) => {
+                match c.get(&ncache.entity) {
+                    Some(x) => {
+                        if x.spawn_frame {
+                            continue;
+                        }
+                    }
+                    None => {}
+                }
                 c.insert(ncache.entity, ncache);
             }
             None => {
@@ -349,6 +357,14 @@ pub(crate) fn cache_data(
 
         match cache.cache.get_mut(&adjusted_stamp) {
             Some(c) => {
+                match c.get(&ncache.entity) {
+                    Some(x) => {
+                        if x.spawn_frame {
+                            continue;
+                        }
+                    }
+                    None => {}
+                }
                 c.insert(ncache.entity, ncache);
             }
             None => {
