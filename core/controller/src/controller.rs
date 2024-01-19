@@ -33,6 +33,7 @@ impl Default for ControllerInput {
         }
     }
 }
+
 #[derive(Resource, Default, Clone)]
 pub struct ControllerCache {
     pub cache: HashMap<Entity, HashMap<u64, ControllerInput>>,

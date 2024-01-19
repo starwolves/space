@@ -8,3 +8,4 @@ crates/*/target
 rust-toolchain.toml
 /data/settings/*
 token.json
+Cargo.lock

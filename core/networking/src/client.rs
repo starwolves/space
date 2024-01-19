@@ -88,7 +88,7 @@ pub fn token_assign_server(
                     format!("https://store.starwolves.io/token_assign_server"),
                     encoded.into_bytes(),
                 );
-                post.headers = ehttp::headers(&[
+                post.headers = ehttp::Headers::new(&[
                     ("Accept", "*/*"),
                     (
                         "Content-Type",

@@ -9,7 +9,7 @@ edition = "2021"
 license = "MIT"
 
 [dependencies.bevy]
-version = "0.12"
+version = "0.12.1"
 
 default-features = false
 
@@ -17,8 +17,6 @@ default-features = false
 approx = "0.5.1"
 serde = "1.0.177"
 itertools = "0.12.0"
-bevy_xpbd_3d = { version = "0.3.2" , features = ["enhanced-determinism"]}
-bevy_renet = { version = "0.0.10", git = "https://github.com/starwolfy/renet.git"}
 
 resources = { path = "../resources" }
 networking = { path = "../networking" }

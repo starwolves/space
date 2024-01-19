@@ -148,7 +148,7 @@ pub(crate) fn server_events(
                             format!("https://store.starwolves.io/server_token_verify"),
                             encoded.into_bytes(),
                         );
-                        post.headers = ehttp::headers(&[
+                        post.headers = ehttp::Headers::new(&[
                             ("Accept", "*/*"),
                             (
                                 "Content-Type",

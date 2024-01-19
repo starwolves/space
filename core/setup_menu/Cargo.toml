@@ -12,7 +12,7 @@ edition = "2021"
 
 
 [dependencies.bevy]
-version = "0.12"
+version = "0.12.1"
 
 default-features = false
 
@@ -25,4 +25,3 @@ networking = { path = "../networking" }
 resources = { path = "../resources" }
 player = { path = "../player" }
 motd = { path = "../motd" }
-controller = { path = "../controller" }
