@@ -2,6 +2,7 @@ use std::{
     collections::HashMap,
     sync::mpsc::{self, Receiver, SyncSender},
     thread::JoinHandle,
+    time::Instant,
 };
 
 use bevy::{
@@ -204,6 +205,7 @@ pub(crate) fn server_start_correcting(
                     ) => {
                         let mut fixed_cache = new_cache.clone();
 
+                        // Gets laggy with many entities.
                         for t in fixed_cache.cache.iter_mut() {
                             for (_, cache) in t.1.iter_mut() {
                                 let mut found: bool = false;
@@ -222,6 +224,8 @@ pub(crate) fn server_start_correcting(
                                 }
                             }
                         }
+                        // End laggy.
+
                         let mut new_pcache = HashMap::new();
                         for t in priorityc.cache.iter() {
                             let mut new_tick_map = HashMap::new();
