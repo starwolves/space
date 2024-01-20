@@ -4,7 +4,7 @@ use controller::input::ControllerSet;
 use pawn::camera::LookTransformSet;
 use resources::{
     input::InputSet,
-    modes::is_server_mode,
+    modes::{is_correction_mode, is_server_mode},
     sets::{ActionsSet, CombatSet, MainSet, UpdateSet},
 };
 
@@ -17,23 +17,16 @@ pub struct HumanoidPlugin;
 
 impl Plugin for HumanoidPlugin {
     fn build(&self, app: &mut App) {
-        if is_server_mode(app) {
-            app /*.add_system(
-                    humanoid_core
-                        .label(UpdateLabels::StandardCharacters)
-                        .label(CombatLabels::RegisterAttacks)
-                        .after(UpdateLabels::ProcessMovementInput),
-                )*/
-                .add_systems(
-                    FixedUpdate,
-                    (
-                        examine_entity.after(ActionsSet::Action),
-                        health_combat_hit_result_sfx::<Humanoid>
-                            .after(CombatSet::FinalizeApplyDamage),
-                        attacked_by_chat::<Humanoid>.after(CombatSet::Query),
-                    )
-                        .in_set(MainSet::Update),
-                );
+        if is_server_mode(app) && !is_correction_mode(app) {
+            app.add_systems(
+                FixedUpdate,
+                (
+                    examine_entity.after(ActionsSet::Action),
+                    health_combat_hit_result_sfx::<Humanoid>.after(CombatSet::FinalizeApplyDamage),
+                    attacked_by_chat::<Humanoid>.after(CombatSet::Query),
+                )
+                    .in_set(MainSet::Update),
+            );
         }
         app.add_systems(
             FixedUpdate,

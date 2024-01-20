@@ -86,9 +86,12 @@ impl Plugin for EntityPlugin {
                 .init_resource::<QueuedSpawnEntityUpdates>()
                 .init_resource::<NewToBeCachedSpawnedEntities>();
         }
-        if !is_server_mode(app) || is_correction_mode(app) {
+        if !is_server_mode(app) {
             app.init_resource::<EntityTypeCache>()
                 .add_systems(FixedUpdate, clean_entity_type_cache.in_set(MainSet::Update));
+        }
+        if is_correction_mode(app) {
+            app.init_resource::<EntityTypeCache>();
         }
 
         if !is_correction_mode(app) {

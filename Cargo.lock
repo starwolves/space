@@ -229,6 +229,7 @@ dependencies = [
  "basic_console_commands",
  "bevy",
  "bevy_egui",
+ "bevy_renet",
  "bevy_xpbd_3d",
  "cameras",
  "chat",

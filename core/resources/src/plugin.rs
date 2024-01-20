@@ -1,9 +1,4 @@
-use bevy::{
-    prelude::{App, FixedUpdate, IntoSystemConfigs, IntoSystemSetConfigs, Plugin, Update},
-    transform::TransformSystem,
-};
-use bevy_renet::{RenetReceive, RenetSend};
-use bevy_xpbd_3d::PhysicsSet;
+use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, Update};
 
 use crate::{
     correction::StartCorrection,
@@ -31,21 +26,5 @@ impl Plugin for ResourcesPlugin {
                 .init_resource::<MainMenuState>()
                 .add_event::<StartCorrection>();
         }
-        let sets = (
-            RenetReceive,
-            MainSet::PreUpdate,
-            MainSet::Update,
-            MainSet::PostUpdate,
-            RenetSend,
-            PhysicsSet::Prepare,
-            PhysicsSet::Sync,
-            MainSet::PostPhysics,
-            MainSet::Fin,
-        );
-        app.configure_sets(FixedUpdate, sets.clone().chain())
-            .configure_sets(
-                Update,
-                sets.chain().before(TransformSystem::TransformPropagate),
-            );
     }
 }

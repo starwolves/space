@@ -8,8 +8,11 @@ use airlocks::plugin::AirLocksPlugin;
 use asana::plugin::AsanaPlugin;
 use ball::plugin::BallPlugin;
 use basic_console_commands::plugin::BasicConsoleCommandsPlugin;
+use bevy::app::FixedUpdate;
 use bevy::app::ScheduleRunnerPlugin;
+use bevy::app::Update;
 use bevy::diagnostic::DiagnosticsPlugin;
+use bevy::ecs::schedule::IntoSystemSetConfigs;
 use bevy::log::info;
 use bevy::log::LogPlugin;
 use bevy::prelude::App;
@@ -31,6 +34,7 @@ use bevy::time::Fixed;
 use bevy::time::Time;
 use bevy::time::TimePlugin;
 use bevy::transform::TransformPlugin;
+use bevy::transform::TransformSystem;
 use bevy::window::PresentMode;
 use bevy::window::Window;
 use bevy::window::WindowMode;
@@ -40,7 +44,10 @@ use bevy::winit::UpdateMode;
 use bevy::winit::WinitSettings;
 use bevy::DefaultPlugins;
 use bevy_egui::EguiPlugin;
+use bevy_renet::RenetReceive;
+use bevy_renet::RenetSend;
 use bevy_xpbd_3d::prelude::Physics;
+use bevy_xpbd_3d::PhysicsSet;
 use cameras::controllers::fps::FpsCameraPlugin;
 use cameras::LookTransformPlugin;
 use chat::plugin::ChatPlugin;
@@ -84,6 +91,7 @@ use resources::modes::is_server;
 use resources::modes::is_server_mode;
 use resources::modes::AppMode;
 use resources::plugin::ResourcesPlugin;
+use resources::sets::MainSet;
 use resources::sets::StartupSet;
 use setup_menu::plugin::SetupMenuPlugin;
 use sfx::plugin::SfxPlugin;
@@ -203,13 +211,31 @@ pub(crate) fn start_app(mode: Mode) {
         })
         .add_plugins(FpsCameraPlugin::default());
     }
+
+    let sets = (
+        RenetReceive,
+        MainSet::PreUpdate,
+        MainSet::Update,
+        MainSet::PostUpdate,
+        RenetSend,
+        PhysicsSet::Prepare,
+        PhysicsSet::Sync,
+        MainSet::PostPhysics,
+        MainSet::Fin,
+    );
+    app.configure_sets(FixedUpdate, sets.clone().chain())
+        .configure_sets(
+            Update,
+            sets.chain().before(TransformSystem::TransformPropagate),
+        );
+
     app.add_plugins(ResourcesPlugin)
-        .add_plugins(PawnPlugin)
         .add_plugins(PhysicsPlugin)
         .add_plugins(EntityPlugin)
         .add_plugins(NetworkingPlugin)
         .add_plugins(GridmapPlugin)
         .add_plugins(ControllerPlugin)
+        .add_plugins(HumanoidPlugin)
         .insert_resource(Time::<Fixed>::from_hz(
             TickRate::default().fixed_rate as f64,
         ))
@@ -218,13 +244,15 @@ pub(crate) fn start_app(mode: Mode) {
         )))
         .init_resource::<TickRate>()
         .add_plugins(MetadataPlugin)
-        .add_plugins(LookTransformPlugin);
+        .add_plugins(LookTransformPlugin)
+        .add_plugins(HumanMalePlugin);
 
     if is_correction_mode(&mut app) {
         app.add_plugins(CorrectionServerPlugin);
     }
     if !is_correction_mode(&mut app) {
         app.add_plugins(ActionsPlugin)
+            .add_plugins(PawnPlugin)
             .add_plugins(PlayerPlugin)
             .add_plugins(ConstructionToolAdminPlugin)
             .add_plugins(AirLocksPlugin)
@@ -232,8 +260,6 @@ pub(crate) fn start_app(mode: Mode) {
             .add_plugins(InventoryPlugin)
             .add_plugins(TokenPlugin)
             .add_plugins(AsanaPlugin)
-            .add_plugins(HumanoidPlugin)
-            .add_plugins(HumanMalePlugin)
             .add_plugins(SfxPlugin)
             .add_plugins(ComputersPlugin)
             .add_plugins(MapPlugin)

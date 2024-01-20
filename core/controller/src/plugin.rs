@@ -114,7 +114,10 @@ impl Plugin for ControllerPlugin {
                 .init_resource::<LastPeerLookTransform>()
                 .init_resource::<PeerInputCache>();
         }
-
+        app.configure_sets(
+            FixedUpdate,
+            (InputSet::Prepare, InputSet::Cache, InputSet::ApplyLiveCache).chain(),
+        );
         if !is_correction_mode(app) {
             app.add_systems(
                 FixedUpdate,
@@ -123,10 +126,6 @@ impl Plugin for ControllerPlugin {
                     .before(UpdateSet::StandardCharacters)
                     .in_set(MainSet::Update)
                     .in_set(ControllerSet::Input),
-            )
-            .configure_sets(
-                FixedUpdate,
-                (InputSet::Prepare, InputSet::Cache, InputSet::ApplyLiveCache).chain(),
             )
             .add_event::<InputMovementInput>()
             .add_event::<SyncControllerInput>();

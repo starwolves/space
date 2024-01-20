@@ -29,7 +29,7 @@ pub struct HumanMalePlugin;
 
 impl Plugin for HumanMalePlugin {
     fn build(&self, app: &mut App) {
-        if is_server_mode(app) {
+        if is_server_mode(app) && !is_correction_mode(app) {
             app.add_systems(
                 FixedUpdate,
                 (
@@ -47,7 +47,8 @@ impl Plugin for HumanMalePlugin {
                     .in_set(BuildingSet::TriggerBuild)
                     .in_set(MainSet::Update),
             );
-        } else {
+        }
+        if !is_server_mode(app) {
             app.add_systems(
                 FixedUpdate,
                 (
@@ -70,28 +71,29 @@ impl Plugin for HumanMalePlugin {
                     .in_set(SpawningSimulation::Spawn)
                     .in_set(MainSet::Update),
             );
-        }
-        register_entity_type::<HumanMaleType>(app);
-        register_basic_console_commands_for_type::<HumanMaleType>(app);
-        app.add_systems(
-            FixedUpdate,
-            (
-                build_human_males
-                    .after(SpawnItemSet::SpawnHeldItem)
-                    .in_set(BuildingSet::NormalBuild),
-                (build_base_human_males::<HumanMaleType>).after(SpawnItemSet::SpawnHeldItem),
-                (build_rigid_bodies::<HumanMaleType>).after(SpawnItemSet::SpawnHeldItem),
-                spawn_held_item::<ConstructionToolType>
-                    .in_set(SpawnItemSet::SpawnHeldItem)
-                    .after(BuildingSet::TriggerBuild),
+        } else {
+            register_entity_type::<HumanMaleType>(app);
+            register_basic_console_commands_for_type::<HumanMaleType>(app);
+            app.add_systems(
+                FixedUpdate,
+                (
+                    build_human_males
+                        .after(SpawnItemSet::SpawnHeldItem)
+                        .in_set(BuildingSet::NormalBuild),
+                    (build_base_human_males::<HumanMaleType>).after(SpawnItemSet::SpawnHeldItem),
+                    (build_rigid_bodies::<HumanMaleType>).after(SpawnItemSet::SpawnHeldItem),
+                    spawn_held_item::<ConstructionToolType>
+                        .in_set(SpawnItemSet::SpawnHeldItem)
+                        .after(BuildingSet::TriggerBuild),
+                )
+                    .in_set(MainSet::Update),
             )
-                .in_set(MainSet::Update),
-        )
-        .add_systems(
-            FixedUpdate,
-            (process_add_item_slot_buffer, process_add_slot_buffer).in_set(MainSet::PreUpdate),
-        )
-        .init_resource::<AddItemToSlotBuffer>()
-        .init_resource::<AddSlotBuffer>();
+            .add_systems(
+                FixedUpdate,
+                (process_add_item_slot_buffer, process_add_slot_buffer).in_set(MainSet::PreUpdate),
+            )
+            .init_resource::<AddItemToSlotBuffer>()
+            .init_resource::<AddSlotBuffer>();
+        }
     }
 }
