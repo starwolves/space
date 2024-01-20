@@ -494,6 +494,8 @@ pub(crate) fn sync_correction_world_entities(
     }
 }
 pub const DESYNC_FREQUENCY: f32 = 4.;
+pub const HIGH_ENTITIES_AMOUNT: usize = 256;
+pub const MID_ENTITIES_AMOUNT: usize = 128;
 #[derive(Component)]
 pub struct DisableSync;
 /// Send low frequency rigidbody data to clients for transform and velocities desync checks.
@@ -506,10 +508,20 @@ pub(crate) fn send_desync_check(
     mut local: Local<u8>,
     rate: Res<TickRate>,
     handle_to_entity: Res<HandleToEntity>,
+    mut second: Local<bool>,
+    mut single: Local<(bool, u8)>,
 ) {
     *local += 1;
     if *local as f32 >= rate.fixed_rate as f32 / DESYNC_FREQUENCY {
+        single.0 = false;
         *local = 0;
+        *second = !*second;
+        if single.1 > DESYNC_FREQUENCY as u8 {
+            single.1 = 0;
+            single.0 = true;
+        } else {
+            single.1 += 1;
+        }
     } else {
         return;
     }
@@ -524,6 +536,7 @@ pub(crate) fn send_desync_check(
                 continue;
             }
         }
+
         let mut small_cache = vec![];
         for (rb_entity, transform, linear_velocity, angular_velocity) in query.iter() {
             match rigid_bodies.get_rigidbody_entity(&rb_entity) {
@@ -541,6 +554,7 @@ pub(crate) fn send_desync_check(
                     if disabled.is_some() && *entity != player_entity {
                         continue;
                     }
+
                     small_cache.push(SmallCache {
                         entity: *entity,
                         linear_velocity: linear_velocity.0,
@@ -554,7 +568,17 @@ pub(crate) fn send_desync_check(
                 }
             }
         }
-        if small_cache.len() > 0 {
+        let l = small_cache.len();
+        if l > HIGH_ENTITIES_AMOUNT {
+            if !single.0 {
+                continue;
+            }
+        } else if l > MID_ENTITIES_AMOUNT {
+            if !*second {
+                continue;
+            }
+        }
+        if l > 0 {
             if connected_player.connected {
                 net.send(OutgoingUnreliableServerMessage {
                     message: PhysicsUnreliableServerMessage::DesyncCheck(small_cache.clone()),
