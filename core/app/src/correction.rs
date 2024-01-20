@@ -110,7 +110,6 @@ pub(crate) fn finish_correction(
     mut correcting: ResMut<IsCorrecting>,
     start: Res<StartCorrection>,
     send: Res<CorrectionServerSendMessage>,
-    mut fixed: ResMut<Time<Fixed>>,
     mut storage: ResMut<SimulationStorage>,
     link: Res<CorrectionServerRigidBodyLink>,
 ) {
@@ -160,7 +159,6 @@ pub(crate) fn finish_correction(
                 data: new_storage,
             })) {
             Ok(_) => {
-                fixed.set_timestep_seconds(IDLE_LOOP_TIME);
                 storage.0 = PhysicsCache::default();
             }
             Err(_) => {
@@ -297,14 +295,12 @@ pub(crate) fn server_start_correcting(world: &mut World) {
                 gridmap.updates_cache = gridmap_cache;
             })();
 
-            let adjusted_start = || -> u64 {
+            (|| {
                 let mut stamp = world.get_resource_mut::<TickRateStamp>().unwrap();
                 // -1 because this system happens before step_tickrate_stamp system.
                 // -1 because constructing a physics scene from cache needs an entire frame for itself to initialize.
-                let adj = start_correction_data.start_tick - 2;
-                *stamp = TickRateStamp::new(adj);
-                adj
-            }();
+                *stamp = TickRateStamp::new(start_correction_data.start_tick - 2);
+            })();
 
             (|| {
                 let mut controller_cache = world.get_resource_mut::<ControllerCache>().unwrap();
@@ -333,7 +329,7 @@ pub(crate) fn server_start_correcting(world: &mut World) {
                 *entity_type_cache = type_cache;
             })();
 
-            for _ in adjusted_start..start_correction_data.last_tick {
+            for _ in start_correction_data.start_tick - 1..start_correction_data.last_tick + 1 {
                 world.run_schedule(FixedUpdate);
             }
         }
