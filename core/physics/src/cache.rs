@@ -24,11 +24,7 @@ use crate::entity::{RigidBodies, SFRigidBody};
 pub struct PhysicsCache {
     pub cache: HashMap<u64, HashMap<Entity, Cache>>,
 }
-
-pub(crate) fn clear_caches(
-    mut cache0: ResMut<PriorityPhysicsCache>,
-    mut cache1: ResMut<PhysicsCache>,
-) {
+pub(crate) fn clear_physics_cache(mut cache0: ResMut<PhysicsCache>) {
     // Clean cache.
     if cache0.cache.len() > MAX_CACHE_TICKS_AMNT as usize {
         let mut j = 0;
@@ -40,13 +36,15 @@ pub(crate) fn clear_caches(
             j += 1;
         }
     }
+}
+pub(crate) fn clear_priority_cache(mut cache0: ResMut<PriorityPhysicsCache>) {
     // Clean cache.
-    if cache1.cache.len() > MAX_CACHE_TICKS_AMNT as usize {
+    if cache0.cache.len() > MAX_CACHE_TICKS_AMNT as usize {
         let mut j = 0;
 
-        for i in cache1.cache.clone().keys().sorted().rev() {
+        for i in cache0.cache.clone().keys().sorted().rev() {
             if j >= MAX_CACHE_TICKS_AMNT {
-                cache1.cache.remove(i);
+                cache0.cache.remove(i);
             }
             j += 1;
         }

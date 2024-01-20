@@ -16,6 +16,7 @@ use entity::{
     despawn::DespawnEntity,
     entity_data::{WorldMode, WorldModes},
 };
+use resources::grid::TileCollider;
 use resources::modes::AppMode;
 use resources::{core::TickRate, grid::Tile};
 
@@ -137,7 +138,7 @@ pub(crate) fn remove_rigidbody_links(
 
 pub(crate) fn server_mirror_link_transform(
     mut transforms: Query<&mut Transform, Without<Tile>>,
-    links_query: Query<&WorldMode, (With<RigidBodyLink>, Without<Tile>)>,
+    links_query: Query<&WorldMode, (With<RigidBodyLink>, Without<TileCollider>)>,
     rigidbodies: Res<RigidBodies>,
 ) {
     for (rigidbody, links) in rigidbodies.entity_map.iter() {
@@ -181,7 +182,7 @@ pub struct ResetLerp;
 
 pub(crate) fn client_mirror_link_target_transform(
     transforms: Query<(&Transform, &LinearVelocity), (With<SFRigidBody>, Without<Tile>)>,
-    mut target_transforms: Query<(&mut RigidBodyLink, &WorldMode), Without<Tile>>,
+    mut target_transforms: Query<(&mut RigidBodyLink, &WorldMode), Without<TileCollider>>,
     rigidbodies: Res<RigidBodies>,
     mut reset: EventWriter<ResetLerp>,
     fixed_time: Res<Time<Fixed>>,
@@ -228,7 +229,7 @@ pub(crate) fn client_mirror_link_target_transform(
 }
 
 pub(crate) fn client_interpolate_link_transform(
-    mut query: Query<(&mut Transform, &RigidBodyLink, &WorldMode), Without<Tile>>,
+    mut query: Query<(&mut Transform, &RigidBodyLink, &WorldMode), Without<TileCollider>>,
     rigidbodies: Res<RigidBodies>,
     time: Res<Time>,
     rate: Res<TickRate>,

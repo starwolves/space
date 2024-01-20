@@ -15,8 +15,8 @@ use resources::{
 
 use crate::{
     cache::{
-        apply_newly_spawned_data, cache_data, cache_data_second, clear_caches, sync_entities,
-        PhysicsCache, SyncEntitiesPhysics,
+        apply_newly_spawned_data, cache_data, cache_data_second, clear_physics_cache,
+        clear_priority_cache, sync_entities, PhysicsCache, SyncEntitiesPhysics,
     },
     correction_mode::CorrectionResults,
     entity::{
@@ -113,7 +113,8 @@ impl Plugin for PhysicsPlugin {
                         .in_set(MainSet::PreUpdate)
                         .after(MessagingSet::DeserializeIncoming)
                         .before(sync_loop),
-                    clear_caches.in_set(MainSet::Fin),
+                    clear_priority_cache.in_set(MainSet::Fin),
+                    clear_physics_cache.in_set(MainSet::Fin),
                 ),
             )
             .init_resource::<FastForwarding>()

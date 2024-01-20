@@ -34,7 +34,7 @@ use networking::{
 };
 use resources::core::TickRate;
 use resources::correction::{IsCorrecting, StartCorrection};
-use resources::grid::TileCollider;
+use resources::grid::{Tile, TileCollider};
 use resources::modes::AppMode;
 use resources::physics::{PriorityPhysicsCache, PriorityUpdate, SmallCache};
 use resources::player::SoftPlayer;
@@ -326,7 +326,7 @@ pub struct SimulationStorage(pub PhysicsCache);
 /// Sync entities on the correction server.
 pub(crate) fn sync_correction_world_entities(
     cache: Res<PhysicsCache>,
-    query: Query<Entity, (With<SFRigidBody>, Without<TileCollider>)>,
+    query: Query<Entity, (With<SFRigidBody>, Without<Tile>)>,
     mut despawn: EventWriter<DespawnEntity>,
     mut commands: Commands,
     mut rigid_bodies: ResMut<RigidBodies>,
@@ -499,7 +499,7 @@ pub struct DisableSync;
 /// Send low frequency rigidbody data to clients for transform and velocities desync checks.
 pub(crate) fn send_desync_check(
     query: Query<(Entity, &Transform, &LinearVelocity, &AngularVelocity), With<SFRigidBody>>,
-    pawn_query: Query<Option<&DisableSync>, With<RigidBodyLink>>,
+    pawn_query: Query<Option<&DisableSync>, (With<RigidBodyLink>, Without<TileCollider>)>,
     rigid_bodies: Res<RigidBodies>,
     mut net: EventWriter<OutgoingUnreliableServerMessage<PhysicsUnreliableServerMessage>>,
     players: Query<&ConnectedPlayer, Without<SoftPlayer>>,

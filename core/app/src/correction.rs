@@ -212,26 +212,25 @@ pub(crate) fn server_start_correcting(world: &mut World) {
                 let link = world
                     .get_resource::<CorrectionServerRigidBodyLink>()
                     .unwrap();
-                // Gets laggy with many entities.
                 for t in fixed_cache.cache.iter_mut() {
                     for (_, cache) in t.1.iter_mut() {
                         let mut found: bool = false;
-                        for (client, sims) in link.map.iter() {
-                            for sim in sims.iter() {
-                                if *client == cache.entity {
+                        match link.map.get(&cache.entity) {
+                            Some(sims) => {
+                                for sim in sims {
                                     cache.entity = *sim;
                                     found = true;
 
                                     break;
                                 }
                             }
+                            None => {}
                         }
                         if !found {
                             //warn!("Cache link not found.");
                         }
                     }
                 }
-                // End laggy.
                 link.clone()
             }();
 

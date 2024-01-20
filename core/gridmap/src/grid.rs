@@ -22,7 +22,7 @@ use networking::{
     server::{ConnectedPlayer, OutgoingReliableServerMessage},
 };
 use physics::{
-    entity::{RigidBodies, RigidBodyLink, SFRigidBody},
+    entity::{RigidBodies, RigidBodyLink},
     physics::{get_bit_masks, ColliderGroup},
     rigid_body::STANDARD_BODY_FRICTION,
 };
@@ -1090,7 +1090,6 @@ pub(crate) fn add_tile_collision(
                 friction_component,
                 CollisionLayers::from_bits(masks.0, masks.1),
                 RigidBody::Static,
-                SFRigidBody,
                 TransformBundle::from(world_position),
                 cell_properties.collider.clone(),
                 TileCollider,
