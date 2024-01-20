@@ -35,15 +35,11 @@ use resources::physics::PhysicsSet;
 use resources::sets::{MainSet, UpdateSet};
 
 use super::net::update_player_count;
-
-#[derive(Default)]
-pub struct ControllerPlugin {
-    pub custom_motd: Option<String>,
-}
+pub struct ControllerPlugin;
 
 impl Plugin for ControllerPlugin {
     fn build(&self, app: &mut App) {
-        if is_server_mode(app) {
+        if is_server_mode(app) && !is_correction_mode(app) {
             app.add_systems(
                 FixedUpdate,
                 (
@@ -51,25 +47,24 @@ impl Plugin for ControllerPlugin {
                     connections,
                 )
                     .in_set(MainSet::Update),
-            );
-            if !is_correction_mode(app) {
-                app.add_systems(
-                    FixedUpdate,
+            )
+            .add_systems(
+                FixedUpdate,
+                (
                     (
-                        (
-                            controller_input_entity_update.in_set(EntityUpdatesSet::BuildUpdates),
-                            look_transform_entity_update.in_set(EntityUpdatesSet::BuildUpdates),
-                        )
-                            .in_set(MainSet::PostUpdate),
-                        syncable_entity.in_set(MainSet::Update),
-                    ),
-                )
-                .add_systems(
-                    Update,
-                    peer_replicate_input_messages.in_set(MainSet::Update),
-                )
-                .init_resource::<PeerLatestLookSync>();
-            }
+                        controller_input_entity_update.in_set(EntityUpdatesSet::BuildUpdates),
+                        look_transform_entity_update.in_set(EntityUpdatesSet::BuildUpdates),
+                    )
+                        .in_set(MainSet::PostUpdate),
+                    syncable_entity.in_set(MainSet::Update),
+                ),
+            )
+            .add_systems(
+                Update,
+                peer_replicate_input_messages.in_set(MainSet::Update),
+            )
+            .init_resource::<PeerLatestLookSync>();
+
             app.add_event::<BoardingPlayer>().add_systems(
                 FixedUpdate,
                 incoming_messages
@@ -77,7 +72,8 @@ impl Plugin for ControllerPlugin {
                     .in_set(MainSet::PreUpdate)
                     .after(MessagingSet::DeserializeIncoming),
             );
-        } else {
+        }
+        if !is_server_mode(app) {
             app.add_systems(Startup, create_input_map)
                 .add_systems(
                     FixedUpdate,
@@ -119,27 +115,33 @@ impl Plugin for ControllerPlugin {
                 .init_resource::<PeerInputCache>();
         }
 
-        app.add_systems(
-            FixedUpdate,
-            controller_input
-                .in_set(InputSet::Cache)
-                .before(UpdateSet::StandardCharacters)
-                .in_set(MainSet::Update)
-                .in_set(ControllerSet::Input),
-        )
-        .configure_sets(
-            FixedUpdate,
-            (InputSet::Prepare, InputSet::Cache, InputSet::ApplyLiveCache).chain(),
-        )
-        .init_resource::<ControllerCache>()
-        .add_event::<InputMovementInput>()
-        .add_event::<SyncControllerInput>();
-        register_reliable_message::<ControllerClientMessage>(app, MessageSender::Client, true);
-        register_reliable_message::<PeerReliableControllerMessage>(
-            app,
-            MessageSender::Server,
-            true,
-        );
-        register_unreliable_message::<PeerUnreliableControllerMessage>(app, MessageSender::Server);
+        if !is_correction_mode(app) {
+            app.add_systems(
+                FixedUpdate,
+                controller_input
+                    .in_set(InputSet::Cache)
+                    .before(UpdateSet::StandardCharacters)
+                    .in_set(MainSet::Update)
+                    .in_set(ControllerSet::Input),
+            )
+            .configure_sets(
+                FixedUpdate,
+                (InputSet::Prepare, InputSet::Cache, InputSet::ApplyLiveCache).chain(),
+            )
+            .add_event::<InputMovementInput>()
+            .add_event::<SyncControllerInput>();
+            register_reliable_message::<ControllerClientMessage>(app, MessageSender::Client, true);
+            register_reliable_message::<PeerReliableControllerMessage>(
+                app,
+                MessageSender::Server,
+                true,
+            );
+            register_unreliable_message::<PeerUnreliableControllerMessage>(
+                app,
+                MessageSender::Server,
+            );
+        }
+
+        app.init_resource::<ControllerCache>();
     }
 }

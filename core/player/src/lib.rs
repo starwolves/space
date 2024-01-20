@@ -15,5 +15,3 @@ pub mod names;
 pub mod net;
 /// The Bevy plugin of this crate.
 pub mod plugin;
-/// Map spawn points.
-pub mod spawn_points;

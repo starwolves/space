@@ -1,4 +1,4 @@
-use crate::boarding::{grab_mouse_on_board, player_boarded, PlayerBoarded, SpawnPoints};
+use crate::boarding::{grab_mouse_on_board, player_boarded, PlayerBoarded};
 use crate::configuration::{
     client_receive_pawnid, finished_configuration, server_new_client_configuration, Boarded,
 };
@@ -14,10 +14,8 @@ use crate::{
     connections::{server_events, PlayerAwaitingBoarding},
 };
 use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, SystemSet, Update};
-use cameras::controllers::fps::FpsCameraPlugin;
-use cameras::LookTransformPlugin;
 use networking::messaging::{register_reliable_message, MessageSender};
-use resources::modes::{is_correction_mode, is_server_mode};
+use resources::modes::is_server_mode;
 use resources::sets::MainSet;
 use ui::cursor::CursorSet;
 
@@ -33,44 +31,42 @@ pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         if is_server_mode(app) {
-            if !is_correction_mode(app) {
-                app.add_systems(
-                    FixedUpdate,
-                    (
-                        process_response,
-                        server_events
-                            .after(buffer_server_events)
-                            .before(ConfigurationLabel::SpawnEntity)
-                            .after(process_response),
-                    )
-                        .in_set(MainSet::Update),
-                );
-            }
-            app.add_event::<SendServerConfiguration>()
-                .add_systems(Update, buffer_server_events)
-                .add_systems(FixedUpdate, (clear_buffer.in_set(MainSet::PostUpdate),))
-                .add_systems(
-                    FixedUpdate,
-                    (
-                        done_boarding,
-                        server_new_client_configuration
-                            .in_set(ConfigurationLabel::SpawnEntity)
-                            .before(ConfigurationLabel::Main)
-                            .after(process_response),
-                        finished_configuration
-                            .after(ConfigurationLabel::Main)
-                            .after(process_response),
-                        player_boarded,
-                    )
-                        .in_set(MainSet::Update),
+            app.add_systems(
+                FixedUpdate,
+                (
+                    process_response,
+                    server_events
+                        .after(buffer_server_events)
+                        .before(ConfigurationLabel::SpawnEntity)
+                        .after(process_response),
                 )
-                .init_resource::<AuthidI>()
-                .init_resource::<BoardingAnnouncements>()
-                .add_event::<PlayerAwaitingBoarding>()
-                .init_resource::<Accounts>()
-                .add_event::<PlayerBoarded>()
-                .init_resource::<ServerEventBuffer>()
-                .init_resource::<UsedNames>();
+                    .in_set(MainSet::Update),
+            )
+            .add_event::<SendServerConfiguration>()
+            .add_systems(Update, buffer_server_events)
+            .add_systems(FixedUpdate, (clear_buffer.in_set(MainSet::PostUpdate),))
+            .add_systems(
+                FixedUpdate,
+                (
+                    done_boarding,
+                    server_new_client_configuration
+                        .in_set(ConfigurationLabel::SpawnEntity)
+                        .before(ConfigurationLabel::Main)
+                        .after(process_response),
+                    finished_configuration
+                        .after(ConfigurationLabel::Main)
+                        .after(process_response),
+                    player_boarded,
+                )
+                    .in_set(MainSet::Update),
+            )
+            .init_resource::<AuthidI>()
+            .init_resource::<BoardingAnnouncements>()
+            .add_event::<PlayerAwaitingBoarding>()
+            .init_resource::<Accounts>()
+            .add_event::<PlayerBoarded>()
+            .init_resource::<ServerEventBuffer>()
+            .init_resource::<UsedNames>();
         } else {
             app.add_systems(
                 FixedUpdate,
@@ -81,12 +77,9 @@ impl Plugin for PlayerPlugin {
                 )
                     .in_set(MainSet::Update),
             )
-            .add_plugins(FpsCameraPlugin::default())
             .init_resource::<Boarded>()
             .add_event::<ActivateDebugCamera>();
         }
-        app.init_resource::<SpawnPoints>()
-            .add_plugins(LookTransformPlugin);
         register_reliable_message::<PlayerServerMessage>(app, MessageSender::Server, true);
     }
 }

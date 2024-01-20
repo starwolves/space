@@ -7,7 +7,7 @@ use bevy::{
 use networking::messaging::{register_reliable_message, MessageSender};
 use player::{connections::process_response, plugin::ConfigurationLabel};
 use resources::{
-    modes::is_server_mode,
+    modes::{is_correction_mode, is_server_mode},
     sets::{ActionsSet, BuildingSet, MainSet, StartupSet},
 };
 
@@ -33,8 +33,8 @@ use crate::{
         spawn_group, AddGroup, AddTile, EditTileSet, Gridmap, RemoveTile,
     },
     init::{
-        init_tile_groups, init_tile_properties, load_ron_gridmap, startup_misc_resources,
-        InitTileGroups, InitTileProperties,
+        init_tile_groups, init_tile_properties, load_ron_gridmap, InitTileGroups,
+        InitTileProperties,
     },
     items::{
         bridge_floor::{
@@ -97,7 +97,7 @@ pub struct GridmapPlugin;
 
 impl Plugin for GridmapPlugin {
     fn build(&self, app: &mut App) {
-        if is_server_mode(app) {
+        if is_server_mode(app) && !is_correction_mode(app) {
             app.add_systems(
                 FixedUpdate,
                 (
@@ -132,7 +132,8 @@ impl Plugin for GridmapPlugin {
             )
             .add_event::<InputExamineMap>()
             .init_resource::<GridmapExamineMessages>();
-        } else {
+        }
+        if !is_server_mode(app) {
             app.init_resource::<NewGhostBuffer>()
                 .init_resource::<CellGraphicsBuffer>()
                 .add_systems(Startup, export_debug_map)
@@ -235,7 +236,6 @@ impl Plugin for GridmapPlugin {
                 Startup,
                 (
                     (
-                        startup_misc_resources.in_set(StartupSet::MiscResources),
                         init_tile_properties
                             .in_set(StartupSet::InitDefaultGridmapData)
                             .in_set(BuildingSet::TriggerBuild)

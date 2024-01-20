@@ -65,29 +65,6 @@ pub(crate) fn init_tile_groups(mut gridmap: ResMut<Gridmap>, init_group: Res<Ini
 
     info!("Loaded {} gridmap group types.", groups_ordered.len());
 }
-use player::spawn_points::SpawnPointRon;
-
-/// Initiate other gridmap meta-datas from ron.
-
-pub(crate) fn startup_misc_resources(mut spawn_points_res: ResMut<SpawnPoints>) {
-    let spawnpoints_ron = Path::new("data")
-        .join("maps")
-        .join("bullseye")
-        .join("spawnpoints.ron");
-    let current_map_spawn_points_raw_ron: String =
-        fs::read_to_string(spawnpoints_ron).expect("Error reading map spawnpoints.ron from drive.");
-    let current_map_spawn_points_raw: Vec<SpawnPointRon> =
-        ron::from_str(&current_map_spawn_points_raw_ron)
-            .expect("Error parsing map spawnpoints.ron String.");
-    let mut current_map_spawn_points: Vec<SpawnPoint> = vec![];
-
-    for raw_point in current_map_spawn_points_raw.iter() {
-        current_map_spawn_points.push(SpawnPoint::new(&raw_point.new()));
-    }
-    info!("Loaded {} spawnpoints.", current_map_spawn_points.len());
-    spawn_points_res.list = current_map_spawn_points;
-    spawn_points_res.i = 0;
-}
 
 /// Build the gridmaps in their own resources from ron.
 
@@ -176,7 +153,6 @@ pub(crate) fn load_ron_gridmap(
     info!("Spawned {} map cells.", current_map_main_data.len());
 }
 
-use player::boarding::{SpawnPoint, SpawnPoints};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]

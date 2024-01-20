@@ -41,6 +41,8 @@ use bevy::winit::WinitSettings;
 use bevy::DefaultPlugins;
 use bevy_egui::EguiPlugin;
 use bevy_xpbd_3d::prelude::Physics;
+use cameras::controllers::fps::FpsCameraPlugin;
+use cameras::LookTransformPlugin;
 use chat::plugin::ChatPlugin;
 use combat::plugin::CombatPlugin;
 use computers::plugin::ComputersPlugin;
@@ -198,16 +200,16 @@ pub(crate) fn start_app(mode: Mode) {
         //.add_plugins(LogDiagnosticsPlugin::default())
         .insert_resource(ClientInformation {
             version: APP_VERSION.to_string(),
-        });
+        })
+        .add_plugins(FpsCameraPlugin::default());
     }
-    app.add_plugins(GridmapPlugin)
-        .add_plugins(ResourcesPlugin)
+    app.add_plugins(ResourcesPlugin)
         .add_plugins(PawnPlugin)
-        .add_plugins(EntityPlugin)
         .add_plugins(PhysicsPlugin)
-        .add_plugins(ActionsPlugin)
+        .add_plugins(EntityPlugin)
         .add_plugins(NetworkingPlugin)
-        .add_plugins(ControllerPlugin::default())
+        .add_plugins(GridmapPlugin)
+        .add_plugins(ControllerPlugin)
         .insert_resource(Time::<Fixed>::from_hz(
             TickRate::default().fixed_rate as f64,
         ))
@@ -216,47 +218,51 @@ pub(crate) fn start_app(mode: Mode) {
         )))
         .init_resource::<TickRate>()
         .add_plugins(MetadataPlugin)
-        .add_plugins(PlayerPlugin);
+        .add_plugins(LookTransformPlugin);
 
     if is_correction_mode(&mut app) {
         app.add_plugins(CorrectionServerPlugin);
     }
-    app.add_plugins(ConstructionToolAdminPlugin)
-        .add_plugins(AirLocksPlugin)
-        .add_plugins(CounterWindowsPlugin)
-        .add_plugins(InventoryPlugin)
-        .add_plugins(TokenPlugin)
-        .add_plugins(AsanaPlugin)
-        .add_plugins(HumanoidPlugin)
-        .add_plugins(HumanMalePlugin)
-        .add_plugins(SfxPlugin)
-        .add_plugins(ComputersPlugin)
-        .add_plugins(MapPlugin)
-        .add_plugins(ConsoleCommandsPlugin)
-        .add_plugins(CombatPlugin)
-        .add_plugins(JumpsuitsPlugin)
-        .add_plugins(HelmetsPlugin)
-        .add_plugins(PistolL1Plugin)
-        .add_plugins(LineArrowPlugin)
-        .add_plugins(PointArrowPlugin)
-        .add_plugins(SoundsPlugin)
-        .add_plugins(ChatPlugin)
-        .add_plugins(UiPlugin)
-        .add_plugins(SetupMenuPlugin)
-        .add_plugins(PointLightPlugin)
-        .add_plugins(BallPlugin)
-        .add_plugins(BasicConsoleCommandsPlugin {
-            give_all_rcon: true,
-        })
-        .add_systems(
-            Startup,
-            live.in_set(StartupSet::ServerIsLive)
-                .after(StartupSet::InitAtmospherics),
-        )
-        .insert_resource(MOTD::new_default(APP_VERSION.to_string()))
-        .add_plugins(MainMenuPlugin)
-        .add_plugins(EscapeMenuPlugin)
-        .add_plugins(HudPlugin);
+    if !is_correction_mode(&mut app) {
+        app.add_plugins(ActionsPlugin)
+            .add_plugins(PlayerPlugin)
+            .add_plugins(ConstructionToolAdminPlugin)
+            .add_plugins(AirLocksPlugin)
+            .add_plugins(CounterWindowsPlugin)
+            .add_plugins(InventoryPlugin)
+            .add_plugins(TokenPlugin)
+            .add_plugins(AsanaPlugin)
+            .add_plugins(HumanoidPlugin)
+            .add_plugins(HumanMalePlugin)
+            .add_plugins(SfxPlugin)
+            .add_plugins(ComputersPlugin)
+            .add_plugins(MapPlugin)
+            .add_plugins(ConsoleCommandsPlugin)
+            .add_plugins(CombatPlugin)
+            .add_plugins(JumpsuitsPlugin)
+            .add_plugins(HelmetsPlugin)
+            .add_plugins(PistolL1Plugin)
+            .add_plugins(LineArrowPlugin)
+            .add_plugins(PointArrowPlugin)
+            .add_plugins(SoundsPlugin)
+            .add_plugins(ChatPlugin)
+            .add_plugins(UiPlugin)
+            .add_plugins(SetupMenuPlugin)
+            .add_plugins(PointLightPlugin)
+            .add_plugins(BallPlugin)
+            .add_plugins(BasicConsoleCommandsPlugin {
+                give_all_rcon: true,
+            })
+            .add_systems(
+                Startup,
+                live.in_set(StartupSet::ServerIsLive)
+                    .after(StartupSet::InitAtmospherics),
+            )
+            .insert_resource(MOTD::new_default(APP_VERSION.to_string()))
+            .add_plugins(MainMenuPlugin)
+            .add_plugins(EscapeMenuPlugin)
+            .add_plugins(HudPlugin);
+    }
 
     app.run();
 }

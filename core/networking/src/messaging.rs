@@ -76,7 +76,7 @@ pub enum MessageSender {
     Both,
 }
 
-use crate::client::step_buffer;
+use crate::client::{step_buffer, IncomingUnreliableServerMessage};
 use crate::server::{
     clear_entity_updates, serialize_reliable_entity_updates, serialize_unreliable_entity_updates,
     EntityUpdates, EntityUpdatesSet, ServerMessageSet,
@@ -101,18 +101,6 @@ pub fn register_reliable_message<
     sender: MessageSender,
     ordered: bool,
 ) {
-    app.add_systems(
-        Startup,
-        reliable_message::<T>.in_set(TypenamesSet::Generate),
-    );
-
-    if !ordered {
-        app.add_systems(
-            Startup,
-            reliable_unordered_message::<T>.in_set(TypenamesSet::Generate),
-        );
-    }
-
     let mut client_is_sender = false;
     let mut server_is_sender = false;
 
@@ -129,7 +117,27 @@ pub fn register_reliable_message<
         }
     }
 
+    app.add_event::<IncomingReliableServerMessage<T>>();
+    app.add_event::<OutgoingReliableClientMessage<T>>();
     app.add_event::<OutgoingReliableServerMessage<T>>();
+    app.add_event::<IncomingReliableClientMessage<T>>();
+
+    if is_correction_mode(app) {
+        return;
+    }
+
+    app.add_systems(
+        Startup,
+        reliable_message::<T>.in_set(TypenamesSet::Generate),
+    );
+
+    if !ordered {
+        app.add_systems(
+            Startup,
+            reliable_unordered_message::<T>.in_set(TypenamesSet::Generate),
+        );
+    }
+
     if server_is_sender && is_server() && !is_correction_mode(app) {
         app.add_systems(
             FixedUpdate,
@@ -147,7 +155,6 @@ pub fn register_reliable_message<
             map: HashMap::default(),
         });
     }
-    app.add_event::<IncomingReliableServerMessage<T>>();
     if server_is_sender && !is_server_mode(app) {
         app.add_systems(
             FixedUpdate,
@@ -158,7 +165,6 @@ pub fn register_reliable_message<
                 .run_if(resource_exists::<RenetClient>()),
         );
     }
-    app.add_event::<OutgoingReliableClientMessage<T>>();
 
     if client_is_sender && !is_server_mode(app) {
         app.add_systems(
@@ -168,7 +174,6 @@ pub fn register_reliable_message<
                 .before(step_buffer),
         );
     }
-    app.add_event::<IncomingReliableClientMessage<T>>();
 
     if client_is_sender && is_server_mode(app) {
         app.add_systems(
@@ -182,6 +187,16 @@ pub fn register_reliable_message<
 }
 use resources::modes::{is_correction_mode, is_server, is_server_mode};
 
+use crate::{
+    client::{
+        deserialize_incoming_unreliable_server_message, send_outgoing_unreliable_client_messages,
+        OutgoingUnreliableClientMessage,
+    },
+    server::{
+        deserialize_incoming_unreliable_client_message, send_outgoing_unreliable_server_messages,
+        IncomingUnreliableClientMessage, OutgoingUnreliableServerMessage,
+    },
+};
 /// All unreliable networking messages must be registered with this system.
 pub fn register_unreliable_message<
     T: TypeName + Send + Sync + Serialize + Clone + for<'a> Deserialize<'a> + 'static,
@@ -189,23 +204,6 @@ pub fn register_unreliable_message<
     app: &mut App,
     sender: MessageSender,
 ) {
-    use crate::{
-        client::{
-            deserialize_incoming_unreliable_server_message,
-            send_outgoing_unreliable_client_messages, IncomingUnreliableServerMessage,
-            OutgoingUnreliableClientMessage,
-        },
-        server::{
-            deserialize_incoming_unreliable_client_message,
-            send_outgoing_unreliable_server_messages, IncomingUnreliableClientMessage,
-            OutgoingUnreliableServerMessage,
-        },
-    };
-
-    app.add_systems(
-        Startup,
-        unreliable_message::<T>.in_set(TypenamesSet::Generate),
-    );
     let mut client_is_sender = false;
     let mut server_is_sender = false;
 
@@ -221,8 +219,29 @@ pub fn register_unreliable_message<
             server_is_sender = true;
         }
     }
+
     if server_is_sender && is_server_mode(app) {
         app.add_event::<OutgoingUnreliableServerMessage<T>>();
+    }
+    if client_is_sender && !is_server_mode(app) {
+        app.add_event::<OutgoingUnreliableClientMessage<T>>();
+    }
+    if client_is_sender && is_server_mode(app) {
+        app.add_event::<IncomingUnreliableClientMessage<T>>();
+    }
+    if server_is_sender && !is_server_mode(app) {
+        app.add_event::<IncomingUnreliableServerMessage<T>>();
+    }
+
+    if is_correction_mode(app) {
+        return;
+    }
+
+    app.add_systems(
+        Startup,
+        unreliable_message::<T>.in_set(TypenamesSet::Generate),
+    );
+    if server_is_sender && is_server_mode(app) {
         if !is_correction_mode(app) {
             app.add_systems(
                 FixedUpdate,
@@ -242,35 +261,32 @@ pub fn register_unreliable_message<
         }
     }
     if server_is_sender && !is_server_mode(app) {
-        app.add_event::<IncomingUnreliableServerMessage<T>>()
-            .add_systems(
-                FixedUpdate,
-                deserialize_incoming_unreliable_server_message::<T>
-                    .after(TypenamesSet::SendRawEvents)
-                    .in_set(MessagingSet::DeserializeIncoming)
-                    .in_set(MainSet::PreUpdate)
-                    .run_if(resource_exists::<RenetClient>()),
-            );
+        app.add_systems(
+            FixedUpdate,
+            deserialize_incoming_unreliable_server_message::<T>
+                .after(TypenamesSet::SendRawEvents)
+                .in_set(MessagingSet::DeserializeIncoming)
+                .in_set(MainSet::PreUpdate)
+                .run_if(resource_exists::<RenetClient>()),
+        );
     }
     if client_is_sender && !is_server_mode(app) {
-        app.add_event::<OutgoingUnreliableClientMessage<T>>()
-            .add_systems(
-                FixedUpdate,
-                send_outgoing_unreliable_client_messages::<T>
-                    .in_set(MainSet::PostUpdate)
-                    .run_if(resource_exists::<RenetClient>())
-                    .before(step_buffer),
-            );
+        app.add_systems(
+            FixedUpdate,
+            send_outgoing_unreliable_client_messages::<T>
+                .in_set(MainSet::PostUpdate)
+                .run_if(resource_exists::<RenetClient>())
+                .before(step_buffer),
+        );
     }
     if client_is_sender && is_server_mode(app) {
-        app.add_event::<IncomingUnreliableClientMessage<T>>()
-            .add_systems(
-                FixedUpdate,
-                deserialize_incoming_unreliable_client_message::<T>
-                    .after(TypenamesSet::SendRawEvents)
-                    .in_set(MainSet::PreUpdate)
-                    .in_set(MessagingSet::DeserializeIncoming),
-            );
+        app.add_systems(
+            FixedUpdate,
+            deserialize_incoming_unreliable_client_message::<T>
+                .after(TypenamesSet::SendRawEvents)
+                .in_set(MainSet::PreUpdate)
+                .in_set(MessagingSet::DeserializeIncoming),
+        );
     }
 }
 

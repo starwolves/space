@@ -30,36 +30,41 @@ pub struct EntityPlugin;
 impl Plugin for EntityPlugin {
     fn build(&self, app: &mut App) {
         if is_server_mode(app) {
+            if !is_correction_mode(app) {
+                app.add_systems(
+                    FixedUpdate,
+                    (
+                        finalize_examine_entity,
+                        visible_checker
+                            .in_set(PostUpdateSet::VisibleChecker)
+                            .in_set(EntityUpdatesSet::Write),
+                    )
+                        .in_set(MainSet::PostUpdate),
+                )
+                .add_systems(
+                    FixedUpdate,
+                    (
+                        examine_entity.after(ActionsSet::Action),
+                        examine_entity_health.after(ActionsSet::Action),
+                    )
+                        .in_set(MainSet::Update),
+                )
+                .init_resource::<ExamineEntityMessages>()
+                .add_systems(
+                    FixedUpdate,
+                    (finalize_entity_examine_input, incoming_messages).in_set(MainSet::PreUpdate),
+                )
+                .add_event::<InputExamineEntity>()
+                .add_systems(
+                    FixedUpdate,
+                    construct_entity_updates
+                        .in_set(MainSet::PostUpdate)
+                        .in_set(EntityUpdatesSet::Prepare),
+                );
+            }
             app.add_systems(
                 FixedUpdate,
-                (
-                    despawn_entity.after(PostUpdateSet::VisibleChecker),
-                    finalize_examine_entity,
-                    visible_checker
-                        .in_set(PostUpdateSet::VisibleChecker)
-                        .in_set(EntityUpdatesSet::Write),
-                )
-                    .in_set(MainSet::PostUpdate),
-            )
-            .add_systems(
-                FixedUpdate,
-                (
-                    examine_entity.after(ActionsSet::Action),
-                    examine_entity_health.after(ActionsSet::Action),
-                )
-                    .in_set(MainSet::Update),
-            )
-            .init_resource::<ExamineEntityMessages>()
-            .add_systems(
-                FixedUpdate,
-                (finalize_entity_examine_input, incoming_messages).in_set(MainSet::PreUpdate),
-            )
-            .add_event::<InputExamineEntity>()
-            .add_systems(
-                FixedUpdate,
-                construct_entity_updates
-                    .in_set(MainSet::PostUpdate)
-                    .in_set(EntityUpdatesSet::Prepare),
+                (despawn_entity.after(PostUpdateSet::VisibleChecker),).in_set(MainSet::PostUpdate),
             )
             .add_event::<DespawnClientEntity>()
             .add_event::<SpawnClientEntity>();
@@ -86,18 +91,16 @@ impl Plugin for EntityPlugin {
                 .add_systems(FixedUpdate, clean_entity_type_cache.in_set(MainSet::Update));
         }
 
-        app.add_event::<DespawnEntity>()
-            .add_event::<RawSpawnEvent>()
-            .init_resource::<PawnId>()
-            .init_resource::<EntityTypes>()
-            .add_systems(
-                Startup,
-                (finalize_register_entity_types.after(EntityTypeLabel::Register),),
-            )
-            .add_systems(
-                FixedUpdate,
-                (
-                    load_ron_entities
+        if !is_correction_mode(app) {
+            app.add_event::<RawSpawnEvent>()
+                .init_resource::<PawnId>()
+                .add_systems(
+                    Startup,
+                    (finalize_register_entity_types.after(EntityTypeLabel::Register),),
+                )
+                .add_systems(
+                    FixedUpdate,
+                    (load_ron_entities
                         .after(StartupSet::BuildGridmap)
                         .in_set(MainSet::PreUpdate)
                         .in_set(StartupSet::InitEntities)
@@ -105,10 +108,13 @@ impl Plugin for EntityPlugin {
                         .run_if(
                             resource_exists::<RenetClient>()
                                 .or_else(resource_exists::<RenetServer>()),
-                        ),
-                    despawn_entities.in_set(MainSet::PostUpdate),
-                ),
-            );
+                        ),),
+                );
+        }
+
+        app.add_event::<DespawnEntity>()
+            .init_resource::<EntityTypes>()
+            .add_systems(FixedUpdate, despawn_entities.in_set(MainSet::PostUpdate));
         register_reliable_message::<EntityServerMessage>(app, MessageSender::Server, true);
         register_reliable_message::<EntityClientMessage>(app, MessageSender::Client, true);
     }
