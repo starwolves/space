@@ -2,7 +2,6 @@ use std::{
     collections::HashMap,
     sync::mpsc::{self, Receiver, SyncSender},
     thread::JoinHandle,
-    time::Instant,
 };
 
 use bevy::{
@@ -173,128 +172,172 @@ pub(crate) fn finish_correction(
 
 /// Correction server system.
 /// Messages get created when client spawns in an entity and when new peer input has been received.
-pub(crate) fn server_start_correcting(
-    queued_message_reciever: NonSend<CorrectionServerReceiveMessage>,
-    mut cache: ResMut<PhysicsCache>,
-    mut fixed: ResMut<Time<Fixed>>,
-    mut correction: ResMut<StartCorrection>,
-    mut gridmap: ResMut<Gridmap>,
-    mut stamp: ResMut<TickRateStamp>,
-    link: Res<CorrectionServerRigidBodyLink>,
-    mut controller_cache: ResMut<ControllerCache>,
-    mut look_cache: ResMut<LookTransformCache>,
-    mut priority: ResMut<PriorityPhysicsCache>,
-    query: Query<Entity, With<RigidBody>>,
-    mut correcting: ResMut<IsCorrecting>,
-    mut entity_type_cache: ResMut<EntityTypeCache>,
-) {
+pub(crate) fn server_start_correcting(world: &mut World) {
+    let queued_message_reciever = world
+        .get_non_send_resource::<CorrectionServerReceiveMessage>()
+        .unwrap();
+
+    let new_message;
+
     match &queued_message_reciever.receiver_option {
-        Some(receiver) => loop {
-            let queued_message_result = receiver.try_recv();
+        Some(receiver) => {
+            let queued_message_result = receiver.recv();
 
             match queued_message_result {
-                Ok(incoming_message) => match incoming_message {
-                    ClientCorrectionMessage::StartCorrecting(
-                        start_correction_data,
-                        new_cache,
-                        gridmap_cache,
-                        controller_cachec,
-                        look_cachec,
-                        priorityc,
-                        type_cache,
-                    ) => {
-                        let mut fixed_cache = new_cache.clone();
-
-                        // Gets laggy with many entities.
-                        for t in fixed_cache.cache.iter_mut() {
-                            for (_, cache) in t.1.iter_mut() {
-                                let mut found: bool = false;
-                                for (client, sims) in link.map.iter() {
-                                    for sim in sims.iter() {
-                                        if *client == cache.entity {
-                                            cache.entity = *sim;
-                                            found = true;
-
-                                            break;
-                                        }
-                                    }
-                                }
-                                if !found {
-                                    //warn!("Cache link not found.");
-                                }
-                            }
-                        }
-                        // End laggy.
-
-                        let mut new_pcache = HashMap::new();
-                        for t in priorityc.cache.iter() {
-                            let mut new_tick_map = HashMap::new();
-                            for (pentity, update) in t.1.iter() {
-                                let mut found: bool = false;
-                                for (client, sims) in link.map.iter() {
-                                    if client == pentity {
-                                        let mut f = None;
-
-                                        for sim in sims.iter() {
-                                            match query.get(*sim) {
-                                                Ok(_) => {
-                                                    f = Some(*sim);
-                                                    break;
-                                                }
-                                                Err(_) => {}
-                                            }
-                                        }
-                                        match f {
-                                            Some(sim) => {
-                                                let new_update = update.clone();
-                                                match new_update {
-                                                    PriorityUpdate::SmallCache(mut small) => {
-                                                        small.entity = sim;
-                                                        new_tick_map.insert(
-                                                            sim,
-                                                            PriorityUpdate::SmallCache(small),
-                                                        );
-                                                    }
-                                                    _ => {
-                                                        new_tick_map.insert(sim, new_update);
-                                                    }
-                                                }
-                                                found = true;
-                                            }
-                                            None => {
-                                                //warn!("Nothing found.");
-                                            }
-                                        }
-                                        break;
-                                    }
-                                }
-                                if !found {
-                                    //warn!("pCache link not found.");
-                                }
-                            }
-                            new_pcache.insert(*t.0, new_tick_map);
-                        }
-                        *cache = fixed_cache;
-                        fixed.set_timestep_seconds(0.000000001);
-                        *correction = start_correction_data.clone();
-                        gridmap.updates_cache = gridmap_cache;
-
-                        *controller_cache = controller_cachec;
-                        *look_cache = look_cachec;
-                        // -1 because this system happens before step_tickrate_stamp system.
-                        // -1 because constructing a physics scene from cache needs an entire frame for itself to initialize.
-                        *stamp = TickRateStamp::new(start_correction_data.start_tick - 2);
-                        priority.cache = new_pcache;
-                        correcting.0 = true;
-                        *entity_type_cache = type_cache;
-                    }
-                },
+                Ok(incoming_message) => {
+                    new_message = incoming_message;
+                }
                 Err(_) => {
-                    break;
+                    return;
                 }
             }
-        },
-        None => {}
+        }
+        None => {
+            return;
+        }
+    }
+
+    match new_message {
+        ClientCorrectionMessage::StartCorrecting(
+            start_correction_data,
+            new_cache,
+            gridmap_cache,
+            controller_cachec,
+            look_cachec,
+            priorityc,
+            type_cache,
+        ) => {
+            let mut fixed_cache = new_cache.clone();
+            let link = || -> CorrectionServerRigidBodyLink {
+                let link = world
+                    .get_resource::<CorrectionServerRigidBodyLink>()
+                    .unwrap();
+                // Gets laggy with many entities.
+                for t in fixed_cache.cache.iter_mut() {
+                    for (_, cache) in t.1.iter_mut() {
+                        let mut found: bool = false;
+                        for (client, sims) in link.map.iter() {
+                            for sim in sims.iter() {
+                                if *client == cache.entity {
+                                    cache.entity = *sim;
+                                    found = true;
+
+                                    break;
+                                }
+                            }
+                        }
+                        if !found {
+                            //warn!("Cache link not found.");
+                        }
+                    }
+                }
+                // End laggy.
+                link.clone()
+            }();
+
+            let mut query = world.query_filtered::<Entity, With<RigidBody>>();
+
+            let mut new_pcache = HashMap::new();
+            for t in priorityc.cache.iter() {
+                let mut new_tick_map = HashMap::new();
+                for (pentity, update) in t.1.iter() {
+                    let mut found: bool = false;
+                    for (client, sims) in link.map.iter() {
+                        if client == pentity {
+                            let mut f = None;
+
+                            for sim in sims.iter() {
+                                match query.get(world, *sim) {
+                                    Ok(_) => {
+                                        f = Some(*sim);
+                                        break;
+                                    }
+                                    Err(_) => {}
+                                }
+                            }
+                            match f {
+                                Some(sim) => {
+                                    let new_update = update.clone();
+                                    match new_update {
+                                        PriorityUpdate::SmallCache(mut small) => {
+                                            small.entity = sim;
+                                            new_tick_map
+                                                .insert(sim, PriorityUpdate::SmallCache(small));
+                                        }
+                                        _ => {
+                                            new_tick_map.insert(sim, new_update);
+                                        }
+                                    }
+                                    found = true;
+                                }
+                                None => {
+                                    //warn!("Nothing found.");
+                                }
+                            }
+                            break;
+                        }
+                    }
+                    if !found {
+                        //warn!("pCache link not found.");
+                    }
+                }
+                new_pcache.insert(*t.0, new_tick_map);
+            }
+            (|| {
+                let mut cache = world.get_resource_mut::<PhysicsCache>().unwrap();
+                *cache = fixed_cache;
+            })();
+
+            (|| {
+                let mut correction = world.get_resource_mut::<StartCorrection>().unwrap();
+                *correction = start_correction_data.clone();
+            })();
+
+            (|| {
+                let mut gridmap = world.get_resource_mut::<Gridmap>().unwrap();
+                gridmap.updates_cache = gridmap_cache;
+            })();
+
+            let adjusted_start = || -> u64 {
+                let mut stamp = world.get_resource_mut::<TickRateStamp>().unwrap();
+                // -1 because this system happens before step_tickrate_stamp system.
+                // -1 because constructing a physics scene from cache needs an entire frame for itself to initialize.
+                let adj = start_correction_data.start_tick - 2;
+                *stamp = TickRateStamp::new(adj);
+                adj
+            }();
+
+            (|| {
+                let mut controller_cache = world.get_resource_mut::<ControllerCache>().unwrap();
+                *controller_cache = controller_cachec;
+            })();
+
+            (|| {
+                let mut look_cache = world.get_resource_mut::<LookTransformCache>().unwrap();
+                *look_cache = look_cachec;
+            })();
+
+            (|| {
+                let mut priority = world.get_resource_mut::<PriorityPhysicsCache>().unwrap();
+
+                priority.cache = new_pcache;
+            })();
+
+            (|| {
+                let mut correcting = world.get_resource_mut::<IsCorrecting>().unwrap();
+
+                correcting.0 = true;
+            })();
+
+            (|| {
+                let mut entity_type_cache = world.get_resource_mut::<EntityTypeCache>().unwrap();
+                *entity_type_cache = type_cache;
+            })();
+
+            for _ in adjusted_start..start_correction_data.last_tick {
+                world.run_schedule(FixedUpdate);
+            }
+        }
     }
 }
 

@@ -297,7 +297,7 @@ pub fn init_physics_data(
     }
 }
 
-#[derive(Resource, Default)]
+#[derive(Resource, Default, Clone)]
 pub struct CorrectionServerRigidBodyLink {
     // Client entity, sim entities (they get (de)spawned acrosss time, varying IDs.)
     // Needs to be cleaned from a system one day.
