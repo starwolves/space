@@ -34,8 +34,8 @@ use resources::{
     core::TickRate,
     correction::{StartCorrection, MAX_CACHE_TICKS_AMNT},
     input::{
-        InputBuffer, KeyBind, KeyBinds, KeyCodeEnum, HOLD_SPRINT_BIND, JUMP_BIND,
-        MOVE_BACKWARD_BIND, MOVE_FORWARD_BIND, MOVE_LEFT_BIND, MOVE_RIGHT_BIND,
+        KeyBind, KeyBinds, KeyCodeEnum, HOLD_SPRINT_BIND, JUMP_BIND, MOVE_BACKWARD_BIND,
+        MOVE_FORWARD_BIND, MOVE_LEFT_BIND, MOVE_RIGHT_BIND,
     },
     pawn::ClientPawn,
     physics::{PriorityPhysicsCache, PriorityUpdate},
@@ -543,7 +543,7 @@ pub(crate) struct Pressed {
 }
 
 /// Sends client input instantly from Update schedule.
-pub(crate) fn send_client_input_to_server(
+pub(crate) fn detect_client_input(
     keyboard: Res<Input<KeyCode>>,
     mut client: ResMut<RenetClient>,
     binds: Res<KeyBinds>,
@@ -551,20 +551,39 @@ pub(crate) fn send_client_input_to_server(
     stamp: Res<TickRateStamp>,
     start: Res<ClientStartedSyncing>,
     mut pressed: Local<Pressed>,
+    pawn_id: Res<PawnId>,
+    mut movement_event: EventWriter<InputMovementInput>,
+    mut i: Local<u64>,
 ) {
+    *i += 1;
     if !start.0 {
         return;
     }
+    let pawn_entity;
+    match pawn_id.client {
+        Some(i) => {
+            pawn_entity = i;
+        }
+        None => {
+            return;
+        }
+    }
     let mut inputs = vec![];
-    if keyboard.just_pressed(binds.keyboard_bind(MOVE_FORWARD_BIND)) {
+    if keyboard.just_pressed(binds.keyboard_bind(MOVE_FORWARD_BIND)) && !pressed.up {
         pressed.up = true;
         inputs.push(ControllerClientMessage::MovementInput(MovementInput {
             up: true,
             pressed: true,
             ..Default::default()
         }));
+        movement_event.send(InputMovementInput {
+            entity: pawn_entity,
+            up: true,
+            pressed: true,
+            ..Default::default()
+        });
     }
-    if keyboard.just_pressed(binds.keyboard_bind(MOVE_BACKWARD_BIND)) {
+    if keyboard.just_pressed(binds.keyboard_bind(MOVE_BACKWARD_BIND)) && !pressed.down {
         pressed.down = true;
 
         inputs.push(ControllerClientMessage::MovementInput(MovementInput {
@@ -572,8 +591,14 @@ pub(crate) fn send_client_input_to_server(
             pressed: true,
             ..Default::default()
         }));
+        movement_event.send(InputMovementInput {
+            entity: pawn_entity,
+            down: true,
+            pressed: true,
+            ..Default::default()
+        });
     }
-    if keyboard.just_pressed(binds.keyboard_bind(MOVE_LEFT_BIND)) {
+    if keyboard.just_pressed(binds.keyboard_bind(MOVE_LEFT_BIND)) && !pressed.left {
         pressed.left = true;
 
         inputs.push(ControllerClientMessage::MovementInput(MovementInput {
@@ -581,8 +606,14 @@ pub(crate) fn send_client_input_to_server(
             pressed: true,
             ..Default::default()
         }));
+        movement_event.send(InputMovementInput {
+            entity: pawn_entity,
+            left: true,
+            pressed: true,
+            ..Default::default()
+        });
     }
-    if keyboard.just_pressed(binds.keyboard_bind(MOVE_RIGHT_BIND)) {
+    if keyboard.just_pressed(binds.keyboard_bind(MOVE_RIGHT_BIND)) && !pressed.right {
         pressed.right = true;
 
         inputs.push(ControllerClientMessage::MovementInput(MovementInput {
@@ -590,16 +621,37 @@ pub(crate) fn send_client_input_to_server(
             pressed: true,
             ..Default::default()
         }));
+
+        movement_event.send(InputMovementInput {
+            entity: pawn_entity,
+            right: true,
+            pressed: true,
+            ..Default::default()
+        });
     }
 
     if keyboard.just_released(binds.keyboard_bind(MOVE_FORWARD_BIND)) && pressed.up {
+        pressed.up = false;
         inputs.push(ControllerClientMessage::MovementInput(MovementInput {
             up: true,
             pressed: false,
             ..Default::default()
         }));
+        movement_event.send(InputMovementInput {
+            entity: pawn_entity,
+            up: true,
+            pressed: false,
+            ..Default::default()
+        });
     }
     if keyboard.just_released(binds.keyboard_bind(MOVE_BACKWARD_BIND)) && pressed.down {
+        pressed.down = false;
+        movement_event.send(InputMovementInput {
+            entity: pawn_entity,
+            down: true,
+            pressed: false,
+            ..Default::default()
+        });
         inputs.push(ControllerClientMessage::MovementInput(MovementInput {
             down: true,
             pressed: false,
@@ -607,18 +659,32 @@ pub(crate) fn send_client_input_to_server(
         }));
     }
     if keyboard.just_released(binds.keyboard_bind(MOVE_LEFT_BIND)) && pressed.left {
+        pressed.left = false;
         inputs.push(ControllerClientMessage::MovementInput(MovementInput {
             left: true,
             pressed: false,
             ..Default::default()
         }));
+        movement_event.send(InputMovementInput {
+            entity: pawn_entity,
+            left: true,
+            pressed: false,
+            ..Default::default()
+        });
     }
     if keyboard.just_released(binds.keyboard_bind(MOVE_RIGHT_BIND)) && pressed.right {
+        pressed.right = false;
         inputs.push(ControllerClientMessage::MovementInput(MovementInput {
             right: true,
             pressed: false,
             ..Default::default()
         }));
+        movement_event.send(InputMovementInput {
+            entity: pawn_entity,
+            right: true,
+            pressed: false,
+            ..Default::default()
+        });
     }
 
     let id = typenames
@@ -645,94 +711,6 @@ pub(crate) fn send_client_input_to_server(
     }
 }
 
-pub(crate) fn get_client_input(
-    keyboard: Res<InputBuffer>,
-    mut movement_event: EventWriter<InputMovementInput>,
-    pawn_id: Res<PawnId>,
-    mut pressed: Local<Pressed>,
-) {
-    let pawn_entity;
-    match pawn_id.client {
-        Some(i) => {
-            pawn_entity = i;
-        }
-        None => {
-            return;
-        }
-    }
-    if keyboard.just_pressed(MOVE_FORWARD_BIND) {
-        pressed.up = true;
-        movement_event.send(InputMovementInput {
-            entity: pawn_entity,
-            up: true,
-            pressed: true,
-            ..Default::default()
-        });
-    }
-    if keyboard.just_pressed(MOVE_BACKWARD_BIND) {
-        pressed.down = true;
-
-        movement_event.send(InputMovementInput {
-            entity: pawn_entity,
-            down: true,
-            pressed: true,
-            ..Default::default()
-        });
-    }
-    if keyboard.just_pressed(MOVE_LEFT_BIND) {
-        pressed.left = true;
-
-        movement_event.send(InputMovementInput {
-            entity: pawn_entity,
-            left: true,
-            pressed: true,
-            ..Default::default()
-        });
-    }
-    if keyboard.just_pressed(MOVE_RIGHT_BIND) {
-        pressed.right = true;
-
-        movement_event.send(InputMovementInput {
-            entity: pawn_entity,
-            right: true,
-            pressed: true,
-            ..Default::default()
-        });
-    }
-
-    if keyboard.just_released(MOVE_FORWARD_BIND) && pressed.up {
-        movement_event.send(InputMovementInput {
-            entity: pawn_entity,
-            up: true,
-            pressed: false,
-            ..Default::default()
-        });
-    }
-    if keyboard.just_released(MOVE_BACKWARD_BIND) && pressed.down {
-        movement_event.send(InputMovementInput {
-            entity: pawn_entity,
-            down: true,
-            pressed: false,
-            ..Default::default()
-        });
-    }
-    if keyboard.just_released(MOVE_LEFT_BIND) && pressed.left {
-        movement_event.send(InputMovementInput {
-            entity: pawn_entity,
-            left: true,
-            pressed: false,
-            ..Default::default()
-        });
-    }
-    if keyboard.just_released(MOVE_RIGHT_BIND) && pressed.right {
-        movement_event.send(InputMovementInput {
-            entity: pawn_entity,
-            right: true,
-            pressed: false,
-            ..Default::default()
-        });
-    }
-}
 /// Label for systems ordering.
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
 
@@ -774,23 +752,26 @@ pub(crate) fn controller_input(
 ) {
     for new_event in movement_input_event.read() {
         let player_entity = new_event.entity;
-
-        let player_input_component_result = humanoids_query.get_mut(player_entity);
-
-        let mut processed_input = ControllerInput::default();
-
-        match controller_cache.cache.get(&player_entity) {
-            Some(c) => {
-                for i in c.keys().sorted().rev() {
-                    processed_input = c.get(i).unwrap().clone();
-                    break;
-                }
-            }
-            None => {}
-        }
-
-        match player_input_component_result {
+        match humanoids_query.get_mut(player_entity) {
             Ok((mut player_input_component, mut look_transform, mut transform)) => {
+                let mut processed_input = ControllerInput::default();
+
+                if new_event.peer_data.is_some() {
+                    match controller_cache.cache.get(&player_entity) {
+                        Some(c) => {
+                            for i in c.keys().sorted().rev() {
+                                processed_input = c.get(i).unwrap().clone();
+                                break;
+                            }
+                        }
+                        None => {}
+                    }
+                }
+
+                if new_event.peer_data.is_none() {
+                    processed_input = player_input_component.clone();
+                }
+
                 let mut additive = Vec2::default();
 
                 if new_event.left {
@@ -806,7 +787,6 @@ pub(crate) fn controller_input(
                 if !new_event.pressed {
                     additive *= -1.;
                 }
-
                 processed_input.movement_vector += additive;
 
                 let input_stamp;
@@ -867,6 +847,7 @@ pub(crate) fn controller_input(
                                 warn!("Missed physics cache.");
                             }
                         }
+                        //info!("+{:?}={:?} at {}", new_event, processed_input, stamp.large);
                     }
                     None => {
                         input_stamp = stampres.large;

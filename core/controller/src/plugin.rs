@@ -7,9 +7,9 @@ use crate::controller::{
 };
 use crate::input::{
     apply_controller_cache_to_peers, cache_peer_sync_look_transform, controller_input,
-    create_input_map, get_client_input, process_peer_input, send_client_input_to_server,
-    sync_controller_input, ControllerSet, InputMovementInput, LastPeerLookTransform,
-    PeerInputCache, PeerSyncLookTransform, SyncControllerInput,
+    create_input_map, detect_client_input, process_peer_input, sync_controller_input,
+    ControllerSet, InputMovementInput, LastPeerLookTransform, PeerInputCache,
+    PeerSyncLookTransform, SyncControllerInput,
 };
 use crate::net::ControllerClientMessage;
 use crate::networking::{
@@ -77,18 +77,16 @@ impl Plugin for ControllerPlugin {
             app.add_systems(Startup, create_input_map)
                 .add_systems(
                     FixedUpdate,
-                    (
-                        get_client_input,
-                        process_peer_input.run_if(resource_exists::<RenetClient>()),
-                    )
+                    (process_peer_input.run_if(resource_exists::<RenetClient>()),)
                         .in_set(InputSet::Prepare)
                         .before(UpdateSet::StandardCharacters)
                         .in_set(MainSet::Update),
                 )
                 .add_systems(
                     Update,
-                    send_client_input_to_server
-                        .before(get_client_input)
+                    detect_client_input
+                        .before(UpdateSet::StandardCharacters)
+                        .in_set(InputSet::Prepare)
                         .in_set(MainSet::Update)
                         .run_if(resource_exists::<RenetClient>()),
                 )
@@ -114,10 +112,10 @@ impl Plugin for ControllerPlugin {
                 .init_resource::<LastPeerLookTransform>()
                 .init_resource::<PeerInputCache>();
         }
-        app.configure_sets(
-            FixedUpdate,
-            (InputSet::Prepare, InputSet::Cache, InputSet::ApplyLiveCache).chain(),
-        );
+        let list = (InputSet::Prepare, InputSet::Cache, InputSet::ApplyLiveCache);
+        app.configure_sets(FixedUpdate, list.clone().chain());
+        app.configure_sets(Update, list.chain());
+
         if !is_correction_mode(app) {
             app.add_systems(
                 FixedUpdate,

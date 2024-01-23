@@ -671,7 +671,7 @@ pub(crate) fn desync_check_correction(
                 }
             },
             None => {
-                warn!("Missed desync check ({})", adjusted_latest);
+                //warn!("Missed desync check ({})", adjusted_latest);
             }
         }
     }
