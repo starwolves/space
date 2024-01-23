@@ -2,8 +2,7 @@ use std::time::Duration;
 
 use crate::actions::{build_actions, examine, examine_prerequisite_check};
 use crate::camera::{
-    clear_mouse_stamps, client_sync_look_transform, server_sync_look_transform, LookTransformSet,
-    MouseInputStamps,
+    clear_mouse_stamps, mouse_input, server_sync_look_transform, LookTransformSet, MouseInputStamps,
 };
 use crate::net::UnreliableControllerClientMessage;
 use bevy::app::Update;
@@ -38,7 +37,7 @@ impl Plugin for PawnPlugin {
         } else {
             app.add_systems(
                 Update,
-                client_sync_look_transform
+                mouse_input
                     .run_if(resource_exists::<RenetClient>())
                     .in_set(MainSet::Update)
                     .in_set(LookTransformSet::Sync)

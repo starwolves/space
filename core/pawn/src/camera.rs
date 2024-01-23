@@ -17,6 +17,7 @@ use networking::plugin::RENET_UNRELIABLE_CHANNEL_ID;
 use networking::server::{HandleToEntity, IncomingUnreliableClientMessage};
 use networking::stamp::TickRateStamp;
 use resources::correction::MAX_CACHE_TICKS_AMNT;
+use resources::input::IsFixedUpdateTick;
 use typename::TypeName;
 
 use crate::net::UnreliableControllerClientMessage;
@@ -42,7 +43,7 @@ impl MouseInputStamps {
 pub(crate) fn clear_mouse_stamps(mut mouse_stamps: ResMut<MouseInputStamps>) {
     mouse_stamps.i = 0;
 }
-pub(crate) fn client_sync_look_transform(
+pub(crate) fn mouse_input(
     mut look_transform_query: Query<&mut LookTransform>,
     mut client: ResMut<RenetClient>,
     mut prev_target: Local<Vec3>,
@@ -52,6 +53,7 @@ pub(crate) fn client_sync_look_transform(
     stamp: Res<TickRateStamp>,
     typenames: Res<Typenames>,
     mut mouse_stamps: ResMut<MouseInputStamps>,
+    is_fixed: Res<IsFixedUpdateTick>,
 ) {
     let camera_entity;
     match state.option {
@@ -67,6 +69,14 @@ pub(crate) fn client_sync_look_transform(
         Ok(look_transform) => {
             let difference = (*prev_target - look_transform.target).abs();
             if difference.length() > 0.0001 && !physics_loop.is_paused() {
+                let large_target_tick;
+                if is_fixed.0 {
+                    large_target_tick = stamp.large;
+                } else {
+                    large_target_tick = stamp.large + 1;
+                }
+
+                let target_tick = TickRateStamp::new(large_target_tick).tick;
                 let id = typenames
                     .unreliable_net_types
                     .get(&UnreliableControllerClientMessage::type_name())
@@ -84,7 +94,7 @@ pub(crate) fn client_sync_look_transform(
                             .unwrap(),
                             typename_net: *id,
                         }],
-                        stamp: stamp.tick,
+                        stamp: target_tick,
                         not_timed: true,
                     })
                     .unwrap(),

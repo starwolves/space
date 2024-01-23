@@ -161,3 +161,11 @@ impl KeyBinds {
         }
     }
 }
+#[derive(Resource, Default)]
+pub struct IsFixedUpdateTick(pub bool);
+pub(crate) fn set_fixed_update_tick(mut tick: ResMut<IsFixedUpdateTick>) {
+    tick.0 = true;
+}
+pub(crate) fn clear_fixed_update_tick(mut tick: ResMut<IsFixedUpdateTick>) {
+    tick.0 = false;
+}

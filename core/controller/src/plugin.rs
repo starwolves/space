@@ -7,9 +7,9 @@ use crate::controller::{
 };
 use crate::input::{
     apply_controller_cache_to_peers, cache_peer_sync_look_transform, controller_input,
-    create_input_map, detect_client_input, process_peer_input, sync_controller_input,
-    ControllerSet, InputMovementInput, LastPeerLookTransform, PeerInputCache,
-    PeerSyncLookTransform, SyncControllerInput,
+    create_input_map, keyboard_input, process_peer_input, sync_controller_input, ControllerSet,
+    InputMovementInput, LastPeerLookTransform, PeerInputCache, PeerSyncLookTransform,
+    SyncControllerInput,
 };
 use crate::net::ControllerClientMessage;
 use crate::networking::{
@@ -84,7 +84,7 @@ impl Plugin for ControllerPlugin {
                 )
                 .add_systems(
                     Update,
-                    detect_client_input
+                    keyboard_input
                         .before(UpdateSet::StandardCharacters)
                         .in_set(InputSet::Prepare)
                         .in_set(MainSet::Update)
