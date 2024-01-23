@@ -45,7 +45,7 @@ pub(crate) fn clean_controller_cache(mut cache: ResMut<ControllerCache>) {
         if cache.len() > MAX_CACHE_TICKS_AMNT as usize {
             let mut j = 0;
 
-            for i in cache.clone().keys().sorted() {
+            for i in cache.clone().keys().sorted().rev() {
                 if j as usize == cache.len() - MAX_CACHE_TICKS_AMNT as usize {
                     continue;
                 }

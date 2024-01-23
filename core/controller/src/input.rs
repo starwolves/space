@@ -847,7 +847,6 @@ pub(crate) fn controller_input(
                                 warn!("Missed physics cache.");
                             }
                         }
-                        //info!("+{:?}={:?} at {}", new_event, processed_input, stamp.large);
                     }
                     None => {
                         input_stamp = stampres.large;
