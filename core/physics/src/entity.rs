@@ -35,7 +35,7 @@ pub struct RigidBodyLink {
 }
 
 /// Resource linking rigidbodies to game entities.
-#[derive(Resource, Default)]
+#[derive(Resource, Default, Clone)]
 pub struct RigidBodies {
     pub entity_map: HashMap<Entity, Entity>,
     pub tile_map: HashMap<Entity, Vec<Entity>>,

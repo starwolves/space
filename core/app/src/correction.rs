@@ -1,12 +1,9 @@
-use std::{
-    collections::HashMap,
-    sync::mpsc::{self, Receiver, SyncSender},
-    thread::JoinHandle,
-};
+use std::collections::HashMap;
 
 use bevy::{
+    app::{Startup, SubApp},
     ecs::{entity::Entity, system::Commands},
-    log::{error, warn},
+    log::warn,
 };
 use bevy::{
     ecs::{query::With, system::Query},
@@ -15,8 +12,8 @@ use bevy::{
 };
 use bevy::{
     prelude::{
-        App, EventReader, EventWriter, FixedUpdate, IntoSystemConfigs, Local, NonSend, Plugin, Res,
-        ResMut, Resource, Startup, Update, World,
+        App, EventReader, FixedUpdate, IntoSystemConfigs, Local, Plugin, Res, ResMut, Resource,
+        World,
     },
     time::{Fixed, Time},
 };
@@ -30,7 +27,7 @@ use controller::controller::{ControllerCache, ControllerInput};
 use entity::entity_types::EntityTypeCache;
 use gridmap::grid::{Gridmap, GridmapCache};
 use itertools::Itertools;
-use networking::stamp::{step_tickrate_stamp, TickRateStamp};
+use networking::stamp::TickRateStamp;
 use physics::{
     cache::{Cache, PhysicsCache},
     correction_mode::CorrectionResults,
@@ -39,18 +36,15 @@ use physics::{
 };
 use resources::{
     correction::{CorrectionServerSet, IsCorrecting, StartCorrection},
-    modes::is_server,
+    modes::is_correction_mode,
     physics::{PhysicsSet, PriorityPhysicsCache, PriorityUpdate},
     sets::MainSet,
 };
 
-use crate::{start_app, Mode};
-
-/// Creates a headless app instance in correction mode.
 pub struct CorrectionPlugin;
 impl Plugin for CorrectionPlugin {
     fn build(&self, app: &mut App) {
-        if !is_server() {
+        if !is_correction_mode(app) {
             app.add_systems(
                 FixedUpdate,
                 (
@@ -65,12 +59,13 @@ impl Plugin for CorrectionPlugin {
                         .in_set(MainSet::PostPhysics),
                 ),
             )
-            .add_systems(Startup, start_correction_server)
-            .init_non_send_resource::<CorrectionServerReceiveMessage>()
             .init_resource::<CorrectionEnabled>();
         }
+        app.init_resource::<StartCorrectingMessage>();
     }
 }
+#[derive(Resource, Default)]
+struct FirsCorrectionTick(pub bool);
 
 /// Runs on the correction app.
 pub struct CorrectionServerPlugin;
@@ -87,15 +82,9 @@ impl Plugin for CorrectionServerPlugin {
                     .after(CorrectionServerSet::TriggerSync),
             ),
         )
-        .add_systems(
-            Update,
-            server_start_correcting
-                .before(MainSet::PreUpdate)
-                .before(step_tickrate_stamp)
-                .in_set(CorrectionServerSet::TriggerSync),
-        )
         .init_resource::<StartCorrection>()
-        .init_resource::<IsCorrecting>();
+        .init_resource::<IsCorrecting>()
+        .init_resource::<FirsCorrectionTick>();
     }
 }
 pub enum ConsoleCommandsSet {
@@ -109,7 +98,7 @@ pub(crate) fn finish_correction(
     stamp: Res<TickRateStamp>,
     mut correcting: ResMut<IsCorrecting>,
     start: Res<StartCorrection>,
-    send: Res<CorrectionServerSendMessage>,
+    mut results: ResMut<CorrectionResults>,
     mut storage: ResMut<SimulationStorage>,
     link: Res<CorrectionServerRigidBodyLink>,
 ) {
@@ -153,186 +142,160 @@ pub(crate) fn finish_correction(
             }
         }
 
-        match send
-            .sender
-            .send(CorrectionServerMessage::Results(CorrectionResults {
-                data: new_storage,
-            })) {
-            Ok(_) => {
-                storage.0 = PhysicsCache::default();
-            }
-            Err(_) => {
-                warn!("Couldnt send finish correction message.");
-            }
-        }
+        results.data = new_storage;
+        storage.0 = PhysicsCache::default();
     }
 }
 
-/// Correction server system.
+/// Correction app exclusive system.
 /// Messages get created when client spawns in an entity and when new peer input has been received.
 pub(crate) fn server_start_correcting(world: &mut World) {
-    let queued_message_reciever = world
-        .get_non_send_resource::<CorrectionServerReceiveMessage>()
-        .unwrap();
+    let start_data = world
+        .get_resource::<StartCorrectingMessage>()
+        .unwrap()
+        .clone();
 
-    let new_message;
+    let mut first = false;
+    (|| {
+        let mut f = world.resource_mut::<FirsCorrectionTick>();
+        first = f.0;
+        f.0 = true;
+    })();
 
-    match &queued_message_reciever.receiver_option {
-        Some(receiver) => {
-            let queued_message_result = receiver.recv();
-
-            match queued_message_result {
-                Ok(incoming_message) => {
-                    new_message = incoming_message;
-                }
-                Err(_) => {
-                    return;
-                }
-            }
-        }
-        None => {
-            return;
-        }
+    // First tick.
+    if !first {
+        world.run_schedule(Startup);
     }
 
-    match new_message {
-        ClientCorrectionMessage::StartCorrecting(
-            start_correction_data,
-            new_cache,
-            gridmap_cache,
-            controller_cachec,
-            look_cachec,
-            priorityc,
-            type_cache,
-        ) => {
-            let mut fixed_cache = new_cache.clone();
-            let link = || -> CorrectionServerRigidBodyLink {
-                let link = world
-                    .get_resource::<CorrectionServerRigidBodyLink>()
-                    .unwrap();
-                for t in fixed_cache.cache.iter_mut() {
-                    for (_, cache) in t.1.iter_mut() {
-                        let mut found: bool = false;
-                        match link.map.get(&cache.entity) {
-                            Some(sims) => {
-                                for sim in sims {
-                                    cache.entity = *sim;
-                                    found = true;
+    if !start_data.correcting {
+        return;
+    }
 
-                                    break;
-                                }
-                            }
-                            None => {}
-                        }
-                        if !found {
-                            //warn!("Cache link not found.");
-                        }
-                    }
-                }
-                link.clone()
-            }();
+    let mut fixed_cache = start_data.physics_cache.clone();
+    let link = || -> CorrectionServerRigidBodyLink {
+        let link = world
+            .get_resource::<CorrectionServerRigidBodyLink>()
+            .unwrap();
+        for t in fixed_cache.cache.iter_mut() {
+            for (_, cache) in t.1.iter_mut() {
+                let mut found: bool = false;
+                match link.map.get(&cache.entity) {
+                    Some(sims) => {
+                        for sim in sims {
+                            cache.entity = *sim;
+                            found = true;
 
-            let mut query = world.query_filtered::<Entity, With<RigidBody>>();
-
-            let mut new_pcache = HashMap::new();
-            for t in priorityc.cache.iter() {
-                let mut new_tick_map = HashMap::new();
-                for (pentity, update) in t.1.iter() {
-                    let mut found: bool = false;
-                    for (client, sims) in link.map.iter() {
-                        if client == pentity {
-                            let mut f = None;
-
-                            for sim in sims.iter() {
-                                match query.get(world, *sim) {
-                                    Ok(_) => {
-                                        f = Some(*sim);
-                                        break;
-                                    }
-                                    Err(_) => {}
-                                }
-                            }
-                            match f {
-                                Some(sim) => {
-                                    let new_update = update.clone();
-                                    match new_update {
-                                        PriorityUpdate::SmallCache(mut small) => {
-                                            small.entity = sim;
-                                            new_tick_map
-                                                .insert(sim, PriorityUpdate::SmallCache(small));
-                                        }
-                                        _ => {
-                                            new_tick_map.insert(sim, new_update);
-                                        }
-                                    }
-                                    found = true;
-                                }
-                                None => {
-                                    //warn!("Nothing found.");
-                                }
-                            }
                             break;
                         }
                     }
-                    if !found {
-                        //warn!("pCache link not found.");
-                    }
+                    None => {}
                 }
-                new_pcache.insert(*t.0, new_tick_map);
-            }
-            (|| {
-                let mut cache = world.get_resource_mut::<PhysicsCache>().unwrap();
-                *cache = fixed_cache;
-            })();
-
-            (|| {
-                let mut correction = world.get_resource_mut::<StartCorrection>().unwrap();
-                *correction = start_correction_data.clone();
-            })();
-
-            (|| {
-                let mut gridmap = world.get_resource_mut::<Gridmap>().unwrap();
-                gridmap.updates_cache = gridmap_cache;
-            })();
-
-            (|| {
-                let mut stamp = world.get_resource_mut::<TickRateStamp>().unwrap();
-                // -1 because this system happens before step_tickrate_stamp system.
-                // -1 because constructing a physics scene from cache needs an entire frame for itself to initialize.
-                *stamp = TickRateStamp::new(start_correction_data.start_tick - 2);
-            })();
-
-            (|| {
-                let mut controller_cache = world.get_resource_mut::<ControllerCache>().unwrap();
-                *controller_cache = controller_cachec;
-            })();
-
-            (|| {
-                let mut look_cache = world.get_resource_mut::<LookTransformCache>().unwrap();
-                *look_cache = look_cachec;
-            })();
-
-            (|| {
-                let mut priority = world.get_resource_mut::<PriorityPhysicsCache>().unwrap();
-
-                priority.cache = new_pcache;
-            })();
-
-            (|| {
-                let mut correcting = world.get_resource_mut::<IsCorrecting>().unwrap();
-
-                correcting.0 = true;
-            })();
-
-            (|| {
-                let mut entity_type_cache = world.get_resource_mut::<EntityTypeCache>().unwrap();
-                *entity_type_cache = type_cache;
-            })();
-
-            for _ in start_correction_data.start_tick - 1..start_correction_data.last_tick + 1 {
-                world.run_schedule(FixedUpdate);
+                if !found {
+                    //warn!("Cache link not found.");
+                }
             }
         }
+        link.clone()
+    }();
+
+    let mut query = world.query_filtered::<Entity, With<RigidBody>>();
+
+    let mut new_pcache = HashMap::new();
+    for t in start_data.priority_physics_cache.cache.iter() {
+        let mut new_tick_map = HashMap::new();
+        for (pentity, update) in t.1.iter() {
+            let mut found: bool = false;
+            for (client, sims) in link.map.iter() {
+                if client == pentity {
+                    let mut f = None;
+
+                    for sim in sims.iter() {
+                        match query.get(world, *sim) {
+                            Ok(_) => {
+                                f = Some(*sim);
+                                break;
+                            }
+                            Err(_) => {}
+                        }
+                    }
+                    match f {
+                        Some(sim) => {
+                            let new_update = update.clone();
+                            match new_update {
+                                PriorityUpdate::SmallCache(mut small) => {
+                                    small.entity = sim;
+                                    new_tick_map.insert(sim, PriorityUpdate::SmallCache(small));
+                                }
+                                _ => {
+                                    new_tick_map.insert(sim, new_update);
+                                }
+                            }
+                            found = true;
+                        }
+                        None => {
+                            //warn!("Nothing found.");
+                        }
+                    }
+                    break;
+                }
+            }
+            if !found {
+                //warn!("pCache link not found.");
+            }
+        }
+        new_pcache.insert(*t.0, new_tick_map);
+    }
+    (|| {
+        let mut cache = world.resource_mut::<PhysicsCache>();
+        *cache = fixed_cache;
+    })();
+
+    (|| {
+        let mut correction = world.resource_mut::<StartCorrection>();
+        *correction = start_data.start.clone();
+    })();
+
+    (|| {
+        let mut gridmap = world.resource_mut::<Gridmap>();
+        gridmap.updates_cache = start_data.gridmap_cache;
+    })();
+
+    (|| {
+        let mut stamp = world.resource_mut::<TickRateStamp>();
+        // -1 because this system happens before step_tickrate_stamp system.
+        // -1 because constructing a physics scene from cache needs an entire frame for itself to initialize.
+        *stamp = TickRateStamp::new(start_data.start.start_tick - 2);
+    })();
+
+    (|| {
+        let mut controller_cache = world.resource_mut::<ControllerCache>();
+        *controller_cache = start_data.controller_cache;
+    })();
+
+    (|| {
+        let mut look_cache = world.resource_mut::<LookTransformCache>();
+        *look_cache = start_data.look_transform_cache;
+    })();
+
+    (|| {
+        let mut priority = world.resource_mut::<PriorityPhysicsCache>();
+
+        priority.cache = new_pcache;
+    })();
+
+    (|| {
+        let mut correcting = world.resource_mut::<IsCorrecting>();
+
+        correcting.0 = true;
+    })();
+
+    (|| {
+        let mut entity_type_cache = world.resource_mut::<EntityTypeCache>();
+        *entity_type_cache = start_data.entity_type_cache;
+    })();
+
+    for _ in start_data.start.start_tick - 1..start_data.start.last_tick + 1 {
+        world.run_schedule(FixedUpdate);
     }
 }
 
@@ -346,70 +309,32 @@ pub(crate) fn init_correction_server(mut first: Local<bool>, mut fixed: ResMut<T
     fixed.set_timestep_seconds(IDLE_LOOP_TIME);
 }
 
-#[derive(Default)]
-pub struct CorrectionServerReceiveMessage {
-    pub receiver_option: Option<Receiver<ClientCorrectionMessage>>,
+#[derive(Resource, Default, Clone)]
+pub struct StartCorrectingMessage {
+    pub start: StartCorrection,
+    pub physics_cache: PhysicsCache,
+    pub gridmap_cache: GridmapCache,
+    pub controller_cache: ControllerCache,
+    pub look_transform_cache: LookTransformCache,
+    pub priority_physics_cache: PriorityPhysicsCache,
+    pub entity_type_cache: EntityTypeCache,
+    pub correcting: bool,
 }
-#[derive(Resource)]
-pub struct CorrectionServerSendMessage {
-    pub sender: SyncSender<CorrectionServerMessage>,
-}
-#[derive(Resource)]
-pub struct CorrectionServerData {
-    pub message_sender: SyncSender<ClientCorrectionMessage>,
-    pub app_handle: JoinHandle<()>,
-}
-pub struct CorrectionServerMessageReceiver {
-    pub receiver: Receiver<CorrectionServerMessage>,
-}
-pub enum ClientCorrectionMessage {
-    StartCorrecting(
-        StartCorrection,
-        PhysicsCache,
-        GridmapCache,
-        ControllerCache,
-        LookTransformCache,
-        PriorityPhysicsCache,
-        EntityTypeCache,
-    ),
-}
-pub enum CorrectionServerMessage {
+pub enum CorrectionAppMessage {
     Results(CorrectionResults),
 }
 
-/// Spin up another client app instance in correction mode.
-pub(crate) fn start_correction_server(world: &mut World) {
-    let (tx, rx) = mpsc::sync_channel(64);
-    let message_receiver = CorrectionServerReceiveMessage {
-        receiver_option: Some(rx),
-    };
-
-    let (tx2, rx2) = mpsc::sync_channel(64);
-
-    let builder = std::thread::Builder::new().name("Correction Server".to_string());
-
-    match builder.spawn(move || start_app(Mode::Correction(message_receiver, tx2))) {
-        Ok(app) => {
-            info!("Physics correction server started.");
-            world.insert_resource(CorrectionServerData {
-                message_sender: tx,
-                app_handle: app,
-            });
-            world.insert_non_send_resource(CorrectionServerMessageReceiver { receiver: rx2 });
-        }
-        Err(_) => {
-            error!("Couldnt spawn correction server thread.");
-        }
-    }
-}
 #[derive(Default, Resource)]
 pub struct CorrectionEnabled(pub bool);
+
+pub struct CorrectionApp {
+    pub app: SubApp,
+}
 
 pub(crate) fn start_correction(
     mut events: EventReader<StartCorrection>,
     physics_cache: Res<PhysicsCache>,
     //mut iterative_i: ResMut<CorrectionResource>,
-    correction_server: Res<CorrectionServerData>,
     grid: Res<Gridmap>,
     mut enabled: ResMut<CorrectionEnabled>,
     look_cache: Res<LookTransformCache>,
@@ -418,6 +343,7 @@ pub(crate) fn start_correction(
     stamp: Res<TickRateStamp>,
     mut previous_lowest_start: Local<u64>,
     entity_type_cache: Res<EntityTypeCache>,
+    mut start_message: ResMut<StartCorrectingMessage>,
 ) {
     let mut lowest_start = 0;
     let mut highest_end = 1;
@@ -456,57 +382,46 @@ pub(crate) fn start_correction(
         "Start correction {}-{} at tick {}",
         lowest_start, highest_end, stamp.large
     );*/
-    match correction_server
-        .message_sender
-        .send(ClientCorrectionMessage::StartCorrecting(
-            StartCorrection {
-                start_tick: lowest_start,
-                last_tick: highest_end,
-            },
-            physics_cache.clone(),
-            grid.updates_cache.clone(),
-            controller_cache.clone(),
-            look_cache.clone(),
-            priority.clone(),
-            entity_type_cache.clone(),
-        )) {
-        Ok(_) => {
-            enabled.0 = true;
-        }
-        Err(rr) => {
-            warn!("Couldnt start correction: {}", rr);
-        }
-    }
+    *start_message = StartCorrectingMessage {
+        start: StartCorrection {
+            start_tick: lowest_start,
+            last_tick: highest_end,
+        },
+        physics_cache: physics_cache.clone(),
+        gridmap_cache: grid.updates_cache.clone(),
+        controller_cache: controller_cache.clone(),
+        look_transform_cache: look_cache.clone(),
+        priority_physics_cache: priority.clone(),
+        entity_type_cache: entity_type_cache.clone(),
+        correcting: true,
+    };
+    enabled.0 = true;
 }
 
-pub(crate) fn receive_correction_server_messages(
-    receiver: NonSend<CorrectionServerMessageReceiver>,
-    mut send: EventWriter<CorrectionResults>,
-    mut waiting: ResMut<CorrectionEnabled>,
-    rigidbodies: Res<RigidBodies>,
-) {
-    if waiting.0 {
-        match receiver.receiver.recv() {
-            Ok(correction_server_message) => match correction_server_message {
-                CorrectionServerMessage::Results(mut results) => {
-                    for t in results.data.cache.iter_mut() {
-                        for (_, cache) in t.1 {
-                            match rigidbodies.get_entity_rigidbody(&cache.entity) {
-                                Some(rb_entity) => {
-                                    cache.rb_entity = *rb_entity;
-                                }
-                                None => {
-                                    //warn!("Couldnt get entity rigidbody.");
-                                }
-                            }
-                        }
-                    }
-                    send.send(results);
-                    waiting.0 = false;
+pub(crate) fn receive_correction_server_messages(world: &mut World) {
+    let enabled = world.resource::<CorrectionEnabled>().0;
+    if !enabled {
+        return;
+    }
+    let mut correction = world.remove_non_send_resource::<CorrectionApp>().unwrap();
+
+    correction.app.extract(world);
+    correction.app.run();
+    correction.app.extract(world);
+    world.insert_non_send_resource(correction);
+
+    let rigidbodies = world.resource::<RigidBodies>().clone();
+    let mut data = world.get_resource_mut::<CorrectionResults>().unwrap();
+
+    for t in data.data.cache.iter_mut() {
+        for (_, cache) in t.1 {
+            match rigidbodies.get_entity_rigidbody(&cache.entity) {
+                Some(rb_entity) => {
+                    cache.rb_entity = *rb_entity;
                 }
-            },
-            Err(rr) => {
-                warn!("recv() error: {:?}", rr);
+                None => {
+                    //warn!("Couldnt get entity rigidbody.");
+                }
             }
         }
     }
@@ -620,7 +535,7 @@ pub(crate) fn store_tick_data(
 }
 /// Runs on client.
 pub(crate) fn apply_correction_results(
-    mut events: EventReader<CorrectionResults>,
+    correction_results: Res<CorrectionResults>,
     mut query: Query<
         (
             &mut Transform,
@@ -642,70 +557,77 @@ pub(crate) fn apply_correction_results(
     stamp: Res<TickRateStamp>,
     mut cache: ResMut<PhysicsCache>,
     mut commands: Commands,
+    mut waiting: ResMut<CorrectionEnabled>,
 ) {
-    for event in events.read() {
-        for (tick, tick_cache) in event.data.cache.iter() {
-            match cache.cache.get_mut(tick) {
-                Some(modern) => {
-                    for (_, cache) in tick_cache {
-                        modern.insert(cache.entity, cache.clone());
-                    }
-                }
-                None => {
-                    cache.cache.insert(*tick, tick_cache.clone());
-                }
-            }
-        }
+    if !waiting.0 {
+        return;
+    }
+    waiting.0 = false;
 
-        match event.data.cache.get(&stamp.large) {
-            Some(cache_vec) => {
-                for (_, cache) in cache_vec {
-                    match query.get_mut(cache.rb_entity) {
-                        Ok((
-                            mut transform,
-                            mut linear_velocity,
-                            mut linear_damping,
-                            mut angular_damping,
-                            mut angular_velocity,
-                            mut external_torque,
-                            mut external_angular_impulse,
-                            mut external_impulse,
-                            mut external_force,
-                            sleeping,
-                            mut locked_axes,
-                            mut collision_layers,
-                            mut friction,
-                        )) => {
-                            *transform = cache.transform;
-                            *linear_velocity = cache.linear_velocity;
-                            *linear_damping = cache.linear_damping;
-                            *angular_damping = cache.angular_damping;
-                            *angular_velocity = cache.angular_velocity;
-                            *external_torque = cache.external_torque;
-                            *external_angular_impulse = cache.external_angular_impulse;
-                            *external_impulse = cache.external_impulse;
-                            *external_force = cache.external_force;
-                            *locked_axes = cache.locked_axes;
-                            *collision_layers = cache.collision_layers;
-                            *friction = cache.collider_friction;
-                            if sleeping.is_some() {
-                                commands.entity(cache.rb_entity).insert(Sleeping);
-                            } else {
-                                commands.entity(cache.rb_entity).remove::<Sleeping>();
-                            }
-                        }
-                        Err(_rr) => {
-                            warn!("Couldnt find entity: {:?}", cache.rb_entity);
-                        }
-                    }
+    for (tick, tick_cache) in correction_results.data.cache.iter() {
+        match cache.cache.get_mut(tick) {
+            Some(modern) => {
+                for (_, cache) in tick_cache {
+                    modern.insert(cache.entity, cache.clone());
                 }
             }
             None => {
-                warn!(
-                    "Correction results did not contain current tick: {}",
-                    stamp.large
-                );
+                cache.cache.insert(*tick, tick_cache.clone());
             }
+        }
+    }
+
+    match correction_results.data.cache.get(&stamp.large) {
+        Some(cache_vec) => {
+            for (_, cache) in cache_vec {
+                match query.get_mut(cache.rb_entity) {
+                    Ok((
+                        mut transform,
+                        mut linear_velocity,
+                        mut linear_damping,
+                        mut angular_damping,
+                        mut angular_velocity,
+                        mut external_torque,
+                        mut external_angular_impulse,
+                        mut external_impulse,
+                        mut external_force,
+                        sleeping,
+                        mut locked_axes,
+                        mut collision_layers,
+                        mut friction,
+                    )) => {
+                        *transform = cache.transform;
+                        *linear_velocity = cache.linear_velocity;
+                        *linear_damping = cache.linear_damping;
+                        *angular_damping = cache.angular_damping;
+                        *angular_velocity = cache.angular_velocity;
+                        *external_torque = cache.external_torque;
+                        *external_angular_impulse = cache.external_angular_impulse;
+                        *external_impulse = cache.external_impulse;
+                        *external_force = cache.external_force;
+                        *locked_axes = cache.locked_axes;
+                        *collision_layers = cache.collision_layers;
+                        *friction = cache.collider_friction;
+                        if sleeping.is_some() {
+                            commands.entity(cache.rb_entity).insert(Sleeping);
+                        } else {
+                            commands.entity(cache.rb_entity).remove::<Sleeping>();
+                        }
+                    }
+                    Err(_rr) => {
+                        warn!(
+                            "apply_correction_results Couldnt find entity: {:?}",
+                            cache.rb_entity
+                        );
+                    }
+                }
+            }
+        }
+        None => {
+            warn!(
+                "Correction results did not contain current tick: {}",
+                stamp.large
+            );
         }
     }
 }

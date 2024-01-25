@@ -1,8 +1,8 @@
-use bevy::prelude::Event;
+use bevy::ecs::system::Resource;
 
 use crate::cache::PhysicsCache;
 
-#[derive(Event, Clone)]
+#[derive(Resource, Clone, Default)]
 pub struct CorrectionResults {
     pub data: PhysicsCache,
 }

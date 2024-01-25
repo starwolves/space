@@ -165,7 +165,6 @@ pub fn load_entity<T: Send + Sync + 'static + Default + EntityType>(
                             start_tick: adjusted_tick,
                             last_tick: stamp.large,
                         });
-                        info!("Loading entity {:?} at tick {}", c_id, stamp.large);
                     } else {
                         info!("Perfect load entity sync.");
                     }

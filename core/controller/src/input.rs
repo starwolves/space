@@ -491,7 +491,6 @@ pub(crate) fn process_peer_input(
             start_tick: earliest_tick,
             last_tick: stamp.large,
         });
-        //info!("Sending StartCorrection {}-{}", earliest_tick, stamp.large);
     }
     // Clean cache.
     for (_, cache) in look_update_queue.iter_mut() {
