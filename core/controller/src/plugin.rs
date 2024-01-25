@@ -13,7 +13,7 @@ use crate::input::{
 };
 use crate::net::ControllerClientMessage;
 use crate::networking::{
-    incoming_messages, peer_replicate_input_messages, syncable_entity, PeerLatestLookSync,
+    incoming_messages, server_replicate_peer_input_messages, syncable_entity, PeerLatestLookSync,
     PeerReliableControllerMessage, PeerUnreliableControllerMessage,
 };
 use bevy::app::Update;
@@ -52,7 +52,9 @@ impl Plugin for ControllerPlugin {
                 FixedUpdate,
                 (
                     (
-                        controller_input_entity_update.in_set(EntityUpdatesSet::BuildUpdates),
+                        controller_input_entity_update
+                            .after(controller_input)
+                            .in_set(EntityUpdatesSet::BuildUpdates),
                         look_transform_entity_update.in_set(EntityUpdatesSet::BuildUpdates),
                     )
                         .in_set(MainSet::PostUpdate),
@@ -61,7 +63,7 @@ impl Plugin for ControllerPlugin {
             )
             .add_systems(
                 Update,
-                peer_replicate_input_messages.in_set(MainSet::Update),
+                server_replicate_peer_input_messages.in_set(MainSet::Update),
             )
             .init_resource::<PeerLatestLookSync>();
 
@@ -101,6 +103,7 @@ impl Plugin for ControllerPlugin {
                             .in_set(MainSet::Update)
                             .after(SpawningSimulation::Spawn),
                         sync_controller_input
+                            .after(controller_input)
                             .in_set(InputSet::Cache)
                             .in_set(MainSet::Update),
                         apply_controller_cache_to_peers

@@ -124,14 +124,16 @@ pub fn load_entity<T: Send + Sync + 'static + Default + EntityType>(
                     });
 
                     if load_entity.entity_updates_reliable.len() > 0 {
-                        queue
-                            .reliable
-                            .insert(c_id, load_entity.entity_updates_reliable.clone());
+                        queue.reliable.insert(
+                            c_id,
+                            (message.stamp, load_entity.entity_updates_reliable.clone()),
+                        );
                     }
                     if load_entity.entity_updates_unreliable.len() > 0 {
-                        queue
-                            .unreliable
-                            .insert(c_id, load_entity.entity_updates_unreliable.clone());
+                        queue.unreliable.insert(
+                            c_id,
+                            (message.stamp, load_entity.entity_updates_unreliable.clone()),
+                        );
                     }
 
                     let compare_tick;

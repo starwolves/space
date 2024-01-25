@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use bevy::ecs::entity::Entity;
 use bevy::ecs::event::EventWriter;
-use bevy::ecs::system::{Res, ResMut, Resource};
+use bevy::ecs::system::{ResMut, Resource};
 use bevy::log::warn;
 use bevy::prelude::{Component, Event, SystemSet, Transform};
 use entity_macros::Identity;
@@ -117,17 +117,16 @@ pub trait GridEntity {
 
 #[derive(Resource, Default)]
 pub struct QueuedSpawnEntityUpdates {
-    pub reliable: HashMap<Entity, Vec<Vec<u8>>>,
-    pub unreliable: HashMap<Entity, Vec<Vec<u8>>>,
+    pub reliable: HashMap<Entity, (u64, Vec<Vec<u8>>)>,
+    pub unreliable: HashMap<Entity, (u64, Vec<Vec<u8>>)>,
 }
 
 pub(crate) fn fire_queued_entity_updates(
     mut queue: ResMut<QueuedSpawnEntityUpdates>,
     mut send_reliable: EventWriter<IncomingRawReliableServerMessage>,
     mut send_unreliable: EventWriter<IncomingRawUnreliableServerMessage>,
-    stamp: Res<TickRateStamp>,
 ) {
-    for (_, updates) in queue.reliable.drain() {
+    for (_, (large, updates)) in queue.reliable.drain() {
         let mut msgs = vec![];
         for update in updates {
             match bincode::deserialize::<ReliableMessage>(&update) {
@@ -143,13 +142,13 @@ pub(crate) fn fire_queued_entity_updates(
         send_reliable.send(IncomingRawReliableServerMessage {
             message: ReliableServerMessageBatch {
                 messages: msgs,
-                stamp: stamp.tick,
+                stamp: TickRateStamp::new(large).tick,
                 client_stamp_option: None,
             },
         });
     }
 
-    for (_, updates) in queue.unreliable.drain() {
+    for (_, (large, updates)) in queue.unreliable.drain() {
         let mut msgs = vec![];
         for update in updates {
             match bincode::deserialize::<UnreliableMessage>(&update) {
@@ -165,7 +164,7 @@ pub(crate) fn fire_queued_entity_updates(
         send_unreliable.send(IncomingRawUnreliableServerMessage {
             message: UnreliableServerMessageBatch {
                 messages: msgs,
-                stamp: stamp.tick,
+                stamp: TickRateStamp::new(large).tick,
                 client_stamp_option: None,
             },
         });

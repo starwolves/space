@@ -15,6 +15,7 @@ use bevy::transform::components::Transform;
 use bevy_renet::renet::ClientId;
 use bevy_renet::renet::RenetServer;
 use cameras::LookTransform;
+use entity::senser::Senser;
 use itertools::Itertools;
 use networking::messaging::ReliableMessage;
 use networking::messaging::ReliableServerMessageBatch;
@@ -110,11 +111,11 @@ pub struct PeerLatestLookSync(HashMap<ClientId, (u64, u8)>);
 
 /// Replicate client input to peers from Update schedule.
 /// Will make use of generic systems one day.
-pub(crate) fn peer_replicate_input_messages(
+pub(crate) fn server_replicate_peer_input_messages(
     mut reliable: EventReader<EarlyIncomingRawReliableClientMessage>,
     mut unreliable: EventReader<EarlyIncomingRawUnreliableClientMessage>,
     mut server: ResMut<RenetServer>,
-    players: Query<&ConnectedPlayer, With<RigidBodyLink>>,
+    players: Query<(&ConnectedPlayer, &Senser), With<RigidBodyLink>>,
     typenames: Res<Typenames>,
     query: Query<(&Transform, &LookTransform), With<RigidBodyLink>>,
     stamp: Res<TickRateStamp>,
@@ -126,6 +127,26 @@ pub(crate) fn peer_replicate_input_messages(
     let mut unreliable_peer_messages: HashMap<ClientId, Vec<(u8, UnreliableMessage)>> =
         HashMap::new();
     for batch in reliable.read() {
+        let moving_entity;
+        match handle_to_entity.map.get(&batch.0.handle) {
+            Some(e) => {
+                moving_entity = *e;
+            }
+            None => {
+                warn!("no handle entity found.");
+                continue;
+            }
+        }
+        let tuple;
+        match query.get(moving_entity) {
+            Ok(t) => {
+                tuple = t.clone();
+            }
+            Err(_) => {
+                warn!("Couldnt find moving entity.");
+                continue;
+            }
+        }
         for message in batch.0.message.messages.iter() {
             match typenames
                 .reliable_net_types
@@ -135,32 +156,15 @@ pub(crate) fn peer_replicate_input_messages(
                     if id == &message.typename_net {
                         match bincode::deserialize::<ControllerClientMessage>(&message.serialized) {
                             Ok(client_message) => {
-                                for connected in players.iter() {
+                                for (connected, senser) in players.iter() {
                                     if !connected.connected {
                                         continue;
                                     }
                                     if batch.0.handle == connected.handle {
                                         continue;
                                     }
-                                    let moving_entity;
-                                    match handle_to_entity.map.get(&batch.0.handle) {
-                                        Some(e) => {
-                                            moving_entity = *e;
-                                        }
-                                        None => {
-                                            warn!("no handle entity found.");
-                                            continue;
-                                        }
-                                    }
-                                    let tuple;
-                                    match query.get(moving_entity) {
-                                        Ok(t) => {
-                                            tuple = t.clone();
-                                        }
-                                        Err(_) => {
-                                            warn!("Couldnt find moving entity.");
-                                            continue;
-                                        }
+                                    if !senser.sensing.contains(&moving_entity) {
+                                        continue;
                                     }
                                     let new_message = PeerReliableControllerMessage {
                                         message: PeerControllerClientMessage::from(
@@ -208,6 +212,26 @@ pub(crate) fn peer_replicate_input_messages(
         }
     }
     for batch in unreliable.read() {
+        let moving_entity;
+        match handle_to_entity.map.get(&batch.0.handle) {
+            Some(e) => {
+                moving_entity = *e;
+            }
+            None => {
+                warn!("no handle entity found.");
+                continue;
+            }
+        }
+        let tuple;
+        match query.get(moving_entity) {
+            Ok(t) => {
+                tuple = t.clone();
+            }
+            Err(_) => {
+                warn!("Couldnt find moving entity.");
+                continue;
+            }
+        }
         for message in batch.0.message.messages.iter() {
             match typenames
                 .unreliable_net_types
@@ -219,14 +243,16 @@ pub(crate) fn peer_replicate_input_messages(
                             &message.serialized,
                         ) {
                             Ok(client_message) => {
-                                for connected in players.iter() {
+                                for (connected, senser) in players.iter() {
                                     if !connected.connected {
                                         continue;
                                     }
                                     if batch.0.handle == connected.handle {
                                         continue;
                                     }
-
+                                    if !senser.sensing.contains(&moving_entity) {
+                                        continue;
+                                    }
                                     let mut latest = false;
                                     match client_message {
                                         UnreliableControllerClientMessage::UpdateLookTransform(
@@ -285,27 +311,6 @@ pub(crate) fn peer_replicate_input_messages(
                                     }
                                     if !latest {
                                         continue;
-                                    }
-
-                                    let moving_entity;
-                                    match handle_to_entity.map.get(&batch.0.handle) {
-                                        Some(e) => {
-                                            moving_entity = *e;
-                                        }
-                                        None => {
-                                            warn!("no handle entity found.");
-                                            continue;
-                                        }
-                                    }
-                                    let tuple;
-                                    match query.get(moving_entity) {
-                                        Ok(t) => {
-                                            tuple = t.clone();
-                                        }
-                                        Err(_) => {
-                                            warn!("Couldnt find moving entity.");
-                                            continue;
-                                        }
                                     }
 
                                     let new_message = PeerUnreliableControllerMessage {
