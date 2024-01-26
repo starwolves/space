@@ -295,7 +295,12 @@ pub(crate) fn server_start_correcting(world: &mut World) {
     })();
 
     for _ in start_data.start.start_tick - 1..start_data.start.last_tick + 1 {
-        world.run_schedule(FixedUpdate);
+        match world.try_run_schedule(FixedUpdate) {
+            Ok(_) => {}
+            Err(rr) => {
+                warn!("Correction app try_run_schedule {}", rr);
+            }
+        };
     }
 }
 
