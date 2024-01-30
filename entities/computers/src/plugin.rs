@@ -1,10 +1,10 @@
-use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin};
+use bevy::prelude::{App, IntoSystemConfigs, Plugin};
 use combat::sfx::health_combat_hit_result_sfx;
+use entity::entity_types::register_entity_type;
 use entity::spawn::build_base_entities;
-use entity::{entity_types::register_entity_type, spawn::SpawnItemSet};
 use physics::spawn::build_rigid_bodies;
 use resources::modes::is_server_mode;
-use resources::sets::{CombatSet, MainSet};
+use resources::ordering::{BuildingSet, CombatSet, PreUpdate, Update};
 
 use crate::computer::Computer;
 
@@ -19,23 +19,21 @@ impl Plugin for ComputersPlugin {
     fn build(&self, app: &mut App) {
         if is_server_mode(app) {
             app.add_systems(
-                FixedUpdate,
+                Update,
                 (
                     health_combat_hit_result_sfx::<Computer>.after(CombatSet::FinalizeApplyDamage),
                     computer_added,
-                )
-                    .in_set(MainSet::Update),
+                ),
             );
         }
         register_entity_type::<ComputerType>(app);
         app.add_systems(
-            FixedUpdate,
+            PreUpdate,
             (
-                (build_rigid_bodies::<ComputerType>).after(SpawnItemSet::SpawnHeldItem),
-                build_computers::<ComputerType>.after(SpawnItemSet::SpawnHeldItem),
-                (build_base_entities::<ComputerType>).after(SpawnItemSet::SpawnHeldItem),
-            )
-                .in_set(MainSet::Update),
+                (build_rigid_bodies::<ComputerType>).in_set(BuildingSet::NormalBuild),
+                build_computers::<ComputerType>.in_set(BuildingSet::NormalBuild),
+                (build_base_entities::<ComputerType>).in_set(BuildingSet::NormalBuild),
+            ),
         );
     }
 }

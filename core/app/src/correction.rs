@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use bevy::{
     app::{Startup, SubApp},
-    ecs::{entity::Entity, system::Commands},
+    ecs::{entity::Entity, schedule::SystemSet, system::Commands},
     log::warn,
 };
 use bevy::{
@@ -11,10 +11,7 @@ use bevy::{
     transform::components::Transform,
 };
 use bevy::{
-    prelude::{
-        App, EventReader, FixedUpdate, IntoSystemConfigs, Local, Plugin, Res, ResMut, Resource,
-        World,
-    },
+    prelude::{App, EventReader, IntoSystemConfigs, Local, Plugin, Res, ResMut, Resource, World},
     time::{Fixed, Time},
 };
 use bevy_xpbd_3d::components::{
@@ -32,34 +29,37 @@ use physics::{
     cache::{Cache, PhysicsCache},
     correction_mode::CorrectionResults,
     entity::{RigidBodies, SFRigidBody},
-    sync::{CorrectionServerRigidBodyLink, SimulationStorage},
+    plugin::PhysicsStepSet,
+    sync::{CorrectionEnabled, CorrectionServerRigidBodyLink, SimulationStorage},
 };
 use resources::{
     correction::{CorrectionServerSet, IsCorrecting, StartCorrection},
     modes::is_correction_mode,
+    ordering::{Fin, PostUpdate, PreUpdate},
     physics::{PhysicsSet, PriorityPhysicsCache, PriorityUpdate},
-    sets::MainSet,
 };
+
+use crate::run_game_schedules;
+
+/// Label for systems ordering.
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
+pub struct Correction;
 
 pub struct CorrectionPlugin;
 impl Plugin for CorrectionPlugin {
     fn build(&self, app: &mut App) {
         if !is_correction_mode(app) {
             app.add_systems(
-                FixedUpdate,
+                PostUpdate,
                 (
-                    start_correction
-                        .in_set(MainSet::PostPhysics)
-                        .after(PhysicsSet::CacheNewSpawns)
-                        .before(receive_correction_server_messages),
-                    receive_correction_server_messages.in_set(MainSet::PostPhysics),
+                    start_correction.before(receive_correction_server_messages),
+                    receive_correction_server_messages,
                     apply_correction_results
                         .after(receive_correction_server_messages)
-                        .in_set(PhysicsSet::Correct)
-                        .in_set(MainSet::PostPhysics),
-                ),
-            )
-            .init_resource::<CorrectionEnabled>();
+                        .in_set(PhysicsSet::Correct),
+                )
+                    .in_set(Correction),
+            );
         }
         app.init_resource::<StartCorrectingMessage>();
     }
@@ -71,20 +71,18 @@ struct FirsCorrectionTick(pub bool);
 pub struct CorrectionServerPlugin;
 impl Plugin for CorrectionServerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(
-            FixedUpdate,
-            (
-                init_correction_server.in_set(MainSet::PreUpdate),
-                finish_correction.in_set(MainSet::Fin),
-                store_tick_data.in_set(MainSet::PostPhysics),
-                apply_controller_caches
-                    .in_set(MainSet::PreUpdate)
-                    .after(CorrectionServerSet::TriggerSync),
-            ),
-        )
-        .init_resource::<StartCorrection>()
-        .init_resource::<IsCorrecting>()
-        .init_resource::<FirsCorrectionTick>();
+        app.add_systems(PostUpdate, (store_tick_data.after(PhysicsStepSet),))
+            .add_systems(
+                PreUpdate,
+                (
+                    init_correction_server,
+                    apply_controller_caches.after(CorrectionServerSet::TriggerSync),
+                ),
+            )
+            .add_systems(Fin, (finish_correction,))
+            .init_resource::<StartCorrection>()
+            .init_resource::<IsCorrecting>()
+            .init_resource::<FirsCorrectionTick>();
     }
 }
 pub enum ConsoleCommandsSet {
@@ -295,12 +293,7 @@ pub(crate) fn server_start_correcting(world: &mut World) {
     })();
 
     for _ in start_data.start.start_tick - 1..start_data.start.last_tick + 1 {
-        match world.try_run_schedule(FixedUpdate) {
-            Ok(_) => {}
-            Err(rr) => {
-                warn!("Correction app try_run_schedule {}", rr);
-            }
-        };
+        run_game_schedules(world);
     }
 }
 
@@ -328,9 +321,6 @@ pub struct StartCorrectingMessage {
 pub enum CorrectionAppMessage {
     Results(CorrectionResults),
 }
-
-#[derive(Default, Resource)]
-pub struct CorrectionEnabled(pub bool);
 
 pub struct CorrectionApp {
     pub app: SubApp,
@@ -416,7 +406,7 @@ pub(crate) fn receive_correction_server_messages(world: &mut World) {
     world.insert_non_send_resource(correction);
 
     let rigidbodies = world.resource::<RigidBodies>().clone();
-    let mut data = world.get_resource_mut::<CorrectionResults>().unwrap();
+    let mut data = world.resource_mut::<CorrectionResults>();
 
     for t in data.data.cache.iter_mut() {
         for (_, cache) in t.1 {

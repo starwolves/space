@@ -532,7 +532,7 @@ pub(crate) fn send_desync_check(
                 player_entity = *ent;
             }
             None => {
-                warn!("no handle entity found.");
+                warn!("no handle entity found.3");
                 continue;
             }
         }
@@ -685,10 +685,7 @@ pub(crate) fn client_apply_priority_cache(
     >,
     stamp: Res<TickRateStamp>,
 ) {
-    let mut adjusted_stamp = stamp.large;
-    if adjusted_stamp > 0 {
-        adjusted_stamp -= 1;
-    }
+    let adjusted_stamp = stamp.large;
 
     match priority.cache.get(&adjusted_stamp) {
         Some(priority_cache) => {
@@ -731,7 +728,7 @@ pub fn correction_server_apply_priority_cache(
     link: Res<CorrectionServerRigidBodyLink>,
     start: Res<StartCorrection>,
 ) {
-    if stamp.large <= start.start_tick {
+    if stamp.large < start.start_tick {
         return;
     }
     let mut adjusted_stamp = stamp.large;
@@ -783,6 +780,9 @@ pub fn correction_server_apply_priority_cache(
         None => {}
     }
 }
+
+#[derive(Default, Resource)]
+pub struct CorrectionEnabled(pub bool);
 
 pub(crate) fn client_despawn_and_clean_cache(
     mut net: EventReader<IncomingReliableServerMessage<EntityServerMessage>>,

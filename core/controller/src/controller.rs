@@ -1,17 +1,29 @@
 use std::collections::HashMap;
 
 use bevy::{
-    ecs::system::{Query, Res, ResMut, Resource},
+    ecs::{
+        event::EventReader,
+        system::{Local, Query, Res, ResMut, Resource},
+    },
+    log::warn,
+    math::Vec3,
     prelude::{Component, Entity, Vec2},
     transform::components::Transform,
 };
+use bevy_renet::renet::ClientId;
 use cameras::LookTransform;
 use itertools::Itertools;
 use networking::{
-    server::{ConnectedPlayer, ConstructEntityUpdates, EntityUpdates},
+    server::{
+        ConnectedPlayer, ConstructEntityUpdates, EntityUpdates, HandleToEntity,
+        IncomingUnreliableClientMessage,
+    },
     stamp::TickRateStamp,
 };
-use pawn::net::{PeerUpdateLookTransform, UnreliablePeerControllerClientMessage};
+use pawn::net::{
+    PeerUpdateLookTransform, UnreliableControllerClientMessage,
+    UnreliablePeerControllerClientMessage,
+};
 use resources::correction::MAX_CACHE_TICKS_AMNT;
 use serde::{Deserialize, Serialize};
 
@@ -109,6 +121,81 @@ pub(crate) fn controller_input_entity_update(
                 );
             }
             Err(_) => {}
+        }
+    }
+}
+
+pub(crate) fn server_sync_look_transform(
+    mut humanoids: Query<&mut LookTransform>,
+    mut messages: EventReader<IncomingUnreliableClientMessage<UnreliableControllerClientMessage>>,
+    handle_to_entity: Res<HandleToEntity>,
+    mut queue: Local<HashMap<ClientId, HashMap<u64, HashMap<u8, Vec3>>>>,
+    stamp: Res<TickRateStamp>,
+) {
+    for msg in messages.read() {
+        match msg.message {
+            UnreliableControllerClientMessage::UpdateLookTransform(target, id) => {
+                match queue.get_mut(&msg.handle) {
+                    Some(q1) => match q1.get_mut(&msg.stamp) {
+                        Some(q2) => {
+                            q2.insert(id, target);
+                        }
+                        None => {
+                            let mut m = HashMap::new();
+                            m.insert(id, target);
+                            q1.insert(msg.stamp, m);
+                        }
+                    },
+                    None => {
+                        let mut n = HashMap::new();
+                        n.insert(id, target);
+                        let mut m = HashMap::new();
+                        m.insert(msg.stamp, n);
+                        queue.insert(msg.handle, m);
+                    }
+                }
+            }
+        }
+    }
+
+    for (handle, q) in queue.iter() {
+        for i in q.keys().sorted().rev() {
+            if i > &stamp.large {
+                continue;
+            }
+            let q2 = q.get(i).unwrap();
+            for sub in q2.keys().sorted().rev() {
+                let target = *q2.get(sub).unwrap();
+
+                match handle_to_entity.map.get(&handle) {
+                    Some(entity) => match humanoids.get_mut(*entity) {
+                        Ok(mut look_transform) => {
+                            look_transform.target = target;
+                        }
+                        Err(_) => {
+                            warn!("Couldnt find client entity components.");
+                        }
+                    },
+                    None => {
+                        warn!("Couldnt find handle entity.");
+                    }
+                }
+                break;
+            }
+            break;
+        }
+    }
+
+    // Clean cache.
+    for (_, cache) in queue.iter_mut() {
+        if cache.len() > MAX_CACHE_TICKS_AMNT as usize {
+            let mut j = 0;
+            for i in cache.clone().keys().sorted().rev() {
+                if j >= MAX_CACHE_TICKS_AMNT {
+                    cache.remove(i);
+                }
+                j += 1;
+            }
         }
     }
 }

@@ -1,21 +1,26 @@
 use bevy::{
-    ecs::schedule::common_conditions::resource_exists,
-    prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, Update},
+    ecs::{
+        schedule::{common_conditions::resource_exists, ScheduleLabel, SystemSet},
+        world::World,
+    },
+    log::warn,
+    prelude::{App, IntoSystemConfigs, Plugin, Update as BevyUpdate},
 };
 use bevy_renet::renet::RenetClient;
 use bevy_xpbd_3d::{prelude::PhysicsPlugins, resources::SubstepCount};
+use entity::despawn::DespawnEntitySet;
 use networking::messaging::{register_unreliable_message, MessageSender, MessagingSet};
 use resources::{
     core::TickRate,
     correction::CorrectionSet,
     modes::{is_correction_mode, is_server_mode},
-    physics::{PhysicsSet, PriorityPhysicsCache},
-    sets::MainSet,
+    ordering::{Fin, PostUpdate, PreUpdate, Update},
+    physics::PriorityPhysicsCache,
 };
 
 use crate::{
     cache::{
-        apply_newly_spawned_data, cache_data, cache_data_second, clear_physics_cache,
+        apply_newly_spawned_data, cache_data_new_spawns, cache_data_prev_tick, clear_physics_cache,
         clear_priority_cache, sync_entities, PhysicsCache, SyncEntitiesPhysics,
     },
     correction_mode::CorrectionResults,
@@ -31,8 +36,8 @@ use crate::{
         client_apply_priority_cache, client_despawn_and_clean_cache,
         correction_server_apply_priority_cache, desync_check_correction, init_physics_data,
         send_desync_check, start_sync, sync_correction_world_entities, sync_loop,
-        ClientStartedSyncing, CorrectionServerRigidBodyLink, FastForwarding, SimulationStorage,
-        SpawningSimulation, SpawningSimulationRigidBody, SyncPause,
+        ClientStartedSyncing, CorrectionEnabled, CorrectionServerRigidBodyLink, FastForwarding,
+        SimulationStorage, SpawningSimulation, SpawningSimulationRigidBody, SyncPause,
     },
 };
 
@@ -40,31 +45,25 @@ pub struct PhysicsPlugin;
 impl Plugin for PhysicsPlugin {
     fn build(&self, app: &mut App) {
         if is_server_mode(app) {
-            app.add_systems(
-                FixedUpdate,
-                rigidbody_link_transform.in_set(MainSet::Update),
-            );
+            app.add_systems(Update, rigidbody_link_transform);
             if !is_correction_mode(app) {
                 app.add_systems(
-                    FixedUpdate,
+                    Update,
                     (
-                        server_mirror_link_transform.in_set(MainSet::PreUpdate),
-                        despawn_out_of_bounds.in_set(MainSet::Update),
-                        send_desync_check.in_set(MainSet::Update),
+                        despawn_out_of_bounds.before(DespawnEntitySet),
+                        send_desync_check,
                     ),
                 );
+                app.add_systems(PreUpdate, (server_mirror_link_transform,));
             } else {
                 app.add_systems(
-                    FixedUpdate,
-                    (
-                        sync_correction_world_entities
-                            .after(CorrectionSet::Start)
-                            .in_set(MainSet::Update)
-                            .before(SpawningSimulation::Spawn),
-                        init_physics_data.in_set(MainSet::PostPhysics),
-                        correction_server_apply_priority_cache.in_set(MainSet::PreUpdate),
-                    ),
+                    PreUpdate,
+                    (sync_correction_world_entities
+                        .before(DespawnEntitySet)
+                        .before(SpawningSimulation::Spawn),),
                 )
+                .add_systems(PreUpdate, (correction_server_apply_priority_cache,))
+                .add_systems(PostUpdate, (init_physics_data.after(PhysicsStepSet),))
                 .init_resource::<CorrectionServerRigidBodyLink>()
                 .add_event::<SpawningSimulationRigidBody>()
                 .init_resource::<SimulationStorage>()
@@ -72,69 +71,65 @@ impl Plugin for PhysicsPlugin {
             }
         } else {
             app.init_resource::<CorrectionResults>()
-                .add_systems(
-                    FixedUpdate,
-                    (
-                        client_mirror_link_target_transform
-                            .in_set(MainSet::PostPhysics)
-                            .after(PhysicsSet::Correct),
-                        cache_data.in_set(MainSet::PreUpdate),
-                        cache_data_second
-                            .in_set(MainSet::PostPhysics)
-                            .before(PhysicsSet::CacheNewSpawns),
-                        apply_newly_spawned_data
-                            .in_set(MainSet::PostPhysics)
-                            .in_set(PhysicsSet::CacheNewSpawns),
-                        desync_check_correction
-                            .run_if(resource_exists::<RenetClient>())
-                            .in_set(MainSet::Update)
-                            .in_set(CorrectionSet::Start)
-                            .before(sync_entities),
-                        sync_entities.in_set(MainSet::Update),
-                        client_despawn_and_clean_cache.in_set(MainSet::Update),
-                        client_apply_priority_cache
-                            .in_set(MainSet::PreUpdate)
-                            .before(cache_data),
-                    ),
-                )
+                .add_systems(Fin, client_apply_priority_cache)
+                .add_systems(Fin, (client_mirror_link_target_transform,))
                 .add_systems(
                     Update,
-                    client_interpolate_link_transform
-                        .after(client_mirror_link_target_transform)
-                        .after(MainSet::PostPhysics),
+                    (
+                        desync_check_correction
+                            .run_if(resource_exists::<RenetClient>())
+                            .in_set(CorrectionSet::Start)
+                            .before(sync_entities),
+                        sync_entities,
+                        client_despawn_and_clean_cache,
+                        cache_data_new_spawns,
+                        apply_newly_spawned_data.after(cache_data_new_spawns),
+                    ),
                 )
+                .add_systems(BevyUpdate, client_interpolate_link_transform)
                 .add_event::<ResetLerp>()
                 .init_resource::<SyncPause>()
                 .add_systems(
-                    FixedUpdate,
+                    PreUpdate,
                     (
-                        sync_loop
-                            .after(MessagingSet::DeserializeIncoming)
-                            .in_set(MainSet::PreUpdate),
+                        sync_loop.after(MessagingSet::DeserializeIncoming),
                         start_sync
-                            .in_set(MainSet::PreUpdate)
                             .after(MessagingSet::DeserializeIncoming)
                             .before(sync_loop),
-                        clear_priority_cache.in_set(MainSet::Fin),
-                        clear_physics_cache.in_set(MainSet::Fin),
+                        cache_data_prev_tick,
                     ),
                 )
+                .add_systems(Fin, (clear_priority_cache, clear_physics_cache))
                 .init_resource::<FastForwarding>()
                 .init_resource::<ClientStartedSyncing>()
                 .add_event::<SyncEntitiesPhysics>();
         }
-        app.add_plugins(PhysicsPlugins::new(FixedUpdate))
+        app.add_plugins(PhysicsPlugins::new(PhysicsStep))
             .init_resource::<RigidBodies>()
-            .add_systems(
-                FixedUpdate,
-                remove_rigidbody_links.in_set(MainSet::PostUpdate),
-            )
+            .add_systems(Update, remove_rigidbody_links.in_set(DespawnEntitySet))
             .insert_resource(SubstepCount(TickRate::default().physics_substep.into()))
             .init_resource::<PhysicsCache>()
             .init_resource::<PriorityPhysicsCache>()
             .init_resource::<NewlySpawnedRigidbodies>()
-            .add_systems(FixedUpdate, clear_new.in_set(MainSet::Update));
+            .add_systems(Update, clear_new)
+            .add_systems(PostUpdate, physics_step.in_set(PhysicsStepSet))
+            .init_resource::<CorrectionEnabled>();
 
         register_unreliable_message::<PhysicsUnreliableServerMessage>(app, MessageSender::Server);
+    }
+}
+#[derive(ScheduleLabel, Clone, Debug, PartialEq, Eq, Hash)]
+pub struct PhysicsStep;
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
+pub struct PhysicsStepSet;
+
+pub(crate) fn physics_step(world: &mut World) {
+    if !world.resource::<CorrectionEnabled>().0 {
+        match world.try_run_schedule(PhysicsStep) {
+            Ok(_) => {}
+            Err(rr) => {
+                warn!("PhysicsStep: {}", rr);
+            }
+        }
     }
 }

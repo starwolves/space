@@ -56,7 +56,7 @@ pub struct WindowFocusBuffer {
     pub buffer: Vec<WindowFocused>,
 }
 
-pub(crate) fn window_focus_buffer(
+pub fn update_window_focus_buffer(
     mut events: EventReader<WindowFocused>,
     mut res: ResMut<WindowFocusBuffer>,
 ) {

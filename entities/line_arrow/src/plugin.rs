@@ -1,14 +1,11 @@
 use basic_console_commands::register::register_basic_console_commands_for_type;
-use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, ResMut, Startup};
+use bevy::prelude::{App, IntoSystemConfigs, Plugin, ResMut, Startup};
 use console_commands::commands::{AllConsoleCommands, ConsoleCommand, ConsoleCommandsSet};
-use entity::{
-    entity_types::register_entity_type,
-    spawn::{build_base_entities, SpawnItemSet},
-};
+use entity::{entity_types::register_entity_type, spawn::build_base_entities};
 use networking::server::ConsoleArgVariant;
 use resources::{
     modes::is_server_mode,
-    sets::{BuildingSet, MainSet, StartupSet},
+    ordering::{BuildingSet, PreUpdate, StartupSet, Update},
 };
 
 use crate::console_command::entity_console_commands;
@@ -24,22 +21,20 @@ impl Plugin for LineArrowPlugin {
     fn build(&self, app: &mut App) {
         if is_server_mode(app) {
             app.add_systems(
-                FixedUpdate,
+                Update,
                 entity_console_commands
                     .after(ConsoleCommandsSet::Input)
-                    .in_set(BuildingSet::TriggerBuild)
-                    .in_set(MainSet::Update),
+                    .in_set(BuildingSet::TriggerBuild),
             );
         }
         register_entity_type::<LineArrowType>(app);
         register_basic_console_commands_for_type::<LineArrowType>(app);
         app.add_systems(
-            FixedUpdate,
+            PreUpdate,
             (
-                (build_base_entities::<LineArrowType>).after(SpawnItemSet::SpawnHeldItem),
-                build_line_arrows::<LineArrowType>.after(SpawnItemSet::SpawnHeldItem),
-            )
-                .in_set(MainSet::Update),
+                (build_base_entities::<LineArrowType>).in_set(BuildingSet::NormalBuild),
+                build_line_arrows::<LineArrowType>.in_set(BuildingSet::NormalBuild),
+            ),
         )
         .add_systems(
             Startup,
@@ -56,12 +51,11 @@ impl Plugin for PointArrowPlugin {
     fn build(&self, app: &mut App) {
         if is_server_mode(app) {
             app.add_systems(
-                FixedUpdate,
+                PreUpdate,
                 (
                     expire_point_arrow,
-                    (build_base_entities::<LineArrowType>).after(SpawnItemSet::SpawnHeldItem),
-                )
-                    .in_set(MainSet::Update),
+                    (build_base_entities::<LineArrowType>).in_set(BuildingSet::NormalBuild),
+                ),
             );
         }
     }

@@ -1,14 +1,13 @@
-use bevy::prelude::{
-    resource_exists, App, Condition, FixedUpdate, IntoSystemConfigs, Plugin, Startup,
-};
+use bevy::prelude::{resource_exists, App, Condition, IntoSystemConfigs, Plugin, Startup};
 use bevy_renet::renet::{RenetClient, RenetServer};
-use networking::messaging::{register_reliable_message, MessageSender, TypenamesSet};
+use networking::client::DeserializeSpawnUpdates;
+use networking::messaging::{register_reliable_message, MessageSender, MessagingSet};
 use networking::server::EntityUpdatesSet;
 use resources::modes::{is_correction_mode, is_server_mode};
-use resources::sets::{ActionsSet, BuildingSet, MainSet, PostUpdateSet, StartupSet};
+use resources::ordering::{ActionsSet, BuildingSet, PostUpdateSet, PreUpdate, StartupSet, Update};
 
-use crate::despawn::{client_despawn_entity, despawn_entities, DespawnEntity};
-use crate::entity_data::{fire_queued_entity_updates, QueuedSpawnEntityUpdates, RawSpawnEvent};
+use crate::despawn::{client_despawn_entity, despawn_entities, DespawnEntity, DespawnEntitySet};
+use crate::entity_data::{fire_load_entity_updates, QueuedSpawnEntityUpdates, RawSpawnEvent};
 use crate::entity_types::{
     clean_entity_type_cache, finalize_register_entity_types, EntityTypeCache, EntityTypeLabel,
     EntityTypes,
@@ -32,39 +31,28 @@ impl Plugin for EntityPlugin {
         if is_server_mode(app) {
             if !is_correction_mode(app) {
                 app.add_systems(
-                    FixedUpdate,
+                    Update,
                     (
                         finalize_examine_entity,
                         visible_checker
                             .in_set(PostUpdateSet::VisibleChecker)
                             .in_set(EntityUpdatesSet::Write),
-                    )
-                        .in_set(MainSet::PostUpdate),
-                )
-                .add_systems(
-                    FixedUpdate,
-                    (
                         examine_entity.after(ActionsSet::Action),
                         examine_entity_health.after(ActionsSet::Action),
-                    )
-                        .in_set(MainSet::Update),
+                        construct_entity_updates.in_set(EntityUpdatesSet::Prepare),
+                    ),
                 )
                 .init_resource::<ExamineEntityMessages>()
                 .add_systems(
-                    FixedUpdate,
-                    (finalize_entity_examine_input, incoming_messages).in_set(MainSet::PreUpdate),
+                    PreUpdate,
+                    (finalize_entity_examine_input, incoming_messages)
+                        .after(MessagingSet::DeserializeIncoming),
                 )
-                .add_event::<InputExamineEntity>()
-                .add_systems(
-                    FixedUpdate,
-                    construct_entity_updates
-                        .in_set(MainSet::PostUpdate)
-                        .in_set(EntityUpdatesSet::Prepare),
-                );
+                .add_event::<InputExamineEntity>();
             }
             app.add_systems(
-                FixedUpdate,
-                (despawn_entity.after(PostUpdateSet::VisibleChecker),).in_set(MainSet::PostUpdate),
+                Update,
+                (despawn_entity.after(PostUpdateSet::VisibleChecker),),
             )
             .add_event::<DespawnClientEntity>()
             .add_event::<SpawnClientEntity>();
@@ -72,23 +60,24 @@ impl Plugin for EntityPlugin {
             app.init_resource::<ServerEntityClientEntity>()
                 .init_resource::<PeerPawns>()
                 .add_systems(
-                    FixedUpdate,
+                    Update,
                     (
-                        link_peer
-                            .in_set(MainSet::Update)
-                            .after(BuildingSet::TriggerBuild),
-                        fire_queued_entity_updates
-                            .in_set(MainSet::PreUpdate)
-                            .before(TypenamesSet::SendRawEvents),
-                        client_despawn_entity.in_set(MainSet::Update),
+                        link_peer.after(BuildingSet::TriggerBuild),
+                        client_despawn_entity.before(DespawnEntitySet),
                     ),
+                )
+                .add_systems(
+                    PreUpdate,
+                    fire_load_entity_updates
+                        .after(BuildingSet::TriggerBuild)
+                        .before(DeserializeSpawnUpdates),
                 )
                 .init_resource::<QueuedSpawnEntityUpdates>()
                 .init_resource::<NewToBeCachedSpawnedEntities>();
         }
         if !is_server_mode(app) {
             app.init_resource::<EntityTypeCache>()
-                .add_systems(FixedUpdate, clean_entity_type_cache.in_set(MainSet::Update));
+                .add_systems(Update, clean_entity_type_cache.in_set(DespawnEntitySet));
         }
         if is_correction_mode(app) {
             app.init_resource::<EntityTypeCache>();
@@ -102,10 +91,9 @@ impl Plugin for EntityPlugin {
                     (finalize_register_entity_types.after(EntityTypeLabel::Register),),
                 )
                 .add_systems(
-                    FixedUpdate,
+                    PreUpdate,
                     (load_ron_entities
                         .after(StartupSet::BuildGridmap)
-                        .in_set(MainSet::PreUpdate)
                         .in_set(StartupSet::InitEntities)
                         .in_set(BuildingSet::RawTriggerBuild)
                         .run_if(
@@ -117,7 +105,7 @@ impl Plugin for EntityPlugin {
 
         app.add_event::<DespawnEntity>()
             .init_resource::<EntityTypes>()
-            .add_systems(FixedUpdate, despawn_entities.in_set(MainSet::PostUpdate));
+            .add_systems(Update, despawn_entities.in_set(DespawnEntitySet));
         register_reliable_message::<EntityServerMessage>(app, MessageSender::Server, true);
         register_reliable_message::<EntityClientMessage>(app, MessageSender::Client, true);
     }

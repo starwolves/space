@@ -69,7 +69,7 @@ pub(crate) fn clear_buffer(mut buffer: ResMut<InputBuffer>) {
 }
 #[derive(Resource, Default)]
 pub(crate) struct LastBuffer(InputBuffer);
-pub(crate) fn sanitize_input(mut local: Local<LastBuffer>, mut buffer: ResMut<InputBuffer>) {
+pub(crate) fn _sanitize_input(mut local: Local<LastBuffer>, mut buffer: ResMut<InputBuffer>) {
     for (id, pressed) in buffer.clone().pressed.iter() {
         match local.0.pressed.get(id) {
             Some(p) => {
@@ -160,12 +160,4 @@ impl KeyBinds {
             KeyCodeEnum::Mouse(t) => t,
         }
     }
-}
-#[derive(Resource, Default)]
-pub struct IsFixedUpdateTick(pub bool);
-pub(crate) fn set_fixed_update_tick(mut tick: ResMut<IsFixedUpdateTick>) {
-    tick.0 = true;
-}
-pub(crate) fn clear_fixed_update_tick(mut tick: ResMut<IsFixedUpdateTick>) {
-    tick.0 = false;
 }

@@ -1,4 +1,4 @@
-use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin};
+use bevy::prelude::{App, IntoSystemConfigs, Plugin};
 use networking::{
     client::is_client_connected,
     messaging::{register_reliable_message, MessageSender},
@@ -6,7 +6,7 @@ use networking::{
 use player::{boarding::done_boarding, connections::process_response, plugin::ConfigurationLabel};
 use resources::{
     modes::is_server_mode,
-    sets::{BuildingSet, MainSet},
+    ordering::{BuildingSet, Update},
 };
 
 use crate::{
@@ -23,7 +23,7 @@ impl Plugin for SetupMenuPlugin {
     fn build(&self, app: &mut App) {
         if is_server_mode(app) {
             app.add_systems(
-                FixedUpdate,
+                Update,
                 (
                     ui_input_boarding.before(done_boarding),
                     initialize_setupui.in_set(BuildingSet::TriggerBuild),
@@ -34,18 +34,12 @@ impl Plugin for SetupMenuPlugin {
                     new_clients_enable_setupui,
                     setupui_loaded,
                     receive_input_character_name,
-                )
-                    .in_set(MainSet::Update),
+                ),
             )
             .init_resource::<SetupUiState>()
             .init_resource::<SetupUiUserDataSets>();
         } else {
-            app.add_systems(
-                FixedUpdate,
-                client_setup_ui
-                    .run_if(is_client_connected)
-                    .in_set(MainSet::Update),
-            );
+            app.add_systems(Update, client_setup_ui.run_if(is_client_connected));
         }
 
         register_reliable_message::<SetupUiServerMessage>(app, MessageSender::Server, true);

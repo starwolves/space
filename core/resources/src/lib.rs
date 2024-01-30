@@ -4,7 +4,7 @@
 pub mod core;
 
 /// Systems ordering labels.
-pub mod sets;
+pub mod ordering;
 
 pub mod content;
 /// Convert data, mainly used for old  Godot prototype.

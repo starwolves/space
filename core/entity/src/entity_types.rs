@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use bevy::ecs::entity::Entity;
 use bevy::ecs::system::{Local, Res};
-use bevy::prelude::{FixedUpdate, IntoSystemConfigs, Resource, Startup, SystemSet};
+use bevy::prelude::{IntoSystemConfigs, Resource, Startup, SystemSet};
 
 /// Resource containing all registered entity types with [init_entity_type].
 #[derive(Default, Resource)]
@@ -24,6 +24,7 @@ pub fn store_entity_type<T: EntityType + 'static>(mut types: ResMut<EntityTypes>
 use bevy::log::info;
 use networking::stamp::TickRateStamp;
 use resources::correction::MAX_CACHE_TICKS_AMNT;
+use resources::plugin::SpawnItemSet;
 
 pub(crate) fn finalize_register_entity_types(mut types: ResMut<EntityTypes>) {
     types.startup_types.sort();
@@ -58,9 +59,9 @@ pub trait EntityType: Send + Sync + DynClone {
 dyn_clone::clone_trait_object!(EntityType);
 pub type BoxedEntityType = Box<dyn EntityType>;
 use crate::despawn::DespawnEntity;
-use crate::spawn::{SpawnEntity, SpawnItemSet};
+use crate::spawn::SpawnEntity;
 use bevy::prelude::App;
-use resources::sets::BuildingSet;
+use resources::ordering::{BuildingSet, PreUpdate};
 
 pub fn register_entity_type<T: EntityType + Clone + Default + 'static>(app: &mut App) {
     app.add_systems(
@@ -69,7 +70,7 @@ pub fn register_entity_type<T: EntityType + Clone + Default + 'static>(app: &mut
     )
     .add_event::<SpawnEntity<T>>()
     .add_systems(
-        FixedUpdate,
+        PreUpdate,
         (build_raw_entities::<T>)
             .before(SpawnItemSet::SpawnHeldItem)
             .in_set(BuildingSet::TriggerBuild)

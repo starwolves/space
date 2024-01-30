@@ -1,6 +1,6 @@
-use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin};
+use bevy::prelude::{App, IntoSystemConfigs, Plugin};
 use resources::modes::is_server_mode;
-use resources::sets::{CombatSet, MainSet};
+use resources::ordering::{CombatSet, Update};
 
 use crate::apply_damage::{finalize_apply_damage, ActiveApplyDamage};
 use crate::chat::hit_query_chat_cells;
@@ -32,7 +32,7 @@ impl Plugin for CombatPlugin {
                     .in_set(CombatLabels::Query),
             )*/
             app.add_systems(
-                FixedUpdate,
+                Update,
                 (
                     start_apply_damage
                         .in_set(CombatSet::StartApplyDamage)
@@ -43,8 +43,7 @@ impl Plugin for CombatPlugin {
                         .after(CombatSet::StartApplyDamage)
                         .after(CombatSet::Query),
                     hit_query_chat_cells.after(CombatSet::FinalizeApplyDamage),
-                )
-                    .in_set(MainSet::Update),
+                ),
             )
             /*.add_system(
                 blanks_chat
@@ -61,18 +60,17 @@ impl Plugin for CombatPlugin {
             .add_event::<ProjectileBlank>()
             .add_event::<MeleeBlank>()
             .add_systems(
-                FixedUpdate,
+                Update,
                 (
                     cache_attacks
                         .after(CombatSet::RegisterAttacks)
                         .before(CombatSet::Query)
                         .in_set(CombatSet::CacheAttack),
                     health_combat_hit_result_sfx_cells.after(CombatSet::FinalizeApplyDamage),
-                )
-                    .in_set(MainSet::Update),
+                ),
             )
             .init_resource::<ActiveApplyDamage>()
-            .add_systems(FixedUpdate, health_ui_update.in_set(MainSet::PostUpdate))
+            .add_systems(Update, health_ui_update)
             .init_resource::<ClientHealthUICache>();
         }
     }

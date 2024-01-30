@@ -1,5 +1,5 @@
-use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, Startup};
-use resources::{modes::is_server_mode, sets::MainSet};
+use bevy::prelude::{App, IntoSystemConfigs, Plugin, Startup};
+use resources::{modes::is_server_mode, ordering::Update};
 
 use crate::{
     settings::{
@@ -17,7 +17,7 @@ impl Plugin for GraphicsPlugin {
     fn build(&self, app: &mut App) {
         if !is_server_mode(app) {
             app.add_systems(
-                FixedUpdate,
+                Update,
                 (
                     settings_to_ron.after(SettingsSet::Apply),
                     set_fxaa.in_set(SettingsSet::Apply),
@@ -26,8 +26,7 @@ impl Plugin for GraphicsPlugin {
                     set_vsync.in_set(SettingsSet::Apply),
                     set_window_mode.in_set(SettingsSet::Apply),
                     setup_graphics_settings.before(SettingsSet::Apply),
-                )
-                    .in_set(MainSet::Update),
+                ),
             )
             .add_systems(Startup, (preload_skybox, init_light))
             .add_event::<SetResolution>()

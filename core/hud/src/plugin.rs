@@ -1,12 +1,14 @@
 use bevy::prelude::{
-    not, resource_exists, App, FixedUpdate, IntoSystemConfigs, Plugin, PostStartup, Startup, Update,
+    not, resource_exists, App, IntoSystemConfigs, Plugin, PostStartup, Startup,
+    Update as BevyUpdate,
 };
 use bevy_renet::renet::RenetClient;
 use console_commands::net::ClientSideConsoleInput;
+use entity::despawn::DespawnEntitySet;
 use inventory::client::items::ClientBuildInventoryLabel;
-use resources::{modes::is_server_mode, sets::MainSet};
+use resources::{modes::is_server_mode, ordering::Update};
 use ui::{
-    cursor::CursorSet,
+    cursor::{update_window_focus_buffer, CursorSet},
     text_input::{FocusTextSet, TextInputLabel},
 };
 
@@ -60,7 +62,7 @@ impl Plugin for HudPlugin {
             app.add_event::<ToggleCommunication>()
                 .add_event::<ExpandInventoryHud>()
                 .add_systems(
-                    FixedUpdate,
+                    Update,
                     (
                         (
                             expand_inventory_hud.after(OpenHudSet::ExpandInventory),
@@ -76,17 +78,20 @@ impl Plugin for HudPlugin {
                             scale_slots,
                             change_active_item,
                             right_mouse_click_item,
-                            slot_item_actions.in_set(OpenHudSet::ExpandInventory),
+                            slot_item_actions
+                                .in_set(OpenHudSet::ExpandInventory)
+                                .before(DespawnEntitySet),
                             show_hud,
                             item_actions_button_events,
-                            create_text_tree_selection,
+                            create_text_tree_selection.before(DespawnEntitySet),
                             button_style_events,
-                            hide_text_tree_selection.after(OpenHudSet::ExpandInventory),
+                            hide_text_tree_selection
+                                .after(OpenHudSet::ExpandInventory)
+                                .before(DespawnEntitySet),
                             text_tree_select_button,
                             changed_focus,
                             text_tree_select_submit_button,
-                        )
-                            .in_set(MainSet::Update),
+                        ),
                         (
                             text_input.in_set(ConsoleCommandsClientSet::Submit),
                             receive_chat_message,
@@ -111,9 +116,9 @@ impl Plugin for HudPlugin {
                             update_server_stats.run_if(resource_exists::<RenetClient>()),
                             window_unfocus_event
                                 .before(TextInputLabel::MousePressUnfocus)
-                                .before(CursorSet::Perform),
-                        )
-                            .in_set(MainSet::Update),
+                                .before(CursorSet::Perform)
+                                .after(update_window_focus_buffer),
+                        ),
                     ),
                 )
                 .add_systems(Startup, (create_hud, register_input))
@@ -126,7 +131,7 @@ impl Plugin for HudPlugin {
                     ),
                 )
                 .add_systems(
-                    Update,
+                    BevyUpdate,
                     (
                         mouse_press_hud_unfocus
                             .before(TextInputLabel::MousePressUnfocus)
@@ -136,7 +141,7 @@ impl Plugin for HudPlugin {
                         open_hud.in_set(OpenHudSet::Process),
                         hide_actions
                             .in_set(OpenHudSet::Process)
-                            .in_set(MainSet::Update),
+                            .before(DespawnEntitySet),
                         grab_mouse_hud_expand
                             .in_set(OpenHudSet::Process)
                             .before(CursorSet::Perform),

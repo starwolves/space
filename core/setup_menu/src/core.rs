@@ -83,7 +83,6 @@ pub(crate) fn receive_input_character_name(
 }
 
 /// Recieve boarding UI input.
-
 pub(crate) fn ui_input_boarding(
     mut event: EventReader<IncomingReliableClientMessage<SetupUiClientMessage>>,
     mut boarding_player_event: EventWriter<BoardingPlayer>,

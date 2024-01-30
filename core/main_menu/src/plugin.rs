@@ -1,6 +1,10 @@
-use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, SystemSet};
+use bevy::prelude::{App, IntoSystemConfigs, Plugin, SystemSet};
+use entity::despawn::DespawnEntitySet;
 use networking::client::token_assign_server;
-use resources::{modes::is_server_mode, sets::MainSet};
+use resources::{
+    modes::is_server_mode,
+    ordering::{PreUpdate, Update},
+};
 use ui::{
     cursor::{grab_cursor, release_cursor},
     text_input::TextInputSet,
@@ -31,12 +35,12 @@ impl Plugin for MainMenuPlugin {
     fn build(&self, app: &mut App) {
         if !is_server_mode(app) {
             app.add_systems(
-                FixedUpdate,
+                Update,
                 (
                     show_main_menu
                         .in_set(MainMenuLabel::BuildMainMenu)
                         .in_set(MainMenuLabel::Play),
-                    hide_main_menu,
+                    hide_main_menu.before(DespawnEntitySet),
                     button_presses.in_set(MainMenuLabel::Play),
                     starwolves_link,
                     space_frontiers_link,
@@ -50,18 +54,16 @@ impl Plugin for MainMenuPlugin {
                         .before(MainMenuLabel::BuildMainMenu),
                     toggle_esc_menu.after(grab_cursor).after(release_cursor),
                     show_play_menu.after(MainMenuLabel::Play),
-                )
-                    .in_set(MainSet::Update),
+                ),
             )
             .add_event::<EnableMainMenu>()
             .add_systems(
-                FixedUpdate,
+                Update,
                 startup_show_menu
-                    .in_set(MainSet::Update)
                     .before(hide_main_menu)
                     .before(MainMenuLabel::BuildMainMenu),
             )
-            .add_systems(FixedUpdate, buffer_play_menu.in_set(MainSet::PreUpdate))
+            .add_systems(PreUpdate, buffer_play_menu)
             .add_event::<EnablePlayMenu>()
             .init_resource::<PlayMenuState>()
             .add_event::<AutoFillConnectSubMenu>()

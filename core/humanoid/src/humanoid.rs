@@ -102,9 +102,7 @@ pub(crate) fn humanoid_movement(
                 continue;
             }
         }
-        /*if entity == *rigidbody_entity {
-            info!("{:?}", input.movement_vector);
-        }*/
+
         match rigidbodies_query.get_mut(*rigidbody_entity) {
             Ok(mut velocity) => {
                 let normalized_movement_vector = input.movement_vector.normalize_or_zero();
@@ -122,6 +120,8 @@ pub(crate) fn humanoid_movement(
                     0.,
                     xform_movement.y * MAX_MOVEMENT_SPEED,
                 );
+
+                //info!("{} v{}", t.translation, velocity.0);
             }
             Err(_rr) => {
                 warn!("Couldnt find ExternalForce component");

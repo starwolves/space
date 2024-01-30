@@ -9,7 +9,7 @@ use crate::{
 use bevy::{
     log::info,
     math::Vec3,
-    prelude::{Commands, Entity, Event, EventReader, EventWriter, Resource, SystemSet, Transform},
+    prelude::{Commands, Entity, Event, EventReader, EventWriter, Resource, Transform},
 };
 use bevy_renet::renet::ClientId;
 use resources::modes::is_server;
@@ -124,12 +124,6 @@ pub trait BaseEntityBuilder<Y>: Send + Sync {
 }
 use crate::init::RawEntityRon;
 use networking::server::OutgoingReliableServerMessage;
-
-#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
-pub enum SpawnItemSet {
-    SpawnHeldItem,
-    AddingComponent,
-}
 
 use bevy::prelude::Res;
 

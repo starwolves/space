@@ -239,7 +239,6 @@ pub(crate) fn client_interpolate_link_transform(
     let mut reset = false;
     for _ in resets.read() {
         reset = true;
-        break;
     }
 
     if reset {

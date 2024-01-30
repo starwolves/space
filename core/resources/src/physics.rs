@@ -11,7 +11,6 @@ use serde::{Deserialize, Serialize};
 pub enum PhysicsSet {
     Correct,
     Cache,
-    CacheNewSpawns,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

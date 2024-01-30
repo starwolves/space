@@ -34,8 +34,8 @@ use resources::{
     core::TickRate,
     correction::{StartCorrection, MAX_CACHE_TICKS_AMNT},
     input::{
-        IsFixedUpdateTick, KeyBind, KeyBinds, KeyCodeEnum, HOLD_SPRINT_BIND, JUMP_BIND,
-        MOVE_BACKWARD_BIND, MOVE_FORWARD_BIND, MOVE_LEFT_BIND, MOVE_RIGHT_BIND,
+        KeyBind, KeyBinds, KeyCodeEnum, HOLD_SPRINT_BIND, JUMP_BIND, MOVE_BACKWARD_BIND,
+        MOVE_FORWARD_BIND, MOVE_LEFT_BIND, MOVE_RIGHT_BIND,
     },
     pawn::ClientPawn,
     physics::{PriorityPhysicsCache, PriorityUpdate},
@@ -553,7 +553,6 @@ pub(crate) fn keyboard_input(
     pawn_id: Res<PawnId>,
     mut movement_event: EventWriter<InputMovementInput>,
     mut i: Local<u64>,
-    is_fixed: Res<IsFixedUpdateTick>,
 ) {
     *i += 1;
     if !start.0 {
@@ -700,12 +699,7 @@ pub(crate) fn keyboard_input(
     }
 
     if messages.len() > 0 {
-        let large_target_tick;
-        if is_fixed.0 {
-            large_target_tick = stamp.large;
-        } else {
-            large_target_tick = stamp.large + 1;
-        }
+        let large_target_tick = stamp.large + 1;
 
         let target_tick = TickRateStamp::new(large_target_tick).tick;
         client.send_message(

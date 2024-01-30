@@ -133,7 +133,7 @@ pub(crate) fn server_replicate_peer_input_messages(
                 moving_entity = *e;
             }
             None => {
-                warn!("no handle entity found.");
+                warn!("no handle entity found.0");
                 continue;
             }
         }
@@ -218,7 +218,7 @@ pub(crate) fn server_replicate_peer_input_messages(
                 moving_entity = *e;
             }
             None => {
-                warn!("no handle entity found.");
+                warn!("no handle entity found.1");
                 continue;
             }
         }

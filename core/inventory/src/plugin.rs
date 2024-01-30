@@ -1,4 +1,4 @@
-use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, Startup};
+use bevy::prelude::{App, IntoSystemConfigs, Plugin, Startup};
 use console_commands::commands::{ConsoleCommand, ConsoleCommandsSet};
 use networking::{
     messaging::{register_reliable_message, MessageSender},
@@ -6,7 +6,7 @@ use networking::{
 };
 use resources::{
     modes::is_server_mode,
-    sets::{MainSet, PostUpdateSet},
+    ordering::{PostUpdateSet, Update},
 };
 
 use crate::{
@@ -34,15 +34,14 @@ impl Plugin for InventoryPlugin {
     fn build(&self, app: &mut App) {
         if is_server_mode(app) {
             app.add_systems(
-                FixedUpdate,
+                Update,
                 (spawn_entity_for_client
                     .after(PostUpdateSet::VisibleChecker)
                     .before(ServerMessageSet::Send),)
-                    .in_set(MainSet::PostUpdate)
                     .in_set(EntityUpdatesSet::Ready),
             )
             .add_systems(
-                FixedUpdate,
+                Update,
                 (
                     process_request_set_active_item,
                     add_slot_to_inventory
@@ -50,19 +49,17 @@ impl Plugin for InventoryPlugin {
                         .before(ServerMessageSet::Send),
                     add_item_to_slot.after(InventorySlotLabel::AddSlotToInventory),
                     added_item_to_slot.after(add_item_to_slot),
-                )
-                    .in_set(MainSet::Update),
+                ),
             )
             .add_event::<ItemAddedToSlot>();
         } else {
             app.add_systems(
-                FixedUpdate,
+                Update,
                 (
                     client_item_added_to_slot.after(ClientBuildInventoryLabel::AddSlot),
                     set_active_item.in_set(ClientActiveCameraItem::ActivateItem),
                     client_slot_added.in_set(ClientBuildInventoryLabel::AddSlot),
-                )
-                    .in_set(MainSet::Update),
+                ),
             )
             .init_resource::<Inventory>()
             .add_event::<AddedSlot>()

@@ -1,37 +1,40 @@
 use std::collections::HashMap;
 
 use bevy::{
-    app::prelude::*,
-    ecs::{bundle::Bundle, prelude::*},
-    math::prelude::*,
+    app::{App, Plugin, Update as BevyUpdate},
+    ecs::{
+        bundle::Bundle,
+        component::Component,
+        entity::Entity,
+        query::{With, Without},
+        schedule::IntoSystemConfigs,
+        system::{Query, Res, ResMut, Resource},
+    },
+    math::Vec3,
     render::camera::Camera,
     transform::components::Transform,
 };
 use itertools::Itertools;
 use networking::stamp::TickRateStamp;
 use resources::{
-    correction::MAX_CACHE_TICKS_AMNT, input::InputSet, modes::is_server_mode, pawn::ClientPawn,
-    physics::PhysicsSet, sets::MainSet,
+    correction::MAX_CACHE_TICKS_AMNT, input::InputSet, modes::is_server_mode, ordering::Update,
+    pawn::ClientPawn, physics::PhysicsSet,
 };
 
 pub struct LookTransformPlugin;
 
 impl Plugin for LookTransformPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, look_transform_system)
+        app.add_systems(BevyUpdate, look_transform_system)
             .init_resource::<LookTransformCache>()
             .add_systems(
-                FixedUpdate,
-                (cache_client_pawn_look_transform
-                    .after(MainSet::PostUpdate)
-                    .in_set(PhysicsSet::Cache),),
+                Update,
+                (cache_client_pawn_look_transform.in_set(PhysicsSet::Cache),),
             );
         if !is_server_mode(app) {
             app.add_systems(
-                FixedUpdate,
-                (apply_look_cache_to_peers
-                    .in_set(MainSet::Update)
-                    .in_set(InputSet::ApplyLiveCache),),
+                Update,
+                (apply_look_cache_to_peers.in_set(InputSet::ApplyLiveCache),),
             );
         }
     }

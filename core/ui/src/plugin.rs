@@ -1,13 +1,14 @@
 use bevy::prelude::{
-    App, FixedUpdate, IntoSystemConfigs, IntoSystemSetConfigs, Plugin, PostUpdate, Startup, Update,
+    App, IntoSystemConfigs, IntoSystemSetConfigs, Plugin, Startup, Update as BevyUpdate,
 };
 use networking::messaging::{register_reliable_message, MessageSender};
 
 use crate::{
     button::button_hover_visuals,
     cursor::{
-        clear_window_focus_buffer, focus_state, grab_cursor, release_cursor, window_focus_buffer,
-        CursorSet, FocusState, GrabCursor, ReleaseCursor, WindowFocusBuffer,
+        clear_window_focus_buffer, focus_state, grab_cursor, release_cursor,
+        update_window_focus_buffer, CursorSet, FocusState, GrabCursor, ReleaseCursor,
+        WindowFocusBuffer,
     },
     fonts::{init_fonts, Fonts},
     hlist::{
@@ -22,25 +23,27 @@ use crate::{
         TextTreeInputSelection, UnfocusTextInput,
     },
 };
-use resources::{modes::is_server_mode, sets::MainSet, ui::TextInput};
+use resources::{
+    modes::is_server_mode,
+    ordering::{PostUpdate, PreUpdate, Update},
+    ui::TextInput,
+};
 pub struct UiPlugin;
 impl Plugin for UiPlugin {
     fn build(&self, app: &mut App) {
         if is_server_mode(app) {
-            app.add_systems(
-                FixedUpdate,
-                incoming_messages
-                    .in_set(TextTree::Input)
-                    .in_set(MainSet::Update),
-            )
-            .add_event::<TextTreeInputSelection>();
+            app.add_systems(Update, incoming_messages.in_set(TextTree::Input))
+                .add_event::<TextTreeInputSelection>();
         } else {
-            app.configure_sets(Update, (FocusTextSet::Focus, FocusTextSet::Unfocus).chain());
+            app.configure_sets(
+                BevyUpdate,
+                (FocusTextSet::Focus, FocusTextSet::Unfocus).chain(),
+            );
             app.init_resource::<WindowFocusBuffer>()
                 .init_resource::<FreezeBuffer>()
                 .add_systems(PostUpdate, clear_old_focus)
                 .add_systems(
-                    Update,
+                    BevyUpdate,
                     (
                         input_characters,
                         focus_events
@@ -55,9 +58,9 @@ impl Plugin for UiPlugin {
                             .in_set(FocusTextSet::Focus),
                     ),
                 )
-                .add_systems(FixedUpdate, clear_freeze_buffer.in_set(MainSet::PreUpdate))
+                .add_systems(PreUpdate, clear_freeze_buffer)
                 .add_systems(
-                    FixedUpdate,
+                    Update,
                     (
                         button_hover_visuals,
                         set_text_input_node_text.in_set(TextInputSet::Set),
@@ -66,10 +69,10 @@ impl Plugin for UiPlugin {
                         hlist_input.before(freeze_button),
                         hlist_created.before(freeze_button),
                         freeze_button,
-                        focus_state,
-                    )
-                        .in_set(MainSet::Update),
+                        focus_state.after(update_window_focus_buffer),
+                    ),
                 )
+                .add_systems(PostUpdate, (clear_window_focus_buffer,))
                 .init_resource::<TextInput>()
                 .add_event::<UnfocusTextInput>()
                 .add_event::<FocusTextInput>()
@@ -77,16 +80,12 @@ impl Plugin for UiPlugin {
                 .add_event::<FreezeButton>()
                 .add_systems(Startup, register_input)
                 .add_systems(
-                    Update,
+                    BevyUpdate,
                     (
-                        window_focus_buffer.after(TextInputLabel::MousePressUnfocus),
+                        update_window_focus_buffer.after(TextInputLabel::MousePressUnfocus),
                         release_cursor.in_set(CursorSet::Perform).after(grab_cursor),
                         grab_cursor.in_set(CursorSet::Perform).after(focus_state),
                     ),
-                )
-                .add_systems(
-                    FixedUpdate,
-                    clear_window_focus_buffer.in_set(MainSet::PostUpdate),
                 )
                 .add_event::<GrabCursor>()
                 .add_event::<ReleaseCursor>()

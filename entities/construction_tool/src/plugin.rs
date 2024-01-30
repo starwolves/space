@@ -2,13 +2,13 @@ use basic_console_commands::register::{
     register_basic_console_commands_for_inventory_item_type,
     register_basic_console_commands_for_type,
 };
-use bevy::prelude::{resource_exists, App, FixedUpdate, IntoSystemConfigs, Plugin, PostUpdate};
+use bevy::prelude::{resource_exists, App, IntoSystemConfigs, Plugin, PostUpdate};
 use combat::melee_queries::melee_attack_handler;
 use combat::sfx::{attack_sfx, health_combat_hit_result_sfx};
 use entity::base_mesh::link_base_mesh;
 use entity::entity_types::register_entity_type;
 use entity::loading::load_entity;
-use entity::spawn::{build_base_entities, SpawnItemSet};
+use entity::spawn::build_base_entities;
 
 use gridmap::construction::{GridmapConstructionState, ShowYLevelPlane, YPlaneSet};
 use gridmap::grid::EditTileSet;
@@ -21,7 +21,8 @@ use inventory::spawn_item::build_inventory_items;
 use physics::spawn::build_rigid_bodies;
 use resources::correction::CorrectionSet;
 use resources::modes::is_server_mode;
-use resources::sets::{ActionsSet, BuildingSet, CombatSet, MainSet, UpdateSet};
+use resources::ordering::{ActionsSet, BuildingSet, CombatSet, PreUpdate, Update, UpdateSet};
+use resources::plugin::SpawnItemSet;
 use ui::text_input::TextTree;
 
 use crate::action::{
@@ -48,7 +49,7 @@ impl Plugin for ConstructionToolAdminPlugin {
                 .add_event::<InputDeconstruct>()
                 .add_event::<InputConstructionOptions>()
                 .add_systems(
-                    FixedUpdate,
+                    Update,
                     (
                         melee_attack_handler::<ConstructionTool>
                             .in_set(CombatSet::WeaponHandler)
@@ -80,27 +81,30 @@ impl Plugin for ConstructionToolAdminPlugin {
                         mouse_click_input
                             .before(EditTileSet::Add)
                             .in_set(EditTileSet::Remove),
-                    )
-                        .in_set(MainSet::Update),
+                    ),
                 );
         } else {
             app.add_systems(
-                FixedUpdate,
+                Update,
                 (
                     update_inventory_hud_add_item_to_slot::<ConstructionToolType>
                         .after(InventoryHudSet::UpdateSlot)
                         .in_set(InventoryHudSet::QueueUpdate)
                         .after(ClientBuildInventoryLabel::Net),
+                    construction_tool_enable_select_cell_in_front_camera
+                        .run_if(resource_exists::<GridmapConstructionState>())
+                        .in_set(YPlaneSet::Show),
+                ),
+            )
+            .add_systems(
+                PreUpdate,
+                (
                     load_entity::<ConstructionToolType>
                         .before(SpawnItemSet::SpawnHeldItem)
                         .in_set(BuildingSet::TriggerBuild)
                         .in_set(CorrectionSet::Start),
-                    link_base_mesh::<ConstructionToolType>.after(SpawnItemSet::SpawnHeldItem),
-                    construction_tool_enable_select_cell_in_front_camera
-                        .run_if(resource_exists::<GridmapConstructionState>())
-                        .in_set(YPlaneSet::Show),
-                )
-                    .in_set(MainSet::Update),
+                    link_base_mesh::<ConstructionToolType>.in_set(BuildingSet::NormalBuild),
+                ),
             )
             .add_systems(
                 PostUpdate,
@@ -112,7 +116,7 @@ impl Plugin for ConstructionToolAdminPlugin {
         register_basic_console_commands_for_type::<ConstructionToolType>(app);
         register_basic_console_commands_for_inventory_item_type::<ConstructionToolType>(app);
         app.add_systems(
-            FixedUpdate,
+            PreUpdate,
             (
                 build_construction_tools::<ConstructionToolType>.after(SpawnItemSet::SpawnHeldItem),
                 (build_rigid_bodies::<ConstructionToolType>).after(SpawnItemSet::SpawnHeldItem),
@@ -121,8 +125,7 @@ impl Plugin for ConstructionToolAdminPlugin {
                     .after(SpawnItemSet::SpawnHeldItem)
                     .after(SpawnItemSet::SpawnHeldItem)
                     .in_set(SpawnItemSet::AddingComponent),
-            )
-                .in_set(MainSet::Update),
+            ),
         )
         .add_event::<ShowYLevelPlane>();
     }

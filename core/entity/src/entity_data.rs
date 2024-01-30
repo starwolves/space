@@ -1,12 +1,13 @@
 use std::collections::HashMap;
 
 use bevy::ecs::entity::Entity;
-use bevy::ecs::event::EventWriter;
 use bevy::ecs::system::{ResMut, Resource};
 use bevy::log::warn;
 use bevy::prelude::{Component, Event, SystemSet, Transform};
 use entity_macros::Identity;
-use networking::client::{IncomingRawReliableServerMessage, IncomingRawUnreliableServerMessage};
+use networking::client::{
+    IncomingRawReliableServerMessage, IncomingRawUnreliableServerMessage, QueuedSpawnEntityRaw,
+};
 use networking::messaging::{
     ReliableMessage, ReliableServerMessageBatch, UnreliableMessage, UnreliableServerMessageBatch,
 };
@@ -121,10 +122,11 @@ pub struct QueuedSpawnEntityUpdates {
     pub unreliable: HashMap<Entity, (u64, Vec<Vec<u8>>)>,
 }
 
-pub(crate) fn fire_queued_entity_updates(
+/// We have to deserialize raw messages for a second time that are inside the LoadEntity call as it supplies an additional collection of Entity Updates
+/// that are only detectable after the first raw serialization run.
+pub(crate) fn fire_load_entity_updates(
     mut queue: ResMut<QueuedSpawnEntityUpdates>,
-    mut send_reliable: EventWriter<IncomingRawReliableServerMessage>,
-    mut send_unreliable: EventWriter<IncomingRawUnreliableServerMessage>,
+    mut raw: ResMut<QueuedSpawnEntityRaw>,
 ) {
     for (_, (large, updates)) in queue.reliable.drain() {
         let mut msgs = vec![];
@@ -139,7 +141,7 @@ pub(crate) fn fire_queued_entity_updates(
             }
         }
 
-        send_reliable.send(IncomingRawReliableServerMessage {
+        raw.reliable.push(IncomingRawReliableServerMessage {
             message: ReliableServerMessageBatch {
                 messages: msgs,
                 stamp: TickRateStamp::new(large).tick,
@@ -161,7 +163,7 @@ pub(crate) fn fire_queued_entity_updates(
             }
         }
 
-        send_unreliable.send(IncomingRawUnreliableServerMessage {
+        raw.unreliable.push(IncomingRawUnreliableServerMessage {
             message: UnreliableServerMessageBatch {
                 messages: msgs,
                 stamp: TickRateStamp::new(large).tick,

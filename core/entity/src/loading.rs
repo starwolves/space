@@ -13,8 +13,6 @@ use networking::client::IncomingReliableServerMessage;
 use bevy::prelude::Res;
 use networking::stamp::TickRateStamp;
 use resources::correction::StartCorrection;
-use resources::physics::PriorityUpdate;
-use resources::physics::SmallCache;
 
 use crate::entity_data::QueuedSpawnEntityUpdates;
 use crate::entity_types::EntityType;
@@ -28,7 +26,7 @@ use crate::spawn::SpawnEntity;
 
 #[derive(Resource, Default)]
 pub struct NewToBeCachedSpawnedEntities {
-    pub list: Vec<(u64, Entity, PriorityUpdate)>,
+    pub list: Vec<(u64, Entity)>,
 }
 
 /// Client loads in entities.
@@ -138,29 +136,19 @@ pub fn load_entity<T: Send + Sync + 'static + Default + EntityType>(
 
                     let compare_tick;
                     let mut adjusted_tick = message.stamp - 1;
-                    let priority_update;
 
                     match &load_entity.physics_data {
-                        crate::net::PhysicsData::LoadData(data) => {
+                        crate::net::PhysicsData::LoadData(_) => {
                             compare_tick = message.stamp;
-                            let scache = SmallCache {
-                                entity: c_id,
-                                linear_velocity: data.velocity,
-                                angular_velocity: data.angular_velocity,
-                                translation: data.translation,
-                                rotation: data.rotation,
-                            };
-                            priority_update = PriorityUpdate::SmallCache(scache.clone());
                         }
-                        crate::net::PhysicsData::SpawnData(data) => {
+                        crate::net::PhysicsData::SpawnData(_) => {
                             compare_tick = message.stamp - 1;
                             adjusted_tick -= 1;
-                            priority_update = PriorityUpdate::PhysicsSpawn(data.clone());
                         }
                     }
 
                     if compare_tick != stamp.large {
-                        new.list.push((compare_tick, c_id, priority_update.clone()));
+                        new.list.push((compare_tick, c_id));
                         correction.send(StartCorrection {
                             start_tick: adjusted_tick,
                             last_tick: stamp.large,

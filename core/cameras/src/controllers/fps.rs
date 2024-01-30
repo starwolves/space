@@ -1,10 +1,18 @@
 use crate::{LookAngles, LookTransform, LookTransformBundle, Smoother};
 
 use bevy::{
-    app::prelude::*,
-    ecs::{bundle::Bundle, prelude::*},
+    app::{App, Plugin, PreUpdate, Update as BevyUpdate},
+    ecs::{
+        bundle::Bundle,
+        component::Component,
+        entity::Entity,
+        event::{Event, EventReader, EventWriter},
+        query::Changed,
+        schedule::IntoSystemConfigs,
+        system::{Query, Res, Resource},
+    },
     input::mouse::MouseMotion,
-    math::prelude::*,
+    math::{Quat, Vec2, Vec3},
     time::Time,
     transform::components::Transform,
 };
@@ -27,11 +35,11 @@ impl Plugin for FpsCameraPlugin {
     fn build(&self, app: &mut App) {
         let app = app
             .add_systems(PreUpdate, on_controller_enabled_changed)
-            .add_systems(Update, control_system)
+            .add_systems(BevyUpdate, control_system)
             .add_event::<ControlEvent>()
             .init_resource::<ActiveCamera>();
         if !self.override_input_system {
-            app.add_systems(Update, default_input_map.before(control_system));
+            app.add_systems(BevyUpdate, default_input_map.before(control_system));
         }
         // app.add_system(print_camera_position);
     }

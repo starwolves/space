@@ -1,14 +1,15 @@
 use std::time::Duration;
 
 use bevy::{
-    prelude::{resource_exists, App, FixedUpdate, IntoSystemConfigs, Plugin, Startup},
+    prelude::{resource_exists, App, IntoSystemConfigs, Plugin, Startup},
     time::common_conditions::on_timer,
 };
-use networking::messaging::{register_reliable_message, MessageSender};
+use entity::despawn::DespawnEntitySet;
+use networking::messaging::{register_reliable_message, MessageSender, MessagingSet};
 use player::{connections::process_response, plugin::ConfigurationLabel};
 use resources::{
     modes::{is_correction_mode, is_server_mode},
-    sets::{ActionsSet, BuildingSet, MainSet, StartupSet},
+    ordering::{ActionsSet, BuildingSet, PreUpdate, StartupSet, Update},
 };
 
 use crate::{
@@ -99,7 +100,7 @@ impl Plugin for GridmapPlugin {
     fn build(&self, app: &mut App) {
         if is_server_mode(app) && !is_correction_mode(app) {
             app.add_systems(
-                FixedUpdate,
+                Update,
                 (
                     senser_update_fov,
                     gridmap_sensing_ability,
@@ -117,18 +118,17 @@ impl Plugin for GridmapPlugin {
                         .after(ConfigurationLabel::SpawnEntity),
                     add_tile_net.after(EditTileSet::Add),
                     remove_tile_net.after(EditTileSet::Remove),
-                )
-                    .in_set(MainSet::Update),
+                ),
             )
             .add_event::<ProjectileFOV>()
             .add_systems(
-                FixedUpdate,
+                PreUpdate,
                 (
                     incoming_messages,
                     finalize_grid_examine_input,
                     finalize_examine_map,
                 )
-                    .in_set(MainSet::PreUpdate),
+                    .after(MessagingSet::DeserializeIncoming),
             )
             .add_event::<InputExamineMap>()
             .init_resource::<GridmapExamineMessages>();
@@ -138,11 +138,13 @@ impl Plugin for GridmapPlugin {
                 .init_resource::<CellGraphicsBuffer>()
                 .add_systems(Startup, export_debug_map)
                 .add_systems(
-                    FixedUpdate,
+                    Update,
                     (
                         add_cell_client.before(EditTileSet::Add),
                         remove_cell_client.in_set(EditTileSet::Remove),
-                        removed_tile.after(EditTileSet::Remove),
+                        removed_tile
+                            .after(EditTileSet::Remove)
+                            .before(DespawnEntitySet),
                         set_cell_graphics.after(EditTileSet::Add),
                         create_select_cell_cam_state,
                         set_yplane_position
@@ -175,12 +177,11 @@ impl Plugin for GridmapPlugin {
                         (client_mouse_click_input
                             .after(update_ghost_cell)
                             .run_if(resource_exists::<GridmapConstructionState>()),),
-                    )
-                        .in_set(MainSet::Update),
+                    ),
                 )
                 .add_event::<SetYPlanePosition>()
                 .add_event::<ConstructionCellSelectionChanged>()
-                .add_systems(FixedUpdate, cache_updates.in_set(MainSet::PostUpdate))
+                .add_systems(Update, cache_updates)
                 .add_systems(
                     Startup,
                     (
@@ -225,11 +226,10 @@ impl Plugin for GridmapPlugin {
             .init_resource::<BridgeWallMaterial>()
             .init_resource::<BridgeHalfDiagonalCeilingMaterial>()
             .add_systems(
-                FixedUpdate,
+                PreUpdate,
                 load_ron_gridmap
                     .before(EditTileSet::Add)
                     .in_set(StartupSet::BuildGridmap)
-                    .in_set(MainSet::PreUpdate)
                     .after(StartupSet::InitDefaultGridmapData),
             )
             .add_systems(
@@ -330,14 +330,15 @@ impl Plugin for GridmapPlugin {
             .init_resource::<Gridmap>()
             .init_resource::<DoryenMap>()
             .add_systems(
-                FixedUpdate,
+                Update,
                 (
-                    remove_tile.after(EditTileSet::Remove),
+                    remove_tile
+                        .after(EditTileSet::Remove)
+                        .before(DespawnEntitySet),
                     add_tile_collision.after(EditTileSet::Add),
                     add_tile.after(EditTileSet::Add),
                     spawn_group.before(EditTileSet::Add),
-                )
-                    .in_set(MainSet::Update),
+                ),
             )
             .add_event::<AddTile>()
             .add_event::<AddGroup>()

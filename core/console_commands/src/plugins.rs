@@ -1,9 +1,9 @@
-use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, Startup};
+use bevy::prelude::{App, IntoSystemConfigs, Plugin, Startup};
 use networking::messaging::{register_reliable_message, MessageSender};
 use player::{connections::process_response, plugin::ConfigurationLabel};
 use resources::{
     modes::is_server_mode,
-    sets::{BuildingSet, MainSet, StartupSet},
+    ordering::{BuildingSet, StartupSet, Update},
 };
 
 use crate::{
@@ -21,20 +21,16 @@ impl Plugin for ConsoleCommandsPlugin {
     fn build(&self, app: &mut App) {
         if is_server_mode(app) {
             app.add_systems(
-                FixedUpdate,
-                incoming_messages
-                    .in_set(MainSet::Update)
-                    .in_set(ConsoleCommandsSet::Input),
+                Update,
+                (
+                    incoming_messages.in_set(ConsoleCommandsSet::Input),
+                    configure
+                        .after(process_response)
+                        .in_set(ConfigurationLabel::Main)
+                        .after(ConfigurationLabel::SpawnEntity),
+                ),
             )
-            .add_event::<InputConsoleCommand>()
-            .add_systems(
-                FixedUpdate,
-                configure
-                    .after(process_response)
-                    .in_set(ConfigurationLabel::Main)
-                    .in_set(MainSet::Update)
-                    .after(ConfigurationLabel::SpawnEntity),
-            );
+            .add_event::<InputConsoleCommand>();
         }
         app.add_systems(
             Startup,

@@ -13,12 +13,13 @@ use bevy::app::Main;
 use bevy::app::MainScheduleOrder;
 use bevy::app::ScheduleRunnerPlugin;
 use bevy::app::SubApp;
-use bevy::app::Update;
 use bevy::diagnostic::DiagnosticsPlugin;
 use bevy::ecs::reflect::AppTypeRegistry;
 use bevy::ecs::schedule::IntoSystemSetConfigs;
 use bevy::ecs::schedule::ScheduleLabel;
+use bevy::ecs::world::World;
 use bevy::log::info;
+use bevy::log::warn;
 use bevy::log::LogPlugin;
 use bevy::prelude::App;
 use bevy::prelude::AssetPlugin;
@@ -39,7 +40,6 @@ use bevy::time::Fixed;
 use bevy::time::Time;
 use bevy::time::TimePlugin;
 use bevy::transform::TransformPlugin;
-use bevy::transform::TransformSystem;
 use bevy::window::PresentMode;
 use bevy::window::Window;
 use bevy::window::WindowMode;
@@ -49,10 +49,8 @@ use bevy::winit::UpdateMode;
 use bevy::winit::WinitSettings;
 use bevy::DefaultPlugins;
 use bevy_egui::EguiPlugin;
-use bevy_renet::RenetReceive;
 use bevy_renet::RenetSend;
 use bevy_xpbd_3d::prelude::Physics;
-use bevy_xpbd_3d::PhysicsSet;
 use cameras::controllers::fps::FpsCameraPlugin;
 use cameras::LookTransformPlugin;
 use chat::plugin::ChatPlugin;
@@ -62,6 +60,7 @@ use console_commands::plugins::ConsoleCommandsPlugin;
 use construction_tool::plugin::ConstructionToolAdminPlugin;
 use controller::plugin::ControllerPlugin;
 use correction::server_start_correcting;
+use correction::Correction;
 use correction::CorrectionApp;
 use correction::CorrectionPlugin;
 use correction::CorrectionServerPlugin;
@@ -87,6 +86,7 @@ use networking::plugin::NetworkingPlugin;
 use pawn::plugin::PawnPlugin;
 use physics::correction_mode::CorrectionResults;
 use physics::plugin::PhysicsPlugin;
+use physics::plugin::PhysicsStepSet;
 use pistol_l1::plugin::PistolL1Plugin;
 use player::plugin::PlayerPlugin;
 use point_light::plugin::PointLightPlugin;
@@ -95,9 +95,13 @@ use resources::core::TickRate;
 use resources::modes::is_correction_mode;
 use resources::modes::is_server_mode;
 use resources::modes::AppMode;
+use resources::ordering::Fin;
+use resources::ordering::First;
+use resources::ordering::PostUpdate;
+use resources::ordering::PreUpdate;
+use resources::ordering::StartupSet;
+use resources::ordering::Update;
 use resources::plugin::ResourcesPlugin;
-use resources::sets::MainSet;
-use resources::sets::StartupSet;
 use setup_menu::plugin::SetupMenuPlugin;
 use sfx::plugin::SfxPlugin;
 use sounds::plugin::SoundsPlugin;
@@ -126,6 +130,9 @@ struct CorrectionLabel;
 pub(crate) fn init_app() {
     let mut app = App::new();
     app.insert_resource(AppMode::Standard);
+
+    init_shedules(&mut app);
+    app.add_systems(FixedUpdate, run_game_schedules);
 
     if !is_server_mode(&mut app) {
         let mut correction_sub_app = App::empty();
@@ -231,24 +238,8 @@ fn setup_plugins(mut app: &mut App) {
         .add_plugins(FpsCameraPlugin::default());
     }
 
-    let sets = (
-        RenetReceive,
-        MainSet::PreUpdate,
-        MainSet::Update,
-        MainSet::PostUpdate,
-        RenetSend,
-        PhysicsSet::Prepare,
-        PhysicsSet::Sync,
-        MainSet::PostPhysics,
-        MainSet::Fin,
-    );
-    app.configure_sets(FixedUpdate, sets.clone().chain())
-        .configure_sets(
-            Update,
-            sets.chain().before(TransformSystem::TransformPropagate),
-        );
-
-    app.add_plugins(ResourcesPlugin)
+    app.configure_sets(PostUpdate, (RenetSend, PhysicsStepSet, Correction).chain())
+        .add_plugins(ResourcesPlugin)
         .add_plugins(PhysicsPlugin)
         .add_plugins(EntityPlugin)
         .add_plugins(NetworkingPlugin)
@@ -307,5 +298,44 @@ fn setup_plugins(mut app: &mut App) {
             .add_plugins(MainMenuPlugin)
             .add_plugins(EscapeMenuPlugin)
             .add_plugins(HudPlugin);
+    }
+}
+fn init_shedules(app: &mut App) {
+    app.init_schedule(First);
+    app.init_schedule(PreUpdate);
+    app.init_schedule(Update);
+    app.init_schedule(PostUpdate);
+    app.init_schedule(Fin);
+}
+fn run_game_schedules(world: &mut World) {
+    match world.try_run_schedule(First) {
+        Ok(_) => {}
+        Err(rr) => {
+            warn!("First: {}", rr);
+        }
+    }
+    match world.try_run_schedule(PreUpdate) {
+        Ok(_) => {}
+        Err(rr) => {
+            warn!("PreFixedUpdate: {}", rr);
+        }
+    }
+    match world.try_run_schedule(Update) {
+        Ok(_) => {}
+        Err(rr) => {
+            warn!("MainFixedUpdate: {}", rr);
+        }
+    }
+    match world.try_run_schedule(PostUpdate) {
+        Ok(_) => {}
+        Err(rr) => {
+            warn!("PostFixedUpdate: {}", rr);
+        }
+    }
+    match world.try_run_schedule(Fin) {
+        Ok(_) => {}
+        Err(rr) => {
+            warn!("Fin: {}", rr);
+        }
     }
 }

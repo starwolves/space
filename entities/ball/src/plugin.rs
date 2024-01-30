@@ -1,17 +1,16 @@
-use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, Startup};
+use bevy::prelude::{App, IntoSystemConfigs, Plugin, Startup};
 
 use entity::{
-    base_mesh::link_base_mesh,
-    entity_types::register_entity_type,
-    loading::load_entity,
-    spawn::{build_base_entities, SpawnItemSet},
+    base_mesh::link_base_mesh, entity_types::register_entity_type, loading::load_entity,
+    spawn::build_base_entities,
 };
 use networking::messaging::{register_reliable_message, MessageSender};
 use physics::spawn::build_rigid_bodies;
 use resources::{
     correction::CorrectionSet,
     modes::is_server_mode,
-    sets::{BuildingSet, MainSet},
+    ordering::{BuildingSet, PreUpdate, Update},
+    plugin::SpawnItemSet,
 };
 
 use crate::{
@@ -27,35 +26,31 @@ impl Plugin for BallPlugin {
     fn build(&self, app: &mut App) {
         register_entity_type::<BallType>(app);
         app.add_systems(
-            FixedUpdate,
+            PreUpdate,
             (
-                build_balls::<BallType>.after(SpawnItemSet::SpawnHeldItem),
-                (build_base_entities::<BallType>).after(SpawnItemSet::SpawnHeldItem),
-                (build_rigid_bodies::<BallType>).after(SpawnItemSet::SpawnHeldItem),
-            )
-                .in_set(MainSet::Update),
+                build_balls::<BallType>.in_set(BuildingSet::NormalBuild),
+                (build_base_entities::<BallType>).in_set(BuildingSet::NormalBuild),
+                (build_rigid_bodies::<BallType>).in_set(BuildingSet::NormalBuild),
+            ),
         );
 
         if !is_server_mode(app) {
             app.add_systems(Startup, register_input);
+            app.add_systems(Update, (shoot_ball_client,));
             app.add_systems(
-                FixedUpdate,
+                PreUpdate,
                 (
-                    shoot_ball_client,
-                    link_base_mesh::<BallType>.after(SpawnItemSet::SpawnHeldItem),
+                    link_base_mesh::<BallType>.in_set(BuildingSet::NormalBuild),
                     load_entity::<BallType>
                         .before(SpawnItemSet::SpawnHeldItem)
                         .in_set(BuildingSet::TriggerBuild)
                         .in_set(CorrectionSet::Start),
-                )
-                    .in_set(MainSet::Update),
+                ),
             );
         } else {
             app.add_systems(
-                FixedUpdate,
-                (shoot_ball_server
-                    .in_set(BuildingSet::TriggerBuild)
-                    .in_set(MainSet::Update),),
+                Update,
+                (shoot_ball_server.in_set(BuildingSet::TriggerBuild),),
             );
         }
         register_reliable_message::<BallClientMessage>(app, MessageSender::Client, true);

@@ -13,10 +13,11 @@ use crate::{
     boarding::{done_boarding, BoardingAnnouncements},
     connections::{server_events, PlayerAwaitingBoarding},
 };
-use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, SystemSet, Update};
+use bevy::prelude::{App, IntoSystemConfigs, Plugin, PreUpdate as BevyPreUpdate, SystemSet};
+use entity::despawn::DespawnEntitySet;
 use networking::messaging::{register_reliable_message, MessageSender};
 use resources::modes::is_server_mode;
-use resources::sets::MainSet;
+use resources::ordering::{PostUpdate, Update};
 use ui::cursor::CursorSet;
 
 /// Atmospherics systems ordering label.
@@ -32,21 +33,19 @@ impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         if is_server_mode(app) {
             app.add_systems(
-                FixedUpdate,
+                Update,
                 (
-                    process_response,
+                    process_response.before(DespawnEntitySet),
                     server_events
-                        .after(buffer_server_events)
                         .before(ConfigurationLabel::SpawnEntity)
                         .after(process_response),
-                )
-                    .in_set(MainSet::Update),
+                ),
             )
             .add_event::<SendServerConfiguration>()
-            .add_systems(Update, buffer_server_events)
-            .add_systems(FixedUpdate, (clear_buffer.in_set(MainSet::PostUpdate),))
+            .add_systems(BevyPreUpdate, buffer_server_events)
+            .add_systems(PostUpdate, (clear_buffer,))
             .add_systems(
-                FixedUpdate,
+                Update,
                 (
                     done_boarding,
                     server_new_client_configuration
@@ -57,8 +56,7 @@ impl Plugin for PlayerPlugin {
                         .after(ConfigurationLabel::Main)
                         .after(process_response),
                     player_boarded,
-                )
-                    .in_set(MainSet::Update),
+                ),
             )
             .init_resource::<AuthidI>()
             .init_resource::<BoardingAnnouncements>()
@@ -69,13 +67,12 @@ impl Plugin for PlayerPlugin {
             .init_resource::<UsedNames>();
         } else {
             app.add_systems(
-                FixedUpdate,
+                Update,
                 (
                     client_receive_pawnid,
                     spawn_debug_camera,
                     grab_mouse_on_board.before(CursorSet::Perform),
-                )
-                    .in_set(MainSet::Update),
+                ),
             )
             .init_resource::<Boarded>()
             .add_event::<ActivateDebugCamera>();

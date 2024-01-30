@@ -1,11 +1,14 @@
 use bevy::{
-    ecs::{event::EventWriter, system::Res},
+    ecs::{event::EventWriter, schedule::SystemSet, system::Res},
     log::{info, warn},
     prelude::{Commands, DespawnRecursiveExt, Entity, Event, EventReader},
 };
 use networking::client::IncomingReliableServerMessage;
 
 use crate::{net::EntityServerMessage, spawn::ServerEntityClientEntity};
+
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
+pub struct DespawnEntitySet;
 
 /// The event to use to despawn an entity.
 #[derive(Event)]

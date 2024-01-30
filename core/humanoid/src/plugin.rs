@@ -1,11 +1,11 @@
-use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin};
+use bevy::prelude::{App, IntoSystemConfigs, Plugin};
 use combat::{chat::attacked_by_chat, sfx::health_combat_hit_result_sfx};
 use controller::input::ControllerSet;
 use pawn::camera::LookTransformSet;
 use resources::{
     input::InputSet,
     modes::{is_correction_mode, is_server_mode},
-    sets::{ActionsSet, CombatSet, MainSet, UpdateSet},
+    ordering::{ActionsSet, CombatSet, Update, UpdateSet},
 };
 
 use crate::{
@@ -19,20 +19,18 @@ impl Plugin for HumanoidPlugin {
     fn build(&self, app: &mut App) {
         if is_server_mode(app) && !is_correction_mode(app) {
             app.add_systems(
-                FixedUpdate,
+                Update,
                 (
                     examine_entity.after(ActionsSet::Action),
                     health_combat_hit_result_sfx::<Humanoid>.after(CombatSet::FinalizeApplyDamage),
                     attacked_by_chat::<Humanoid>.after(CombatSet::Query),
-                )
-                    .in_set(MainSet::Update),
+                ),
             );
         }
         app.add_systems(
-            FixedUpdate,
+            Update,
             humanoid_movement
                 .in_set(UpdateSet::StandardCharacters)
-                .in_set(MainSet::Update)
                 .after(ControllerSet::Input)
                 .after(InputSet::ApplyLiveCache)
                 .after(LookTransformSet::Sync),

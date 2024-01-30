@@ -1,8 +1,8 @@
-use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin};
+use bevy::prelude::{App, IntoSystemConfigs, Plugin};
 use networking::messaging::{register_reliable_message, MessageSender};
 use resources::{
     modes::is_server_mode,
-    sets::{ActionsSet, MainSet},
+    ordering::{ActionsSet, Update},
 };
 
 use crate::{
@@ -20,7 +20,7 @@ impl Plugin for ActionsPlugin {
     fn build(&self, app: &mut App) {
         if is_server_mode(app) {
             app.add_systems(
-                FixedUpdate,
+                Update,
                 (
                     init_action_data_listing.in_set(ActionsSet::Init),
                     list_action_data_from_actions_component
@@ -31,19 +31,13 @@ impl Plugin for ActionsPlugin {
                     clear_action_building
                         .in_set(ActionsSet::Clear)
                         .before(ActionsSet::Init),
-                )
-                    .in_set(MainSet::Update),
+                ),
             )
             .init_resource::<BuildingActions>()
             .init_resource::<ActionIncremented>()
             .init_resource::<ListActionDataRequests>()
             .init_resource::<ActionRequests>()
-            .add_systems(
-                FixedUpdate,
-                incoming_messages
-                    .before(ActionsSet::Init)
-                    .in_set(MainSet::Update),
-            )
+            .add_systems(Update, incoming_messages.before(ActionsSet::Init))
             .add_event::<InputListActions>()
             .add_event::<InputAction>();
         }

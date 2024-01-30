@@ -1,7 +1,7 @@
-use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, PostStartup, Startup, Update};
+use bevy::prelude::{App, IntoSystemConfigs, Plugin, PostStartup, Startup, Update as BevyUpdate};
 use graphics::settings::SettingsSet;
 use hud::{inventory::build::OpenHudSet, mouse::grab_mouse_hud_expand};
-use resources::{modes::is_server_mode, sets::MainSet};
+use resources::{modes::is_server_mode, ordering::Update};
 use ui::fonts::init_fonts;
 
 use crate::{
@@ -26,12 +26,9 @@ impl Plugin for EscapeMenuPlugin {
                 (build_escape_menu.after(init_fonts), register_input),
             )
             .add_systems(PostStartup, build_controls_section)
+            .add_systems(Update, (build_graphics_section.after(SettingsSet::Apply),))
             .add_systems(
-                FixedUpdate,
-                (build_graphics_section.after(SettingsSet::Apply),),
-            )
-            .add_systems(
-                Update,
+                BevyUpdate,
                 (
                     toggle_general_menu_section
                         .after(general_section_button_pressed)
@@ -48,7 +45,7 @@ impl Plugin for EscapeMenuPlugin {
                 ),
             )
             .add_systems(
-                FixedUpdate,
+                Update,
                 (
                     toggle_escape_menu
                         .before(OpenHudSet::Process)
@@ -66,8 +63,7 @@ impl Plugin for EscapeMenuPlugin {
                     apply_vsync.before(SettingsSet::Apply),
                     apply_fxaa.before(SettingsSet::Apply),
                     apply_msaa.before(SettingsSet::Apply),
-                )
-                    .in_set(MainSet::Update),
+                ),
             )
             .add_event::<ToggleEscapeMenu>()
             .add_event::<ToggleGeneralSection>()

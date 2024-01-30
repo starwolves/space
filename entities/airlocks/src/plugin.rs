@@ -1,10 +1,10 @@
-use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, SystemSet};
+use bevy::prelude::{App, IntoSystemConfigs, Plugin, SystemSet};
 use combat::sfx::health_combat_hit_result_sfx;
 use entity::entity_types::register_entity_type;
-use entity::spawn::{build_base_entities, SpawnItemSet};
+use entity::spawn::build_base_entities;
 use physics::spawn::build_rigid_bodies;
 use resources::modes::is_server_mode;
-use resources::sets::{ActionsSet, CombatSet, MainSet};
+use resources::ordering::{ActionsSet, BuildingSet, CombatSet, PreUpdate, Update};
 
 use crate::{
     actions::{
@@ -37,7 +37,7 @@ impl Plugin for AirLocksPlugin {
                 .add_event::<InputAirlockToggleOpen>()
                 .add_event::<AirLockLockOpen>()
                 .add_systems(
-                    FixedUpdate,
+                    Update,
                     (
                         airlock_added,
                         airlock_tick_timers,
@@ -57,20 +57,18 @@ impl Plugin for AirLocksPlugin {
                         build_actions
                             .in_set(ActionsSet::Build)
                             .after(ActionsSet::Init),
-                    )
-                        .in_set(MainSet::Update),
+                    ),
                 )
                 .add_event::<AirlockLockClosed>()
                 .add_event::<AirlockUnlock>();
         }
         app.add_systems(
-            FixedUpdate,
+            PreUpdate,
             (
-                build_airlocks::<AirlockType>.after(SpawnItemSet::SpawnHeldItem),
-                (build_rigid_bodies::<AirlockType>).after(SpawnItemSet::SpawnHeldItem),
-                (build_base_entities::<AirlockType>).after(SpawnItemSet::SpawnHeldItem),
-            )
-                .in_set(MainSet::Update),
+                build_airlocks::<AirlockType>.in_set(BuildingSet::NormalBuild),
+                (build_rigid_bodies::<AirlockType>).in_set(BuildingSet::NormalBuild),
+                (build_base_entities::<AirlockType>).in_set(BuildingSet::NormalBuild),
+            ),
         );
         register_entity_type::<AirlockType>(app);
     }

@@ -4,7 +4,10 @@ use std::{
     time::SystemTime,
 };
 
-use bevy::{ecs::system::Local, log::error};
+use bevy::{
+    ecs::{schedule::SystemSet, system::Local},
+    log::error,
+};
 use bevy::{log::info, time::Time};
 use bevy::{
     prelude::{Event, Resource},
@@ -532,6 +535,90 @@ pub(crate) fn deserialize_incoming_unreliable_server_message<
 }
 use crate::messaging::get_reliable_message;
 
+#[derive(Resource, Default)]
+pub struct QueuedSpawnEntityRaw {
+    pub reliable: Vec<IncomingRawReliableServerMessage>,
+    pub unreliable: Vec<IncomingRawUnreliableServerMessage>,
+}
+
+// Deserializes messages a second time, this time EntityUpdates contained in LoadEntity call.
+pub fn deserialize_incoming_reliable_load_entity_updates<
+    T: Clone + TypeName + Send + Sync + Serialize + for<'a> Deserialize<'a> + 'static,
+>(
+    mut incoming_raw: ResMut<QueuedSpawnEntityRaw>,
+    mut outgoing: EventWriter<IncomingReliableServerMessage<T>>,
+    typenames: Res<Typenames>,
+    stamp: Res<TickRateStamp>,
+) {
+    for batch in incoming_raw.reliable.iter() {
+        let server_stamp = stamp.calculate_large(batch.message.stamp);
+        let client_stamp;
+        match batch.message.client_stamp_option {
+            Some(x) => {
+                let large = stamp.calculate_large(x);
+                client_stamp = Some(large);
+            }
+            None => {
+                client_stamp = None;
+            }
+        }
+        for message in batch.message.messages.iter() {
+            match get_reliable_message::<T>(&typenames, message.typename_net, &message.serialized) {
+                Some(data) => {
+                    let r = IncomingReliableServerMessage {
+                        message: data,
+                        stamp: server_stamp,
+                        client_stamp_option: client_stamp,
+                    };
+                    outgoing.send(r);
+                }
+                None => {}
+            }
+        }
+    }
+    incoming_raw.reliable.clear();
+}
+
+/// Label for systems ordering.
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
+pub struct DeserializeSpawnUpdates;
+// Deserializes messages a second time, this time EntityUpdates contained in LoadEntity call.
+pub fn deserialize_incoming_unreliable_load_entity_updates<
+    T: Clone + TypeName + Send + Sync + Serialize + for<'a> Deserialize<'a> + 'static,
+>(
+    mut incoming_raw: EventReader<IncomingRawUnreliableServerMessage>,
+    mut outgoing: EventWriter<IncomingUnreliableServerMessage<T>>,
+    typenames: Res<Typenames>,
+    stamp: Res<TickRateStamp>,
+) {
+    for batch in incoming_raw.read() {
+        let server_stamp = stamp.calculate_large(batch.message.stamp);
+        let client_stamp;
+        match batch.message.client_stamp_option {
+            Some(x) => {
+                let large = stamp.calculate_large(x);
+                client_stamp = Some(large);
+            }
+            None => {
+                client_stamp = None;
+            }
+        }
+        for message in batch.message.messages.iter() {
+            match get_unreliable_message::<T>(&typenames, message.typename_net, &message.serialized)
+            {
+                Some(data) => {
+                    let r = IncomingUnreliableServerMessage {
+                        message: data,
+                        stamp: server_stamp,
+                        client_stamp_option: client_stamp,
+                    };
+                    outgoing.send(r);
+                }
+                None => {}
+            }
+        }
+    }
+}
 pub fn deserialize_incoming_reliable_server_message<
     T: Clone + TypeName + Send + Sync + Serialize + for<'a> Deserialize<'a> + 'static,
 >(
@@ -645,49 +732,17 @@ pub(crate) fn receive_incoming_unreliable_server_messages(
         }
     }
 }
-#[derive(Resource, Default)]
-pub(crate) struct RawServerMessageQueue {
-    pub reliable: Vec<(u64, ReliableServerMessageBatch)>,
-}
-
-pub(crate) fn step_incoming_reliable_server_messages(
-    mut queue: ResMut<RawServerMessageQueue>,
-    mut events: EventWriter<IncomingRawReliableServerMessage>,
-) {
-    let mut lowest_stamp = u64::MAX;
-    for (s, _) in queue.reliable.iter() {
-        if *s < lowest_stamp {
-            lowest_stamp = *s;
-        }
-    }
-    let mut remove_i = vec![];
-    let mut i = 0;
-    for (s, message) in queue.reliable.iter() {
-        if *s == lowest_stamp {
-            remove_i.push(i);
-            events.send(IncomingRawReliableServerMessage {
-                message: message.clone(),
-            });
-        }
-        i += 1;
-    }
-    for i in remove_i.iter().rev() {
-        queue.reliable.remove(*i);
-    }
-}
 
 /// Deserializes incoming server messages and writes to event.
 
 pub(crate) fn receive_incoming_reliable_server_messages(
     mut client: ResMut<RenetClient>,
-    mut queue: ResMut<RawServerMessageQueue>,
-    stamp: Res<TickRateStamp>,
+    mut events: EventWriter<IncomingRawReliableServerMessage>,
 ) {
     while let Some(message) = client.receive_message(RENET_RELIABLE_ORDERED_ID) {
         match bincode::deserialize::<ReliableServerMessageBatch>(&message) {
             Ok(msg) => {
-                //events.send(IncomingRawReliableServerMessage { message: msg });
-                queue.reliable.push((stamp.calculate_large(msg.stamp), msg));
+                events.send(IncomingRawReliableServerMessage { message: msg });
             }
             Err(_) => {
                 warn!("Received an invalid message.");
@@ -697,8 +752,7 @@ pub(crate) fn receive_incoming_reliable_server_messages(
     while let Some(message) = client.receive_message(RENET_RELIABLE_UNORDERED_ID) {
         match bincode::deserialize::<ReliableServerMessageBatch>(&message) {
             Ok(msg) => {
-                //events.send(IncomingRawReliableServerMessage { message: msg });
-                queue.reliable.push((stamp.calculate_large(msg.stamp), msg));
+                events.send(IncomingRawReliableServerMessage { message: msg });
             }
             Err(_) => {
                 warn!("Received an invalid message.");

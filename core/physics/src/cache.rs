@@ -80,28 +80,12 @@ pub(crate) fn apply_newly_spawned_data(
     mut cache: ResMut<PhysicsCache>,
     stampres: Res<TickRateStamp>,
 ) {
-    for (spawn_stamp, entity, priority_update) in new.list.iter() {
-        let mut new_data;
+    for (spawn_stamp, entity) in new.list.iter() {
+        let new_data;
         match cache.cache.clone().get(&stampres.large) {
             Some(physics_cache) => match physics_cache.get(entity) {
                 Some(stepped_data) => {
                     new_data = stepped_data.clone();
-                    match priority_update {
-                        resources::physics::PriorityUpdate::SmallCache(authorative_data) => {
-                            new_data.transform.translation = authorative_data.translation;
-                            new_data.transform.rotation = authorative_data.rotation;
-                            new_data.linear_velocity.0 = authorative_data.linear_velocity;
-                            new_data.angular_velocity.0 = authorative_data.angular_velocity;
-                        }
-                        resources::physics::PriorityUpdate::PhysicsSpawn(authorative_data) => {
-                            new_data.transform.translation = authorative_data.translation;
-                            new_data.transform.rotation = authorative_data.rotation;
-                        }
-                        _ => {
-                            warn!("unsupported loadentity update");
-                            continue;
-                        }
-                    }
                 }
                 None => {
                     warn!(
@@ -135,8 +119,132 @@ pub(crate) fn apply_newly_spawned_data(
     new.list.clear();
 }
 
-/// Only exists to fetch full physics properties of new spawned entities before fed to correction server.
-pub(crate) fn cache_data_second(
+/// Cache physics tick data of previous tick.
+pub(crate) fn cache_data_prev_tick(
+    query: Query<
+        (
+            (
+                Entity,
+                &Transform,
+                &LinearVelocity,
+                &LinearDamping,
+                &AngularDamping,
+                &AngularVelocity,
+                &ExternalTorque,
+                &ExternalAngularImpulse,
+                &ExternalImpulse,
+                &ExternalForce,
+                &RigidBody,
+                &Collider,
+                Option<&Sleeping>,
+                &LockedAxes,
+                &CollisionLayers,
+            ),
+            &Friction,
+        ),
+        With<SFRigidBody>,
+    >,
+    stamp: Res<TickRateStamp>,
+    mut cache: ResMut<PhysicsCache>,
+    rigidbodies: Res<RigidBodies>,
+    types: Query<&EntityData>,
+) {
+    for (t0, collider_friction) in query.iter() {
+        let mut adjusted_stamp = stamp.large;
+        if adjusted_stamp > 0 {
+            adjusted_stamp -= 1;
+        }
+
+        let (
+            rb_entity,
+            transform,
+            linear_velocity,
+            linear_damping,
+            angular_damping,
+            angular_velocity,
+            external_torque,
+            external_angular_impulse,
+            external_impulse,
+            external_force,
+            rigidbody,
+            collider,
+            sleeping,
+            locked_axes,
+            collision_layers,
+        ) = t0;
+
+        let entity;
+        match rigidbodies.get_rigidbody_entity(&rb_entity) {
+            Some(e) => {
+                entity = *e;
+            }
+            None => {
+                warn!("Couldnt find rb_entity entity.");
+                continue;
+            }
+        }
+
+        let entity_type;
+        match types.get(entity) {
+            Ok(t) => {
+                entity_type = t.entity_type.clone();
+            }
+            Err(_) => {
+                warn!("Couldnt find entity type.");
+                continue;
+            }
+        }
+        /*info!(
+            "cache_data entity:{:?} {}",
+            entity,
+            entity_type.get_identity()
+        );*/
+
+        let ncache = Cache {
+            entity,
+            rb_entity,
+            linear_velocity: *linear_velocity,
+            transform: *transform,
+            external_torque: *external_torque,
+            linear_damping: *linear_damping,
+            angular_damping: *angular_damping,
+            angular_velocity: *angular_velocity,
+            external_force: *external_force,
+            external_impulse: *external_impulse,
+            external_angular_impulse: *external_angular_impulse,
+            rigidbody: *rigidbody,
+            collider: collider.clone(),
+            sleeping: sleeping.copied(),
+            collision_layers: *collision_layers,
+            locked_axes: *locked_axes,
+            collider_friction: *collider_friction,
+            entity_type,
+            spawn_frame: false,
+        };
+
+        match cache.cache.get_mut(&adjusted_stamp) {
+            Some(c) => {
+                match c.get(&ncache.entity) {
+                    Some(x) => {
+                        if x.spawn_frame {
+                            continue;
+                        }
+                    }
+                    None => {}
+                }
+                c.insert(ncache.entity, ncache);
+            }
+            None => {
+                let mut m = HashMap::new();
+                m.insert(ncache.entity, ncache);
+                cache.cache.insert(adjusted_stamp, m);
+            }
+        }
+    }
+}
+
+/// Cache physics tick data of this tick after PreUpdate to forward new spawned entity data physics properties to correction app.
+pub(crate) fn cache_data_new_spawns(
     query: Query<
         (
             (
@@ -256,7 +364,7 @@ pub(crate) fn cache_data_second(
     }
 }
 /// Should run in preupdate and cache previous tick. This way we cache data of entities spawned with data point of last frame.
-pub(crate) fn cache_data(
+pub(crate) fn _cache_data(
     query: Query<
         (
             (
