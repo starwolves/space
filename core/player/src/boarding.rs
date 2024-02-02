@@ -22,11 +22,11 @@ pub struct BoardingAnnouncements {
 }
 use crate::net::PlayerServerMessage;
 
-use crate::connections::{OnBoard, SetupPhase};
+use crate::connections::SetupPhase;
 use bevy::prelude::{Event, EventWriter, Transform};
 use bevy::time::TimerMode;
 use networking::server::OutgoingReliableServerMessage;
-use pawn::pawn::Spawning;
+use pawn::pawn::SpawningPlayer;
 
 /// Event that fires when a player has successfully boarded.
 #[derive(Event)]
@@ -52,11 +52,6 @@ pub fn player_boarded(
             boarded_player.handle,
             boarded_player.entity
         );
-
-        server.send(OutgoingReliableServerMessage {
-            handle: boarded_player.handle,
-            message: PlayerServerMessage::PawnId(boarded_player.entity),
-        });
         server.send(OutgoingReliableServerMessage {
             handle: boarded_player.handle,
             message: PlayerServerMessage::Boarded,
@@ -70,7 +65,7 @@ pub fn done_boarding(
     mut server: EventWriter<OutgoingReliableServerMessage<PlayerServerMessage>>,
     mut boarding_player_event: EventReader<BoardingPlayer>,
     mut commands: Commands,
-
+    mut spawning: EventWriter<SpawningPlayer>,
     mut asana_boarding_announcements: ResMut<BoardingAnnouncements>,
 ) {
     for boarding_player in boarding_player_event.read() {
@@ -83,13 +78,11 @@ pub fn done_boarding(
         assigned_spawn_transform.translation.y = 1.8 - 0.5 - 0.5 + 0.2;
         commands
             .entity(entity_id)
-            .insert((
-                OnBoard,
-                Spawning {
-                    transform: assigned_spawn_transform,
-                },
-            ))
             .remove::<(SetupPhase, SoftPlayer)>();
+        spawning.send(SpawningPlayer {
+            transform: assigned_spawn_transform,
+            entity: entity_id,
+        });
 
         server.send(OutgoingReliableServerMessage {
             handle: player_handle,

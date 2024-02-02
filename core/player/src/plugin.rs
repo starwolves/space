@@ -14,10 +14,11 @@ use crate::{
     connections::{server_events, PlayerAwaitingBoarding},
 };
 use bevy::prelude::{App, IntoSystemConfigs, Plugin, PreUpdate as BevyPreUpdate, SystemSet};
+use bevy_renet::CoreSet;
 use entity::despawn::DespawnEntitySet;
-use networking::messaging::{register_reliable_message, MessageSender};
+use networking::messaging::{register_reliable_message, MessageSender, MessagingSet};
 use resources::modes::is_server_mode;
-use resources::ordering::{PostUpdate, Update};
+use resources::ordering::{BuildingSet, PostUpdate, PreUpdate, Update};
 use ui::cursor::CursorSet;
 
 /// Atmospherics systems ordering label.
@@ -42,12 +43,12 @@ impl Plugin for PlayerPlugin {
                 ),
             )
             .add_event::<SendServerConfiguration>()
-            .add_systems(BevyPreUpdate, buffer_server_events)
+            .add_systems(BevyPreUpdate, buffer_server_events.after(CoreSet::Pre))
             .add_systems(PostUpdate, (clear_buffer,))
+            .add_systems(PreUpdate, (done_boarding,))
             .add_systems(
                 Update,
                 (
-                    done_boarding,
                     server_new_client_configuration
                         .in_set(ConfigurationLabel::SpawnEntity)
                         .before(ConfigurationLabel::Main)
@@ -69,10 +70,15 @@ impl Plugin for PlayerPlugin {
             app.add_systems(
                 Update,
                 (
-                    client_receive_pawnid,
                     spawn_debug_camera,
                     grab_mouse_on_board.before(CursorSet::Perform),
                 ),
+            )
+            .add_systems(
+                PreUpdate,
+                (client_receive_pawnid
+                    .after(MessagingSet::DeserializeIncoming)
+                    .before(BuildingSet::TriggerBuild),),
             )
             .init_resource::<Boarded>()
             .add_event::<ActivateDebugCamera>();

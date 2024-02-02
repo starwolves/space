@@ -5,6 +5,7 @@ use bevy::ecs::system::Commands;
 use bevy::ecs::system::Local;
 use bevy::ecs::system::ResMut;
 use bevy::ecs::system::Resource;
+use bevy::log::info;
 use bevy::log::warn;
 use bevy::math::Vec3;
 use bevy::prelude::EventWriter;
@@ -143,7 +144,7 @@ pub(crate) fn server_replicate_peer_input_messages(
                 tuple = t.clone();
             }
             Err(_) => {
-                //warn!("Couldnt find moving entity.");
+                warn!("replicate couldnt find moving entity.");
                 continue;
             }
         }
@@ -156,6 +157,11 @@ pub(crate) fn server_replicate_peer_input_messages(
                     if id == &message.typename_net {
                         match bincode::deserialize::<ControllerClientMessage>(&message.serialized) {
                             Ok(client_message) => {
+                                let mut o = 0;
+                                for _ in players.iter() {
+                                    o += 1;
+                                }
+                                info!("{} players", o);
                                 for (connected, senser) in players.iter() {
                                     if !connected.connected {
                                         continue;
@@ -166,6 +172,14 @@ pub(crate) fn server_replicate_peer_input_messages(
                                     if !senser.sensing.contains(&moving_entity) {
                                         continue;
                                     }
+                                    info!("Forwarding reliable message to player.");
+                                    let client_stamp;
+                                    let large = stamp.calculate_large(batch.0.message.stamp);
+                                    if large < stamp.large + 1 {
+                                        client_stamp = TickRateStamp::new(stamp.large + 1).tick;
+                                    } else {
+                                        client_stamp = batch.0.message.stamp;
+                                    }
                                     let new_message = PeerReliableControllerMessage {
                                         message: PeerControllerClientMessage::from(
                                             client_message.clone(),
@@ -173,7 +187,7 @@ pub(crate) fn server_replicate_peer_input_messages(
                                             tuple.1.target,
                                         ),
                                         peer_handle: batch.0.handle.raw() as u16,
-                                        client_stamp: batch.0.message.stamp,
+                                        client_stamp,
                                     };
 
                                     let sub_id = typenames
@@ -188,12 +202,12 @@ pub(crate) fn server_replicate_peer_input_messages(
 
                                     match reliable_peer_messages.get_mut(&connected.handle) {
                                         Some(messages) => {
-                                            messages.push((batch.0.message.stamp, reliable_message))
+                                            messages.push((client_stamp, reliable_message))
                                         }
                                         None => {
                                             reliable_peer_messages.insert(
                                                 connected.handle,
-                                                vec![(batch.0.message.stamp, reliable_message)],
+                                                vec![(client_stamp, reliable_message)],
                                             );
                                         }
                                     }
@@ -218,7 +232,7 @@ pub(crate) fn server_replicate_peer_input_messages(
                 moving_entity = *e;
             }
             None => {
-                warn!("no handle entity found.1");
+                //warn!("no handle entity found.1");
                 continue;
             }
         }
@@ -253,14 +267,21 @@ pub(crate) fn server_replicate_peer_input_messages(
                                     if !senser.sensing.contains(&moving_entity) {
                                         continue;
                                     }
+
+                                    let client_stamp;
+                                    let large = stamp.calculate_large(batch.0.message.stamp);
+                                    if large <= stamp.large {
+                                        client_stamp = TickRateStamp::new(stamp.large + 1).tick;
+                                    } else {
+                                        client_stamp = batch.0.message.stamp;
+                                    }
                                     let mut latest = false;
                                     match client_message {
                                         UnreliableControllerClientMessage::UpdateLookTransform(
                                             target,
                                             new_id,
                                         ) => {
-                                            let large =
-                                                stamp.calculate_large(batch.0.message.stamp);
+                                            let large = stamp.calculate_large(client_stamp);
                                             match queue.get_mut(&connected.handle) {
                                                 Some(q1) => match q1.get_mut(&large) {
                                                     Some(q2) => {
@@ -319,7 +340,7 @@ pub(crate) fn server_replicate_peer_input_messages(
                                             tuple.0.translation,
                                         ),
                                         peer_handle: batch.0.handle.raw() as u16,
-                                        client_stamp: batch.0.message.stamp,
+                                        client_stamp,
                                     };
 
                                     let sub_id = typenames
@@ -332,12 +353,13 @@ pub(crate) fn server_replicate_peer_input_messages(
                                         typename_net: *sub_id,
                                     };
                                     match unreliable_peer_messages.get_mut(&connected.handle) {
-                                        Some(messages) => messages
-                                            .push((batch.0.message.stamp, unreliable_message)),
+                                        Some(messages) => {
+                                            messages.push((client_stamp, unreliable_message))
+                                        }
                                         None => {
                                             unreliable_peer_messages.insert(
                                                 connected.handle,
-                                                vec![(batch.0.message.stamp, unreliable_message)],
+                                                vec![(client_stamp, unreliable_message)],
                                             );
                                         }
                                     }
@@ -368,6 +390,7 @@ pub(crate) fn server_replicate_peer_input_messages(
                 })
                 .unwrap(),
             );
+            info!("Fin forward message to player.");
         }
     }
     for (id, msgs) in unreliable_peer_messages {

@@ -1,12 +1,12 @@
 use bevy::prelude::{App, IntoSystemConfigs, Plugin};
 use networking::{
     client::is_client_connected,
-    messaging::{register_reliable_message, MessageSender},
+    messaging::{register_reliable_message, MessageSender, MessagingSet},
 };
 use player::{boarding::done_boarding, connections::process_response, plugin::ConfigurationLabel};
 use resources::{
     modes::is_server_mode,
-    ordering::{BuildingSet, Update},
+    ordering::{BuildingSet, PreUpdate, Update},
 };
 
 use crate::{
@@ -25,7 +25,6 @@ impl Plugin for SetupMenuPlugin {
             app.add_systems(
                 Update,
                 (
-                    ui_input_boarding.before(done_boarding),
                     initialize_setupui.in_set(BuildingSet::TriggerBuild),
                     configure
                         .in_set(ConfigurationLabel::Main)
@@ -35,6 +34,12 @@ impl Plugin for SetupMenuPlugin {
                     setupui_loaded,
                     receive_input_character_name,
                 ),
+            )
+            .add_systems(
+                PreUpdate,
+                (ui_input_boarding
+                    .after(MessagingSet::DeserializeIncoming)
+                    .before(done_boarding),),
             )
             .init_resource::<SetupUiState>()
             .init_resource::<SetupUiUserDataSets>();

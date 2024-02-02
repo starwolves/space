@@ -1,4 +1,5 @@
 use bevy::{
+    ecs::{entity::Entity, event::Event},
     math::Vec2,
     prelude::{Component, Transform},
 };
@@ -135,10 +136,11 @@ pub enum PawnDesignation {
 }
 
 /// Component that contains the spawn data of a to-be-spawned pawn.
-#[derive(Component)]
+#[derive(Event)]
 
-pub struct Spawning {
+pub struct SpawningPlayer {
     pub transform: Transform,
+    pub entity: Entity,
 }
 /// How far melee fists attacks can reach.
 

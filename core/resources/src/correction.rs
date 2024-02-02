@@ -8,12 +8,6 @@ pub struct StartCorrection {
     pub last_tick: u64,
 }
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
-
-pub enum CorrectionSet {
-    Start,
-}
-
-#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
 pub enum CorrectionServerSet {
     TriggerSync,
     SyncClear,

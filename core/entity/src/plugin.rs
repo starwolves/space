@@ -59,18 +59,15 @@ impl Plugin for EntityPlugin {
         } else {
             app.init_resource::<ServerEntityClientEntity>()
                 .init_resource::<PeerPawns>()
-                .add_systems(
-                    Update,
-                    (
-                        link_peer.after(BuildingSet::TriggerBuild),
-                        client_despawn_entity.before(DespawnEntitySet),
-                    ),
-                )
+                .add_systems(Update, (client_despawn_entity.before(DespawnEntitySet),))
                 .add_systems(
                     PreUpdate,
-                    fire_load_entity_updates
-                        .after(BuildingSet::TriggerBuild)
-                        .before(DeserializeSpawnUpdates),
+                    (
+                        fire_load_entity_updates
+                            .after(BuildingSet::TriggerBuild)
+                            .before(DeserializeSpawnUpdates),
+                        link_peer.after(BuildingSet::TriggerBuild),
+                    ),
                 )
                 .init_resource::<QueuedSpawnEntityUpdates>()
                 .init_resource::<NewToBeCachedSpawnedEntities>();

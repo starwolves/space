@@ -1,7 +1,7 @@
 use crate::{LookAngles, LookTransform, LookTransformBundle, Smoother};
 
 use bevy::{
-    app::{App, Plugin, PreUpdate, Update as BevyUpdate},
+    app::{App, Plugin, PreUpdate as BevyPreUpdate},
     ecs::{
         bundle::Bundle,
         component::Component,
@@ -34,12 +34,12 @@ impl FpsCameraPlugin {
 impl Plugin for FpsCameraPlugin {
     fn build(&self, app: &mut App) {
         let app = app
-            .add_systems(PreUpdate, on_controller_enabled_changed)
-            .add_systems(BevyUpdate, control_system)
+            .add_systems(BevyPreUpdate, on_controller_enabled_changed)
+            .add_systems(BevyPreUpdate, control_system)
             .add_event::<ControlEvent>()
             .init_resource::<ActiveCamera>();
         if !self.override_input_system {
-            app.add_systems(BevyUpdate, default_input_map.before(control_system));
+            app.add_systems(BevyPreUpdate, default_input_map.before(control_system));
         }
         // app.add_system(print_camera_position);
     }

@@ -57,6 +57,9 @@ pub(crate) fn mouse_input(
             return;
         }
     }
+    if pawn_id.client.is_none() {
+        return;
+    }
     let lk;
     match look_transform_query.get(camera_entity) {
         Ok(look_transform) => {

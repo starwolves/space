@@ -24,7 +24,6 @@ pub fn store_entity_type<T: EntityType + 'static>(mut types: ResMut<EntityTypes>
 use bevy::log::info;
 use networking::stamp::TickRateStamp;
 use resources::correction::MAX_CACHE_TICKS_AMNT;
-use resources::plugin::SpawnItemSet;
 
 pub(crate) fn finalize_register_entity_types(mut types: ResMut<EntityTypes>) {
     types.startup_types.sort();
@@ -72,7 +71,7 @@ pub fn register_entity_type<T: EntityType + Clone + Default + 'static>(app: &mut
     .add_systems(
         PreUpdate,
         (build_raw_entities::<T>)
-            .before(SpawnItemSet::SpawnHeldItem)
+            .before(BuildingSet::NormalBuild)
             .in_set(BuildingSet::TriggerBuild)
             .after(BuildingSet::RawTriggerBuild),
     );

@@ -32,6 +32,7 @@ pub struct NewToBeCachedSpawnedEntities {
 /// Client loads in entities.
 pub fn load_entity<T: Send + Sync + 'static + Default + EntityType>(
     mut client: EventReader<IncomingReliableServerMessage<EntityServerMessage>>,
+
     types: Res<EntityTypes>,
     mut spawn_events: EventWriter<SpawnEntity<T>>,
     mut commands: Commands,

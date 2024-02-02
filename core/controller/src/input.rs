@@ -329,7 +329,6 @@ pub(crate) fn process_peer_input(
                             }
                             None => {}
                         }
-
                         sync_controller.send(SyncControllerInput {
                             entity: *peer,
                             sync: input.clone(),
@@ -508,28 +507,24 @@ pub(crate) fn process_peer_input(
 /// Client fn
 pub(crate) fn sync_controller_input(
     mut events: EventReader<SyncControllerInput>,
-    mut query: Query<&mut ControllerInput>,
     mut cache: ResMut<ControllerCache>,
+    stamp: Res<TickRateStamp>,
 ) {
     for event in events.read() {
-        match query.get_mut(event.entity) {
-            Ok(mut controller_input) => {
-                *controller_input = event.sync.clone();
-                match cache.cache.get_mut(&event.entity) {
-                    Some(c) => {
-                        c.insert(event.server_stamp, event.sync.clone());
-                    }
-                    None => {
-                        let mut map = HashMap::new();
-                        map.insert(event.server_stamp, event.sync.clone());
-                        cache.cache.insert(event.entity, map);
-                    }
-                }
+        match cache.cache.get_mut(&event.entity) {
+            Some(c) => {
+                c.insert(event.server_stamp, event.sync.clone());
             }
-            Err(_) => {
-                warn!("Couldnt find entity to sync for.");
+            None => {
+                let mut map = HashMap::new();
+                map.insert(event.server_stamp, event.sync.clone());
+                cache.cache.insert(event.entity, map);
             }
         }
+        info!(
+            "Synced controller input {:?} , serverstamp{} at {}",
+            event.sync, event.server_stamp, stamp.large
+        );
     }
 }
 
@@ -734,6 +729,12 @@ pub(crate) fn apply_controller_cache_to_peers(
                         continue;
                     }
                     let input = input_cache.get(i).unwrap();
+                    if input.movement_vector != input_component.movement_vector {
+                        info!(
+                            "apply_controller_cache_to_peers setting peer input to {}",
+                            input_component.movement_vector
+                        );
+                    }
                     *input_component = input.clone();
                     break;
                 }
@@ -752,6 +753,7 @@ pub(crate) fn controller_input(
     stampres: Res<TickRateStamp>,
     mut priority: ResMut<PriorityPhysicsCache>,
     mut controller_cache: ResMut<ControllerCache>,
+    stamp: Res<TickRateStamp>,
 ) {
     for new_event in movement_input_event.read() {
         let player_entity = new_event.entity;
@@ -793,7 +795,13 @@ pub(crate) fn controller_input(
                 processed_input.movement_vector += additive;
 
                 let input_stamp;
-
+                info!(
+                    "controller_input: {} + {} {:?} at tick {}",
+                    processed_input.movement_vector - additive,
+                    additive,
+                    new_event,
+                    stamp.large
+                );
                 match new_event.peer_data {
                     Some((position, look_target, client_stamp, server_stamp)) => {
                         input_stamp = client_stamp;

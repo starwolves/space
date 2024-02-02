@@ -15,8 +15,11 @@ use bevy::{
 };
 
 use bevy_renet::renet::{
-    transport::{ClientAuthentication, ConnectToken, NetcodeClientTransport},
-    ConnectionConfig, DefaultChannel, RenetClient,
+    transport::{
+        ClientAuthentication, ConnectToken, NetcodeClientTransport, NetcodeServerTransport,
+        NetcodeTransportError,
+    },
+    ConnectionConfig, DefaultChannel, RenetClient, RenetServer,
 };
 use bevy_xpbd_3d::plugins::setup::{Physics, PhysicsTime};
 use futures_lite::future;
@@ -540,12 +543,15 @@ pub struct QueuedSpawnEntityRaw {
     pub reliable: Vec<IncomingRawReliableServerMessage>,
     pub unreliable: Vec<IncomingRawUnreliableServerMessage>,
 }
-
+pub(crate) fn clear_raw_spawn_entity_queue(mut incoming_raw: ResMut<QueuedSpawnEntityRaw>) {
+    incoming_raw.reliable.clear();
+    incoming_raw.unreliable.clear();
+}
 // Deserializes messages a second time, this time EntityUpdates contained in LoadEntity call.
 pub fn deserialize_incoming_reliable_load_entity_updates<
     T: Clone + TypeName + Send + Sync + Serialize + for<'a> Deserialize<'a> + 'static,
 >(
-    mut incoming_raw: ResMut<QueuedSpawnEntityRaw>,
+    incoming_raw: Res<QueuedSpawnEntityRaw>,
     mut outgoing: EventWriter<IncomingReliableServerMessage<T>>,
     typenames: Res<Typenames>,
     stamp: Res<TickRateStamp>,
@@ -576,22 +582,38 @@ pub fn deserialize_incoming_reliable_load_entity_updates<
             }
         }
     }
-    incoming_raw.reliable.clear();
+}
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
+pub struct PreUpdateSendMessage;
+/// Latency critical input gets fired from Bevy's PreUpdate schedule rather than in PostUpdate.
+pub(crate) fn pre_update_send_messages_client(
+    mut transport: ResMut<NetcodeClientTransport>,
+    mut client: ResMut<RenetClient>,
+    mut transport_errors: EventWriter<NetcodeTransportError>,
+) {
+    if let Err(e) = transport.send_packets(&mut client) {
+        transport_errors.send(e);
+    }
+}
+pub(crate) fn pre_update_send_messages_server(
+    mut transport: ResMut<NetcodeServerTransport>,
+    mut client: ResMut<RenetServer>,
+) {
+    transport.send_packets(&mut client);
 }
 
 /// Label for systems ordering.
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
 pub struct DeserializeSpawnUpdates;
-// Deserializes messages a second time, this time EntityUpdates contained in LoadEntity call.
 pub fn deserialize_incoming_unreliable_load_entity_updates<
     T: Clone + TypeName + Send + Sync + Serialize + for<'a> Deserialize<'a> + 'static,
 >(
-    mut incoming_raw: EventReader<IncomingRawUnreliableServerMessage>,
+    incoming_raw: Res<QueuedSpawnEntityRaw>,
     mut outgoing: EventWriter<IncomingUnreliableServerMessage<T>>,
     typenames: Res<Typenames>,
     stamp: Res<TickRateStamp>,
 ) {
-    for batch in incoming_raw.read() {
+    for batch in incoming_raw.unreliable.iter() {
         let server_stamp = stamp.calculate_large(batch.message.stamp);
         let client_stamp;
         match batch.message.client_stamp_option {
@@ -603,6 +625,7 @@ pub fn deserialize_incoming_unreliable_load_entity_updates<
                 client_stamp = None;
             }
         }
+
         for message in batch.message.messages.iter() {
             match get_unreliable_message::<T>(&typenames, message.typename_net, &message.serialized)
             {
@@ -619,6 +642,7 @@ pub fn deserialize_incoming_unreliable_load_entity_updates<
         }
     }
 }
+
 pub fn deserialize_incoming_reliable_server_message<
     T: Clone + TypeName + Send + Sync + Serialize + for<'a> Deserialize<'a> + 'static,
 >(
@@ -635,8 +659,8 @@ pub fn deserialize_incoming_reliable_server_message<
         let client_stamp;
         let store_stamp;
         match batch.message.client_stamp_option {
-            Some(x) => {
-                let large = stamp.calculate_large(x);
+            Some(small_client_stamp) => {
+                let large = stamp.calculate_large(small_client_stamp);
                 client_stamp = Some(large);
                 store_stamp = large;
             }

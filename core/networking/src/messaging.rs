@@ -3,8 +3,7 @@ use std::collections::HashMap;
 use bevy::prelude::{resource_exists, App, IntoSystemConfigs, Startup, SystemSet};
 use bevy::prelude::{ResMut, Resource};
 use bevy_renet::renet::RenetClient;
-use bevy_renet::RenetSend;
-use resources::ordering::{PostUpdate, PreUpdate};
+use resources::ordering::{PostUpdate, PreUpdate, Update};
 use typename::TypeName;
 
 /// Resource containing typenames and smaller 16-bit netcode representations. Needed to identify Rust types sent over the net.
@@ -146,11 +145,11 @@ pub fn register_reliable_message<
     if server_is_sender && is_server() && !is_correction_mode(app) {
         app.add_systems(
             PostUpdate,
-            (
-                send_outgoing_reliable_server_messages::<T>.in_set(ServerMessageSet::Send),
-                serialize_reliable_entity_updates::<T>.in_set(EntityUpdatesSet::Serialize),
-            )
-                .before(RenetSend),
+            (send_outgoing_reliable_server_messages::<T>.in_set(ServerMessageSet::Send),),
+        )
+        .add_systems(
+            Update,
+            (serialize_reliable_entity_updates::<T>.in_set(EntityUpdatesSet::Serialize),),
         )
         .add_systems(PreUpdate, (clear_entity_updates::<T>,))
         .insert_resource(EntityUpdates::<T> {
@@ -175,9 +174,7 @@ pub fn register_reliable_message<
     if client_is_sender && !is_server_mode(app) {
         app.add_systems(
             PostUpdate,
-            send_outgoing_reliable_client_messages::<T>
-                .before(step_buffer)
-                .before(RenetSend),
+            send_outgoing_reliable_client_messages::<T>.before(step_buffer),
         );
     }
 
@@ -250,11 +247,11 @@ pub fn register_unreliable_message<
         if !is_correction_mode(app) {
             app.add_systems(
                 PostUpdate,
-                (
-                    send_outgoing_unreliable_server_messages::<T>.in_set(ServerMessageSet::Send),
-                    serialize_unreliable_entity_updates::<T>.in_set(EntityUpdatesSet::Serialize),
-                )
-                    .before(RenetSend),
+                (send_outgoing_unreliable_server_messages::<T>.in_set(ServerMessageSet::Send),),
+            )
+            .add_systems(
+                Update,
+                (serialize_unreliable_entity_updates::<T>.in_set(EntityUpdatesSet::Serialize),),
             )
             .add_systems(PreUpdate, (clear_entity_updates::<T>,))
             .insert_resource(EntityUpdates::<T> {
@@ -281,8 +278,7 @@ pub fn register_unreliable_message<
             PostUpdate,
             send_outgoing_unreliable_client_messages::<T>
                 .run_if(resource_exists::<RenetClient>())
-                .before(step_buffer)
-                .before(RenetSend),
+                .before(step_buffer),
         );
     }
     if client_is_sender && is_server_mode(app) {

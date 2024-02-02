@@ -552,7 +552,7 @@ pub struct Latency {
 }
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct AdjustSync {
-    pub tick: i16,
+    pub tick: u64,
 }
 
 const MIN_REQUIRED_MESSAGES_FOR_ADJUSTMENT: i32 = 15;
@@ -567,6 +567,7 @@ pub(crate) fn adjust_clients(
     mut net: EventWriter<OutgoingReliableServerMessage<NetworkingServerMessage>>,
     mut confirmations: ResMut<SyncConfirmations>,
     synced_clients: Res<ClientsReadyForSync>,
+    stamp: Res<TickRateStamp>,
 ) {
     for (handle, tickrate_differences) in latency.reports.iter_mut() {
         let mut ready = false;
@@ -619,7 +620,9 @@ pub(crate) fn adjust_clients(
 
                 net.send(OutgoingReliableServerMessage {
                     handle: *handle,
-                    message: NetworkingServerMessage::AdjustSync(AdjustSync { tick: -num }),
+                    message: NetworkingServerMessage::AdjustSync(AdjustSync {
+                        tick: (stamp.large as i128 + num as i128) as u64,
+                    }),
                 });
 
                 match confirmations.server_sync.get_mut(handle) {
@@ -639,7 +642,9 @@ pub(crate) fn adjust_clients(
                 }
                 net.send(OutgoingReliableServerMessage {
                     handle: *handle,
-                    message: NetworkingServerMessage::AdjustSync(AdjustSync { tick: num }),
+                    message: NetworkingServerMessage::AdjustSync(AdjustSync {
+                        tick: (stamp.large as i128 - num as i128) as u64,
+                    }),
                 });
 
                 match confirmations.server_sync.get_mut(handle) {
@@ -694,36 +699,6 @@ pub(crate) fn step_incoming_client_messages(
         if message.message.not_timed {
             continue;
         }
-        /*for m in message.message.messages.iter() {
-            if m.typename_net
-                == *typenames
-                    .reliable_net_types
-                    .get(&NetworkingClientMessage::type_name())
-                    .unwrap()
-            {
-                match bincode::deserialize::<NetworkingClientMessage>(&m.serialized) {
-                    Ok(cl) => match cl {
-                        NetworkingClientMessage::SyncConfirmation => {
-                            if *latency_reported {
-                                continue;
-                            }
-                            match confirmations.incremental.get_mut(&message.handle) {
-                                Some(a) => {
-                                    *a += 1;
-                                }
-                                None => {
-                                    confirmations.incremental.insert(message.handle, 1);
-                                }
-                            }
-                        }
-                        _ => (),
-                    },
-                    Err(_) => {
-                        warn!("Coudlnt deserialize client message.");
-                    }
-                }
-            }
-        }*/
         if *latency_reported {
             continue;
         }
@@ -860,6 +835,10 @@ pub struct EarlyIncomingRawReliableClientMessage(pub IncomingRawReliableClientMe
 pub struct EarlyIncomingRawUnreliableClientMessage(pub IncomingRawUnreliableClientMessage);
 
 use crate::plugin::{RENET_RELIABLE_UNORDERED_ID, RENET_UNRELIABLE_CHANNEL_ID};
+
+/// Label for systems ordering.
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
+pub struct PreUpdateMessageProcessor;
 
 /// Deserializes header of incoming client messages and writes to event.
 

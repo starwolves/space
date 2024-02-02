@@ -11,7 +11,7 @@ use player::connections::ServerEventBuffer;
 
 /// Manage client connection events.
 #[allow(unused_variables)]
-pub(crate) fn connections(
+pub(crate) fn handle_disconnects(
     mut handle_to_entity: ResMut<HandleToEntity>,
     buffer: Res<ServerEventBuffer>,
     mut connected_players: Query<(&mut ConnectedPlayer, &mut ControllerInput)>,

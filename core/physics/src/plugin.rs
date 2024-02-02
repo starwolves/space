@@ -12,7 +12,6 @@ use entity::despawn::DespawnEntitySet;
 use networking::messaging::{register_unreliable_message, MessageSender, MessagingSet};
 use resources::{
     core::TickRate,
-    correction::CorrectionSet,
     modes::{is_correction_mode, is_server_mode},
     ordering::{Fin, PostUpdate, PreUpdate, Update},
     physics::PriorityPhysicsCache,
@@ -78,7 +77,6 @@ impl Plugin for PhysicsPlugin {
                     (
                         desync_check_correction
                             .run_if(resource_exists::<RenetClient>())
-                            .in_set(CorrectionSet::Start)
                             .before(sync_entities),
                         sync_entities,
                         client_despawn_and_clean_cache,
@@ -92,7 +90,9 @@ impl Plugin for PhysicsPlugin {
                 .add_systems(
                     PreUpdate,
                     (
-                        sync_loop.after(MessagingSet::DeserializeIncoming),
+                        sync_loop
+                            .after(MessagingSet::DeserializeIncoming)
+                            .run_if(resource_exists::<RenetClient>()),
                         start_sync
                             .after(MessagingSet::DeserializeIncoming)
                             .before(sync_loop),
@@ -111,7 +111,7 @@ impl Plugin for PhysicsPlugin {
             .init_resource::<PhysicsCache>()
             .init_resource::<PriorityPhysicsCache>()
             .init_resource::<NewlySpawnedRigidbodies>()
-            .add_systems(Update, clear_new)
+            .add_systems(PostUpdate, clear_new)
             .add_systems(PostUpdate, physics_step.in_set(PhysicsStepSet))
             .init_resource::<CorrectionEnabled>();
 

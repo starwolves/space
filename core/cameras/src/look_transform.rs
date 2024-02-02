@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use bevy::{
-    app::{App, Plugin, Update as BevyUpdate},
+    app::{App, Plugin, PreUpdate as BevyPreUpdate},
     ecs::{
         bundle::Bundle,
         component::Component,
@@ -17,15 +17,21 @@ use bevy::{
 use itertools::Itertools;
 use networking::stamp::TickRateStamp;
 use resources::{
-    correction::MAX_CACHE_TICKS_AMNT, input::InputSet, modes::is_server_mode, ordering::Update,
-    pawn::ClientPawn, physics::PhysicsSet,
+    correction::MAX_CACHE_TICKS_AMNT,
+    input::InputSet,
+    modes::is_server_mode,
+    ordering::{Fin, Update},
+    pawn::ClientPawn,
+    physics::PhysicsSet,
 };
+
+use crate::controllers::fps::control_system;
 
 pub struct LookTransformPlugin;
 
 impl Plugin for LookTransformPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(BevyUpdate, look_transform_system)
+        app.add_systems(BevyPreUpdate, look_transform_system.after(control_system))
             .init_resource::<LookTransformCache>()
             .add_systems(
                 Update,
@@ -35,7 +41,8 @@ impl Plugin for LookTransformPlugin {
             app.add_systems(
                 Update,
                 (apply_look_cache_to_peers.in_set(InputSet::ApplyLiveCache),),
-            );
+            )
+            .add_systems(Fin, clean_look_cache);
         }
     }
 }
@@ -49,6 +56,27 @@ pub struct LookTransformBundle {
 pub struct LookTransformCache {
     pub cache: HashMap<Entity, HashMap<u64, LookTransform>>,
 }
+
+pub(crate) fn clean_look_cache(mut cache: ResMut<LookTransformCache>) {
+    // Clean cache.
+    for (_, cache) in cache.cache.iter_mut() {
+        if cache.len() > MAX_CACHE_TICKS_AMNT as usize {
+            let mut j = 0;
+
+            for i in cache.clone().keys().sorted().rev() {
+                if j as usize == cache.len() - MAX_CACHE_TICKS_AMNT as usize {
+                    continue;
+                }
+                if j >= MAX_CACHE_TICKS_AMNT {
+                    cache.remove(i);
+                }
+
+                j += 1;
+            }
+        }
+    }
+}
+
 pub(crate) fn apply_look_cache_to_peers(
     cache: Res<LookTransformCache>,
     mut query: Query<(Entity, &mut LookTransform), (Without<ClientPawn>, Without<Camera>)>,
@@ -94,24 +122,6 @@ pub(crate) fn cache_client_pawn_look_transform(
                 let mut map = HashMap::new();
                 map.insert(stamp.large, controller.clone());
                 cache.cache.insert(entity, map);
-            }
-        }
-    }
-
-    // Clean cache.
-    for (_, cache) in cache.cache.iter_mut() {
-        if cache.len() > MAX_CACHE_TICKS_AMNT as usize {
-            let mut j = 0;
-
-            for i in cache.clone().keys().sorted().rev() {
-                if j as usize == cache.len() - MAX_CACHE_TICKS_AMNT as usize {
-                    continue;
-                }
-                if j >= MAX_CACHE_TICKS_AMNT {
-                    cache.remove(i);
-                }
-
-                j += 1;
             }
         }
     }

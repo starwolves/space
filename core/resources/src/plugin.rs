@@ -1,6 +1,7 @@
 use bevy::{
-    ecs::schedule::{IntoSystemSetConfigs, SystemSet},
-    prelude::{App, Plugin, Update as BevyUpdate},
+    ecs::schedule::{IntoSystemConfigs, IntoSystemSetConfigs, SystemSet},
+    input::InputSystem,
+    prelude::{App, Plugin, PreUpdate as BevyPreUpdate},
 };
 
 use crate::{
@@ -18,22 +19,22 @@ impl Plugin for ResourcesPlugin {
         if !is_server_mode(app) {
             app.init_resource::<KeyBinds>()
                 .init_resource::<InputBuffer>()
-                .add_systems(BevyUpdate, buffer_input)
+                .add_systems(BevyPreUpdate, buffer_input.after(InputSystem))
                 //.add_systems(BevyUpdate, sanitize_input.before(buffer_input))
                 .add_systems(PostUpdate, clear_buffer)
                 .init_resource::<MainMenuState>()
-                .add_event::<StartCorrection>()
-                .configure_sets(
-                    PreUpdate,
-                    (
-                        BuildingSet::RawTriggerBuild,
-                        BuildingSet::TriggerBuild,
-                        SpawnItemSet::SpawnHeldItem,
-                        BuildingSet::NormalBuild,
-                    )
-                        .chain(),
-                );
+                .add_event::<StartCorrection>();
         }
+        app.configure_sets(
+            PreUpdate,
+            (
+                BuildingSet::RawTriggerBuild,
+                BuildingSet::TriggerBuild,
+                SpawnItemSet::SpawnHeldItem,
+                BuildingSet::NormalBuild,
+            )
+                .chain(),
+        );
     }
 }
 

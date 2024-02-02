@@ -49,7 +49,6 @@ use bevy::winit::UpdateMode;
 use bevy::winit::WinitSettings;
 use bevy::DefaultPlugins;
 use bevy_egui::EguiPlugin;
-use bevy_renet::RenetSend;
 use bevy_xpbd_3d::prelude::Physics;
 use cameras::controllers::fps::FpsCameraPlugin;
 use cameras::LookTransformPlugin;
@@ -238,7 +237,7 @@ fn setup_plugins(mut app: &mut App) {
         .add_plugins(FpsCameraPlugin::default());
     }
 
-    app.configure_sets(PostUpdate, (RenetSend, PhysicsStepSet, Correction).chain())
+    app.configure_sets(PostUpdate, (PhysicsStepSet, Correction).chain())
         .add_plugins(ResourcesPlugin)
         .add_plugins(PhysicsPlugin)
         .add_plugins(EntityPlugin)

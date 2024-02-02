@@ -1,16 +1,12 @@
 use basic_console_commands::register::register_basic_console_commands_for_type;
 use bevy::prelude::{App, IntoSystemConfigs, Plugin};
 use construction_tool::spawn::ConstructionToolType;
-use entity::{
-    base_mesh::link_base_mesh, despawn::DespawnEntitySet, entity_types::register_entity_type,
-    loading::load_entity,
-};
+use entity::{base_mesh::link_base_mesh, entity_types::register_entity_type, loading::load_entity};
 
 use networking::client::detect_client_world_loaded;
 use physics::{spawn::build_rigid_bodies, sync::SpawningSimulation};
-use player::boarding::player_boarded;
+use player::boarding::done_boarding;
 use resources::{
-    correction::CorrectionSet,
     modes::{is_correction_mode, is_server_mode},
     ordering::{BuildingSet, CombatSet, PreUpdate, Update},
     plugin::SpawnItemSet,
@@ -40,11 +36,10 @@ impl Plugin for HumanMalePlugin {
                 ),
             )
             .add_systems(
-                Update,
+                PreUpdate,
                 spawn_boarding_player
-                    .before(DespawnEntitySet)
-                    .before(player_boarded)
-                    .in_set(BuildingSet::TriggerBuild),
+                    .after(done_boarding)
+                    .in_set(BuildingSet::RawTriggerBuild),
             );
         }
         if !is_server_mode(app) {
@@ -53,9 +48,8 @@ impl Plugin for HumanMalePlugin {
                 (
                     link_base_mesh::<HumanMaleType>.in_set(BuildingSet::NormalBuild),
                     load_entity::<HumanMaleType>
-                        .before(SpawnItemSet::SpawnHeldItem)
-                        .in_set(BuildingSet::TriggerBuild)
-                        .in_set(CorrectionSet::Start),
+                        .before(BuildingSet::NormalBuild)
+                        .in_set(BuildingSet::TriggerBuild),
                     attach_human_male_camera
                         .after(BuildingSet::TriggerBuild)
                         .after(detect_client_world_loaded),
@@ -73,11 +67,9 @@ impl Plugin for HumanMalePlugin {
             app.add_systems(
                 PreUpdate,
                 (
-                    build_human_males
-                        .after(SpawnItemSet::SpawnHeldItem)
-                        .in_set(BuildingSet::NormalBuild),
-                    (build_base_human_males::<HumanMaleType>).after(SpawnItemSet::SpawnHeldItem),
-                    (build_rigid_bodies::<HumanMaleType>).after(SpawnItemSet::SpawnHeldItem),
+                    build_human_males.in_set(BuildingSet::NormalBuild),
+                    (build_base_human_males::<HumanMaleType>).after(BuildingSet::NormalBuild),
+                    (build_rigid_bodies::<HumanMaleType>).after(BuildingSet::NormalBuild),
                     spawn_held_item::<ConstructionToolType>
                         .in_set(SpawnItemSet::SpawnHeldItem)
                         .after(BuildingSet::TriggerBuild),

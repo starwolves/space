@@ -13,6 +13,7 @@ use bevy::{
     time::{Fixed, Time},
 };
 
+use bevy_renet::renet::RenetClient;
 use bevy_xpbd_3d::components::{
     AngularDamping, AngularVelocity, CollisionLayers, ExternalAngularImpulse, ExternalForce,
     ExternalImpulse, ExternalTorque, Friction, LinearDamping, LinearVelocity, LockedAxes,
@@ -24,7 +25,9 @@ use entity::entity_types::BoxedEntityType;
 use entity::net::EntityServerMessage;
 use entity::spawn::ServerEntityClientEntity;
 use networking::client::{IncomingUnreliableServerMessage, TotalAdjustment};
-use networking::server::{ConnectedPlayer, HandleToEntity, OutgoingUnreliableServerMessage};
+use networking::server::{
+    ConnectedPlayer, HandleToEntity, OutgoingUnreliableServerMessage, MIN_LATENCY,
+};
 use networking::{
     client::{
         IncomingReliableServerMessage, NetworkingClientMessage, OutgoingReliableClientMessage,
@@ -90,12 +93,15 @@ pub(crate) fn sync_loop(
     mut net: EventReader<IncomingReliableServerMessage<NetworkingServerMessage>>,
     mut physics_loop: ResMut<Time<Physics>>,
     mut paused: ResMut<SyncPause>,
-    mut sync_queue: Local<Vec<AdjustSync>>,
+    mut sync_queue: Local<Vec<(AdjustSync, u64)>>,
     mut out: EventWriter<OutgoingReliableClientMessage<NetworkingClientMessage>>,
     mut fixed_time: ResMut<Time<Fixed>>,
     mut fast_forwarding: ResMut<FastForwarding>,
     mut p: ResMut<PauseTickStep>,
     mut latency: ResMut<TotalAdjustment>,
+    stamp: Res<TickRateStamp>,
+    tickrate: Res<TickRate>,
+    client: Res<RenetClient>,
 ) {
     if paused.paused {
         paused.i += 1;
@@ -137,9 +143,9 @@ pub(crate) fn sync_loop(
         match &message.message {
             NetworkingServerMessage::AdjustSync(adjustment) => {
                 if !process_queue && adjustment_option.is_none() {
-                    adjustment_option = Some(adjustment.clone());
+                    adjustment_option = Some((adjustment.clone(), message.stamp));
                 } else {
-                    sync_queue.push(adjustment.clone());
+                    sync_queue.push((adjustment.clone(), message.stamp));
                 }
             }
             _ => (),
@@ -149,9 +155,15 @@ pub(crate) fn sync_loop(
     let mut erase_queue = false;
 
     match adjustment_option {
-        Some(adjustment) => {
+        Some((adjustment, server_stamp)) => {
             if !paused.paused {
-                let delta = adjustment.tick;
+                let latency_in_ticks = (client.rtt() as f32 / (1. / tickrate.fixed_rate as f32))
+                    .round()
+                    .clamp(MIN_LATENCY * 2., f32::MAX)
+                    as u64;
+
+                let new_desired_large_tick = latency_in_ticks + adjustment.tick;
+                let delta = (stamp.large as i64 - new_desired_large_tick as i64) as i16;
 
                 if delta > 0 {
                     paused.duration = delta as u16;
@@ -185,7 +197,7 @@ pub(crate) fn sync_loop(
                     }
                 }
             } else if !process_queue {
-                sync_queue.push(adjustment.clone());
+                sync_queue.push((adjustment.clone(), server_stamp));
             }
         }
         None => {}
@@ -610,7 +622,10 @@ pub(crate) fn desync_check_correction(
     mut priority: ResMut<PriorityPhysicsCache>,
 ) {
     for message in messages.read() {
-        let adjusted_latest = message.stamp - 1;
+        let mut adjusted_latest = message.stamp;
+        if adjusted_latest > 0 {
+            adjusted_latest -= 1;
+        }
         match cache.cache.get_mut(&adjusted_latest) {
             Some(physics_cache) => match &message.message {
                 PhysicsUnreliableServerMessage::DesyncCheck(caches) => {

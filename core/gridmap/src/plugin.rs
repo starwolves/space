@@ -9,7 +9,7 @@ use networking::messaging::{register_reliable_message, MessageSender, MessagingS
 use player::{connections::process_response, plugin::ConfigurationLabel};
 use resources::{
     modes::{is_correction_mode, is_server_mode},
-    ordering::{ActionsSet, BuildingSet, PreUpdate, StartupSet, Update},
+    ordering::{ActionsSet, BuildingSet, PostUpdate, PreUpdate, StartupSet, Update},
 };
 
 use crate::{
@@ -181,7 +181,7 @@ impl Plugin for GridmapPlugin {
                 )
                 .add_event::<SetYPlanePosition>()
                 .add_event::<ConstructionCellSelectionChanged>()
-                .add_systems(Update, cache_updates)
+                .add_systems(PostUpdate, cache_updates)
                 .add_systems(
                     Startup,
                     (

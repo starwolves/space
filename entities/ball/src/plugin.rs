@@ -7,10 +7,8 @@ use entity::{
 use networking::messaging::{register_reliable_message, MessageSender};
 use physics::spawn::build_rigid_bodies;
 use resources::{
-    correction::CorrectionSet,
     modes::is_server_mode,
     ordering::{BuildingSet, PreUpdate, Update},
-    plugin::SpawnItemSet,
 };
 
 use crate::{
@@ -42,9 +40,8 @@ impl Plugin for BallPlugin {
                 (
                     link_base_mesh::<BallType>.in_set(BuildingSet::NormalBuild),
                     load_entity::<BallType>
-                        .before(SpawnItemSet::SpawnHeldItem)
-                        .in_set(BuildingSet::TriggerBuild)
-                        .in_set(CorrectionSet::Start),
+                        .before(BuildingSet::NormalBuild)
+                        .in_set(BuildingSet::TriggerBuild),
                 ),
             );
         } else {

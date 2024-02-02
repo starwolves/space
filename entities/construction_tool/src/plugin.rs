@@ -19,7 +19,6 @@ use inventory::client::items::{
 };
 use inventory::spawn_item::build_inventory_items;
 use physics::spawn::build_rigid_bodies;
-use resources::correction::CorrectionSet;
 use resources::modes::is_server_mode;
 use resources::ordering::{ActionsSet, BuildingSet, CombatSet, PreUpdate, Update, UpdateSet};
 use resources::plugin::SpawnItemSet;
@@ -100,9 +99,8 @@ impl Plugin for ConstructionToolAdminPlugin {
                 PreUpdate,
                 (
                     load_entity::<ConstructionToolType>
-                        .before(SpawnItemSet::SpawnHeldItem)
-                        .in_set(BuildingSet::TriggerBuild)
-                        .in_set(CorrectionSet::Start),
+                        .before(BuildingSet::NormalBuild)
+                        .in_set(BuildingSet::TriggerBuild),
                     link_base_mesh::<ConstructionToolType>.in_set(BuildingSet::NormalBuild),
                 ),
             )
@@ -118,12 +116,11 @@ impl Plugin for ConstructionToolAdminPlugin {
         app.add_systems(
             PreUpdate,
             (
-                build_construction_tools::<ConstructionToolType>.after(SpawnItemSet::SpawnHeldItem),
-                (build_rigid_bodies::<ConstructionToolType>).after(SpawnItemSet::SpawnHeldItem),
-                (build_base_entities::<ConstructionToolType>).after(SpawnItemSet::SpawnHeldItem),
+                build_construction_tools::<ConstructionToolType>.after(BuildingSet::NormalBuild),
+                (build_rigid_bodies::<ConstructionToolType>).after(BuildingSet::NormalBuild),
+                (build_base_entities::<ConstructionToolType>).after(BuildingSet::NormalBuild),
                 (build_inventory_items::<ConstructionToolType>)
-                    .after(SpawnItemSet::SpawnHeldItem)
-                    .after(SpawnItemSet::SpawnHeldItem)
+                    .after(BuildingSet::NormalBuild)
                     .in_set(SpawnItemSet::AddingComponent),
             ),
         )

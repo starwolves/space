@@ -2,7 +2,6 @@ use console_commands::commands::ConsoleCommandsSet;
 use resources::{
     modes::is_server_mode,
     ordering::{BuildingSet, Update},
-    plugin::SpawnItemSet,
 };
 pub fn register_basic_console_commands_for_type<T: EntityType + Clone + Default + 'static>(
     app: &mut App,
@@ -31,7 +30,7 @@ pub fn register_basic_console_commands_for_inventory_item_type<
                 (
                     rcon_entity_console_commands::<T>.after(ConsoleCommandsSet::Input),
                     rcon_spawn_entity::<T>
-                        .before(SpawnItemSet::SpawnHeldItem)
+                        .before(BuildingSet::NormalBuild)
                         .in_set(BuildingSet::TriggerBuild),
                 ),
             )

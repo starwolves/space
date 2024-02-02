@@ -243,11 +243,6 @@ use crate::names::UsedNames;
 
 pub struct SetupPhase;
 
-/// The component for entities that are done boarding and about to spawn in on the ship. A stage after [Boarding].
-#[derive(Component)]
-
-pub struct OnBoard;
-
 /// Event for sending server configuration to newly connected client. Done after client account is verified.
 #[derive(Event)]
 pub struct SendServerConfiguration {
