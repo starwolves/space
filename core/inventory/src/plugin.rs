@@ -6,7 +6,7 @@ use networking::{
 };
 use resources::{
     modes::is_server_mode,
-    ordering::{PostUpdateSet, Update},
+    ordering::{SensingSet, Update},
 };
 
 use crate::{
@@ -36,7 +36,7 @@ impl Plugin for InventoryPlugin {
             app.add_systems(
                 Update,
                 (spawn_entity_for_client
-                    .after(PostUpdateSet::VisibleChecker)
+                    .after(SensingSet::VisibleChecker)
                     .before(ServerMessageSet::Send),)
                     .in_set(EntityUpdatesSet::Ready),
             )

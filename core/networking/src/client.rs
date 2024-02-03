@@ -16,10 +16,9 @@ use bevy::{
 
 use bevy_renet::renet::{
     transport::{
-        ClientAuthentication, ConnectToken, NetcodeClientTransport, NetcodeServerTransport,
-        NetcodeTransportError,
+        ClientAuthentication, ConnectToken, NetcodeClientTransport, NetcodeTransportError,
     },
-    ConnectionConfig, DefaultChannel, RenetClient, RenetServer,
+    ConnectionConfig, DefaultChannel, RenetClient,
 };
 use bevy_xpbd_3d::plugins::setup::{Physics, PhysicsTime};
 use futures_lite::future;
@@ -477,19 +476,8 @@ pub(crate) fn deserialize_incoming_unreliable_server_message<
 ) {
     for batch in incoming_raw.read() {
         let server_stamp = stamp.calculate_large(batch.message.stamp);
-        let client_stamp;
-        let store_stamp;
-        match batch.message.client_stamp_option {
-            Some(x) => {
-                let large = stamp.calculate_large(x);
-                client_stamp = Some(large);
-                store_stamp = large;
-            }
-            None => {
-                client_stamp = None;
-                store_stamp = server_stamp;
-            }
-        }
+
+        let store_stamp = server_stamp;
         for message in batch.message.messages.iter() {
             match get_unreliable_message::<T>(&typenames, message.typename_net, &message.serialized)
             {
@@ -497,7 +485,6 @@ pub(crate) fn deserialize_incoming_unreliable_server_message<
                     let r = IncomingUnreliableServerMessage {
                         message: data,
                         stamp: server_stamp,
-                        client_stamp_option: client_stamp,
                     };
 
                     match queue.get_mut(&store_stamp) {
@@ -558,23 +545,13 @@ pub fn deserialize_incoming_reliable_load_entity_updates<
 ) {
     for batch in incoming_raw.reliable.iter() {
         let server_stamp = stamp.calculate_large(batch.message.stamp);
-        let client_stamp;
-        match batch.message.client_stamp_option {
-            Some(x) => {
-                let large = stamp.calculate_large(x);
-                client_stamp = Some(large);
-            }
-            None => {
-                client_stamp = None;
-            }
-        }
+
         for message in batch.message.messages.iter() {
             match get_reliable_message::<T>(&typenames, message.typename_net, &message.serialized) {
                 Some(data) => {
                     let r = IncomingReliableServerMessage {
                         message: data,
                         stamp: server_stamp,
-                        client_stamp_option: client_stamp,
                     };
                     outgoing.send(r);
                 }
@@ -595,13 +572,6 @@ pub(crate) fn pre_update_send_messages_client(
         transport_errors.send(e);
     }
 }
-pub(crate) fn pre_update_send_messages_server(
-    mut transport: ResMut<NetcodeServerTransport>,
-    mut client: ResMut<RenetServer>,
-) {
-    transport.send_packets(&mut client);
-}
-
 /// Label for systems ordering.
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
 pub struct DeserializeSpawnUpdates;
@@ -615,16 +585,6 @@ pub fn deserialize_incoming_unreliable_load_entity_updates<
 ) {
     for batch in incoming_raw.unreliable.iter() {
         let server_stamp = stamp.calculate_large(batch.message.stamp);
-        let client_stamp;
-        match batch.message.client_stamp_option {
-            Some(x) => {
-                let large = stamp.calculate_large(x);
-                client_stamp = Some(large);
-            }
-            None => {
-                client_stamp = None;
-            }
-        }
 
         for message in batch.message.messages.iter() {
             match get_unreliable_message::<T>(&typenames, message.typename_net, &message.serialized)
@@ -633,7 +593,6 @@ pub fn deserialize_incoming_unreliable_load_entity_updates<
                     let r = IncomingUnreliableServerMessage {
                         message: data,
                         stamp: server_stamp,
-                        client_stamp_option: client_stamp,
                     };
                     outgoing.send(r);
                 }
@@ -656,34 +615,21 @@ pub fn deserialize_incoming_reliable_server_message<
 ) {
     for batch in incoming_raw.read() {
         let server_stamp = stamp.calculate_large(batch.message.stamp);
-        let client_stamp;
-        let store_stamp;
-        match batch.message.client_stamp_option {
-            Some(small_client_stamp) => {
-                let large = stamp.calculate_large(small_client_stamp);
-                client_stamp = Some(large);
-                store_stamp = large;
-            }
-            None => {
-                client_stamp = None;
-                store_stamp = server_stamp;
-            }
-        }
+
         for message in batch.message.messages.iter() {
             match get_reliable_message::<T>(&typenames, message.typename_net, &message.serialized) {
                 Some(data) => {
                     let r = IncomingReliableServerMessage {
                         message: data,
                         stamp: server_stamp,
-                        client_stamp_option: client_stamp,
                     };
 
-                    match queue.get_mut(&store_stamp) {
+                    match queue.get_mut(&server_stamp) {
                         Some(v) => {
                             v.push(r);
                         }
                         None => {
-                            queue.insert(store_stamp, vec![r]);
+                            queue.insert(server_stamp, vec![r]);
                         }
                     }
                 }
@@ -698,9 +644,7 @@ pub fn deserialize_incoming_reliable_server_message<
     let desired_tick = stamp.large - latency_in_ticks;
     let bound_queue = queue.clone();
     let mut is = vec![];
-    // Messages are either main FixedUpdate reliable batches or separated small message batches sent from Update for low latency input replication.
-    let mut only_peer_message = true;
-
+    // Process one message batch per tick.
     for i in bound_queue.keys().sorted() {
         if *i > desired_tick {
             break;
@@ -709,15 +653,10 @@ pub fn deserialize_incoming_reliable_server_message<
 
         for m in msgs {
             outgoing.send(m.clone());
-            if m.client_stamp_option.is_none() {
-                only_peer_message = false;
-            }
         }
         is.push(*i);
 
-        if !only_peer_message {
-            break;
-        }
+        break;
     }
 
     for i in is {
@@ -729,14 +668,12 @@ pub fn deserialize_incoming_reliable_server_message<
 pub struct IncomingReliableServerMessage<T: TypeName + Send + Sync + Serialize> {
     pub message: T,
     pub stamp: u64,
-    pub client_stamp_option: Option<u64>,
 }
 ///  Messages that you receive with this event must be initiated from a plugin builder with [crate::messaging::init_unreliable_message].
 #[derive(Event, Clone)]
 pub struct IncomingUnreliableServerMessage<T: TypeName + Send + Sync + Serialize> {
     pub message: T,
     pub stamp: u64,
-    pub client_stamp_option: Option<u64>,
 }
 
 /// Dezerializes incoming server messages and writes to event.

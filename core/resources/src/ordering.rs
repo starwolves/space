@@ -53,9 +53,8 @@ pub enum UpdateSet {
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
 
-pub enum PostUpdateSet {
+pub enum SensingSet {
     VisibleChecker,
-    Net,
 }
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]

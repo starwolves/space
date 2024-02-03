@@ -1,11 +1,7 @@
-use bevy::{
-    ecs::system::Res,
-    log::info,
-    prelude::{Entity, EventWriter, Query, Transform},
-};
+use bevy::prelude::{Entity, EventWriter, Query, Transform};
 
 use crate::{sensable::Sensable, senser::Senser};
-use networking::{server::ConnectedPlayer, stamp::TickRateStamp};
+use networking::server::ConnectedPlayer;
 
 use crate::spawning_events::SpawnClientEntity;
 use networking::server::OutgoingReliableServerMessage;
@@ -23,7 +19,6 @@ pub(crate) fn visible_checker(
     )>,
     mut load_entity_event: EventWriter<SpawnClientEntity>,
     mut server: EventWriter<OutgoingReliableServerMessage<EntityServerMessage>>,
-    stamp: Res<TickRateStamp>,
 ) {
     for (
         visible_checker_entity_id,
@@ -91,7 +86,6 @@ pub(crate) fn visible_checker(
                                     entity: visible_entity_id,
                                     loader_handle: visible_checker_component.handle,
                                 });
-                                info!("Visible checker loading entity at {}.", stamp.large);
                             }
                         }
                         None => {}

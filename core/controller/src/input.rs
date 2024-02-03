@@ -37,6 +37,7 @@ use resources::{
         KeyBind, KeyBinds, KeyCodeEnum, HOLD_SPRINT_BIND, JUMP_BIND, MOVE_BACKWARD_BIND,
         MOVE_FORWARD_BIND, MOVE_LEFT_BIND, MOVE_RIGHT_BIND,
     },
+    modes::is_server,
     pawn::ClientPawn,
     physics::{PriorityPhysicsCache, PriorityUpdate},
 };
@@ -51,7 +52,7 @@ pub struct InputMovementInput {
     pub right: bool,
     pub down: bool,
     pub pressed: bool,
-    pub peer_data: Option<(Vec3, Vec3, u64, u64)>,
+    pub peer_data: Option<(Vec3, Vec3, u64)>,
 }
 
 /// Client input movement event.
@@ -142,7 +143,6 @@ pub struct PeerSyncLookTransform {
     pub entity: Entity,
     pub target: Vec3,
     pub handle: ClientId,
-    pub client_stamp: u64,
     pub server_stamp: u64,
     pub position: Vec3,
 }
@@ -173,25 +173,25 @@ pub(crate) fn cache_peer_sync_look_transform(
         match query.get_mut(event.entity) {
             Ok((mut l, mut t)) => {
                 match look_cache.cache.get_mut(&event.entity) {
-                    Some(c) => match c.get_mut(&event.client_stamp) {
+                    Some(c) => match c.get_mut(&event.server_stamp) {
                         Some(cache_data) => {
                             cache_data.target = event.target;
                         }
                         None => {
                             let mut cache_data = default_look_transform();
                             cache_data.target = event.target;
-                            c.insert(event.client_stamp, cache_data);
+                            c.insert(event.server_stamp, cache_data);
                         }
                     },
                     None => {
                         let mut m = HashMap::new();
                         let mut cache_data = default_look_transform();
                         cache_data.target = event.target;
-                        m.insert(event.client_stamp, cache_data);
+                        m.insert(event.server_stamp, cache_data);
                         look_cache.cache.insert(event.entity, m);
                     }
                 }
-                if stamp.large == event.client_stamp {
+                if stamp.large == event.server_stamp {
                     l.target = event.target;
                 }
                 if stamp.large == event.server_stamp {
@@ -250,7 +250,6 @@ pub struct PeerInputCache {
 pub struct LookTick {
     update: PeerUpdateLookTransform,
     peer_handle: ClientId,
-    client_stamp: u64,
     server_stamp: u64,
     client_sub_id: u8,
     correct: bool,
@@ -277,8 +276,6 @@ pub(crate) fn process_peer_input(
     let mut earliest_tick = 0;
 
     for message in reliables_reader.read() {
-        let large_client_stamp = stamp.calculate_large(message.message.client_stamp);
-
         match &message.message.message {
             PeerControllerClientMessage::MovementInput(input, position, look_transform_target) => {
                 match peer_pawns
@@ -293,18 +290,9 @@ pub(crate) fn process_peer_input(
                             right: input.right,
                             down: input.down,
                             pressed: input.pressed,
-                            peer_data: Some((
-                                *position,
-                                *look_transform_target,
-                                large_client_stamp,
-                                message.stamp,
-                            )),
+                            peer_data: Some((*position, *look_transform_target, message.stamp)),
                         });
                         new_correction = true;
-                        let e = stamp.calculate_large(message.message.client_stamp) - 1;
-                        if e < earliest_tick || earliest_tick == 0 {
-                            earliest_tick = e;
-                        }
                         let e = message.stamp - 1;
                         if e < earliest_tick || earliest_tick == 0 {
                             earliest_tick = e;
@@ -336,10 +324,6 @@ pub(crate) fn process_peer_input(
                         });
 
                         new_correction = true;
-                        let e = stamp.calculate_large(message.message.client_stamp) - 1;
-                        if e < earliest_tick || earliest_tick == 0 {
-                            earliest_tick = e;
-                        }
                         let e = message.stamp - 1;
                         if e < earliest_tick || earliest_tick == 0 {
                             earliest_tick = e;
@@ -356,27 +340,25 @@ pub(crate) fn process_peer_input(
     let mut ordered_unreliables: HashMap<u64, HashMap<u8, LookTick>> = HashMap::new();
     for u in unreliables_reader.read() {
         let client_id = ClientId::from_raw(u.message.peer_handle as u64);
-        let large_client_stamp = stamp.calculate_large(u.message.client_stamp);
 
         match &u.message.message {
             UnreliablePeerControllerClientMessage::UpdateLookTransform(update) => {
                 let up: LookTick = LookTick {
                     update: update.clone(),
                     peer_handle: client_id,
-                    client_stamp: large_client_stamp,
                     server_stamp: u.stamp,
                     client_sub_id: update.sub_tick,
                     correct: true,
                 };
 
-                match ordered_unreliables.get_mut(&large_client_stamp) {
+                match ordered_unreliables.get_mut(&u.stamp) {
                     Some(m) => {
                         m.insert(update.sub_tick, up);
                     }
                     None => {
                         let mut m = HashMap::new();
                         m.insert(update.sub_tick, up);
-                        ordered_unreliables.insert(large_client_stamp, m);
+                        ordered_unreliables.insert(u.stamp, m);
                     }
                 }
             }
@@ -388,19 +370,18 @@ pub(crate) fn process_peer_input(
         .clamp(MIN_LATENCY * 2., f32::MAX) as u64;
     let desired_tick = stamp.large - latency_in_ticks;
 
-    for client_stamp in ordered_unreliables.keys().sorted().rev() {
-        let subs = ordered_unreliables.get(client_stamp).unwrap();
+    for server_stamp in ordered_unreliables.keys().sorted().rev() {
+        let subs = ordered_unreliables.get(server_stamp).unwrap();
         for sub in subs.keys().sorted().rev() {
             let mut up = subs.get(sub).unwrap().clone();
-            if *client_stamp == desired_tick {
+            if *server_stamp == desired_tick {
                 up.correct = true;
             }
             let client_id = up.peer_handle;
-            let large_client_stamp = up.client_stamp;
             let mut latest = false;
 
             match look_update_queue.get_mut(&client_id) {
-                Some(q1) => match q1.get_mut(&large_client_stamp) {
+                Some(q1) => match q1.get_mut(&up.server_stamp) {
                     Some(q2) => {
                         for i in q2.keys().sorted().rev() {
                             if up.client_sub_id > *i {
@@ -413,7 +394,7 @@ pub(crate) fn process_peer_input(
                     None => {
                         let mut m = HashMap::new();
                         m.insert(up.client_sub_id, up.clone());
-                        q1.insert(large_client_stamp, m);
+                        q1.insert(up.server_stamp, m);
                         latest = true;
                     }
                 },
@@ -421,14 +402,12 @@ pub(crate) fn process_peer_input(
                     let mut n = HashMap::new();
                     n.insert(up.client_sub_id, up.clone());
                     let mut m = HashMap::new();
-                    m.insert(large_client_stamp, n);
+                    m.insert(up.server_stamp, n);
                     look_update_queue.insert(client_id, m);
                     latest = true;
                 }
             }
-            if !latest
-            /*|| (large_client_stamp > desired_tick || up.server_stamp > desired_tick)*/
-            {
+            if !latest {
                 continue;
             }
             match input_cache.look_transform_best_ticks.get_mut(&client_id) {
@@ -452,7 +431,6 @@ pub(crate) fn process_peer_input(
                         entity: *peer,
                         target: update.update.target,
                         handle: update.peer_handle,
-                        client_stamp: update.client_stamp,
                         position: update.update.position,
                         server_stamp: update.server_stamp,
                     };
@@ -462,11 +440,6 @@ pub(crate) fn process_peer_input(
 
                     new_correction = true;
 
-                    let em = update.client_stamp - 1;
-
-                    if em < earliest_tick || earliest_tick == 0 {
-                        earliest_tick = em;
-                    }
                     let e = update.server_stamp - 1;
                     if e < earliest_tick || earliest_tick == 0 {
                         earliest_tick = e;
@@ -729,12 +702,7 @@ pub(crate) fn apply_controller_cache_to_peers(
                         continue;
                     }
                     let input = input_cache.get(i).unwrap();
-                    if input.movement_vector != input_component.movement_vector {
-                        info!(
-                            "apply_controller_cache_to_peers setting peer input to {}",
-                            input_component.movement_vector
-                        );
-                    }
+
                     *input_component = input.clone();
                     break;
                 }
@@ -753,7 +721,6 @@ pub(crate) fn controller_input(
     stampres: Res<TickRateStamp>,
     mut priority: ResMut<PriorityPhysicsCache>,
     mut controller_cache: ResMut<ControllerCache>,
-    stamp: Res<TickRateStamp>,
 ) {
     for new_event in movement_input_event.read() {
         let player_entity = new_event.entity;
@@ -795,16 +762,9 @@ pub(crate) fn controller_input(
                 processed_input.movement_vector += additive;
 
                 let input_stamp;
-                info!(
-                    "controller_input: {} + {} {:?} at tick {}",
-                    processed_input.movement_vector - additive,
-                    additive,
-                    new_event,
-                    stamp.large
-                );
                 match new_event.peer_data {
-                    Some((position, look_target, client_stamp, server_stamp)) => {
-                        input_stamp = client_stamp;
+                    Some((position, look_target, server_stamp)) => {
+                        input_stamp = server_stamp;
                         let adjusted_stamp = server_stamp - 1;
 
                         match priority.cache.get_mut(&adjusted_stamp) {
@@ -818,30 +778,27 @@ pub(crate) fn controller_input(
                             }
                         }
                         match look_cache.cache.get_mut(&player_entity) {
-                            Some(c) => match c.get_mut(&client_stamp) {
+                            Some(c) => match c.get_mut(&server_stamp) {
                                 Some(l) => {
                                     l.target = look_target;
                                 }
                                 None => {
                                     let mut l = default_look_transform();
                                     l.target = look_target;
-                                    c.insert(client_stamp, l);
+                                    c.insert(server_stamp, l);
                                 }
                             },
                             None => {
                                 let mut m = HashMap::new();
                                 let mut l = default_look_transform();
                                 l.target = look_target;
-                                m.insert(client_stamp, l);
+                                m.insert(server_stamp, l);
                                 look_cache.cache.insert(player_entity, m);
                             }
                         }
-                        if client_stamp == stampres.large {
+                        if server_stamp == stampres.large {
                             look_transform.target = look_target;
                             *player_input_component = processed_input.clone();
-                            info!("perfect peer client stamp.");
-                        }
-                        if server_stamp == stampres.large {
                             transform.translation = position;
                             info!("perfect peer server stamp.");
                         }
@@ -864,15 +821,16 @@ pub(crate) fn controller_input(
                         *player_input_component = processed_input.clone();
                     }
                 }
-
-                match controller_cache.cache.get_mut(&player_entity) {
-                    Some(map) => {
-                        map.insert(input_stamp, processed_input.clone());
-                    }
-                    None => {
-                        let mut map = HashMap::new();
-                        map.insert(input_stamp, processed_input.clone());
-                        controller_cache.cache.insert(player_entity, map);
+                if !is_server() {
+                    match controller_cache.cache.get_mut(&player_entity) {
+                        Some(map) => {
+                            map.insert(input_stamp, processed_input.clone());
+                        }
+                        None => {
+                            let mut map = HashMap::new();
+                            map.insert(input_stamp, processed_input.clone());
+                            controller_cache.cache.insert(player_entity, map);
+                        }
                     }
                 }
             }

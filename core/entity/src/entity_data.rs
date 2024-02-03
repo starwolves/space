@@ -145,7 +145,6 @@ pub(crate) fn fire_load_entity_updates(
             message: ReliableServerMessageBatch {
                 messages: msgs,
                 stamp: TickRateStamp::new(large).tick,
-                client_stamp_option: None,
             },
         });
     }
@@ -167,7 +166,6 @@ pub(crate) fn fire_load_entity_updates(
             message: UnreliableServerMessageBatch {
                 messages: msgs,
                 stamp: TickRateStamp::new(large).tick,
-                client_stamp_option: None,
             },
         });
     }

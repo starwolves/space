@@ -4,7 +4,7 @@ use networking::client::DeserializeSpawnUpdates;
 use networking::messaging::{register_reliable_message, MessageSender, MessagingSet};
 use networking::server::EntityUpdatesSet;
 use resources::modes::{is_correction_mode, is_server_mode};
-use resources::ordering::{ActionsSet, BuildingSet, PostUpdateSet, PreUpdate, StartupSet, Update};
+use resources::ordering::{ActionsSet, BuildingSet, PreUpdate, SensingSet, StartupSet, Update};
 
 use crate::despawn::{client_despawn_entity, despawn_entities, DespawnEntity, DespawnEntitySet};
 use crate::entity_data::{fire_load_entity_updates, QueuedSpawnEntityUpdates, RawSpawnEvent};
@@ -35,7 +35,7 @@ impl Plugin for EntityPlugin {
                     (
                         finalize_examine_entity,
                         visible_checker
-                            .in_set(PostUpdateSet::VisibleChecker)
+                            .in_set(SensingSet::VisibleChecker)
                             .in_set(EntityUpdatesSet::Write),
                         examine_entity.after(ActionsSet::Action),
                         examine_entity_health.after(ActionsSet::Action),
@@ -50,12 +50,9 @@ impl Plugin for EntityPlugin {
                 )
                 .add_event::<InputExamineEntity>();
             }
-            app.add_systems(
-                Update,
-                (despawn_entity.after(PostUpdateSet::VisibleChecker),),
-            )
-            .add_event::<DespawnClientEntity>()
-            .add_event::<SpawnClientEntity>();
+            app.add_systems(Update, (despawn_entity.after(SensingSet::VisibleChecker),))
+                .add_event::<DespawnClientEntity>()
+                .add_event::<SpawnClientEntity>();
         } else {
             app.init_resource::<ServerEntityClientEntity>()
                 .init_resource::<PeerPawns>()

@@ -19,14 +19,14 @@ use crate::{
     client::{
         clear_raw_spawn_entity_queue, confirm_connection, connect_to_server, connected,
         detect_client_world_loaded, is_client_connected, on_disconnect,
-        pre_update_send_messages_client, pre_update_send_messages_server,
-        receive_incoming_reliable_server_messages, receive_incoming_unreliable_server_messages,
-        starwolves_response, step_buffer, sync_check_client, token_assign_server,
-        AssignTokenToServer, AssigningServerToken, ClientGameWorldLoaded, ConnectToServer,
-        Connection, ConnectionPreferences, IncomingRawReliableServerMessage,
-        IncomingRawUnreliableServerMessage, LoadedGameWorldBuffer, NetworkingClientMessage,
-        NetworkingUnreliableClientMessage, OutgoingBuffer, PreUpdateSendMessage,
-        QueuedSpawnEntityRaw, TokenAssignServer, TotalAdjustment,
+        pre_update_send_messages_client, receive_incoming_reliable_server_messages,
+        receive_incoming_unreliable_server_messages, starwolves_response, step_buffer,
+        sync_check_client, token_assign_server, AssignTokenToServer, AssigningServerToken,
+        ClientGameWorldLoaded, ConnectToServer, Connection, ConnectionPreferences,
+        IncomingRawReliableServerMessage, IncomingRawUnreliableServerMessage,
+        LoadedGameWorldBuffer, NetworkingClientMessage, NetworkingUnreliableClientMessage,
+        OutgoingBuffer, PreUpdateSendMessage, QueuedSpawnEntityRaw, TokenAssignServer,
+        TotalAdjustment,
     },
     messaging::{
         generate_typenames, register_reliable_message, register_unreliable_message, MessageSender,
@@ -37,10 +37,9 @@ use crate::{
         client_loaded_game_world, process_sync_confirmation,
         receive_incoming_reliable_client_messages, receive_incoming_unreliable_client_messages,
         start_sync_confirmation, step_incoming_client_messages, ClientsReadyForSync,
-        ConstructEntityUpdates, EarlyIncomingRawReliableClientMessage,
-        EarlyIncomingRawUnreliableClientMessage, EntityUpdatesSerialized, EntityUpdatesSet,
-        HandleToEntity, IncomingRawReliableClientMessage, IncomingRawUnreliableClientMessage,
-        Latency, NetworkingChatServerMessage, NetworkingServerMessage, PreUpdateMessageProcessor,
+        ConstructEntityUpdates, EntityUpdatesSerialized, EntityUpdatesSet, HandleToEntity,
+        IncomingRawReliableClientMessage, IncomingRawUnreliableClientMessage, Latency,
+        NetworkingChatServerMessage, NetworkingServerMessage, PreUpdateMessageProcessor,
         SyncConfirmations, UnreliableServerMessage, UpdateIncomingRawClientMessage,
     },
     stamp::{step_tickrate_stamp, PauseTickStep, TickRateStamp},
@@ -96,8 +95,6 @@ impl Plugin for NetworkingPlugin {
                             .chain(),
                     )
                     .init_resource::<UpdateIncomingRawClientMessage>()
-                    .add_event::<EarlyIncomingRawReliableClientMessage>()
-                    .add_event::<EarlyIncomingRawUnreliableClientMessage>()
                     .init_resource::<ClientsReadyForSync>();
             }
 
@@ -120,11 +117,7 @@ impl Plugin for NetworkingPlugin {
                 ),
             )
             .init_resource::<ConstructEntityUpdates>()
-            .init_resource::<EntityUpdatesSerialized>()
-            .add_systems(
-                BevyPreUpdate,
-                pre_update_send_messages_server.in_set(PreUpdateSendMessage),
-            );
+            .init_resource::<EntityUpdatesSerialized>();
         } else {
             app.add_systems(
                 BevyPreUpdate,

@@ -307,9 +307,6 @@ pub struct ReliableServerMessageBatch {
     pub messages: Vec<ReliableMessage>,
     // The confirmed tick stamp.
     pub stamp: u8,
-    // Used if this is a replication message batch. They are separated in their own their own batches.
-    // Replicated peer messages get forwarded from server Update schedule and you cant rely on server stamp for sync calculations.
-    pub client_stamp_option: Option<u8>,
 }
 
 /// Batch of reliable client messages.
@@ -324,7 +321,6 @@ pub struct ReliableClientMessageBatch {
 pub struct UnreliableServerMessageBatch {
     pub messages: Vec<UnreliableMessage>,
     pub stamp: u8,
-    pub client_stamp_option: Option<u8>,
 }
 /// Batch of unreliable messages.
 #[derive(Serialize, Deserialize, Clone)]

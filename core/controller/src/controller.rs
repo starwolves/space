@@ -75,7 +75,6 @@ pub(crate) fn look_transform_entity_update(
     mut updates: ResMut<EntityUpdates<PeerUnreliableControllerMessage>>,
     query: Query<(Entity, &LookTransform, &ConnectedPlayer, &Transform)>,
     construct: Res<ConstructEntityUpdates>,
-    stamp: Res<TickRateStamp>,
 ) {
     for (c, _) in construct.entities.iter() {
         match query.get(*c) {
@@ -91,7 +90,6 @@ pub(crate) fn look_transform_entity_update(
                             },
                         ),
                         peer_handle: connected_player.handle.raw() as u16,
-                        client_stamp: stamp.tick,
                     }],
                 );
             }
@@ -104,7 +102,6 @@ pub(crate) fn controller_input_entity_update(
     mut updates: ResMut<EntityUpdates<PeerReliableControllerMessage>>,
     query: Query<(Entity, &ControllerInput, &ConnectedPlayer)>,
     construct: Res<ConstructEntityUpdates>,
-    stamp: Res<TickRateStamp>,
 ) {
     for (c, _) in construct.entities.iter() {
         match query.get(*c) {
@@ -116,7 +113,6 @@ pub(crate) fn controller_input_entity_update(
                             controller_input.clone(),
                         ),
                         peer_handle: connected_player.handle.raw() as u16,
-                        client_stamp: stamp.tick,
                     }],
                 );
             }

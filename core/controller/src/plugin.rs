@@ -30,13 +30,13 @@ use networking::client::PreUpdateSendMessage;
 use networking::messaging::{
     register_reliable_message, register_unreliable_message, MessageSender, MessagingSet,
 };
-use networking::server::{EntityUpdatesSet, PreUpdateMessageProcessor};
+use networking::server::EntityUpdatesSet;
 use pawn::camera::LookTransformSet;
 use physics::sync::SpawningSimulation;
 use player::boarding::BoardingPlayer;
 use resources::input::InputSet;
 use resources::modes::{is_correction_mode, is_server_mode};
-use resources::ordering::{Fin, PreUpdate, Update, UpdateSet};
+use resources::ordering::{Fin, PreUpdate, SensingSet, Update, UpdateSet};
 use resources::physics::PhysicsSet;
 
 use super::net::update_player_count;
@@ -58,13 +58,8 @@ impl Plugin for ControllerPlugin {
                         .in_set(EntityUpdatesSet::BuildUpdates),
                     server_sync_look_transform.in_set(LookTransformSet::Sync),
                     syncable_entity,
+                    server_replicate_peer_input_messages.after(SensingSet::VisibleChecker),
                 ),
-            )
-            .add_systems(
-                BevyPreUpdate,
-                server_replicate_peer_input_messages
-                    .after(PreUpdateMessageProcessor)
-                    .before(PreUpdateSendMessage),
             )
             .init_resource::<PeerLatestLookSync>();
 

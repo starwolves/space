@@ -282,7 +282,6 @@ pub(crate) fn send_outgoing_unreliable_server_messages<T: TypeName + Send + Sync
         match bincode::serialize(&UnreliableServerMessageBatch {
             messages: msgs,
             stamp: stamp.tick,
-            client_stamp_option: None,
         }) {
             Ok(bits) => {
                 server.send_message(handle, RENET_UNRELIABLE_CHANNEL_ID, bits);
@@ -376,7 +375,6 @@ pub fn send_outgoing_reliable_server_messages<T: TypeName + Send + Sync + Serial
         match bincode::serialize(&ReliableServerMessageBatch {
             messages: msgs,
             stamp: stamp.tick,
-            client_stamp_option: None,
         }) {
             Ok(bits) => {
                 server.send_message(handle, RENET_RELIABLE_ORDERED_ID, bits);
@@ -391,7 +389,6 @@ pub fn send_outgoing_reliable_server_messages<T: TypeName + Send + Sync + Serial
         match bincode::serialize(&ReliableServerMessageBatch {
             messages: msgs,
             stamp: stamp.tick,
-            client_stamp_option: None,
         }) {
             Ok(bits) => {
                 server.send_message(handle, RENET_RELIABLE_UNORDERED_ID, bits);
@@ -805,7 +802,6 @@ pub(crate) struct UpdateIncomingRawClientMessage {
 pub(crate) fn receive_incoming_unreliable_client_messages(
     mut server: ResMut<RenetServer>,
     mut queue: ResMut<UpdateIncomingRawClientMessage>,
-    mut early: EventWriter<EarlyIncomingRawUnreliableClientMessage>,
     stamp: Res<TickRateStamp>,
 ) {
     for handle in server.clients_id().into_iter() {
@@ -820,7 +816,6 @@ pub(crate) fn receive_incoming_unreliable_client_messages(
                         stamp.calculate_large(incoming.message.stamp),
                         (false, incoming.clone()),
                     ));
-                    early.send(EarlyIncomingRawUnreliableClientMessage(incoming));
                 }
                 Err(_) => {
                     warn!("Received an invalid message 0.");
@@ -829,11 +824,6 @@ pub(crate) fn receive_incoming_unreliable_client_messages(
         }
     }
 }
-#[derive(Event)]
-pub struct EarlyIncomingRawReliableClientMessage(pub IncomingRawReliableClientMessage);
-#[derive(Event)]
-pub struct EarlyIncomingRawUnreliableClientMessage(pub IncomingRawUnreliableClientMessage);
-
 use crate::plugin::{RENET_RELIABLE_UNORDERED_ID, RENET_UNRELIABLE_CHANNEL_ID};
 
 /// Label for systems ordering.
@@ -845,7 +835,6 @@ pub struct PreUpdateMessageProcessor;
 pub(crate) fn receive_incoming_reliable_client_messages(
     mut server: ResMut<RenetServer>,
     mut queue: ResMut<UpdateIncomingRawClientMessage>,
-    mut early: EventWriter<EarlyIncomingRawReliableClientMessage>,
     stamp: Res<TickRateStamp>,
 ) {
     for handle in server.clients_id().into_iter() {
@@ -860,7 +849,6 @@ pub(crate) fn receive_incoming_reliable_client_messages(
                         stamp.calculate_large(incoming.message.stamp),
                         (false, incoming.clone()),
                     ));
-                    early.send(EarlyIncomingRawReliableClientMessage(incoming));
                 }
                 Err(_) => {
                     warn!("Received an invalid message.");
@@ -879,7 +867,6 @@ pub(crate) fn receive_incoming_reliable_client_messages(
                         stamp.calculate_large(incoming.message.stamp),
                         (false, incoming.clone()),
                     ));
-                    early.send(EarlyIncomingRawReliableClientMessage(incoming));
                 }
                 Err(_) => {
                     warn!("Received an invalid message 1.");
