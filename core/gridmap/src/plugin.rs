@@ -226,7 +226,7 @@ impl Plugin for GridmapPlugin {
             .init_resource::<BridgeWallMaterial>()
             .init_resource::<BridgeHalfDiagonalCeilingMaterial>()
             .add_systems(
-                PreUpdate,
+                Startup,
                 load_ron_gridmap
                     .before(EditTileSet::Add)
                     .in_set(StartupSet::BuildGridmap)

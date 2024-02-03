@@ -6,7 +6,7 @@ use bevy::{
     },
     prelude::{
         BuildChildren, ButtonBundle, Changed, Color, Commands, Component, Entity, EventWriter,
-        Local, NodeBundle, Query, Res, ResMut, Resource, TextBundle, With,
+        NodeBundle, Query, Res, ResMut, Resource, TextBundle, With,
     },
     text::{TextSection, TextStyle},
     ui::{Display, FlexDirection, Interaction, Overflow, Style, Val},
@@ -300,13 +300,7 @@ pub(crate) fn console_welcome_message(
     mut events: EventWriter<DisplayConsoleMessage>,
     fonts: Res<Fonts>,
     meta: Res<MetadataResource>,
-    mut local: Local<bool>,
 ) {
-    if !*local {
-        *local = true;
-    } else {
-        return;
-    }
     let mut sf_version_option = None;
     let mut bevy_version_option = None;
 

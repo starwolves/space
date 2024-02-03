@@ -9,8 +9,8 @@ use bevy::{
     core_pipeline::fxaa::{Fxaa, Sensitivity},
     prelude::{
         AmbientLight, Commands, DetectChanges, DirectionalLight, DirectionalLightBundle, Event,
-        EventReader, EventWriter, Local, Msaa, Quat, Query, Res, ResMut, Resource, SystemSet,
-        Transform, With,
+        EventReader, EventWriter, Msaa, Quat, Query, Res, ResMut, Resource, SystemSet, Transform,
+        With,
     },
     window::{PresentMode, PrimaryWindow, Window, WindowMode, WindowResolution},
 };
@@ -124,13 +124,7 @@ pub(crate) fn setup_graphics_settings(
     mut w_mode_events: EventWriter<SetWindowMode>,
     mut fxaa_events: EventWriter<SetFxaa>,
     mut msaa_events: EventWriter<SetMsaa>,
-    mut local: Local<bool>,
 ) {
-    if !*local {
-        *local = true;
-    } else {
-        return;
-    }
     let path = Path::new("data").join("settings").join("graphics.ron");
     let settings_folder = Path::new("data").join("settings");
 

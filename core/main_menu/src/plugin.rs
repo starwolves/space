@@ -1,4 +1,7 @@
-use bevy::prelude::{App, IntoSystemConfigs, Plugin, SystemSet};
+use bevy::{
+    app::Startup,
+    prelude::{App, IntoSystemConfigs, Plugin, SystemSet},
+};
 use entity::despawn::DespawnEntitySet;
 use networking::client::token_assign_server;
 use resources::{
@@ -58,7 +61,7 @@ impl Plugin for MainMenuPlugin {
             )
             .add_event::<EnableMainMenu>()
             .add_systems(
-                Update,
+                Startup,
                 startup_show_menu
                     .before(hide_main_menu)
                     .before(MainMenuLabel::BuildMainMenu),

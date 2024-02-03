@@ -25,8 +25,13 @@ impl Plugin for EscapeMenuPlugin {
                 Startup,
                 (build_escape_menu.after(init_fonts), register_input),
             )
-            .add_systems(PostStartup, build_controls_section)
-            .add_systems(Update, (build_graphics_section.after(SettingsSet::Apply),))
+            .add_systems(
+                PostStartup,
+                (
+                    build_controls_section,
+                    build_graphics_section.after(SettingsSet::Apply),
+                ),
+            )
             .add_systems(
                 BevyUpdate,
                 (

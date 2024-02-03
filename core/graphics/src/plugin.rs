@@ -25,10 +25,16 @@ impl Plugin for GraphicsPlugin {
                     set_resolution.in_set(SettingsSet::Apply),
                     set_vsync.in_set(SettingsSet::Apply),
                     set_window_mode.in_set(SettingsSet::Apply),
+                ),
+            )
+            .add_systems(
+                Startup,
+                (
+                    preload_skybox,
+                    init_light,
                     setup_graphics_settings.before(SettingsSet::Apply),
                 ),
             )
-            .add_systems(Startup, (preload_skybox, init_light))
             .add_event::<SetResolution>()
             .init_resource::<GraphicsSettings>()
             .add_event::<SetWindowMode>()

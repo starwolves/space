@@ -2,7 +2,7 @@ use std::{fs, path::Path};
 
 use bevy::log::info;
 use bevy::log::warn;
-use bevy::prelude::{Commands, EventWriter, Local, Res, ResMut, Resource};
+use bevy::prelude::{Commands, EventWriter, Res, ResMut, Resource};
 use resources::grid::CellFace;
 use resources::math::Vec3Int;
 
@@ -72,13 +72,7 @@ pub(crate) fn load_ron_gridmap(
     gridmap: Res<Gridmap>,
     mut set_cell: EventWriter<AddTile>,
     mut commands: Commands,
-    mut local: Local<bool>,
 ) {
-    if !*local {
-        *local = true;
-    } else {
-        return;
-    }
     // Load map json data into real static bodies.
     let main_ron = Path::new("data")
         .join("maps")

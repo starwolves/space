@@ -1,7 +1,6 @@
 use bevy::log::info;
 use bevy::log::warn;
 use bevy::math::{Quat, Vec3};
-use bevy::prelude::Local;
 
 use serde::{Deserialize, Serialize};
 /// ron entity.
@@ -22,15 +21,7 @@ use std::fs;
 use crate::entity_data::RawSpawnEvent;
 
 /// Build the entities from ron.
-pub(crate) fn load_ron_entities(
-    mut raw_spawner: EventWriter<RawSpawnEvent>,
-    mut local: Local<bool>,
-) {
-    if !*local {
-        *local = true;
-    } else {
-        return;
-    }
+pub(crate) fn load_ron_entities(mut raw_spawner: EventWriter<RawSpawnEvent>) {
     let entities_ron = Path::new("data")
         .join("maps")
         .join("bullseye")

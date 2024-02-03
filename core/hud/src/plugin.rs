@@ -112,7 +112,6 @@ impl Plugin for HudPlugin {
                             queue_inventory_updates
                                 .after(ClientBuildInventoryLabel::AddSlot)
                                 .run_if(not(resource_exists::<InventoryHudState>())),
-                            console_welcome_message.before(ConsoleCommandsClientSet::Display),
                             update_server_stats.run_if(resource_exists::<RenetClient>()),
                             window_unfocus_event
                                 .before(TextInputLabel::MousePressUnfocus)
@@ -128,6 +127,7 @@ impl Plugin for HudPlugin {
                         create_inventory_hud,
                         build_server_stats,
                         build_communication_ui,
+                        console_welcome_message.before(ConsoleCommandsClientSet::Display),
                     ),
                 )
                 .add_systems(

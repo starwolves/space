@@ -1,5 +1,4 @@
-use bevy::prelude::{resource_exists, App, Condition, IntoSystemConfigs, Plugin, Startup};
-use bevy_renet::renet::{RenetClient, RenetServer};
+use bevy::prelude::{App, IntoSystemConfigs, Plugin, Startup};
 use networking::client::DeserializeSpawnUpdates;
 use networking::messaging::{register_reliable_message, MessageSender, MessagingSet};
 use networking::server::EntityUpdatesSet;
@@ -82,18 +81,13 @@ impl Plugin for EntityPlugin {
                 .init_resource::<PawnId>()
                 .add_systems(
                     Startup,
-                    (finalize_register_entity_types.after(EntityTypeLabel::Register),),
-                )
-                .add_systems(
-                    PreUpdate,
-                    (load_ron_entities
-                        .after(StartupSet::BuildGridmap)
-                        .in_set(StartupSet::InitEntities)
-                        .in_set(BuildingSet::RawTriggerBuild)
-                        .run_if(
-                            resource_exists::<RenetClient>()
-                                .or_else(resource_exists::<RenetServer>()),
-                        ),),
+                    (
+                        finalize_register_entity_types.after(EntityTypeLabel::Register),
+                        load_ron_entities
+                            .after(StartupSet::BuildGridmap)
+                            .in_set(StartupSet::InitEntities)
+                            .in_set(BuildingSet::RawTriggerBuild),
+                    ),
                 );
         }
 
