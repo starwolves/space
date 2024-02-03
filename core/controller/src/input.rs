@@ -216,10 +216,10 @@ pub(crate) fn cache_peer_sync_look_transform(
                     }
                 },
                 None => {
-                    warn!(
+                    /*warn!(
                         "Missed peer position for looktransform. {:?}:{} current tick: {}",
                         event.entity, adjusted_stamp, stamp.large
-                    );
+                    );*/
                 }
             }
         }
@@ -477,7 +477,6 @@ pub(crate) fn process_peer_input(
 pub(crate) fn sync_controller_input(
     mut events: EventReader<SyncControllerInput>,
     mut cache: ResMut<ControllerCache>,
-    stamp: Res<TickRateStamp>,
 ) {
     for event in events.read() {
         match cache.cache.get_mut(&event.entity) {
@@ -490,10 +489,10 @@ pub(crate) fn sync_controller_input(
                 cache.cache.insert(event.entity, map);
             }
         }
-        info!(
+        /*info!(
             "Synced controller input {:?} , serverstamp{} at {}",
             event.sync, event.server_stamp, stamp.large
-        );
+        );*/
     }
 }
 

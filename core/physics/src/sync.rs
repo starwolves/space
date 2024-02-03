@@ -538,6 +538,9 @@ pub(crate) fn send_desync_check(
         return;
     }
     for connected_player in players.iter() {
+        if !connected_player.connected {
+            continue;
+        }
         let player_entity;
         match handle_to_entity.map.get(&connected_player.handle) {
             Some(ent) => {

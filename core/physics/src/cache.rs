@@ -88,10 +88,10 @@ pub(crate) fn apply_newly_spawned_data(
                     new_data = stepped_data.clone();
                 }
                 None => {
-                    warn!(
+                    /*warn!(
                         "Couldnt find new spawned entity old entity cache. {:?} adjusted_tick {}",
                         entity, stampres.large
-                    );
+                    );*/
                     continue;
                 }
             },
@@ -111,7 +111,7 @@ pub(crate) fn apply_newly_spawned_data(
                     c.insert(*entity, this_data);
                 }
                 None => {
-                    warn!("Missed cache.");
+                    //warn!("Missed cache.");
                 }
             }
         }

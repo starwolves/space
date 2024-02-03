@@ -153,7 +153,7 @@ pub(crate) fn server_sync_look_transform(
             }
         }
     }
-
+    let mut old_handles = vec![];
     for (handle, q) in queue.iter() {
         for i in q.keys().sorted().rev() {
             if i > &stamp.large {
@@ -173,13 +173,16 @@ pub(crate) fn server_sync_look_transform(
                         }
                     },
                     None => {
-                        warn!("Couldnt find handle entity.");
+                        old_handles.push(*handle);
                     }
                 }
                 break;
             }
             break;
         }
+    }
+    for handle in old_handles {
+        queue.remove(&handle);
     }
 
     // Clean cache.

@@ -45,10 +45,7 @@ impl Plugin for BallPlugin {
                 ),
             );
         } else {
-            app.add_systems(
-                Update,
-                (shoot_ball_server.in_set(BuildingSet::TriggerBuild),),
-            );
+            app.add_systems(Update, (shoot_ball_server,));
         }
         register_reliable_message::<BallClientMessage>(app, MessageSender::Client, true);
     }
