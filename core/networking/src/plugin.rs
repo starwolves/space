@@ -18,15 +18,15 @@ use super::server::{souls, startup_server_listen_connections};
 use crate::{
     client::{
         clear_raw_spawn_entity_queue, confirm_connection, connect_to_server, connected,
-        detect_client_world_loaded, is_client_connected, on_disconnect,
-        pre_update_send_messages_client, receive_incoming_reliable_server_messages,
+        detect_client_world_loaded, is_client_connected, on_disconnect, post_update_send_messages,
+        pre_update_send_messages, receive_incoming_reliable_server_messages,
         receive_incoming_unreliable_server_messages, starwolves_response, step_buffer,
         sync_check_client, token_assign_server, AssignTokenToServer, AssigningServerToken,
-        ClientGameWorldLoaded, ConnectToServer, Connection, ConnectionPreferences,
-        IncomingRawReliableServerMessage, IncomingRawUnreliableServerMessage,
-        LoadedGameWorldBuffer, NetworkingClientMessage, NetworkingUnreliableClientMessage,
-        OutgoingBuffer, PreUpdateSendMessage, QueuedSpawnEntityRaw, TokenAssignServer,
-        TotalAdjustment,
+        BevyPreUpdateSendMessage, ClientGameWorldLoaded, ConnectToServer, Connection,
+        ConnectionPreferences, IncomingRawReliableServerMessage,
+        IncomingRawUnreliableServerMessage, LoadedGameWorldBuffer, NetworkingClientMessage,
+        NetworkingUnreliableClientMessage, OutgoingBuffer, PostUpdateSendMessage,
+        QueuedSpawnEntityRaw, TokenAssignServer, TotalAdjustment,
     },
     messaging::{
         generate_typenames, register_reliable_message, register_unreliable_message, MessageSender,
@@ -121,8 +121,8 @@ impl Plugin for NetworkingPlugin {
         } else {
             app.add_systems(
                 BevyPreUpdate,
-                pre_update_send_messages_client
-                    .in_set(PreUpdateSendMessage)
+                pre_update_send_messages
+                    .in_set(BevyPreUpdateSendMessage)
                     .run_if(resource_exists::<RenetClient>()),
             )
             .init_resource::<QueuedSpawnEntityRaw>()
@@ -174,7 +174,12 @@ impl Plugin for NetworkingPlugin {
             .init_resource::<OutgoingBuffer>()
             .add_systems(
                 PostUpdate,
-                step_buffer.run_if(resource_exists::<RenetClient>()),
+                (
+                    step_buffer.run_if(resource_exists::<RenetClient>()),
+                    post_update_send_messages
+                        .in_set(PostUpdateSendMessage)
+                        .run_if(resource_exists::<RenetClient>()),
+                ),
             )
             .add_systems(Update, detect_client_world_loaded)
             .init_resource::<LoadedGameWorldBuffer>()

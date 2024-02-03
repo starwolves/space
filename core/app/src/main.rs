@@ -81,6 +81,7 @@ use main_menu::plugin::MainMenuPlugin;
 use map::plugin::MapPlugin;
 use metadata::MetadataPlugin;
 use motd::motd::MOTD;
+use networking::client::PostUpdateSendMessage;
 use networking::plugin::NetworkingPlugin;
 use pawn::plugin::PawnPlugin;
 use physics::correction_mode::CorrectionResults;
@@ -237,24 +238,27 @@ fn setup_plugins(mut app: &mut App) {
         .add_plugins(FpsCameraPlugin::default());
     }
 
-    app.configure_sets(PostUpdate, (PhysicsStepSet, Correction).chain())
-        .add_plugins(ResourcesPlugin)
-        .add_plugins(PhysicsPlugin)
-        .add_plugins(EntityPlugin)
-        .add_plugins(NetworkingPlugin)
-        .add_plugins(GridmapPlugin)
-        .add_plugins(ControllerPlugin)
-        .add_plugins(HumanoidPlugin)
-        .insert_resource(Time::<Fixed>::from_hz(
-            TickRate::default().fixed_rate as f64,
-        ))
-        .insert_resource(Time::new_with(Physics::fixed_once_hz(
-            TickRate::default().fixed_rate as f64,
-        )))
-        .init_resource::<TickRate>()
-        .add_plugins(MetadataPlugin)
-        .add_plugins(LookTransformPlugin)
-        .add_plugins(HumanMalePlugin);
+    app.configure_sets(
+        PostUpdate,
+        (PostUpdateSendMessage, PhysicsStepSet, Correction).chain(),
+    )
+    .add_plugins(ResourcesPlugin)
+    .add_plugins(PhysicsPlugin)
+    .add_plugins(EntityPlugin)
+    .add_plugins(NetworkingPlugin)
+    .add_plugins(GridmapPlugin)
+    .add_plugins(ControllerPlugin)
+    .add_plugins(HumanoidPlugin)
+    .insert_resource(Time::<Fixed>::from_hz(
+        TickRate::default().fixed_rate as f64,
+    ))
+    .insert_resource(Time::new_with(Physics::fixed_once_hz(
+        TickRate::default().fixed_rate as f64,
+    )))
+    .init_resource::<TickRate>()
+    .add_plugins(MetadataPlugin)
+    .add_plugins(LookTransformPlugin)
+    .add_plugins(HumanMalePlugin);
 
     if is_correction_mode(&mut app) {
         app.add_plugins(CorrectionServerPlugin);

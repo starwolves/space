@@ -26,7 +26,7 @@ use bevy::prelude::{App, IntoSystemConfigs, Plugin, Startup};
 
 use bevy::time::common_conditions::on_timer;
 use bevy_renet::renet::RenetClient;
-use networking::client::PreUpdateSendMessage;
+use networking::client::BevyPreUpdateSendMessage;
 use networking::messaging::{
     register_reliable_message, register_unreliable_message, MessageSender, MessagingSet,
 };
@@ -93,7 +93,7 @@ impl Plugin for ControllerPlugin {
                 .add_systems(
                     BevyPreUpdate,
                     keyboard_input
-                        .before(PreUpdateSendMessage)
+                        .before(BevyPreUpdateSendMessage)
                         .before(UpdateSet::StandardCharacters)
                         .in_set(InputSet::Prepare)
                         .run_if(resource_exists::<RenetClient>())

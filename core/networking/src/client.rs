@@ -561,9 +561,20 @@ pub fn deserialize_incoming_reliable_load_entity_updates<
     }
 }
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
-pub struct PreUpdateSendMessage;
+pub struct BevyPreUpdateSendMessage;
 /// Latency critical input gets fired from Bevy's PreUpdate schedule rather than in PostUpdate.
-pub(crate) fn pre_update_send_messages_client(
+pub(crate) fn pre_update_send_messages(
+    mut transport: ResMut<NetcodeClientTransport>,
+    mut client: ResMut<RenetClient>,
+    mut transport_errors: EventWriter<NetcodeTransportError>,
+) {
+    if let Err(e) = transport.send_packets(&mut client) {
+        transport_errors.send(e);
+    }
+}
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
+pub struct PostUpdateSendMessage;
+pub(crate) fn post_update_send_messages(
     mut transport: ResMut<NetcodeClientTransport>,
     mut client: ResMut<RenetClient>,
     mut transport_errors: EventWriter<NetcodeTransportError>,

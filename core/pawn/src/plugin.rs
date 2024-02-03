@@ -10,7 +10,7 @@ use bevy::prelude::{App, IntoSystemConfigs, Plugin};
 use bevy::time::common_conditions::on_timer;
 use bevy_renet::renet::RenetClient;
 use cameras::controllers::fps::control_system;
-use networking::client::PreUpdateSendMessage;
+use networking::client::BevyPreUpdateSendMessage;
 use networking::messaging::{register_unreliable_message, MessageSender};
 use resources::modes::is_server_mode;
 use resources::ordering::{ActionsSet, PostUpdate, Update};
@@ -38,7 +38,7 @@ impl Plugin for PawnPlugin {
             app.add_systems(
                 BevyPreUpdate,
                 mouse_input
-                    .before(PreUpdateSendMessage)
+                    .before(BevyPreUpdateSendMessage)
                     .after(control_system)
                     .run_if(resource_exists::<RenetClient>())
                     .in_set(LookTransformSet::Sync)
