@@ -124,6 +124,8 @@ pub(crate) fn server_replicate_peer_input_messages(
     mut latest_look_transform_sync: ResMut<PeerLatestLookSync>,
     mut queue: Local<HashMap<ClientId, HashMap<u64, HashMap<u8, Vec3>>>>,
 ) {
+    let mut adjusted_stamp = stamp.clone();
+    adjusted_stamp.step();
     let mut reliable_peer_messages: HashMap<ClientId, Vec<(u8, ReliableMessage)>> = HashMap::new();
     let mut unreliable_peer_messages: HashMap<ClientId, Vec<(u8, UnreliableMessage)>> =
         HashMap::new();
@@ -175,8 +177,8 @@ pub(crate) fn server_replicate_peer_input_messages(
                                     info!("Forwarding reliable message to player.");
                                     let client_stamp;
                                     let large = stamp.calculate_large(batch.0.message.stamp);
-                                    if large < stamp.large + 1 {
-                                        client_stamp = TickRateStamp::new(stamp.large + 1).tick;
+                                    if large < adjusted_stamp.large {
+                                        client_stamp = adjusted_stamp.tick;
                                     } else {
                                         client_stamp = batch.0.message.stamp;
                                     }
@@ -270,8 +272,8 @@ pub(crate) fn server_replicate_peer_input_messages(
 
                                     let client_stamp;
                                     let large = stamp.calculate_large(batch.0.message.stamp);
-                                    if large <= stamp.large {
-                                        client_stamp = TickRateStamp::new(stamp.large + 1).tick;
+                                    if large < adjusted_stamp.large {
+                                        client_stamp = adjusted_stamp.tick;
                                     } else {
                                         client_stamp = batch.0.message.stamp;
                                     }
@@ -385,7 +387,7 @@ pub(crate) fn server_replicate_peer_input_messages(
                 RENET_RELIABLE_ORDERED_ID,
                 bincode::serialize(&ReliableServerMessageBatch {
                     messages: vec![msg],
-                    stamp: stamp.tick,
+                    stamp: adjusted_stamp.tick,
                     client_stamp_option: Some(client_stamp),
                 })
                 .unwrap(),
@@ -400,7 +402,7 @@ pub(crate) fn server_replicate_peer_input_messages(
                 RENET_UNRELIABLE_CHANNEL_ID,
                 bincode::serialize(&UnreliableServerMessageBatch {
                     messages: vec![msg],
-                    stamp: stamp.tick,
+                    stamp: adjusted_stamp.tick,
                     client_stamp_option: Some(client_stamp),
                 })
                 .unwrap(),
