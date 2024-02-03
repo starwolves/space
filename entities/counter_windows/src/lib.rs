@@ -10,8 +10,6 @@ pub mod counter_window_added;
 pub mod counter_window_events;
 /// Tick counter window timers.
 mod counter_window_tick_timers;
-/// Manage entity updates.
-mod entity_update;
 /// The Bevy plugin of this crate.
 pub mod plugin;
 /// Spawner.

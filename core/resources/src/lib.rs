@@ -6,9 +6,6 @@ pub mod core;
 /// Systems ordering labels.
 pub mod ordering;
 
-pub mod content;
-/// Convert data, mainly used for old  Godot prototype.
-pub mod converters;
 pub mod correction;
 pub mod grid;
 pub mod hud;

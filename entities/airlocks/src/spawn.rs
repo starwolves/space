@@ -136,7 +136,7 @@ pub fn build_airlocks<T: Send + Sync + 'static>(
             });
     }
 }
-use resources::content::SF_CONTENT_PREFIX;
+use resources::core::SF_CONTENT_PREFIX;
 
 pub const SECURITY_AIRLOCK_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "security_airlock1");
 pub const BRIDGE_AIRLOCK_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "bridge_airlock");

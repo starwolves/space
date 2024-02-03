@@ -10,7 +10,6 @@ use entity::{
     sensable::Sensable,
 };
 use rand::Rng;
-use resources::content::SF_CONTENT_PREFIX;
 pub const SFX_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "sfx");
 
 #[derive(Clone, Identity)]
@@ -50,6 +49,7 @@ impl Default for SfxEntityType {
 }
 
 use entity::entity_data::EntityGroup;
+use resources::core::SF_CONTENT_PREFIX;
 
 /// Spawn background sound effect with commands as a function.
 

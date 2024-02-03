@@ -21,7 +21,7 @@ use entity::spawn::SpawnEntity;
 use physics::rigid_body::STANDARD_BODY_FRICTION;
 use physics::spawn::RigidBodyBuilder;
 use physics::spawn::RigidBodyBundle;
-use resources::content::SF_CONTENT_PREFIX;
+use resources::core::SF_CONTENT_PREFIX;
 
 use super::ball::Ball;
 

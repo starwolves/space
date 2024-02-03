@@ -27,7 +27,7 @@ impl AmbienceSfxBundle {
 
 use bevy::prelude::Transform;
 use bevy::time::{Timer, TimerMode};
-use resources::content::SF_CONTENT_PREFIX;
+use resources::core::SF_CONTENT_PREFIX;
 use sfx::builder::{spawn_ambience_sfx, AmbienceSfxTimer, Sfx};
 
 pub fn startup_ambience(mut commands: Commands) {

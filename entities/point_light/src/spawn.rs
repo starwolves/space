@@ -6,7 +6,7 @@ use entity::{
     sensable::Sensable,
     spawn::{EntityBuildData, SpawnEntity},
 };
-use resources::content::SF_CONTENT_PREFIX;
+use resources::core::SF_CONTENT_PREFIX;
 
 pub struct PointLightBuilderBundle;
 

@@ -1,4 +1,5 @@
 use bevy::{
+    app::Startup,
     ecs::schedule::{IntoSystemConfigs, IntoSystemSetConfigs, SystemSet},
     input::InputSystem,
     prelude::{App, Plugin, PreUpdate as BevyPreUpdate},
@@ -9,6 +10,7 @@ use crate::{
     input::{buffer_input, clear_buffer, InputBuffer, KeyBinds},
     modes::is_server_mode,
     ordering::{BuildingSet, PostUpdate, PreUpdate},
+    set_icon::set_window_icon,
     ui::MainMenuState,
 };
 
@@ -23,7 +25,8 @@ impl Plugin for ResourcesPlugin {
                 //.add_systems(BevyUpdate, sanitize_input.before(buffer_input))
                 .add_systems(PostUpdate, clear_buffer)
                 .init_resource::<MainMenuState>()
-                .add_event::<StartCorrection>();
+                .add_event::<StartCorrection>()
+                .add_systems(Startup, set_window_icon);
         }
         app.configure_sets(
             PreUpdate,

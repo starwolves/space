@@ -65,6 +65,7 @@ pub trait LinerArrowBuilder: Send + Sync {
     fn get_duration(&self) -> f32;
 }
 use bevy::time::TimerMode;
+use resources::core::SF_CONTENT_PREFIX;
 
 pub fn build_line_arrows<T: LinerArrowBuilder + 'static>(
     mut commands: Commands,
@@ -83,4 +84,3 @@ pub fn build_line_arrows<T: LinerArrowBuilder + 'static>(
         ));
     }
 }
-use resources::content::SF_CONTENT_PREFIX;

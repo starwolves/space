@@ -4,7 +4,6 @@ use resources::ordering::{CombatSet, Update};
 
 use crate::apply_damage::{finalize_apply_damage, ActiveApplyDamage};
 use crate::chat::hit_query_chat_cells;
-use crate::health_ui::{health_ui_update, ClientHealthUICache};
 use crate::melee_queries::MeleeBlank;
 use crate::projectile_queries::ProjectileBlank;
 use crate::sfx::health_combat_hit_result_sfx_cells;
@@ -21,16 +20,6 @@ pub struct CombatPlugin;
 impl Plugin for CombatPlugin {
     fn build(&self, app: &mut App) {
         if is_server_mode(app) {
-            /*app.add_system(
-                melee_direct
-                    .after(CombatLabels::WeaponHandler)
-                    .in_set(CombatLabels::Query),
-            )
-            .add_system(
-                projectile_attack
-                    .after(CombatLabels::WeaponHandler)
-                    .in_set(CombatLabels::Query),
-            )*/
             app.add_systems(
                 Update,
                 (
@@ -69,9 +58,7 @@ impl Plugin for CombatPlugin {
                     health_combat_hit_result_sfx_cells.after(CombatSet::FinalizeApplyDamage),
                 ),
             )
-            .init_resource::<ActiveApplyDamage>()
-            .add_systems(Update, health_ui_update)
-            .init_resource::<ClientHealthUICache>();
+            .init_resource::<ActiveApplyDamage>();
         }
     }
 }

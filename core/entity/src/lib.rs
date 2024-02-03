@@ -14,8 +14,6 @@ pub mod despawn;
 pub mod entity_types;
 /// Resources for the ability to examine entities as an action.
 pub mod examine;
-/// Finalize sending entity updates to a player controller.
-mod finalize_entity_updates;
 /// Base health resources for entities.
 pub mod health;
 /// Entity initialization.

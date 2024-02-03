@@ -26,7 +26,7 @@ use inventory::spawn_item::InventoryItemBundle;
 use physics::rigid_body::STANDARD_BODY_FRICTION;
 use physics::spawn::RigidBodyBuilder;
 use physics::spawn::RigidBodyBundle;
-use resources::content::SF_CONTENT_PREFIX;
+use resources::core::SF_CONTENT_PREFIX;
 use std::collections::BTreeMap;
 use std::collections::HashMap;
 

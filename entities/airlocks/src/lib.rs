@@ -10,8 +10,6 @@ mod airlock_added;
 pub mod airlock_events;
 /// Manage air lock timers like auto-close.
 mod airlock_tick_timers;
-/// Manage air lock entity updates.
-mod entity_update;
 /// The Bevy plugin of this crate.
 pub mod plugin;
 /// Air lock resources.

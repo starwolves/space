@@ -1,5 +1,5 @@
 use bevy::prelude::{Commands, Entity};
-use resources::content::SF_CONTENT_PREFIX;
+use resources::core::SF_CONTENT_PREFIX;
 use sfx::builder::{get_random_pitch_scale, Sfx};
 
 pub struct Construct1SfxBundle;

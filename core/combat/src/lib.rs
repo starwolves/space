@@ -22,6 +22,3 @@ pub mod plugin;
 pub mod projectile_queries;
 /// Hooks for sound effects.
 pub mod sfx;
-
-/// Manage health UI and its entity updates.
-pub mod health_ui;

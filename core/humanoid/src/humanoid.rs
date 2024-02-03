@@ -71,7 +71,7 @@ impl Default for Humanoid {
 use networking::server::HandleToEntity;
 
 use const_format::concatcp;
-use resources::content::SF_CONTENT_PREFIX;
+use resources::core::SF_CONTENT_PREFIX;
 
 pub const HUMAN_DUMMY_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "human_dummy");
 

@@ -21,7 +21,7 @@ use entity::{
 use pawn::pawn::ShipAuthorizationEnum;
 use physics::physics::{get_bit_masks, ColliderGroup};
 use physics::spawn::{RigidBodyBuilder, RigidBodyBundle};
-use resources::content::SF_CONTENT_PREFIX;
+use resources::core::SF_CONTENT_PREFIX;
 use text_api::core::{FURTHER_ITALIC_FONT, HEALTHY_COLOR};
 
 use super::counter_window_events::{CounterWindow, CounterWindowSensor};

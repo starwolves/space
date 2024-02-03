@@ -90,6 +90,6 @@ pub fn build_computers<T: Send + Sync + 'static>(
             .insert(Computer);
     }
 }
-use resources::content::SF_CONTENT_PREFIX;
+use resources::core::SF_CONTENT_PREFIX;
 
 use super::computer::Computer;

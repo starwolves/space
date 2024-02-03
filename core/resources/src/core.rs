@@ -26,3 +26,4 @@ impl Default for TickRate {
 pub struct ClientInformation {
     pub version: String,
 }
+pub const SF_CONTENT_PREFIX: &str = "sf::";
