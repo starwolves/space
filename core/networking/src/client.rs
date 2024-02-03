@@ -32,7 +32,7 @@ use crate::{
         UnreliableMessage,
     },
     plugin::{RENET_RELIABLE_ORDERED_ID, RENET_RELIABLE_UNORDERED_ID},
-    server::{MIN_LATENCY, PROTOCOL_ID},
+    server::{MIN_LATENCY, MIN_REQUIRED_MESSAGES_FOR_ADJUSTMENT, PROTOCOL_ID},
     stamp::TickRateStamp,
 };
 
@@ -461,8 +461,6 @@ pub(crate) fn send_outgoing_unreliable_client_messages<T: TypeName + Send + Sync
         });
     }
 }
-use serde::Deserialize;
-
 pub(crate) fn deserialize_incoming_unreliable_server_message<
     T: Clone + TypeName + Send + Sync + Serialize + for<'a> Deserialize<'a> + 'static,
 >(
@@ -470,9 +468,8 @@ pub(crate) fn deserialize_incoming_unreliable_server_message<
     mut outgoing: EventWriter<IncomingUnreliableServerMessage<T>>,
     typenames: Res<Typenames>,
     stamp: Res<TickRateStamp>,
-    client: Res<RenetClient>,
-    tickrate: Res<TickRate>,
     mut queue: Local<HashMap<u64, Vec<IncomingUnreliableServerMessage<T>>>>,
+    latency: Res<TickLatency>,
 ) {
     for batch in incoming_raw.read() {
         let server_stamp = stamp.calculate_large(batch.message.stamp);
@@ -501,9 +498,7 @@ pub(crate) fn deserialize_incoming_unreliable_server_message<
         }
     }
 
-    let latency_in_ticks = (client.rtt() as f32 / (1. / tickrate.fixed_rate as f32))
-        .round()
-        .clamp(MIN_LATENCY * 2., f32::MAX) as u64;
+    let latency_in_ticks = latency.latency as u64;
     let desired_tick = stamp.large - latency_in_ticks;
     let bound_queue = queue.clone();
     let mut is = vec![];
@@ -621,8 +616,7 @@ pub fn deserialize_incoming_reliable_server_message<
     typenames: Res<Typenames>,
     stamp: Res<TickRateStamp>,
     mut queue: Local<HashMap<u64, Vec<IncomingReliableServerMessage<T>>>>,
-    client: Res<RenetClient>,
-    tickrate: Res<TickRate>,
+    latency: Res<TickLatency>,
 ) {
     for batch in incoming_raw.read() {
         let server_stamp = stamp.calculate_large(batch.message.stamp);
@@ -649,9 +643,7 @@ pub fn deserialize_incoming_reliable_server_message<
         }
     }
 
-    let latency_in_ticks = (client.rtt() as f32 / (1. / tickrate.fixed_rate as f32))
-        .round()
-        .clamp(MIN_LATENCY * 2., f32::MAX) as u64;
+    let latency_in_ticks = latency.latency as u64;
     let desired_tick = stamp.large - latency_in_ticks;
     let bound_queue = queue.clone();
     let mut is = vec![];
@@ -881,4 +873,39 @@ pub enum NetworkingClientMessage {
 
 pub enum NetworkingUnreliableClientMessage {
     HeartBeat,
+}
+
+use serde::Deserialize;
+#[derive(Resource)]
+pub struct TickLatency {
+    pub latency: u16,
+    buffer: Vec<u16>,
+}
+
+impl Default for TickLatency {
+    fn default() -> Self {
+        Self {
+            latency: MIN_LATENCY as u16 * 2,
+            buffer: vec![],
+        }
+    }
+}
+
+pub(crate) fn update_tick_latency(
+    mut latency: ResMut<TickLatency>,
+    client: Res<RenetClient>,
+    tickrate: Res<TickRate>,
+) {
+    let latency_in_ticks = (client.rtt() as f32 / (1. / tickrate.fixed_rate as f32))
+        .round()
+        .clamp(MIN_LATENCY * 2., f32::MAX) as u16;
+    latency.buffer.push(latency_in_ticks);
+    if latency.buffer.len() > MIN_REQUIRED_MESSAGES_FOR_ADJUSTMENT as usize {
+        latency.buffer.remove(0);
+    }
+    let mut total = 0;
+    for i in &latency.buffer {
+        total += i;
+    }
+    latency.latency = total / latency.buffer.len() as u16;
 }

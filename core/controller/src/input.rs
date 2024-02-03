@@ -22,16 +22,14 @@ use cameras::{LookTransform, LookTransformCache};
 use entity::spawn::{PawnId, PeerPawns};
 use itertools::Itertools;
 use networking::{
-    client::{IncomingReliableServerMessage, IncomingUnreliableServerMessage},
+    client::{IncomingReliableServerMessage, IncomingUnreliableServerMessage, TickLatency},
     messaging::{ReliableClientMessageBatch, ReliableMessage, Typenames},
     plugin::RENET_RELIABLE_ORDERED_ID,
-    server::MIN_LATENCY,
     stamp::TickRateStamp,
 };
 use pawn::net::{PeerUpdateLookTransform, UnreliablePeerControllerClientMessage};
 use physics::{cache::PhysicsCache, sync::ClientStartedSyncing};
 use resources::{
-    core::TickRate,
     correction::{StartCorrection, MAX_CACHE_TICKS_AMNT},
     input::{
         KeyBind, KeyBinds, KeyCodeEnum, HOLD_SPRINT_BIND, JUMP_BIND, MOVE_BACKWARD_BIND,
@@ -269,8 +267,8 @@ pub(crate) fn process_peer_input(
     mut input_cache: ResMut<PeerInputCache>,
     pawnid: Res<PawnId>,
     mut look_update_queue: Local<HashMap<ClientId, HashMap<u64, HashMap<u8, LookTick>>>>,
-    client: Res<RenetClient>,
-    tickrate: Res<TickRate>,
+
+    latency: Res<TickLatency>,
 ) {
     let mut new_correction = false;
     let mut earliest_tick = 0;
@@ -365,9 +363,7 @@ pub(crate) fn process_peer_input(
         }
     }
 
-    let latency_in_ticks = (client.rtt() as f32 / (1. / tickrate.fixed_rate as f32))
-        .round()
-        .clamp(MIN_LATENCY * 2., f32::MAX) as u64;
+    let latency_in_ticks = latency.latency as u64;
     let desired_tick = stamp.large - latency_in_ticks;
 
     for server_stamp in ordered_unreliables.keys().sorted().rev() {

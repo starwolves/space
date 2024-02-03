@@ -21,12 +21,12 @@ use crate::{
         detect_client_world_loaded, is_client_connected, on_disconnect, post_update_send_messages,
         pre_update_send_messages, receive_incoming_reliable_server_messages,
         receive_incoming_unreliable_server_messages, starwolves_response, step_buffer,
-        sync_check_client, token_assign_server, AssignTokenToServer, AssigningServerToken,
-        BevyPreUpdateSendMessage, ClientGameWorldLoaded, ConnectToServer, Connection,
-        ConnectionPreferences, IncomingRawReliableServerMessage,
+        sync_check_client, token_assign_server, update_tick_latency, AssignTokenToServer,
+        AssigningServerToken, BevyPreUpdateSendMessage, ClientGameWorldLoaded, ConnectToServer,
+        Connection, ConnectionPreferences, IncomingRawReliableServerMessage,
         IncomingRawUnreliableServerMessage, LoadedGameWorldBuffer, NetworkingClientMessage,
         NetworkingUnreliableClientMessage, OutgoingBuffer, PostUpdateSendMessage,
-        QueuedSpawnEntityRaw, TokenAssignServer, TotalAdjustment,
+        QueuedSpawnEntityRaw, TickLatency, TokenAssignServer, TotalAdjustment,
     },
     messaging::{
         generate_typenames, register_reliable_message, register_unreliable_message, MessageSender,
@@ -119,71 +119,73 @@ impl Plugin for NetworkingPlugin {
             .init_resource::<ConstructEntityUpdates>()
             .init_resource::<EntityUpdatesSerialized>();
         } else {
-            app.add_systems(
-                BevyPreUpdate,
-                pre_update_send_messages
-                    .in_set(BevyPreUpdateSendMessage)
-                    .run_if(resource_exists::<RenetClient>()),
-            )
-            .init_resource::<QueuedSpawnEntityRaw>()
-            .add_systems(
-                Update,
-                (
-                    starwolves_response.run_if(resource_exists::<TokenAssignServer>()),
-                    token_assign_server,
-                    connect_to_server.after(starwolves_response),
-                    clear_raw_spawn_entity_queue,
-                ),
-            )
-            .add_event::<ConnectToServer>()
-            .add_plugins(RenetClientPlugin {
-                schedules: schedules,
-            })
-            .add_plugins(NetcodeClientPlugin {
-                schedules: schedules,
-            })
-            .add_event::<AssignTokenToServer>()
-            .init_resource::<ConnectionPreferences>()
-            .init_resource::<Connection>()
-            .init_resource::<AssigningServerToken>()
-            .init_resource::<TotalAdjustment>()
-            .add_systems(
-                PreUpdate,
-                (
-                    receive_incoming_reliable_server_messages,
-                    receive_incoming_unreliable_server_messages,
-                )
-                    .run_if(resource_exists::<RenetClient>())
-                    .in_set(TypenamesSet::SendRawEvents),
-            )
-            .add_event::<IncomingRawReliableServerMessage>()
-            .add_event::<IncomingRawUnreliableServerMessage>()
-            .add_systems(
-                Update,
-                (
-                    confirm_connection.run_if(is_client_connected),
-                    /*start_sync_frequency
-                    .before(sync_test_client)
-                    .run_if(on_timer(Duration::from_secs_f32(0.1))),*/
-                    sync_check_client
-                        .run_if(is_client_connected)
-                        .after(confirm_connection),
-                    on_disconnect.run_if(connected),
-                ),
-            )
-            .init_resource::<OutgoingBuffer>()
-            .add_systems(
-                PostUpdate,
-                (
-                    step_buffer.run_if(resource_exists::<RenetClient>()),
-                    post_update_send_messages
-                        .in_set(PostUpdateSendMessage)
+            app.init_resource::<TickLatency>()
+                .add_systems(
+                    BevyPreUpdate,
+                    pre_update_send_messages
+                        .in_set(BevyPreUpdateSendMessage)
                         .run_if(resource_exists::<RenetClient>()),
-                ),
-            )
-            .add_systems(Update, detect_client_world_loaded)
-            .init_resource::<LoadedGameWorldBuffer>()
-            .add_event::<ClientGameWorldLoaded>();
+                )
+                .init_resource::<QueuedSpawnEntityRaw>()
+                .add_systems(
+                    Update,
+                    (
+                        update_tick_latency.run_if(resource_exists::<RenetClient>()),
+                        starwolves_response.run_if(resource_exists::<TokenAssignServer>()),
+                        token_assign_server,
+                        connect_to_server.after(starwolves_response),
+                        clear_raw_spawn_entity_queue,
+                    ),
+                )
+                .add_event::<ConnectToServer>()
+                .add_plugins(RenetClientPlugin {
+                    schedules: schedules,
+                })
+                .add_plugins(NetcodeClientPlugin {
+                    schedules: schedules,
+                })
+                .add_event::<AssignTokenToServer>()
+                .init_resource::<ConnectionPreferences>()
+                .init_resource::<Connection>()
+                .init_resource::<AssigningServerToken>()
+                .init_resource::<TotalAdjustment>()
+                .add_systems(
+                    PreUpdate,
+                    (
+                        receive_incoming_reliable_server_messages,
+                        receive_incoming_unreliable_server_messages,
+                    )
+                        .run_if(resource_exists::<RenetClient>())
+                        .in_set(TypenamesSet::SendRawEvents),
+                )
+                .add_event::<IncomingRawReliableServerMessage>()
+                .add_event::<IncomingRawUnreliableServerMessage>()
+                .add_systems(
+                    Update,
+                    (
+                        confirm_connection.run_if(is_client_connected),
+                        /*start_sync_frequency
+                        .before(sync_test_client)
+                        .run_if(on_timer(Duration::from_secs_f32(0.1))),*/
+                        sync_check_client
+                            .run_if(is_client_connected)
+                            .after(confirm_connection),
+                        on_disconnect.run_if(connected),
+                    ),
+                )
+                .init_resource::<OutgoingBuffer>()
+                .add_systems(
+                    PostUpdate,
+                    (
+                        step_buffer.run_if(resource_exists::<RenetClient>()),
+                        post_update_send_messages
+                            .in_set(PostUpdateSendMessage)
+                            .run_if(resource_exists::<RenetClient>()),
+                    ),
+                )
+                .add_systems(Update, detect_client_world_loaded)
+                .init_resource::<LoadedGameWorldBuffer>()
+                .add_event::<ClientGameWorldLoaded>();
         }
 
         app.configure_sets(
