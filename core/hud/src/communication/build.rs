@@ -301,32 +301,40 @@ pub(crate) fn console_welcome_message(
     fonts: Res<Fonts>,
     meta: Res<MetadataResource>,
 ) {
-    let mut sf_version_option = None;
-    let mut bevy_version_option = None;
+    let mut welcome_message = "".to_string();
 
-    for package in meta.data.packages.iter() {
-        if package.name == "bevy" {
-            bevy_version_option = Some(package.version.clone());
-        } else if package.name == "app" {
-            sf_version_option = Some(package.version.clone());
+    match &meta.data {
+        Some(data) => {
+            let mut sf_version_option = None;
+            let mut bevy_version_option = None;
+
+            for package in data.packages.iter() {
+                if package.name == "bevy" {
+                    bevy_version_option = Some(package.version.clone());
+                } else if package.name == "app" {
+                    sf_version_option = Some(package.version.clone());
+                }
+            }
+
+            if sf_version_option.is_none() || bevy_version_option.is_none() {
+                warn!("Couldnt find bevy or app packages");
+                return;
+            }
+
+            let sf_version = sf_version_option.unwrap();
+            let bevy_version = bevy_version_option.unwrap();
+            welcome_message = welcome_message
+                + &format!(
+                    "Space Frontiers v{}.{}.{}\n",
+                    sf_version.major, sf_version.minor, sf_version.patch
+                )
+                + &format!(
+                    "Bevy v{}.{}.{}\n",
+                    bevy_version.major, bevy_version.minor, bevy_version.patch
+                );
         }
+        None => {}
     }
-
-    if sf_version_option.is_none() || bevy_version_option.is_none() {
-        warn!("Couldnt find bevy or app packages");
-        return;
-    }
-
-    let sf_version = sf_version_option.unwrap();
-    let bevy_version = bevy_version_option.unwrap();
-
-    let mut welcome_message = format!(
-        "Space Frontiers v{}.{}.{}\n",
-        sf_version.major, sf_version.minor, sf_version.patch
-    ) + &format!(
-        "Bevy v{}.{}.{}\n",
-        bevy_version.major, bevy_version.minor, bevy_version.patch
-    );
 
     match &meta.commit {
         Some(c) => {
