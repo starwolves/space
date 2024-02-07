@@ -4,7 +4,9 @@ use std::{
     path::Path,
 };
 
-use bevy::log::warn;
+use bevy::{
+    core_pipeline::contrast_adaptive_sharpening::ContrastAdaptiveSharpeningSettings, log::warn,
+};
 use bevy::{
     core_pipeline::fxaa::{Fxaa, Sensitivity},
     prelude::{
@@ -44,6 +46,7 @@ pub struct GraphicsSettings {
     pub vsync: bool,
     pub fxaa: Option<SFFxaa>,
     pub msaa: SFMsaa,
+    pub rcas: bool,
 }
 #[derive(Default, Clone, Serialize, Deserialize, FromPrimitive, Debug)]
 pub enum SFMsaa {
@@ -113,6 +116,7 @@ impl Default for GraphicsSettings {
             vsync: false,
             fxaa: Some(SFFxaa::default()),
             msaa: SFMsaa::Off,
+            rcas: false,
         }
     }
 }
@@ -186,6 +190,10 @@ pub(crate) fn set_resolution(
 pub struct SetVsync {
     pub enabled: bool,
 }
+#[derive(Event)]
+pub struct SetRCAS {
+    pub enabled: bool,
+}
 
 pub fn set_vsync(
     mut events: EventReader<SetVsync>,
@@ -202,7 +210,21 @@ pub fn set_vsync(
         settings.vsync = event.enabled;
     }
 }
-
+pub fn set_rcas(
+    mut events: EventReader<SetRCAS>,
+    mut primary_query: Query<&mut ContrastAdaptiveSharpeningSettings>,
+) {
+    for event in events.read() {
+        match primary_query.get_single_mut() {
+            Ok(mut settings) => {
+                settings.enabled = event.enabled;
+            }
+            Err(_) => {
+                warn!("No camera for rcas settings found.");
+            }
+        }
+    }
+}
 /// Label for systems ordering.
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
 pub enum SettingsSet {

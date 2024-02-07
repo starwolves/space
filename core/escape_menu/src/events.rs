@@ -9,6 +9,7 @@ use bevy::{
     ui::{Display, Interaction, Style},
 };
 
+use graphics::settings::SetRCAS;
 use graphics::settings::{SetFxaa, SetMsaa, SetResolution, SetVsync, SetWindowMode};
 use hud::inventory::build::{InventoryHudState, OpenHud};
 use num_traits::FromPrimitive;
@@ -19,6 +20,7 @@ use resources::{
 };
 use ui::{button::SFButton, hlist::HList, text_input::TextInputNode};
 
+use crate::build::RCASHList;
 use crate::build::{
     ControlsBGSection, ControlsHeaderButton, ExitGameButton, FxaaHList, GeneralHeaderButton,
     GeneralSection, GraphicsBGSection, GraphicsHeaderButton, MsaaHList, ResolutionInputApply,
@@ -355,6 +357,44 @@ pub(crate) fn apply_window_mode(
                             }
                         }
                         events.send(SetWindowMode { window_mode: mode });
+                    }
+                    Err(_) => {
+                        warn!("Couildnt find apply window hlist.");
+                    }
+                }
+            }
+            _ => (),
+        }
+    }
+}
+
+pub(crate) fn apply_rcas(
+    interaction_query: Query<
+        (Entity, &Interaction, &Parent),
+        (Changed<Interaction>, With<SFButton>),
+    >,
+    parent_query: Query<&RCASHList>,
+    mut events: EventWriter<SetRCAS>,
+    hlist_query: Query<&HList>,
+) {
+    for (entity, interaction, parent) in interaction_query.iter() {
+        match interaction {
+            Interaction::Pressed => {
+                match parent_query.get(**parent) {
+                    Ok(_) => {}
+                    Err(_) => {
+                        continue;
+                    }
+                }
+                match hlist_query.get(**parent) {
+                    Ok(hlist) => {
+                        let id = hlist
+                            .selections_entities
+                            .iter()
+                            .position(|&r| r == entity)
+                            .unwrap() as u8;
+
+                        events.send(SetRCAS { enabled: id != 0 });
                     }
                     Err(_) => {
                         warn!("Couildnt find apply window hlist.");

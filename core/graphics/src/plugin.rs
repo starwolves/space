@@ -3,8 +3,8 @@ use resources::{modes::is_server_mode, ordering::Update};
 
 use crate::{
     settings::{
-        init_light, set_fxaa, set_msaa, set_resolution, set_vsync, set_window_mode,
-        settings_to_ron, setup_graphics_settings, GraphicsSettings, SetFxaa, SetMsaa,
+        init_light, set_fxaa, set_msaa, set_rcas, set_resolution, set_vsync, set_window_mode,
+        settings_to_ron, setup_graphics_settings, GraphicsSettings, SetFxaa, SetMsaa, SetRCAS,
         SetResolution, SetVsync, SetWindowMode, SettingsSet,
     },
     skybox::preload_skybox,
@@ -19,13 +19,15 @@ impl Plugin for GraphicsPlugin {
             app.add_systems(
                 Update,
                 (
-                    settings_to_ron.after(SettingsSet::Apply),
-                    set_fxaa.in_set(SettingsSet::Apply),
-                    set_msaa.in_set(SettingsSet::Apply),
-                    set_resolution.in_set(SettingsSet::Apply),
-                    set_vsync.in_set(SettingsSet::Apply),
-                    set_window_mode.in_set(SettingsSet::Apply),
-                ),
+                    settings_to_ron,
+                    set_fxaa,
+                    set_msaa,
+                    set_resolution,
+                    set_vsync,
+                    set_rcas,
+                    set_window_mode,
+                )
+                    .after(SettingsSet::Apply),
             )
             .add_systems(
                 Startup,
@@ -40,6 +42,7 @@ impl Plugin for GraphicsPlugin {
             .add_event::<SetWindowMode>()
             .add_event::<SetVsync>()
             .add_event::<SetFxaa>()
+            .add_event::<SetRCAS>()
             .add_event::<SetMsaa>()
             .init_resource::<PerMethodSettings>();
             /*.add_plugins(AtmospherePlugin)

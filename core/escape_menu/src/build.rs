@@ -511,6 +511,9 @@ pub struct WindowModeHList;
 #[derive(Component)]
 pub struct VsyncHList;
 #[derive(Component)]
+
+pub struct RCASHList;
+#[derive(Component)]
 pub struct FxaaHList;
 #[derive(Component)]
 pub struct MsaaHList;
@@ -729,7 +732,36 @@ pub(crate) fn build_graphics_section(
                                 })
                                 .insert(VsyncHList);
                         });
-
+                    parent
+                        .spawn(NodeBundle {
+                            style: Style {
+                                ..Default::default()
+                            },
+                            ..Default::default()
+                        })
+                        .with_children(|parent| {
+                            parent.spawn(TextBundle::from_section(
+                                "RCAS: ",
+                                TextStyle {
+                                    font: font.clone(),
+                                    font_size: ESC_MENU_FONT_SIZE,
+                                    color: ESC_MENU_FONT_COLOR.into(),
+                                },
+                            ));
+                            parent
+                                .spawn(NodeBundle {
+                                    style: Style {
+                                        ..Default::default()
+                                    },
+                                    ..Default::default()
+                                })
+                                .insert(HList {
+                                    selected: Some(settings.rcas as u8),
+                                    selections: vec!["Off".to_string(), "On".to_string()],
+                                    ..Default::default()
+                                })
+                                .insert(RCASHList);
+                        });
                     parent
                         .spawn(NodeBundle {
                             style: Style {

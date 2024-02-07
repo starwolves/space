@@ -1,5 +1,6 @@
 use std::collections::{BTreeMap, HashMap};
 
+use bevy::core_pipeline::contrast_adaptive_sharpening::ContrastAdaptiveSharpeningSettings;
 use bevy::log::info;
 use bevy::log::warn;
 use bevy::{
@@ -278,6 +279,10 @@ pub fn attach_human_male_camera(
                                 ..Default::default()
                             },
                             VisibilityBundle::default(),
+                            ContrastAdaptiveSharpeningSettings {
+                                enabled: settings.rcas,
+                                ..Default::default()
+                            },
                         ))
                         .id();
                     state.option = Some(id);
