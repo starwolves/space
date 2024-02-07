@@ -7,7 +7,7 @@ use bevy::{
 use bevy_renet::{
     renet::RenetClient,
     transport::{NetcodeClientPlugin, NetcodeServerPlugin},
-    RenetClientPlugin, RenetReceive, RenetServerPlugin,
+    CoreSet, RenetClientPlugin, RenetReceive, RenetServerPlugin,
 };
 use resources::{
     modes::{is_correction_mode, is_server_mode},
@@ -33,14 +33,15 @@ use crate::{
         MessagingSet, Typenames, TypenamesSet,
     },
     server::{
-        adjust_clients, clear_construct_entity_updates, clear_serialized_entity_updates,
-        client_loaded_game_world, process_sync_confirmation,
+        adjust_clients, clean_latency_reports, clear_construct_entity_updates,
+        clear_serialized_entity_updates, client_loaded_game_world, process_sync_confirmation,
         receive_incoming_reliable_client_messages, receive_incoming_unreliable_client_messages,
-        start_sync_confirmation, step_incoming_client_messages, ClientsReadyForSync,
+        server_events, start_sync_confirmation, step_incoming_client_messages, ClientsReadyForSync,
         ConstructEntityUpdates, EntityUpdatesSerialized, EntityUpdatesSet, HandleToEntity,
         IncomingRawReliableClientMessage, IncomingRawUnreliableClientMessage, Latency,
-        NetworkingChatServerMessage, NetworkingServerMessage, PreUpdateMessageProcessor,
-        SyncConfirmations, UnreliableServerMessage, UpdateIncomingRawClientMessage,
+        LatencyLimits, NetworkingChatServerMessage, NetworkingServerMessage,
+        PreUpdateMessageProcessor, SyncConfirmations, UnreliableServerMessage,
+        UpdateIncomingRawClientMessage,
     },
     stamp::{step_tickrate_stamp, PauseTickStep, TickRateStamp},
 };
@@ -58,6 +59,7 @@ impl Plugin for NetworkingPlugin {
                 let res = startup_server_listen_connections();
                 app.insert_resource(res.0)
                     .insert_resource(res.1)
+                    .init_resource::<LatencyLimits>()
                     .add_systems(
                         BevyPreUpdate,
                         (
@@ -73,8 +75,13 @@ impl Plugin for NetworkingPlugin {
                         (
                             step_incoming_client_messages.in_set(TypenamesSet::SendRawEvents),
                             adjust_clients.after(TypenamesSet::SendRawEvents),
+                            server_events.after(RenetReceive).after(CoreSet::Pre),
+                            /*_adjust_latency_limits
+                            .after(TypenamesSet::SendRawEvents)
+                            .before(adjust_clients),*/
                         ),
                     )
+                    .add_systems(PostUpdate, clean_latency_reports)
                     .add_systems(
                         Update,
                         (

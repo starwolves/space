@@ -13,7 +13,6 @@ use bevy::{
     time::{Fixed, Time},
 };
 
-use bevy_renet::renet::RenetClient;
 use bevy_xpbd_3d::components::{
     AngularDamping, AngularVelocity, CollisionLayers, ExternalAngularImpulse, ExternalForce,
     ExternalImpulse, ExternalTorque, Friction, LinearDamping, LinearVelocity, LockedAxes,
@@ -24,10 +23,8 @@ use entity::despawn::DespawnEntity;
 use entity::entity_types::BoxedEntityType;
 use entity::net::EntityServerMessage;
 use entity::spawn::ServerEntityClientEntity;
-use networking::client::{IncomingUnreliableServerMessage, TotalAdjustment};
-use networking::server::{
-    ConnectedPlayer, HandleToEntity, OutgoingUnreliableServerMessage, MIN_LATENCY,
-};
+use networking::client::{IncomingUnreliableServerMessage, TickLatency, TotalAdjustment};
+use networking::server::{ConnectedPlayer, HandleToEntity, OutgoingUnreliableServerMessage};
 use networking::{
     client::{
         IncomingReliableServerMessage, NetworkingClientMessage, OutgoingReliableClientMessage,
@@ -100,8 +97,7 @@ pub(crate) fn sync_loop(
     mut p: ResMut<PauseTickStep>,
     mut latency: ResMut<TotalAdjustment>,
     stamp: Res<TickRateStamp>,
-    tickrate: Res<TickRate>,
-    client: Res<RenetClient>,
+    tick_latency: Res<TickLatency>,
 ) {
     if paused.paused {
         paused.i += 1;
@@ -157,14 +153,15 @@ pub(crate) fn sync_loop(
     match adjustment_option {
         Some((adjustment, server_stamp)) => {
             if !paused.paused {
-                let latency_in_ticks = (client.rtt() as f32 / (1. / tickrate.fixed_rate as f32))
-                    .round()
-                    .clamp(MIN_LATENCY * 2., f32::MAX)
-                    as u64;
-
-                let new_desired_large_tick = latency_in_ticks + adjustment.tick;
-                let delta = (stamp.large as i64 - new_desired_large_tick as i64) as i16;
-
+                let new_desired_large_tick = tick_latency.latency as u64 + adjustment.tick;
+                let mut delta = (stamp.large as i64 - new_desired_large_tick as i64) as i16;
+                if delta == 0 {
+                    if adjustment.forward {
+                        delta = -1;
+                    } else {
+                        delta = 1;
+                    }
+                }
                 if delta > 0 {
                     paused.duration = delta as u16;
                     paused.i = 0;

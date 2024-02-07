@@ -4,6 +4,7 @@ use bevy::{
     prelude::{Component, Entity, Event, Local, Quat, Resource, SystemSet},
 };
 
+use bevy_renet::renet::ServerEvent;
 use itertools::Itertools;
 use resources::core::TickRate;
 use serde::{Deserialize, Serialize};
@@ -550,23 +551,46 @@ pub struct Latency {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct AdjustSync {
     pub tick: u64,
+    pub forward: bool,
 }
-
-pub(crate) const MIN_REQUIRED_MESSAGES_FOR_ADJUSTMENT: i32 = 15;
-// In ticks.
-pub const MIN_LATENCY: f32 = 2.;
-// In ticks.
-pub const MAX_LATENCY: f32 = 3.;
-
-pub(crate) fn adjust_clients(
+pub(crate) fn clean_latency_reports(
     mut latency: ResMut<Latency>,
+    confirmations: Res<SyncConfirmations>,
+) {
+    for (handle, tickrate_differences) in latency.reports.iter_mut() {
+        let server_sync;
+
+        match confirmations.server_sync.get(handle) {
+            Some(x) => {
+                server_sync = *x;
+            }
+            None => {
+                server_sync = 0;
+            }
+        }
+        let mut length = 0;
+        for difference in tickrate_differences.iter() {
+            if difference.client_sync_iteration == server_sync {
+                length += 1;
+            }
+        }
+        if length > DEFAULT_MIN_REQUIRED_MESSAGES_FOR_ADJUSTMENT {
+            for _ in 0..length - DEFAULT_MIN_REQUIRED_MESSAGES_FOR_ADJUSTMENT {
+                tickrate_differences.remove(0);
+            }
+        }
+    }
+}
+pub(crate) fn adjust_clients(
+    latency: Res<Latency>,
     tickrate: Res<TickRate>,
     mut net: EventWriter<OutgoingReliableServerMessage<NetworkingServerMessage>>,
     mut confirmations: ResMut<SyncConfirmations>,
     synced_clients: Res<ClientsReadyForSync>,
     stamp: Res<TickRateStamp>,
+    limits: Res<LatencyLimits>,
 ) {
-    for (handle, tickrate_differences) in latency.reports.iter_mut() {
+    for (handle, tickrate_differences) in latency.reports.iter() {
         let mut ready = false;
         match synced_clients.0.get(handle) {
             Some(b) => {
@@ -587,6 +611,23 @@ pub(crate) fn adjust_clients(
                 server_sync = 0;
             }
         }
+        let min_limit;
+        let max_limit;
+        let desired_min_point;
+        let desired_max_point;
+
+        match limits.limits.get(handle) {
+            Some(l) => {
+                min_limit = l.min;
+                max_limit = l.max;
+                desired_min_point = max_limit as f32 - ((l.max as f32 - l.min as f32) / 2.).ceil();
+                desired_max_point = min_limit as f32 + ((l.max as f32 - l.min as f32) / 2.).round();
+            }
+            None => {
+                warn!("Couldnt find handle in limits.");
+                continue;
+            }
+        }
 
         let mut accumulative = 0;
         let mut length = 0;
@@ -598,28 +639,30 @@ pub(crate) fn adjust_clients(
         }
         let average_latency = accumulative as f32 / length as f32;
 
-        let min_latency = MIN_LATENCY * (tickrate.fixed_rate as f32 / 60.);
-        let max_latency = MAX_LATENCY * (tickrate.fixed_rate as f32 / 60.);
+        let min_latency = min_limit as f32 * (tickrate.fixed_rate as f32 / 60.);
+        let max_latency = max_limit as f32 * (tickrate.fixed_rate as f32 / 60.);
 
-        if length >= MIN_REQUIRED_MESSAGES_FOR_ADJUSTMENT {
+        if length >= DEFAULT_MIN_REQUIRED_MESSAGES_FOR_ADJUSTMENT {
             if average_latency < min_latency {
                 // Tell client to fast-forward x ticks.
                 let advance;
                 if average_latency > 0. {
-                    advance = min_latency - average_latency;
+                    advance = desired_min_point - average_latency;
                 } else {
-                    advance = average_latency.abs() + min_latency;
+                    advance = average_latency.abs() + desired_min_point;
                 }
                 let num = advance.round() as i16;
                 if num == 0 {
                     continue;
                 }
+                let sync = AdjustSync {
+                    tick: (stamp.large as i128 + num as i128) as u64,
+                    forward: true,
+                };
 
                 net.send(OutgoingReliableServerMessage {
                     handle: *handle,
-                    message: NetworkingServerMessage::AdjustSync(AdjustSync {
-                        tick: (stamp.large as i128 + num as i128) as u64,
-                    }),
+                    message: NetworkingServerMessage::AdjustSync(sync),
                 });
 
                 match confirmations.server_sync.get_mut(handle) {
@@ -633,15 +676,17 @@ pub(crate) fn adjust_clients(
             } else if average_latency > max_latency {
                 // Tell client freeze x ticks.
 
-                let num = average_latency.round() as i16 - max_latency.round() as i16;
+                let num = average_latency.round() as i16 - desired_max_point as i16;
                 if num == 0 {
                     continue;
                 }
+                let sync = AdjustSync {
+                    tick: (stamp.large as i128 - num as i128) as u64,
+                    forward: false,
+                };
                 net.send(OutgoingReliableServerMessage {
                     handle: *handle,
-                    message: NetworkingServerMessage::AdjustSync(AdjustSync {
-                        tick: (stamp.large as i128 - num as i128) as u64,
-                    }),
+                    message: NetworkingServerMessage::AdjustSync(sync),
                 });
 
                 match confirmations.server_sync.get_mut(handle) {
@@ -654,14 +699,141 @@ pub(crate) fn adjust_clients(
                 }
             }
         }
+    }
+}
+pub(crate) const DEFAULT_MIN_REQUIRED_MESSAGES_FOR_ADJUSTMENT: i32 = 15 * 2;
 
-        if length > MIN_REQUIRED_MESSAGES_FOR_ADJUSTMENT {
-            for _ in 0..length - MIN_REQUIRED_MESSAGES_FOR_ADJUSTMENT {
-                tickrate_differences.remove(0);
+// In ticks.
+pub const DEFAULT_MIN_LATENCY: u8 = 2;
+// In ticks.
+pub const DEFAULT_MAX_LATENCY: u8 = 3;
+
+#[derive(Resource, Default, Clone)]
+pub(crate) struct LatencyLimits {
+    pub limits: HashMap<ClientId, Limit>,
+}
+#[derive(Clone)]
+pub(crate) struct Limit {
+    pub min: u8,
+    pub max: u8,
+}
+
+impl Default for Limit {
+    fn default() -> Self {
+        Limit {
+            min: DEFAULT_MIN_LATENCY,
+            max: DEFAULT_MAX_LATENCY,
+        }
+    }
+}
+
+pub(crate) fn server_events(
+    mut server_event: EventReader<ServerEvent>,
+    mut limits: ResMut<LatencyLimits>,
+    mut latency: ResMut<Latency>,
+) {
+    for event in server_event.read() {
+        match event {
+            ServerEvent::ClientConnected { client_id } => {
+                limits.limits.insert(*client_id, Limit::default());
+            }
+            ServerEvent::ClientDisconnected {
+                client_id,
+                reason: _,
+            } => {
+                limits.limits.remove(client_id);
+                latency.reports.remove(client_id);
             }
         }
     }
 }
+
+/// For connections whose network is less consistent than one tick in latency.
+/// Could work better with higher DEFAULT_MIN_REQUIRED_MESSAGES_FOR_ADJUSTMENT values.
+pub(crate) fn _adjust_latency_limits(
+    mut limits: ResMut<LatencyLimits>,
+    report: Res<Latency>,
+    synced_clients: Res<ClientsReadyForSync>,
+    confirmations: Res<SyncConfirmations>,
+) {
+    for (handle, reports) in report.reports.iter() {
+        let mut ready = false;
+        match synced_clients.0.get(handle) {
+            Some(b) => {
+                ready = *b;
+            }
+            None => {}
+        }
+        if !ready {
+            continue;
+        }
+
+        let server_sync;
+
+        match confirmations.server_sync.get(handle) {
+            Some(x) => {
+                server_sync = *x;
+            }
+            None => {
+                server_sync = 0;
+            }
+        }
+        let mut lowest = 0;
+        let mut highest = 0;
+        let mut length = 0;
+        let mut first = true;
+
+        for difference in reports.iter() {
+            if difference.client_sync_iteration == server_sync {
+                if difference.tick_difference < lowest {
+                    lowest = difference.tick_difference;
+                }
+                if difference.tick_difference > highest {
+                    highest = difference.tick_difference;
+                }
+                length += 1;
+                if first {
+                    first = false;
+                    lowest = difference.tick_difference;
+                    highest = difference.tick_difference;
+                }
+            }
+        }
+        if length >= DEFAULT_MIN_REQUIRED_MESSAGES_FOR_ADJUSTMENT as usize {
+            let l;
+            match limits.limits.get_mut(handle) {
+                Some(limit) => {
+                    l = limit;
+                }
+                None => {
+                    continue;
+                }
+            }
+
+            let difference = highest - lowest;
+
+            if difference >= l.min as i16 {
+                l.min += 1;
+                l.max += 2;
+                info!(
+                    "Increasing latency min/max to {}/{} [{}].",
+                    l.min, l.max, handle
+                );
+            } else if difference < l.min as i16 - 1 {
+                if l.min == DEFAULT_MIN_LATENCY {
+                    continue;
+                }
+                l.min -= 1;
+                l.max -= 2;
+                info!(
+                    "Decreasing latency min/max to {}/{} [{}].",
+                    l.min, l.max, handle
+                );
+            }
+        }
+    }
+}
+
 pub(crate) fn step_incoming_client_messages(
     mut queue: ResMut<UpdateIncomingRawClientMessage>,
     mut events: EventWriter<IncomingRawReliableClientMessage>,

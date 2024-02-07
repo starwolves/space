@@ -32,7 +32,7 @@ use crate::{
         UnreliableMessage,
     },
     plugin::{RENET_RELIABLE_ORDERED_ID, RENET_RELIABLE_UNORDERED_ID},
-    server::{MIN_LATENCY, MIN_REQUIRED_MESSAGES_FOR_ADJUSTMENT, PROTOCOL_ID},
+    server::{DEFAULT_MIN_LATENCY, DEFAULT_MIN_REQUIRED_MESSAGES_FOR_ADJUSTMENT, PROTOCOL_ID},
     stamp::TickRateStamp,
 };
 
@@ -876,6 +876,8 @@ pub enum NetworkingUnreliableClientMessage {
 }
 
 use serde::Deserialize;
+
+/// Client resource. Gives latency in ticks.
 #[derive(Resource)]
 pub struct TickLatency {
     pub latency: u16,
@@ -885,7 +887,7 @@ pub struct TickLatency {
 impl Default for TickLatency {
     fn default() -> Self {
         Self {
-            latency: MIN_LATENCY as u16 * 2,
+            latency: DEFAULT_MIN_LATENCY as u16 * 2,
             buffer: vec![],
         }
     }
@@ -898,9 +900,9 @@ pub(crate) fn update_tick_latency(
 ) {
     let latency_in_ticks = (client.rtt() as f32 / (1. / tickrate.fixed_rate as f32))
         .round()
-        .clamp(MIN_LATENCY * 2., f32::MAX) as u16;
+        .clamp(DEFAULT_MIN_LATENCY as f32 * 2., f32::MAX) as u16;
     latency.buffer.push(latency_in_ticks);
-    if latency.buffer.len() > MIN_REQUIRED_MESSAGES_FOR_ADJUSTMENT as usize {
+    if latency.buffer.len() > DEFAULT_MIN_REQUIRED_MESSAGES_FOR_ADJUSTMENT as usize {
         latency.buffer.remove(0);
     }
     let mut total = 0;
