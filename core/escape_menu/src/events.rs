@@ -10,6 +10,7 @@ use bevy::{
 };
 
 use graphics::settings::SetRCAS;
+use graphics::settings::SetSyncCorrection;
 use graphics::settings::{SetFxaa, SetMsaa, SetResolution, SetVsync, SetWindowMode};
 use hud::inventory::build::{InventoryHudState, OpenHud};
 use num_traits::FromPrimitive;
@@ -21,9 +22,10 @@ use resources::{
 use ui::{button::SFButton, hlist::HList, text_input::TextInputNode};
 
 use crate::build::RCASHList;
+use crate::build::SyncCorrectionHList;
 use crate::build::{
     ControlsBGSection, ControlsHeaderButton, ExitGameButton, FxaaHList, GeneralHeaderButton,
-    GeneralSection, GraphicsBGSection, GraphicsHeaderButton, MsaaHList, ResolutionInputApply,
+    GeneralSection, MsaaHList, PerformanceBGSection, PerformanceHeaderButton, ResolutionInputApply,
     ResolutionXInput, ResolutionYInput, VsyncHList, WindowModeHList,
 };
 #[derive(Event)]
@@ -141,7 +143,7 @@ pub(crate) fn toggle_general_menu_section(
 
 pub(crate) fn toggle_graphics_menu_section(
     mut events: EventReader<ToggleGraphicsSection>,
-    mut general_style: Query<&mut Style, With<GraphicsBGSection>>,
+    mut general_style: Query<&mut Style, With<PerformanceBGSection>>,
     mut control_events: EventWriter<ToggleControlsSection>,
     mut general_events: EventWriter<ToggleGeneralSection>,
 ) {
@@ -218,7 +220,7 @@ pub(crate) fn graphics_section_button_pressed(
         (
             Changed<Interaction>,
             With<Button>,
-            With<GraphicsHeaderButton>,
+            With<PerformanceHeaderButton>,
         ),
     >,
     mut events: EventWriter<ToggleGraphicsSection>,
@@ -405,6 +407,45 @@ pub(crate) fn apply_rcas(
         }
     }
 }
+
+pub(crate) fn apply_syncronous_correction_setting(
+    interaction_query: Query<
+        (Entity, &Interaction, &Parent),
+        (Changed<Interaction>, With<SFButton>),
+    >,
+    parent_query: Query<&SyncCorrectionHList>,
+    mut events: EventWriter<SetSyncCorrection>,
+    hlist_query: Query<&HList>,
+) {
+    for (entity, interaction, parent) in interaction_query.iter() {
+        match interaction {
+            Interaction::Pressed => {
+                match parent_query.get(**parent) {
+                    Ok(_) => {}
+                    Err(_) => {
+                        continue;
+                    }
+                }
+                match hlist_query.get(**parent) {
+                    Ok(hlist) => {
+                        let id = hlist
+                            .selections_entities
+                            .iter()
+                            .position(|&r| r == entity)
+                            .unwrap() as u8;
+
+                        events.send(SetSyncCorrection { enabled: id != 0 });
+                    }
+                    Err(_) => {
+                        warn!("Couldnt find apply window hlist.");
+                    }
+                }
+            }
+            _ => (),
+        }
+    }
+}
+
 pub(crate) fn apply_vsync(
     interaction_query: Query<
         (Entity, &Interaction, &Parent),

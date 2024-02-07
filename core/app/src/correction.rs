@@ -1,9 +1,14 @@
-use std::collections::HashMap;
+use std::{
+    collections::HashMap,
+    sync::mpsc::{self, Receiver, SyncSender},
+    thread::JoinHandle,
+    time::Duration,
+};
 
 use bevy::{
-    app::{Startup, SubApp},
+    app::{PostStartup, Startup, SubApp},
     ecs::{entity::Entity, schedule::SystemSet, system::Commands},
-    log::warn,
+    log::{error, warn},
 };
 use bevy::{
     ecs::{query::With, system::Query},
@@ -22,6 +27,7 @@ use bevy_xpbd_3d::components::{
 use cameras::{LookTransform, LookTransformCache};
 use controller::controller::{ControllerCache, ControllerInput};
 use entity::entity_types::EntityTypeCache;
+use graphics::settings::SynchronousCorrection;
 use gridmap::grid::{Gridmap, GridmapCache};
 use itertools::Itertools;
 use networking::stamp::TickRateStamp;
@@ -39,7 +45,7 @@ use resources::{
     physics::{PhysicsSet, PriorityPhysicsCache, PriorityUpdate},
 };
 
-use crate::run_game_schedules;
+use crate::{init_app, run_game_schedules};
 
 /// Label for systems ordering.
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
@@ -52,14 +58,15 @@ impl Plugin for CorrectionPlugin {
             app.add_systems(
                 PostUpdate,
                 (
-                    start_correction.before(receive_correction_server_messages),
-                    receive_correction_server_messages,
+                    start_correction.before(message_correction_server),
+                    message_correction_server,
                     apply_correction_results
-                        .after(receive_correction_server_messages)
+                        .after(message_correction_server)
                         .in_set(PhysicsSet::Correct),
                 )
                     .in_set(Correction),
-            );
+            )
+            .add_systems(PostStartup, start_synchronous_correction_server);
         }
         app.init_resource::<StartCorrectingMessage>();
     }
@@ -99,6 +106,8 @@ pub(crate) fn finish_correction(
     mut results: ResMut<CorrectionResults>,
     mut storage: ResMut<SimulationStorage>,
     link: Res<CorrectionServerRigidBodyLink>,
+    synchronous_correction: Res<SynchronousCorrection>,
+    sender: Res<CorrectionResultsSender>,
 ) {
     if correcting.0 && stamp.large == start.last_tick {
         correcting.0 = false;
@@ -142,31 +151,52 @@ pub(crate) fn finish_correction(
 
         results.data = new_storage;
         storage.0 = PhysicsCache::default();
+        if synchronous_correction.0 {
+            match sender.tx.as_ref().unwrap().send(results.clone()) {
+                Ok(_) => {}
+                Err(rr) => {
+                    warn!("Couldnt send message to main thread {}", rr);
+                }
+            }
+        }
     }
 }
 
 /// Correction app exclusive system.
-/// Messages get created when client spawns in an entity and when new peer input has been received.
 pub(crate) fn server_start_correcting(world: &mut World) {
-    let start_data = world
-        .get_resource::<StartCorrectingMessage>()
-        .unwrap()
-        .clone();
+    let synchronous_mode = world.resource::<SynchronousCorrection>().0;
+    let start_data;
+    if !synchronous_mode {
+        let mut first = false;
+        (|| {
+            let mut f = world.resource_mut::<FirsCorrectionTick>();
+            first = f.0;
+            f.0 = true;
+        })();
 
-    let mut first = false;
-    (|| {
-        let mut f = world.resource_mut::<FirsCorrectionTick>();
-        first = f.0;
-        f.0 = true;
-    })();
+        // First tick.
+        if !first {
+            world.run_schedule(Startup);
+        }
+        start_data = world
+            .get_resource::<StartCorrectingMessage>()
+            .unwrap()
+            .clone();
 
-    // First tick.
-    if !first {
-        world.run_schedule(Startup);
-    }
-
-    if !start_data.correcting {
-        return;
+        if !start_data.correcting {
+            return;
+        }
+    } else {
+        let receiver = world.non_send_resource::<CorrectionServerMessageReceiver>();
+        match receiver.receiver.recv() {
+            Ok(d) => {
+                start_data = d;
+            }
+            Err(rr) => {
+                warn!("failed to receive main thread message {}", rr);
+                return;
+            }
+        }
     }
 
     let mut fixed_cache = start_data.physics_cache.clone();
@@ -393,22 +423,54 @@ pub(crate) fn start_correction(
     enabled.0 = true;
 }
 
-pub(crate) fn receive_correction_server_messages(world: &mut World) {
+pub(crate) fn message_correction_server(world: &mut World) {
     let enabled = world.resource::<CorrectionEnabled>().0;
     if !enabled {
         return;
     }
-    let mut correction = world.remove_non_send_resource::<CorrectionApp>().unwrap();
-
-    correction.app.extract(world);
-    correction.app.run();
-    correction.app.extract(world);
-    world.insert_non_send_resource(correction);
-
+    let sync_mode = world.resource::<SynchronousCorrection>().0;
     let rigidbodies = world.resource::<RigidBodies>().clone();
-    let mut data = world.resource_mut::<CorrectionResults>();
 
-    for t in data.data.cache.iter_mut() {
+    if sync_mode {
+        let start_correction_messenger = world.resource::<StartCorrectionSender>();
+        let correction_results_receiver =
+            world.non_send_resource::<ReceiveMessageFromCorrectionServer>();
+        let start_data = world.resource::<StartCorrectingMessage>();
+        match start_correction_messenger
+            .message_sender
+            .send(start_data.clone())
+        {
+            Ok(_) => {}
+            Err(_) => {
+                warn!("Failed to send message to correction thread.");
+            }
+        }
+        match &correction_results_receiver.receiver_option {
+            Some(rcv) => match rcv.recv_timeout(Duration::from_secs_f32(1.)) {
+                Ok(data) => {
+                    let mut old_data = world.resource_mut::<CorrectionResults>();
+                    *old_data = data;
+                }
+                Err(rr) => {
+                    warn!("Eror receiving correction results: {}", rr);
+                }
+            },
+            None => {
+                warn!("No receiver found.");
+            }
+        }
+    } else {
+        let mut correction = world.remove_non_send_resource::<CorrectionApp>().unwrap();
+
+        correction.app.extract(world);
+        correction.app.run();
+        correction.app.extract(world);
+        world.insert_non_send_resource(correction);
+    }
+
+    let mut results = world.resource_mut::<CorrectionResults>();
+
+    for t in results.data.cache.iter_mut() {
         for (_, cache) in t.1 {
             match rigidbodies.get_entity_rigidbody(&cache.entity) {
                 Some(rb_entity) => {
@@ -709,6 +771,59 @@ pub(crate) fn apply_controller_caches(
             None => {
                 //warn!("No available look cache.");
             }
+        }
+    }
+}
+#[derive(Default)]
+pub struct ReceiveMessageFromCorrectionServer {
+    pub receiver_option: Option<Receiver<CorrectionResults>>,
+}
+#[derive(Resource)]
+pub struct StartCorrectionSender {
+    pub message_sender: SyncSender<StartCorrectingMessage>,
+    pub app_handle: JoinHandle<()>,
+}
+pub struct CorrectionServerMessageReceiver {
+    pub receiver: Receiver<StartCorrectingMessage>,
+}
+pub(crate) struct CorrectionMessengers {
+    pub rx: CorrectionServerMessageReceiver,
+    pub tx: SyncSender<CorrectionResults>,
+}
+#[derive(Resource)]
+pub(crate) struct CorrectionResultsSender {
+    pub tx: Option<SyncSender<CorrectionResults>>,
+}
+/// Spin up a parallel correction instance.
+pub(crate) fn start_synchronous_correction_server(world: &mut World) {
+    let synchronous_mode = world.resource::<SynchronousCorrection>().0;
+    if !synchronous_mode {
+        return;
+    }
+    let (tx, rx) = mpsc::sync_channel(64);
+    let message_receiver = ReceiveMessageFromCorrectionServer {
+        receiver_option: Some(rx),
+    };
+
+    let (tx2, rx2) = mpsc::sync_channel(64);
+
+    let builder = std::thread::Builder::new().name("Correction Server".to_string());
+    match builder.spawn(move || {
+        init_app(Some(CorrectionMessengers {
+            rx: CorrectionServerMessageReceiver { receiver: rx2 },
+            tx: tx,
+        }))
+    }) {
+        Ok(app) => {
+            info!("Started synchronous correction server.");
+            world.insert_resource(StartCorrectionSender {
+                message_sender: tx2,
+                app_handle: app,
+            });
+            world.insert_non_send_resource(message_receiver);
+        }
+        Err(_) => {
+            error!("Couldnt spawn correction server thread.");
         }
     }
 }

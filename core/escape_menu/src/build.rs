@@ -13,7 +13,7 @@ use bevy::{
         UiRect, Val,
     },
 };
-use graphics::settings::GraphicsSettings;
+use graphics::settings::PerformanceSettings;
 use resources::{hud::EscapeMenuState, input::KeyBinds};
 use ui::{
     button::SFButton,
@@ -32,16 +32,16 @@ pub struct ControlsSection;
 #[derive(Component)]
 pub struct ControlsBGSection;
 #[derive(Component)]
-pub struct GraphicsSection;
+pub struct PerformanceSection;
 #[derive(Component)]
-pub struct GraphicsBGSection;
+pub struct PerformanceBGSection;
 
 #[derive(Component)]
 pub struct ControlsHeaderButton;
 #[derive(Component)]
 pub struct GeneralHeaderButton;
 #[derive(Component)]
-pub struct GraphicsHeaderButton;
+pub struct PerformanceHeaderButton;
 
 pub const ESC_MENU_FONT_COLOR: Color = Color::WHITE;
 pub const ESC_MENU_FONT_SIZE: f32 = 15.;
@@ -193,10 +193,10 @@ pub(crate) fn build_escape_menu(mut commands: Commands, fonts: Res<Fonts>) {
                                             ..Default::default()
                                         })
                                         .insert(SFButton::default())
-                                        .insert(GraphicsHeaderButton)
+                                        .insert(PerformanceHeaderButton)
                                         .with_children(|parent| {
                                             parent.spawn(TextBundle::from_section(
-                                                "Graphics".to_string(),
+                                                "Performance".to_string(),
                                                 TextStyle {
                                                     font: arizone_font.clone(),
                                                     font_size: 12.0,
@@ -261,10 +261,10 @@ pub(crate) fn build_escape_menu(mut commands: Commands, fonts: Res<Fonts>) {
                                     ScrollingList::default(),
                                     AccessibilityNode(NodeBuilder::new(Role::List)),
                                 ))
-                                .insert(GraphicsSection)
+                                .insert(PerformanceSection)
                                 .id();
                         })
-                        .insert(GraphicsBGSection)
+                        .insert(PerformanceBGSection)
                         .id();
                     general_section_entity = parent
                         .spawn(NodeBundle {
@@ -511,7 +511,8 @@ pub struct WindowModeHList;
 #[derive(Component)]
 pub struct VsyncHList;
 #[derive(Component)]
-
+pub struct SyncCorrectionHList;
+#[derive(Component)]
 pub struct RCASHList;
 #[derive(Component)]
 pub struct FxaaHList;
@@ -524,7 +525,7 @@ pub(crate) fn build_graphics_section(
     mut commands: Commands,
     fonts: Res<Fonts>,
     state: Res<EscapeMenuState>,
-    settings: Res<GraphicsSettings>,
+    settings: Res<PerformanceSettings>,
 ) {
     let source_code = fonts.handles.get(SOURCECODE_REGULAR_FONT).unwrap();
     let font = fonts.handles.get(SOURCECODE_REGULAR_FONT).unwrap();
@@ -841,6 +842,36 @@ pub(crate) fn build_graphics_section(
                                     ..Default::default()
                                 })
                                 .insert(MsaaHList);
+                        });
+                    parent
+                        .spawn(NodeBundle {
+                            style: Style {
+                                ..Default::default()
+                            },
+                            ..Default::default()
+                        })
+                        .with_children(|parent| {
+                            parent.spawn(TextBundle::from_section(
+                                "Synchronous physics correction: ",
+                                TextStyle {
+                                    font: font.clone(),
+                                    font_size: ESC_MENU_FONT_SIZE,
+                                    color: ESC_MENU_FONT_COLOR.into(),
+                                },
+                            ));
+                            parent
+                                .spawn(NodeBundle {
+                                    style: Style {
+                                        ..Default::default()
+                                    },
+                                    ..Default::default()
+                                })
+                                .insert(HList {
+                                    selected: Some(settings.synchronous_correction as u8),
+                                    selections: vec!["Off".to_string(), "On".to_string()],
+                                    ..Default::default()
+                                })
+                                .insert(SyncCorrectionHList);
                         });
                 });
         });

@@ -1,6 +1,9 @@
 //! Launcher and loop initializer.
 
+use bevy::app::Update as BevyUpdate;
 use std::env::current_dir;
+use std::fs;
+use std::path::Path;
 
 use actions::plugin::ActionsPlugin;
 use airlocks::plugin::AirLocksPlugin;
@@ -61,13 +64,17 @@ use controller::plugin::ControllerPlugin;
 use correction::server_start_correcting;
 use correction::Correction;
 use correction::CorrectionApp;
+use correction::CorrectionMessengers;
 use correction::CorrectionPlugin;
+use correction::CorrectionResultsSender;
 use correction::CorrectionServerPlugin;
 use correction::StartCorrectingMessage;
 use counter_windows::plugin::CounterWindowsPlugin;
 use entity::plugin::EntityPlugin;
 use escape_menu::plugin::EscapeMenuPlugin;
 use graphics::plugin::GraphicsPlugin;
+use graphics::settings::PerformanceSettings;
+use graphics::settings::SynchronousCorrection;
 use gridmap::plugin::GridmapPlugin;
 use helmet_security::plugin::HelmetsPlugin;
 use hud::plugin::HudPlugin;
@@ -112,7 +119,7 @@ pub mod correction;
 
 /// The function that launches the server on application start.
 fn main() {
-    init_app();
+    init_app(None);
 }
 
 /// Prints "Live." from main module for fancy text output.
@@ -127,17 +134,45 @@ const APP_VERSION: &'static str = env!("CARGO_PKG_VERSION");
 struct CorrectionLabel;
 
 /// Start client with correction app, or server.
-pub(crate) fn init_app() {
+pub(crate) fn init_app(correction: Option<CorrectionMessengers>) {
     let mut app = App::new();
-    app.insert_resource(AppMode::Standard);
+
+    let path = Path::new("data").join("settings").join("settings.ron");
+    let syncronous_correction;
+    let settings_ron = fs::read_to_string(path.clone()).unwrap();
+    match ron::from_str::<PerformanceSettings>(&settings_ron) {
+        Ok(s) => {
+            syncronous_correction = s.synchronous_correction;
+        }
+        Err(_) => {
+            syncronous_correction = false;
+        }
+    }
+    app.insert_resource(SynchronousCorrection(syncronous_correction));
+
+    match correction {
+        Some(messengers) => {
+            app.insert_resource(AppMode::Correction);
+            app.insert_non_send_resource(messengers.rx);
+            app.insert_resource(CorrectionResultsSender {
+                tx: Some(messengers.tx),
+            });
+        }
+        None => {
+            app.insert_resource(AppMode::Standard);
+        }
+    }
 
     init_shedules(&mut app);
     app.add_systems(FixedUpdate, run_game_schedules);
+    setup_plugins(&mut app);
 
-    if !is_server_mode(&mut app) {
+    if !is_server_mode(&mut app) && !syncronous_correction {
         let mut correction_sub_app = App::empty();
         correction_sub_app.insert_resource(AppMode::Correction);
-        setup_plugins(&mut app);
+        correction_sub_app.insert_resource(SynchronousCorrection(syncronous_correction));
+        correction_sub_app.insert_resource(CorrectionResultsSender { tx: None });
+
         setup_plugins(&mut correction_sub_app);
 
         let mut sub_app = SubApp::new(correction_sub_app, |main_world, sub_app| {
@@ -150,8 +185,6 @@ pub(crate) fn init_app() {
         sub_app.run();
 
         app.insert_non_send_resource(CorrectionApp { app: sub_app });
-    } else {
-        setup_plugins(&mut app);
     }
 
     app.run();
@@ -165,14 +198,17 @@ fn setup_plugins(mut app: &mut App) {
     test_path = binding.as_path();
 
     let num_threads = 2;
+    let syncronous_correction = app.world.resource::<SynchronousCorrection>().0;
 
     let task_pool = TaskPoolPlugin {
         task_pool_options: TaskPoolOptions::with_num_threads(num_threads),
     };
-    if is_correction_mode(app) {
+    if is_correction_mode(app) && !syncronous_correction {
         app.init_resource::<AppTypeRegistry>()
             .init_resource::<MainScheduleOrder>()
             .add_systems(Main, server_start_correcting);
+    } else if is_correction_mode(app) {
+        app.add_systems(BevyUpdate, server_start_correcting);
     }
     if is_server_mode(app) {
         let mut wgpu_settings = WgpuSettings::default();
@@ -181,17 +217,22 @@ fn setup_plugins(mut app: &mut App) {
             file_path: test_path.to_str().unwrap().to_owned(),
             ..Default::default()
         });
-        if !is_correction_mode(app) {
-            app.add_plugins(LogPlugin::default())
+        if !is_correction_mode(app) || syncronous_correction {
+            if !(is_correction_mode(app) && syncronous_correction) {
+                app.add_plugins(LogPlugin::default());
+            }
+            app.add_plugins(TypeRegistrationPlugin)
                 .add_plugins(ScheduleRunnerPlugin::default())
-                .add_plugins(TypeRegistrationPlugin)
                 .add_plugins(FrameCountPlugin)
                 .add_plugins(DiagnosticsPlugin::default())
                 .add_plugins(ImagePlugin::default())
                 .add_plugins(ScenePlugin::default());
-        } else {
-            app.add_plugins(CorrectionPlugin)
-                .add_plugins(ScheduleRunnerPlugin::run_once());
+        }
+        if is_correction_mode(app) {
+            app.add_plugins(CorrectionPlugin);
+            if !syncronous_correction {
+                app.add_plugins(ScheduleRunnerPlugin::run_once());
+            }
         }
         app.add_plugins(WindowPlugin::default())
             .add_plugins(TimePlugin::default())

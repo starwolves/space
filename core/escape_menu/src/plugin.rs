@@ -7,12 +7,12 @@ use ui::fonts::init_fonts;
 use crate::{
     build::{build_controls_section, build_escape_menu, build_graphics_section},
     events::{
-        apply_fxaa, apply_msaa, apply_rcas, apply_vsync, apply_window_mode, appply_resolution,
-        controls_section_button_pressed, esc_button_menu, exit_button_pressed,
-        general_section_button_pressed, graphics_section_button_pressed, register_input,
-        toggle_controls_menu_section, toggle_escape_menu, toggle_general_menu_section,
-        toggle_graphics_menu_section, ToggleControlsSection, ToggleEscapeMenu,
-        ToggleGeneralSection, ToggleGraphicsSection,
+        apply_fxaa, apply_msaa, apply_rcas, apply_syncronous_correction_setting, apply_vsync,
+        apply_window_mode, appply_resolution, controls_section_button_pressed, esc_button_menu,
+        exit_button_pressed, general_section_button_pressed, graphics_section_button_pressed,
+        register_input, toggle_controls_menu_section, toggle_escape_menu,
+        toggle_general_menu_section, toggle_graphics_menu_section, ToggleControlsSection,
+        ToggleEscapeMenu, ToggleGeneralSection, ToggleGraphicsSection,
     },
 };
 
@@ -69,6 +69,7 @@ impl Plugin for EscapeMenuPlugin {
                     apply_rcas.before(SettingsSet::Apply),
                     apply_fxaa.before(SettingsSet::Apply),
                     apply_msaa.before(SettingsSet::Apply),
+                    apply_syncronous_correction_setting.before(SettingsSet::Apply),
                 ),
             )
             .add_event::<ToggleEscapeMenu>()

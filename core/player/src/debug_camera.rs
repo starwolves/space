@@ -6,7 +6,7 @@ use bevy::{
 };
 
 use cameras::controllers::fps::{ActiveCamera, FpsCameraBundle, FpsCameraController};
-use graphics::{settings::GraphicsSettings, skybox::SkyboxHandle};
+use graphics::{settings::PerformanceSettings, skybox::SkyboxHandle};
 
 use bevy::prelude::Local;
 
@@ -20,7 +20,7 @@ pub(crate) fn spawn_debug_camera(
     mut ativates: EventReader<ActivateDebugCamera>,
     mut spawning: Local<bool>,
     mut state: ResMut<ActiveCamera>,
-    settings: Res<GraphicsSettings>,
+    settings: Res<PerformanceSettings>,
     handle: Res<SkyboxHandle>,
 ) {
     // Skip one frame to prevent camera ambiguity.

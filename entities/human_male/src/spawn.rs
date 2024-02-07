@@ -33,7 +33,7 @@ use entity::{
         NoData, PawnId, SpawnEntity,
     },
 };
-use graphics::{settings::GraphicsSettings, skybox::SkyboxHandle};
+use graphics::{settings::PerformanceSettings, skybox::SkyboxHandle};
 use humanoid::humanoid::{Humanoid, HUMAN_MALE_ENTITY_NAME};
 use inventory::server::{
     combat::{DamageModel, MeleeCombat},
@@ -225,7 +225,7 @@ pub fn attach_human_male_camera(
     mut spawn_events: EventReader<SpawnEntity<HumanMaleType>>,
     mut pawn_id: ResMut<PawnId>,
     mut state: ResMut<ActiveCamera>,
-    settings: Res<GraphicsSettings>,
+    settings: Res<PerformanceSettings>,
     handle: Res<SkyboxHandle>,
     mut pending: ResMut<LoadedGameWorldBuffer>,
 ) {

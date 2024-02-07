@@ -40,13 +40,14 @@ pub(crate) fn init_light(mut commands: Commands) {
 }
 
 #[derive(Resource, Serialize, Deserialize)]
-pub struct GraphicsSettings {
+pub struct PerformanceSettings {
     pub resolution: (u32, u32),
     pub window_mode: SFWindowMode,
     pub vsync: bool,
     pub fxaa: Option<SFFxaa>,
     pub msaa: SFMsaa,
     pub rcas: bool,
+    pub synchronous_correction: bool,
 }
 #[derive(Default, Clone, Serialize, Deserialize, FromPrimitive, Debug)]
 pub enum SFMsaa {
@@ -107,7 +108,7 @@ impl SFWindowMode {
     }
 }
 
-impl Default for GraphicsSettings {
+impl Default for PerformanceSettings {
     fn default() -> Self {
         let default_res = WindowResolution::default();
         Self {
@@ -117,19 +118,21 @@ impl Default for GraphicsSettings {
             fxaa: Some(SFFxaa::default()),
             msaa: SFMsaa::Off,
             rcas: false,
+            synchronous_correction: false,
         }
     }
 }
-
+#[derive(Resource)]
+pub struct SynchronousCorrection(pub bool);
 pub(crate) fn setup_graphics_settings(
-    mut settings: ResMut<GraphicsSettings>,
+    mut settings: ResMut<PerformanceSettings>,
     mut res_events: EventWriter<SetResolution>,
     mut vsync_events: EventWriter<SetVsync>,
     mut w_mode_events: EventWriter<SetWindowMode>,
     mut fxaa_events: EventWriter<SetFxaa>,
     mut msaa_events: EventWriter<SetMsaa>,
 ) {
-    let path = Path::new("data").join("settings").join("graphics.ron");
+    let path = Path::new("data").join("settings").join("settings.ron");
     let settings_folder = Path::new("data").join("settings");
 
     let mut generate_new_config = !path.exists();
@@ -176,7 +179,7 @@ pub struct SetResolution {
 pub(crate) fn set_resolution(
     mut events: EventReader<SetResolution>,
     mut primary_query: Query<&mut Window, With<PrimaryWindow>>,
-    mut settings: ResMut<GraphicsSettings>,
+    mut settings: ResMut<PerformanceSettings>,
 ) {
     for event in events.read() {
         let mut primary = primary_query.get_single_mut().unwrap();
@@ -194,11 +197,15 @@ pub struct SetVsync {
 pub struct SetRCAS {
     pub enabled: bool,
 }
+#[derive(Event)]
+pub struct SetSyncCorrection {
+    pub enabled: bool,
+}
 
 pub fn set_vsync(
     mut events: EventReader<SetVsync>,
     mut primary_query: Query<&mut Window, With<PrimaryWindow>>,
-    mut settings: ResMut<GraphicsSettings>,
+    mut settings: ResMut<PerformanceSettings>,
 ) {
     for event in events.read() {
         let mut primary = primary_query.get_single_mut().unwrap();
@@ -238,7 +245,7 @@ pub struct SetWindowMode {
 pub(crate) fn set_window_mode(
     mut events: EventReader<SetWindowMode>,
     mut primary_query: Query<&mut Window, With<PrimaryWindow>>,
-    mut settings: ResMut<GraphicsSettings>,
+    mut settings: ResMut<PerformanceSettings>,
 ) {
     for event in events.read() {
         let mut primary = primary_query.get_single_mut().unwrap();
@@ -254,7 +261,7 @@ pub struct SetFxaa {
 }
 pub(crate) fn set_fxaa(
     mut events: EventReader<SetFxaa>,
-    mut settings: ResMut<GraphicsSettings>,
+    mut settings: ResMut<PerformanceSettings>,
     mut query: Query<&mut Fxaa>,
 ) {
     for event in events.read() {
@@ -277,7 +284,7 @@ pub struct SetMsaa {
 }
 pub(crate) fn set_msaa(
     mut events: EventReader<SetMsaa>,
-    mut settings: ResMut<GraphicsSettings>,
+    mut settings: ResMut<PerformanceSettings>,
     mut msaa: ResMut<Msaa>,
 ) {
     for event in events.read() {
@@ -286,14 +293,14 @@ pub(crate) fn set_msaa(
     }
 }
 
-pub(crate) fn settings_to_ron(settings: Res<GraphicsSettings>) {
+pub(crate) fn settings_to_ron(settings: Res<PerformanceSettings>) {
     if settings.is_changed() {
-        let path = Path::new("data").join("settings").join("graphics.ron");
+        let path = Path::new("data").join("settings").join("settings.ron");
         let settings_ron = ron::ser::to_string_pretty(&*settings, PrettyConfig::default()).unwrap();
         match fs::write(path, settings_ron) {
             Ok(_) => {}
             Err(rr) => {
-                warn!("Failed to write graphics.ron: {:?}", rr);
+                warn!("Failed to write settings.ron: {:?}", rr);
             }
         };
     }
