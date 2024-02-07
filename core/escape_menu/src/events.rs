@@ -1,5 +1,6 @@
 use bevy::log::info;
 use bevy::log::warn;
+use bevy::render::view::Visibility;
 use bevy::{
     app::AppExit,
     prelude::{
@@ -23,6 +24,7 @@ use ui::{button::SFButton, hlist::HList, text_input::TextInputNode};
 
 use crate::build::RCASHList;
 use crate::build::SyncCorrectionHList;
+use crate::build::SyncCorrectionRestartLabel;
 use crate::build::{
     ControlsBGSection, ControlsHeaderButton, ExitGameButton, FxaaHList, GeneralHeaderButton,
     GeneralSection, MsaaHList, PerformanceBGSection, PerformanceHeaderButton, ResolutionInputApply,
@@ -416,6 +418,7 @@ pub(crate) fn apply_syncronous_correction_setting(
     parent_query: Query<&SyncCorrectionHList>,
     mut events: EventWriter<SetSyncCorrection>,
     hlist_query: Query<&HList>,
+    mut query: Query<&mut Visibility, With<SyncCorrectionRestartLabel>>,
 ) {
     for (entity, interaction, parent) in interaction_query.iter() {
         match interaction {
@@ -435,6 +438,8 @@ pub(crate) fn apply_syncronous_correction_setting(
                             .unwrap() as u8;
 
                         events.send(SetSyncCorrection { enabled: id != 0 });
+                        let mut restart_required_text_visibility = query.single_mut();
+                        *restart_required_text_visibility = Visibility::default();
                     }
                     Err(_) => {
                         warn!("Couldnt find apply window hlist.");

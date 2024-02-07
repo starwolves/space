@@ -300,7 +300,7 @@ pub fn init_physics_data(
                 }
             }
             None => {
-                warn!("no data.");
+                //warn!("no data.");
             }
         }
     }

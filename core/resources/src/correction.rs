@@ -1,4 +1,7 @@
-use bevy::ecs::{event::Event, schedule::SystemSet, system::Resource};
+use bevy::{
+    ecs::{event::Event, schedule::SystemSet, system::Resource},
+    log::warn,
+};
 
 #[derive(Debug, Event, Clone, Resource, Default)]
 pub struct StartCorrection {
@@ -17,3 +20,37 @@ pub const MAX_CACHE_TICKS_AMNT: u64 = 64;
 
 #[derive(Resource, Default)]
 pub struct IsCorrecting(pub bool);
+
+#[derive(Resource)]
+pub struct SynchronousCorrection(pub bool);
+
+#[derive(Resource, Default)]
+pub struct SynchronousCorrectionOnGoing(pub Vec<bool>);
+impl SynchronousCorrectionOnGoing {
+    pub fn receive_ready(&self) -> bool {
+        for b in self.0.iter() {
+            if *b {
+                return true;
+            }
+        }
+        return false;
+    }
+    pub fn send_ready(&self) -> bool {
+        for b in self.0.iter() {
+            if !*b {
+                return true;
+            }
+        }
+        return false;
+    }
+    pub fn step(&mut self) {
+        for b in self.0.iter_mut() {
+            if *b == true {
+                warn!("SynchronousCorrectionOnGoing stepped twice.");
+            }
+            *b = true;
+        }
+    }
+}
+#[derive(Resource, Default)]
+pub struct ObtainedSynchronousSyncData(pub bool);

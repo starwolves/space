@@ -12,6 +12,7 @@ use entity::despawn::DespawnEntitySet;
 use networking::messaging::{register_unreliable_message, MessageSender, MessagingSet};
 use resources::{
     core::TickRate,
+    correction::{SynchronousCorrection, SynchronousCorrectionOnGoing},
     modes::{is_correction_mode, is_server_mode},
     ordering::{Fin, PostUpdate, PreUpdate, Update},
     physics::PriorityPhysicsCache,
@@ -124,7 +125,16 @@ pub struct PhysicsStep;
 pub struct PhysicsStepSet;
 
 pub(crate) fn physics_step(world: &mut World) {
-    if !world.resource::<CorrectionEnabled>().0 {
+    let synchronous = world.resource::<SynchronousCorrection>().0;
+    let test;
+    if synchronous {
+        test = !world
+            .resource::<SynchronousCorrectionOnGoing>()
+            .receive_ready();
+    } else {
+        test = !world.resource::<CorrectionEnabled>().0;
+    }
+    if test {
         match world.try_run_schedule(PhysicsStep) {
             Ok(_) => {}
             Err(rr) => {

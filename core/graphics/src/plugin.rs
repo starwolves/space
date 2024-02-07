@@ -3,9 +3,9 @@ use resources::{modes::is_server_mode, ordering::Update};
 
 use crate::{
     settings::{
-        init_light, set_fxaa, set_msaa, set_rcas, set_resolution, set_vsync, set_window_mode,
-        settings_to_ron, setup_graphics_settings, PerformanceSettings, SetFxaa, SetMsaa, SetRCAS,
-        SetResolution, SetSyncCorrection, SetVsync, SetWindowMode, SettingsSet,
+        init_light, set_fxaa, set_msaa, set_rcas, set_resolution, set_sync_correction, set_vsync,
+        set_window_mode, settings_to_ron, setup_graphics_settings, PerformanceSettings, SetFxaa,
+        SetMsaa, SetRCAS, SetResolution, SetSyncCorrection, SetVsync, SetWindowMode, SettingsSet,
     },
     skybox::preload_skybox,
     tonemapping::PerMethodSettings,
@@ -26,6 +26,7 @@ impl Plugin for GraphicsPlugin {
                     set_vsync,
                     set_rcas,
                     set_window_mode,
+                    set_sync_correction,
                 )
                     .after(SettingsSet::Apply),
             )

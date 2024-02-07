@@ -1,6 +1,9 @@
 //! Launcher and loop initializer.
 
 use bevy::app::Update as BevyUpdate;
+use resources::correction::ObtainedSynchronousSyncData;
+use resources::correction::SynchronousCorrection;
+use resources::correction::SynchronousCorrectionOnGoing;
 use std::env::current_dir;
 use std::fs;
 use std::path::Path;
@@ -74,7 +77,6 @@ use entity::plugin::EntityPlugin;
 use escape_menu::plugin::EscapeMenuPlugin;
 use graphics::plugin::GraphicsPlugin;
 use graphics::settings::PerformanceSettings;
-use graphics::settings::SynchronousCorrection;
 use gridmap::plugin::GridmapPlugin;
 use helmet_security::plugin::HelmetsPlugin;
 use hud::plugin::HudPlugin;
@@ -148,7 +150,9 @@ pub(crate) fn init_app(correction: Option<CorrectionMessengers>) {
             syncronous_correction = false;
         }
     }
-    app.insert_resource(SynchronousCorrection(syncronous_correction));
+    app.insert_resource(SynchronousCorrection(syncronous_correction))
+        .init_resource::<SynchronousCorrectionOnGoing>()
+        .init_resource::<ObtainedSynchronousSyncData>();
 
     match correction {
         Some(messengers) => {
@@ -160,11 +164,11 @@ pub(crate) fn init_app(correction: Option<CorrectionMessengers>) {
         }
         None => {
             app.insert_resource(AppMode::Standard);
+            app.add_systems(FixedUpdate, step_game_schedules);
         }
     }
 
     init_shedules(&mut app);
-    app.add_systems(FixedUpdate, run_game_schedules);
     setup_plugins(&mut app);
 
     if !is_server_mode(&mut app) && !syncronous_correction {
@@ -351,7 +355,7 @@ fn init_shedules(app: &mut App) {
     app.init_schedule(PostUpdate);
     app.init_schedule(Fin);
 }
-fn run_game_schedules(world: &mut World) {
+fn step_game_schedules(world: &mut World) {
     match world.try_run_schedule(First) {
         Ok(_) => {}
         Err(rr) => {

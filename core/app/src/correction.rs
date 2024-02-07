@@ -27,7 +27,6 @@ use bevy_xpbd_3d::components::{
 use cameras::{LookTransform, LookTransformCache};
 use controller::controller::{ControllerCache, ControllerInput};
 use entity::entity_types::EntityTypeCache;
-use graphics::settings::SynchronousCorrection;
 use gridmap::grid::{Gridmap, GridmapCache};
 use itertools::Itertools;
 use networking::stamp::TickRateStamp;
@@ -39,13 +38,16 @@ use physics::{
     sync::{CorrectionEnabled, CorrectionServerRigidBodyLink, SimulationStorage},
 };
 use resources::{
-    correction::{CorrectionServerSet, IsCorrecting, StartCorrection},
+    correction::{
+        CorrectionServerSet, IsCorrecting, ObtainedSynchronousSyncData, StartCorrection,
+        SynchronousCorrection, SynchronousCorrectionOnGoing,
+    },
     modes::is_correction_mode,
     ordering::{Fin, PostUpdate, PreUpdate},
     physics::{PhysicsSet, PriorityPhysicsCache, PriorityUpdate},
 };
 
-use crate::{init_app, run_game_schedules};
+use crate::{init_app, step_game_schedules};
 
 /// Label for systems ordering.
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
@@ -323,7 +325,7 @@ pub(crate) fn server_start_correcting(world: &mut World) {
     })();
 
     for _ in start_data.start.start_tick - 1..start_data.start.last_tick + 1 {
-        run_game_schedules(world);
+        step_game_schedules(world);
     }
 }
 
@@ -369,7 +371,13 @@ pub(crate) fn start_correction(
     mut previous_lowest_start: Local<u64>,
     entity_type_cache: Res<EntityTypeCache>,
     mut start_message: ResMut<StartCorrectingMessage>,
+    mut ongoing: ResMut<SynchronousCorrectionOnGoing>,
+    synchronous_correction: Res<SynchronousCorrection>,
 ) {
+    if synchronous_correction.0 {
+        ongoing.step();
+    }
+
     let mut lowest_start = 0;
     let mut highest_end = 1;
     let mut one_event = false;
@@ -403,6 +411,9 @@ pub(crate) fn start_correction(
     if lowest_start == highest_end {
         warn!("StartCorrection lowest and highest are equal.");
     }
+    if synchronous_correction.0 {
+        highest_end += 1;
+    }
     /*info!(
         "Start correction {}-{} at tick {}",
         lowest_start, highest_end, stamp.large
@@ -421,42 +432,61 @@ pub(crate) fn start_correction(
         correcting: true,
     };
     enabled.0 = true;
+    if synchronous_correction.0 {
+        ongoing.0.push(false);
+    }
 }
 
 pub(crate) fn message_correction_server(world: &mut World) {
-    let enabled = world.resource::<CorrectionEnabled>().0;
-    if !enabled {
-        return;
+    let synchronous_mode = world.resource::<SynchronousCorrection>().0;
+    if !synchronous_mode {
+        if !world.resource::<CorrectionEnabled>().0 {
+            return;
+        }
     }
-    let sync_mode = world.resource::<SynchronousCorrection>().0;
     let rigidbodies = world.resource::<RigidBodies>().clone();
 
-    if sync_mode {
-        let start_correction_messenger = world.resource::<StartCorrectionSender>();
-        let correction_results_receiver =
-            world.non_send_resource::<ReceiveMessageFromCorrectionServer>();
-        let start_data = world.resource::<StartCorrectingMessage>();
-        match start_correction_messenger
-            .message_sender
-            .send(start_data.clone())
+    if synchronous_mode {
+        if world
+            .resource::<SynchronousCorrectionOnGoing>()
+            .receive_ready()
         {
-            Ok(_) => {}
-            Err(_) => {
-                warn!("Failed to send message to correction thread.");
+            let correction_results_receiver =
+                world.non_send_resource::<ReceiveMessageFromCorrectionServer>();
+            match &correction_results_receiver.receiver_option {
+                Some(rcv) => match rcv.recv_timeout(Duration::from_secs_f32(5.)) {
+                    Ok(data) => {
+                        let mut old_data = world.resource_mut::<CorrectionResults>();
+                        *old_data = data;
+                        world
+                            .resource_mut::<SynchronousCorrectionOnGoing>()
+                            .0
+                            .remove(0);
+                        world.resource_mut::<ObtainedSynchronousSyncData>().0 = true;
+                    }
+                    Err(rr) => {
+                        warn!("Eror receiving correction results: {}", rr);
+                    }
+                },
+                None => {
+                    warn!("No receiver found.");
+                }
             }
         }
-        match &correction_results_receiver.receiver_option {
-            Some(rcv) => match rcv.recv_timeout(Duration::from_secs_f32(1.)) {
-                Ok(data) => {
-                    let mut old_data = world.resource_mut::<CorrectionResults>();
-                    *old_data = data;
+        if world
+            .resource::<SynchronousCorrectionOnGoing>()
+            .send_ready()
+        {
+            let start_correction_messenger = world.resource::<StartCorrectionSender>();
+            let start_data = world.resource::<StartCorrectingMessage>();
+            match start_correction_messenger
+                .message_sender
+                .send(start_data.clone())
+            {
+                Ok(_) => {}
+                Err(_) => {
+                    warn!("Failed to send message to correction thread.");
                 }
-                Err(rr) => {
-                    warn!("Eror receiving correction results: {}", rr);
-                }
-            },
-            None => {
-                warn!("No receiver found.");
             }
         }
     } else {
@@ -615,9 +645,19 @@ pub(crate) fn apply_correction_results(
     mut cache: ResMut<PhysicsCache>,
     mut commands: Commands,
     mut waiting: ResMut<CorrectionEnabled>,
+    synchronous_correction: Res<SynchronousCorrection>,
+    mut obtained: ResMut<ObtainedSynchronousSyncData>,
 ) {
-    if !waiting.0 {
-        return;
+    if synchronous_correction.0 {
+        if obtained.0 {
+            obtained.0 = false;
+        } else {
+            return;
+        }
+    } else {
+        if !waiting.0 {
+            return;
+        }
     }
     waiting.0 = false;
 
@@ -681,9 +721,13 @@ pub(crate) fn apply_correction_results(
             }
         }
         None => {
+            let mut d = vec![];
+            for tick in correction_results.data.cache.keys().sorted().rev() {
+                d.push(*tick);
+            }
             warn!(
-                "Correction results did not contain current tick: {}",
-                stamp.large
+                "Correction results did not contain current tick: {} {:?}",
+                stamp.large, d
             );
         }
     }
@@ -815,7 +859,7 @@ pub(crate) fn start_synchronous_correction_server(world: &mut World) {
         }))
     }) {
         Ok(app) => {
-            info!("Started synchronous correction server.");
+            info!("Started correction server.");
             world.insert_resource(StartCorrectionSender {
                 message_sender: tx2,
                 app_handle: app,

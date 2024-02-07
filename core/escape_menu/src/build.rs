@@ -7,6 +7,7 @@ use bevy::{
         BuildChildren, ButtonBundle, Color, Commands, Component, Entity, Label, NodeBundle, Res,
         TextBundle,
     },
+    render::view::Visibility,
     text::TextStyle,
     ui::{
         AlignItems, Display, FlexDirection, FlexWrap, Interaction, JustifyContent, Overflow, Style,
@@ -513,6 +514,8 @@ pub struct VsyncHList;
 #[derive(Component)]
 pub struct SyncCorrectionHList;
 #[derive(Component)]
+pub struct SyncCorrectionRestartLabel;
+#[derive(Component)]
 pub struct RCASHList;
 #[derive(Component)]
 pub struct FxaaHList;
@@ -852,7 +855,7 @@ pub(crate) fn build_graphics_section(
                         })
                         .with_children(|parent| {
                             parent.spawn(TextBundle::from_section(
-                                "Synchronous physics correction: ",
+                                "Synchronous physics (unfinished, causes jitter): ",
                                 TextStyle {
                                     font: font.clone(),
                                     font_size: ESC_MENU_FONT_SIZE,
@@ -872,6 +875,16 @@ pub(crate) fn build_graphics_section(
                                     ..Default::default()
                                 })
                                 .insert(SyncCorrectionHList);
+                            parent
+                                .spawn(TextBundle::from_section(
+                                    " Restart required.",
+                                    TextStyle {
+                                        font: font.clone(),
+                                        font_size: ESC_MENU_FONT_SIZE,
+                                        color: Color::ORANGE_RED.into(),
+                                    },
+                                ))
+                                .insert((SyncCorrectionRestartLabel, Visibility::Hidden));
                         });
                 });
         });

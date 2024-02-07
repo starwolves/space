@@ -701,7 +701,7 @@ pub(crate) fn adjust_clients(
         }
     }
 }
-pub(crate) const DEFAULT_MIN_REQUIRED_MESSAGES_FOR_ADJUSTMENT: i32 = 15;
+pub(crate) const DEFAULT_MIN_REQUIRED_MESSAGES_FOR_ADJUSTMENT: i32 = 15 * 2;
 
 // In ticks.
 pub const DEFAULT_MIN_LATENCY: u8 = 2;

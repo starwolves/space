@@ -122,8 +122,6 @@ impl Default for PerformanceSettings {
         }
     }
 }
-#[derive(Resource)]
-pub struct SynchronousCorrection(pub bool);
 pub(crate) fn setup_graphics_settings(
     mut settings: ResMut<PerformanceSettings>,
     mut res_events: EventWriter<SetResolution>,
@@ -201,7 +199,14 @@ pub struct SetRCAS {
 pub struct SetSyncCorrection {
     pub enabled: bool,
 }
-
+pub fn set_sync_correction(
+    mut settings: ResMut<PerformanceSettings>,
+    mut events: EventReader<SetSyncCorrection>,
+) {
+    for e in events.read() {
+        settings.synchronous_correction = e.enabled;
+    }
+}
 pub fn set_vsync(
     mut events: EventReader<SetVsync>,
     mut primary_query: Query<&mut Window, With<PrimaryWindow>>,
@@ -220,6 +225,7 @@ pub fn set_vsync(
 pub fn set_rcas(
     mut events: EventReader<SetRCAS>,
     mut primary_query: Query<&mut ContrastAdaptiveSharpeningSettings>,
+    mut settings: ResMut<PerformanceSettings>,
 ) {
     for event in events.read() {
         match primary_query.get_single_mut() {
@@ -230,6 +236,7 @@ pub fn set_rcas(
                 warn!("No camera for rcas settings found.");
             }
         }
+        settings.rcas = event.enabled;
     }
 }
 /// Label for systems ordering.
