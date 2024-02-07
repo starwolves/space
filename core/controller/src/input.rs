@@ -31,6 +31,7 @@ use pawn::net::{PeerUpdateLookTransform, UnreliablePeerControllerClientMessage};
 use physics::{cache::PhysicsCache, sync::ClientStartedSyncing};
 use resources::{
     correction::{StartCorrection, MAX_CACHE_TICKS_AMNT},
+    hud::{EscapeMenuState, HudState},
     input::{
         KeyBind, KeyBinds, KeyCodeEnum, HOLD_SPRINT_BIND, JUMP_BIND, MOVE_BACKWARD_BIND,
         MOVE_FORWARD_BIND, MOVE_LEFT_BIND, MOVE_RIGHT_BIND,
@@ -516,7 +517,11 @@ pub(crate) fn keyboard_input(
     pawn_id: Res<PawnId>,
     mut movement_event: EventWriter<InputMovementInput>,
     mut i: Local<u64>,
+    hud_focus: Res<HudState>,
+    escape_menu_state: Res<EscapeMenuState>,
 ) {
+    let interrupted = hud_focus.expanded || escape_menu_state.visible;
+
     *i += 1;
     if !start.0 {
         return;
@@ -531,7 +536,8 @@ pub(crate) fn keyboard_input(
         }
     }
     let mut inputs = vec![];
-    if keyboard.just_pressed(binds.keyboard_bind(MOVE_FORWARD_BIND)) && !pressed.up {
+    if keyboard.just_pressed(binds.keyboard_bind(MOVE_FORWARD_BIND)) && !pressed.up && !interrupted
+    {
         pressed.up = true;
         inputs.push(ControllerClientMessage::MovementInput(MovementInput {
             up: true,
@@ -545,7 +551,10 @@ pub(crate) fn keyboard_input(
             ..Default::default()
         });
     }
-    if keyboard.just_pressed(binds.keyboard_bind(MOVE_BACKWARD_BIND)) && !pressed.down {
+    if keyboard.just_pressed(binds.keyboard_bind(MOVE_BACKWARD_BIND))
+        && !pressed.down
+        && !interrupted
+    {
         pressed.down = true;
 
         inputs.push(ControllerClientMessage::MovementInput(MovementInput {
@@ -560,7 +569,7 @@ pub(crate) fn keyboard_input(
             ..Default::default()
         });
     }
-    if keyboard.just_pressed(binds.keyboard_bind(MOVE_LEFT_BIND)) && !pressed.left {
+    if keyboard.just_pressed(binds.keyboard_bind(MOVE_LEFT_BIND)) && !pressed.left && !interrupted {
         pressed.left = true;
 
         inputs.push(ControllerClientMessage::MovementInput(MovementInput {
@@ -575,7 +584,8 @@ pub(crate) fn keyboard_input(
             ..Default::default()
         });
     }
-    if keyboard.just_pressed(binds.keyboard_bind(MOVE_RIGHT_BIND)) && !pressed.right {
+    if keyboard.just_pressed(binds.keyboard_bind(MOVE_RIGHT_BIND)) && !pressed.right && !interrupted
+    {
         pressed.right = true;
 
         inputs.push(ControllerClientMessage::MovementInput(MovementInput {

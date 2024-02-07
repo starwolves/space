@@ -353,9 +353,9 @@ pub(crate) fn input_characters(
 
                         let mut is_pasting = false;
 
-                        if (keys.just_pressed(keys2.keyboard_bind(COPY_PASTE_CTRL)))
-                            || keys.just_pressed(keys2.keyboard_bind(COPY_PASTE_CTRL_RIGHT))
-                                && keys.just_pressed(keys2.keyboard_bind(COPY_PASTE_V))
+                        if (keys.pressed(keys2.keyboard_bind(COPY_PASTE_CTRL))
+                            || keys.pressed(keys2.keyboard_bind(COPY_PASTE_CTRL_RIGHT)))
+                            && keys.just_pressed(keys2.keyboard_bind(COPY_PASTE_V))
                         {
                             if !*pasting {
                                 *pasting = true;

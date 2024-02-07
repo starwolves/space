@@ -29,12 +29,16 @@ pub enum ConsoleCommandsClientSet {
     Display,
 }
 
-use super::build::HudCommunicationState;
+use super::build::{CommunicationInputNode, HudCommunicationState};
 
-pub(crate) fn text_input(
+pub(crate) fn submit_text_input(
     keyboard: Res<InputBuffer>,
     text_input_state: Res<TextInput>,
-    mut text_node_query: Query<(&mut TextInputNode, &Children)>,
+    mut text_node_query: Query<(
+        &mut TextInputNode,
+        &Children,
+        Option<&CommunicationInputNode>,
+    )>,
     mut text_node_input_query: Query<&mut Text>,
     mut net: EventWriter<OutgoingReliableClientMessage<ChatClientMessage>>,
     state: Res<HudCommunicationState>,
@@ -44,7 +48,10 @@ pub(crate) fn text_input(
         Some(focused_input_entity) => {
             if keyboard.just_pressed(SUBMIT_CONSOLE_BIND) {
                 match text_node_query.get_mut(focused_input_entity) {
-                    Ok((mut text_input_component, children)) => {
+                    Ok((mut text_input_component, children, chat_input_option)) => {
+                        if chat_input_option.is_none() {
+                            return;
+                        }
                         for child in children {
                             match text_node_input_query.get_mut(*child) {
                                 Ok(mut text) => {

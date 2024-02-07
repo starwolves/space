@@ -21,7 +21,7 @@ use crate::{
             console_input, display_console_message, receive_console_message, DisplayConsoleMessage,
         },
         input::{
-            communication_input_toggle, tab_communication_input_toggle, text_input,
+            communication_input_toggle, submit_text_input, tab_communication_input_toggle,
             CommunicationToggleSet, ConsoleCommandsClientSet, ToggleCommunication,
         },
     },
@@ -93,7 +93,7 @@ impl Plugin for HudPlugin {
                             text_tree_select_submit_button,
                         ),
                         (
-                            text_input.in_set(ConsoleCommandsClientSet::Submit),
+                            submit_text_input.in_set(ConsoleCommandsClientSet::Submit),
                             receive_chat_message,
                             open_inventory_hud
                                 .after(inventory_hud_key_press)
