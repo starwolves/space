@@ -112,31 +112,7 @@ pub(crate) fn finish_correction(
     if correcting.0 && stamp.large == start.last_tick {
         correcting.0 = false;
 
-        let mut new_storage = storage.0.clone();
-
-        for ncache in new_storage.cache.iter_mut() {
-            for (_, cache) in ncache.1 {
-                let mut found = false;
-                for (client, sims) in link.map.iter() {
-                    match sims.active_link {
-                        Some(e) => {
-                            if e == cache.entity {
-                                cache.entity = *client;
-                                found = true;
-                            }
-                        }
-                        None => {}
-                    }
-                }
-                if !found {
-                    warn!(
-                        "Couldnt find CorrectionServerRigidBodyLink link: {:?}, len: {}",
-                        cache.entity,
-                        link.map.len()
-                    );
-                }
-            }
-        }
+        let new_storage = storage.0.clone();
 
         for tick in new_storage.cache.keys() {
             if *tick > start.last_tick {
@@ -538,6 +514,7 @@ pub(crate) fn store_tick_data(
     correction: Res<StartCorrection>,
     type_cache: Res<EntityTypeCache>,
     link: Res<CorrectionServerRigidBodyLink>,
+    physics_cache: Res<PhysicsCache>,
 ) {
     if !correcting.0 || stamp.large <= correction.start_tick {
         return;
@@ -564,33 +541,48 @@ pub(crate) fn store_tick_data(
         ) = t0;
         let tick_cache = storage.0.cache.get_mut(&stamp.large).unwrap();
         let entity_type;
+        let client_entity;
         match link.get_client(&rb_entity) {
-            Some(clink) => match type_cache.map.get(clink) {
-                Some(t) => {
-                    entity_type = t.clone();
+            Some(clink) => {
+                client_entity = *clink;
+                match type_cache.map.get(clink) {
+                    Some(t) => {
+                        entity_type = t.clone();
+                    }
+                    None => {
+                        warn!("No typecache match. {:?}", clink);
+                        continue;
+                    }
                 }
-                None => {
-                    warn!("No typecache match. {:?}", clink);
-                    continue;
-                }
-            },
+            }
             None => {
                 warn!("No client link found.");
                 continue;
             }
         }
-        match tick_cache.get(&rb_entity) {
-            Some(x) => {
-                if x.spawn_frame {
-                    continue;
+        match physics_cache.cache.get(&stamp.large) {
+            Some(c) => match c.get(&rb_entity) {
+                Some(x) => {
+                    if x.spawn_frame {
+                        continue;
+                    }
                 }
-            }
+                // This match may be unnecessary.
+                None => match c.get(&client_entity) {
+                    Some(x) => {
+                        if x.spawn_frame {
+                            continue;
+                        }
+                    }
+                    None => {}
+                },
+            },
             None => {}
         }
         tick_cache.insert(
             rb_entity,
             Cache {
-                entity: rb_entity,
+                entity: client_entity,
                 rb_entity,
                 linear_velocity: *linear_velocity,
                 transform: *transform,
