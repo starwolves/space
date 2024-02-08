@@ -1,3 +1,4 @@
+use std::collections::BTreeMap;
 use std::collections::HashMap;
 
 use bevy::ecs::entity::Entity;
@@ -15,7 +16,6 @@ use bevy::transform::components::Transform;
 use bevy_renet::renet::ClientId;
 use cameras::LookTransform;
 use entity::senser::Senser;
-use itertools::Itertools;
 use networking::server::ConnectedPlayer;
 use networking::server::IncomingUnreliableClientMessage;
 use networking::server::OutgoingReliableServerMessage;
@@ -108,7 +108,7 @@ pub(crate) fn server_replicate_peer_input_messages(
     stamp: Res<TickRateStamp>,
     handle_to_entity: Res<HandleToEntity>,
     mut latest_look_transform_sync: ResMut<PeerLatestLookSync>,
-    mut queue: Local<HashMap<ClientId, HashMap<u64, HashMap<u8, Vec3>>>>,
+    mut queue: Local<HashMap<ClientId, BTreeMap<u64, BTreeMap<u8, Vec3>>>>,
     mut send_reliable: EventWriter<OutgoingReliableServerMessage<PeerReliableControllerMessage>>,
     mut send_unreliable: EventWriter<
         OutgoingUnreliableServerMessage<PeerUnreliableControllerMessage>,
@@ -200,7 +200,7 @@ pub(crate) fn server_replicate_peer_input_messages(
                         Some(q1) => match q1.get_mut(&large) {
                             Some(q2) => {
                                 q2.insert(new_id, target);
-                                for i in q2.keys().sorted().rev() {
+                                for i in q2.keys().rev() {
                                     if new_id > *i {
                                         latest = true;
                                     }
@@ -208,16 +208,16 @@ pub(crate) fn server_replicate_peer_input_messages(
                                 }
                             }
                             None => {
-                                let mut m = HashMap::new();
+                                let mut m = BTreeMap::new();
                                 m.insert(new_id, target);
                                 q1.insert(large, m);
                                 latest = true;
                             }
                         },
                         None => {
-                            let mut n = HashMap::new();
+                            let mut n = BTreeMap::new();
                             n.insert(new_id, target);
-                            let mut m = HashMap::new();
+                            let mut m = BTreeMap::new();
                             m.insert(large, n);
                             queue.insert(connected.handle, m);
                             latest = true;
@@ -262,7 +262,7 @@ pub(crate) fn server_replicate_peer_input_messages(
     for (_, cache) in queue.iter_mut() {
         if cache.len() > MAX_CACHE_TICKS_AMNT as usize {
             let mut j = 0;
-            for i in cache.clone().keys().sorted().rev() {
+            for i in cache.clone().keys().rev() {
                 if j >= MAX_CACHE_TICKS_AMNT {
                     cache.remove(i);
                 }

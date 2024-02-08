@@ -5,11 +5,11 @@ use bevy::{
 };
 
 use bevy_renet::renet::ServerEvent;
-use itertools::Itertools;
 use resources::core::TickRate;
 use serde::{Deserialize, Serialize};
 use typename::TypeName;
 
+use std::collections::BTreeMap;
 use std::{collections::HashMap, net::UdpSocket, time::SystemTime};
 
 use bevy_renet::renet::{
@@ -411,7 +411,7 @@ pub(crate) fn deserialize_incoming_unreliable_client_message<
     mut outgoing: EventWriter<IncomingUnreliableClientMessage<T>>,
     typenames: Res<Typenames>,
     stamp: Res<TickRateStamp>,
-    mut queue: Local<HashMap<u64, Vec<IncomingUnreliableClientMessage<T>>>>,
+    mut queue: Local<BTreeMap<u64, Vec<IncomingUnreliableClientMessage<T>>>>,
 ) {
     for event in incoming_raw.read() {
         for message in event.message.messages.iter() {
@@ -442,7 +442,7 @@ pub(crate) fn deserialize_incoming_unreliable_client_message<
 
     let mut processed_stamp = vec![];
     let bound_queue = queue.clone();
-    for i in bound_queue.keys().sorted() {
+    for i in bound_queue.keys() {
         if i > &stamp.large {
             break;
         }
@@ -497,7 +497,7 @@ pub(crate) fn deserialize_incoming_reliable_client_message<
 
     let mut processed_stamp = None;
     let bound_queue = queue.clone();
-    for i in bound_queue.keys().sorted() {
+    for i in bound_queue.keys() {
         if i > &stamp.large {
             break;
         }

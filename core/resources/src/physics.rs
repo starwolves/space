@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 
 use bevy::{
     ecs::{entity::Entity, schedule::SystemSet, system::Resource},
@@ -25,7 +25,7 @@ pub struct SmallCache {
 /// Contains known authorative physics data.
 #[derive(Resource, Default, Clone)]
 pub struct PriorityPhysicsCache {
-    pub cache: HashMap<u64, HashMap<Entity, PriorityUpdate>>,
+    pub cache: BTreeMap<u64, HashMap<Entity, PriorityUpdate>>,
 }
 #[derive(Clone, Debug)]
 pub enum PriorityUpdate {

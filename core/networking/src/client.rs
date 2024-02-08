@@ -1,5 +1,5 @@
 use std::{
-    collections::HashMap,
+    collections::{BTreeMap, HashMap},
     net::{SocketAddr, UdpSocket},
     time::SystemTime,
 };
@@ -22,7 +22,6 @@ use bevy_renet::renet::{
 };
 use bevy_xpbd_3d::plugins::setup::{Physics, PhysicsTime};
 use futures_lite::future;
-use itertools::Itertools;
 use resources::core::TickRate;
 use token::parse::Token;
 
@@ -468,7 +467,7 @@ pub(crate) fn deserialize_incoming_unreliable_server_message<
     mut outgoing: EventWriter<IncomingUnreliableServerMessage<T>>,
     typenames: Res<Typenames>,
     stamp: Res<TickRateStamp>,
-    mut queue: Local<HashMap<u64, Vec<IncomingUnreliableServerMessage<T>>>>,
+    mut queue: Local<BTreeMap<u64, Vec<IncomingUnreliableServerMessage<T>>>>,
     latency: Res<TickLatency>,
 ) {
     for batch in incoming_raw.read() {
@@ -503,7 +502,7 @@ pub(crate) fn deserialize_incoming_unreliable_server_message<
     let bound_queue = queue.clone();
     let mut is = vec![];
     // Messages are either main FixedUpdate reliable batches or separated small message batches sent from Update for low latency input replication.
-    for i in bound_queue.keys().sorted() {
+    for i in bound_queue.keys() {
         if *i > desired_tick {
             break;
         }
@@ -648,7 +647,7 @@ pub fn deserialize_incoming_reliable_server_message<
     let bound_queue = queue.clone();
     let mut is = vec![];
     // Process one message batch per tick.
-    for i in bound_queue.keys().sorted() {
+    for i in bound_queue.keys() {
         if *i > desired_tick {
             break;
         }

@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 
 use crate::{
     controller::{ControllerCache, ControllerInput},
@@ -20,7 +20,6 @@ use bevy::{log::warn, math::Vec3};
 use bevy_renet::renet::{ClientId, RenetClient};
 use cameras::{LookTransform, LookTransformCache};
 use entity::spawn::{PawnId, PeerPawns};
-use itertools::Itertools;
 use networking::{
     client::{IncomingReliableServerMessage, IncomingUnreliableServerMessage, TickLatency},
     messaging::{ReliableClientMessageBatch, ReliableMessage, Typenames},
@@ -183,7 +182,7 @@ pub(crate) fn cache_peer_sync_look_transform(
                         }
                     },
                     None => {
-                        let mut m = HashMap::new();
+                        let mut m = BTreeMap::new();
                         let mut cache_data = default_look_transform();
                         cache_data.target = event.target;
                         m.insert(event.server_stamp, cache_data);
@@ -267,7 +266,7 @@ pub(crate) fn process_peer_input(
     mut sync_controller: EventWriter<SyncControllerInput>,
     mut input_cache: ResMut<PeerInputCache>,
     pawnid: Res<PawnId>,
-    mut look_update_queue: Local<HashMap<ClientId, HashMap<u64, HashMap<u8, LookTick>>>>,
+    mut look_update_queue: Local<HashMap<ClientId, BTreeMap<u64, BTreeMap<u8, LookTick>>>>,
 
     latency: Res<TickLatency>,
 ) {
@@ -336,7 +335,7 @@ pub(crate) fn process_peer_input(
         }
     }
 
-    let mut ordered_unreliables: HashMap<u64, HashMap<u8, LookTick>> = HashMap::new();
+    let mut ordered_unreliables: BTreeMap<u64, BTreeMap<u8, LookTick>> = BTreeMap::new();
     for u in unreliables_reader.read() {
         let client_id = ClientId::from_raw(u.message.peer_handle as u64);
 
@@ -355,7 +354,7 @@ pub(crate) fn process_peer_input(
                         m.insert(update.sub_tick, up);
                     }
                     None => {
-                        let mut m = HashMap::new();
+                        let mut m = BTreeMap::new();
                         m.insert(update.sub_tick, up);
                         ordered_unreliables.insert(u.stamp, m);
                     }
@@ -367,9 +366,9 @@ pub(crate) fn process_peer_input(
     let latency_in_ticks = latency.latency as u64;
     let desired_tick = stamp.large - latency_in_ticks;
 
-    for server_stamp in ordered_unreliables.keys().sorted().rev() {
+    for server_stamp in ordered_unreliables.keys().rev() {
         let subs = ordered_unreliables.get(server_stamp).unwrap();
-        for sub in subs.keys().sorted().rev() {
+        for sub in subs.keys().rev() {
             let mut up = subs.get(sub).unwrap().clone();
             if *server_stamp == desired_tick {
                 up.correct = true;
@@ -380,7 +379,7 @@ pub(crate) fn process_peer_input(
             match look_update_queue.get_mut(&client_id) {
                 Some(q1) => match q1.get_mut(&up.server_stamp) {
                     Some(q2) => {
-                        for i in q2.keys().sorted().rev() {
+                        for i in q2.keys().rev() {
                             if up.client_sub_id > *i {
                                 latest = true;
                             }
@@ -389,16 +388,16 @@ pub(crate) fn process_peer_input(
                         q2.insert(up.client_sub_id, up.clone());
                     }
                     None => {
-                        let mut m = HashMap::new();
+                        let mut m = BTreeMap::new();
                         m.insert(up.client_sub_id, up.clone());
                         q1.insert(up.server_stamp, m);
                         latest = true;
                     }
                 },
                 None => {
-                    let mut n = HashMap::new();
+                    let mut n = BTreeMap::new();
                     n.insert(up.client_sub_id, up.clone());
-                    let mut m = HashMap::new();
+                    let mut m = BTreeMap::new();
                     m.insert(up.server_stamp, n);
                     look_update_queue.insert(client_id, m);
                     latest = true;
@@ -465,7 +464,7 @@ pub(crate) fn process_peer_input(
     for (_, cache) in look_update_queue.iter_mut() {
         if cache.len() > MAX_CACHE_TICKS_AMNT as usize {
             let mut j = 0;
-            for i in cache.clone().keys().sorted().rev() {
+            for i in cache.clone().keys().rev() {
                 if j >= MAX_CACHE_TICKS_AMNT {
                     cache.remove(i);
                 }
@@ -485,7 +484,7 @@ pub(crate) fn sync_controller_input(
                 c.insert(event.server_stamp, event.sync.clone());
             }
             None => {
-                let mut map = HashMap::new();
+                let mut map = BTreeMap::new();
                 map.insert(event.server_stamp, event.sync.clone());
                 cache.cache.insert(event.entity, map);
             }
@@ -702,7 +701,7 @@ pub(crate) fn apply_controller_cache_to_peers(
     for (entity, mut input_component) in query.iter_mut() {
         match cache.cache.get(&entity) {
             Some(input_cache) => {
-                for i in input_cache.keys().sorted().rev() {
+                for i in input_cache.keys().rev() {
                     if i > &stamp.large {
                         continue;
                     }
@@ -736,7 +735,7 @@ pub(crate) fn controller_input(
                 if new_event.peer_data.is_some() {
                     match controller_cache.cache.get(&player_entity) {
                         Some(c) => {
-                            for i in c.keys().sorted().rev() {
+                            for i in c.keys().rev() {
                                 processed_input = c.get(i).unwrap().clone();
                                 break;
                             }
@@ -794,7 +793,7 @@ pub(crate) fn controller_input(
                                 }
                             },
                             None => {
-                                let mut m = HashMap::new();
+                                let mut m = BTreeMap::new();
                                 let mut l = default_look_transform();
                                 l.target = look_target;
                                 m.insert(server_stamp, l);
@@ -832,7 +831,7 @@ pub(crate) fn controller_input(
                             map.insert(input_stamp, processed_input.clone());
                         }
                         None => {
-                            let mut map = HashMap::new();
+                            let mut map = BTreeMap::new();
                             map.insert(input_stamp, processed_input.clone());
                             controller_cache.cache.insert(player_entity, map);
                         }

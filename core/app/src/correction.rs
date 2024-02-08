@@ -1,5 +1,5 @@
 use std::{
-    collections::HashMap,
+    collections::{BTreeMap, HashMap},
     sync::mpsc::{self, Receiver, SyncSender},
     thread::JoinHandle,
     time::Duration,
@@ -27,7 +27,6 @@ use bevy_xpbd_3d::components::{
 use cameras::{LookTransform, LookTransformCache};
 use controller::controller::{ControllerCache, ControllerInput};
 use entity::entity_types::EntityTypeCache;
-use itertools::Itertools;
 use networking::stamp::TickRateStamp;
 use physics::{
     cache::{Cache, PhysicsCache},
@@ -139,7 +138,7 @@ pub(crate) fn finish_correction(
             }
         }
 
-        for tick in new_storage.cache.keys().sorted() {
+        for tick in new_storage.cache.keys() {
             if *tick > start.last_tick {
                 warn!(
                     "SimulationStorage contains tick {} greater than last tick {}",
@@ -233,7 +232,7 @@ pub(crate) fn server_start_correcting(world: &mut World) {
 
     let mut query = world.query_filtered::<Entity, With<RigidBody>>();
 
-    let mut new_pcache = HashMap::new();
+    let mut new_pcache = BTreeMap::new();
     for t in start_data.priority_physics_cache.cache.iter() {
         let mut new_tick_map = HashMap::new();
         for (pentity, update) in t.1.iter() {
@@ -716,7 +715,7 @@ pub(crate) fn apply_correction_results(
         }
         None => {
             let mut d = vec![];
-            for tick in correction_results.data.cache.keys().sorted().rev() {
+            for tick in correction_results.data.cache.keys().rev() {
                 d.push(*tick);
             }
             warn!(
@@ -760,7 +759,7 @@ pub(crate) fn apply_controller_caches(
 
         match controller_cache.cache.get(&client_entity) {
             Some(tick_cache) => {
-                for tick in tick_cache.keys().sorted().rev() {
+                for tick in tick_cache.keys().rev() {
                     if tick > &stamp.large {
                         continue;
                     }
@@ -772,7 +771,7 @@ pub(crate) fn apply_controller_caches(
         }
         match look_cache.cache.get(&client_entity) {
             Some(tick_cache) => {
-                for tick in tick_cache.keys().sorted().rev() {
+                for tick in tick_cache.keys().rev() {
                     if tick > &stamp.large {
                         continue;
                     }

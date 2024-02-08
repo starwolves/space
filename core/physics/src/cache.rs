@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 
 use bevy::ecs::event::{Event, EventReader};
 use bevy::ecs::system::Commands;
@@ -12,7 +12,6 @@ use bevy_xpbd_3d::prelude::{
 use entity::entity_data::EntityData;
 use entity::entity_types::BoxedEntityType;
 use entity::loading::NewToBeCachedSpawnedEntities;
-use itertools::Itertools;
 use networking::stamp::TickRateStamp;
 use resources::correction::MAX_CACHE_TICKS_AMNT;
 use resources::physics::PriorityPhysicsCache;
@@ -22,14 +21,14 @@ use crate::entity::{RigidBodies, SFRigidBody};
 /// Correction server sometimes stores client-side entity ID when it is not yet spawned in.
 #[derive(Resource, Default, Clone)]
 pub struct PhysicsCache {
-    pub cache: HashMap<u64, HashMap<Entity, Cache>>,
+    pub cache: BTreeMap<u64, HashMap<Entity, Cache>>,
 }
 pub(crate) fn clear_physics_cache(mut cache0: ResMut<PhysicsCache>) {
     // Clean cache.
     if cache0.cache.len() > MAX_CACHE_TICKS_AMNT as usize {
         let mut j = 0;
 
-        for i in cache0.cache.clone().keys().sorted().rev() {
+        for i in cache0.cache.clone().keys().rev() {
             if j >= MAX_CACHE_TICKS_AMNT {
                 cache0.cache.remove(i);
             }
@@ -42,7 +41,7 @@ pub(crate) fn clear_priority_cache(mut cache0: ResMut<PriorityPhysicsCache>) {
     if cache0.cache.len() > MAX_CACHE_TICKS_AMNT as usize {
         let mut j = 0;
 
-        for i in cache0.cache.clone().keys().sorted().rev() {
+        for i in cache0.cache.clone().keys().rev() {
             if j >= MAX_CACHE_TICKS_AMNT {
                 cache0.cache.remove(i);
             }

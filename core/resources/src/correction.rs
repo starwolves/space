@@ -16,7 +16,7 @@ pub enum CorrectionServerSet {
     SyncClear,
 }
 
-pub const MAX_CACHE_TICKS_AMNT: u64 = 64;
+pub const MAX_CACHE_TICKS_AMNT: u64 = 32;
 
 #[derive(Resource, Default)]
 pub struct IsCorrecting(pub bool);

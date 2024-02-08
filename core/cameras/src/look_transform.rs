@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 use bevy::{
     app::{App, Plugin, PreUpdate as BevyPreUpdate},
@@ -14,7 +14,6 @@ use bevy::{
     render::camera::Camera,
     transform::components::Transform,
 };
-use itertools::Itertools;
 use networking::stamp::TickRateStamp;
 use resources::{
     correction::MAX_CACHE_TICKS_AMNT,
@@ -54,7 +53,7 @@ pub struct LookTransformBundle {
 }
 #[derive(Resource, Default, Clone)]
 pub struct LookTransformCache {
-    pub cache: HashMap<Entity, HashMap<u64, LookTransform>>,
+    pub cache: BTreeMap<Entity, BTreeMap<u64, LookTransform>>,
 }
 
 pub(crate) fn clean_look_cache(mut cache: ResMut<LookTransformCache>) {
@@ -63,7 +62,7 @@ pub(crate) fn clean_look_cache(mut cache: ResMut<LookTransformCache>) {
         if cache.len() > MAX_CACHE_TICKS_AMNT as usize {
             let mut j = 0;
 
-            for i in cache.clone().keys().sorted().rev() {
+            for i in cache.clone().keys().rev() {
                 if j as usize == cache.len() - MAX_CACHE_TICKS_AMNT as usize {
                     continue;
                 }
@@ -85,7 +84,7 @@ pub(crate) fn apply_look_cache_to_peers(
     for (entity, mut look_transform) in query.iter_mut() {
         match cache.cache.get(&entity) {
             Some(look_cache) => {
-                for i in look_cache.keys().sorted().rev() {
+                for i in look_cache.keys().rev() {
                     if i > &stamp.large {
                         continue;
                     }
@@ -119,7 +118,7 @@ pub(crate) fn cache_client_pawn_look_transform(
                 map.insert(stamp.large, controller.clone());
             }
             None => {
-                let mut map = HashMap::new();
+                let mut map = BTreeMap::new();
                 map.insert(stamp.large, controller.clone());
                 cache.cache.insert(entity, map);
             }

@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 
 use bevy::{
     ecs::{
@@ -12,7 +12,6 @@ use bevy::{
 };
 use bevy_renet::renet::ClientId;
 use cameras::LookTransform;
-use itertools::Itertools;
 use networking::{
     server::{
         ConnectedPlayer, ConstructEntityUpdates, EntityUpdates, HandleToEntity,
@@ -48,7 +47,7 @@ impl Default for ControllerInput {
 
 #[derive(Resource, Default, Clone)]
 pub struct ControllerCache {
-    pub cache: HashMap<Entity, HashMap<u64, ControllerInput>>,
+    pub cache: HashMap<Entity, BTreeMap<u64, ControllerInput>>,
 }
 
 pub(crate) fn clean_controller_cache(mut cache: ResMut<ControllerCache>) {
@@ -57,7 +56,7 @@ pub(crate) fn clean_controller_cache(mut cache: ResMut<ControllerCache>) {
         if cache.len() > MAX_CACHE_TICKS_AMNT as usize {
             let mut j = 0;
 
-            for i in cache.clone().keys().sorted().rev() {
+            for i in cache.clone().keys().rev() {
                 if j as usize == cache.len() - MAX_CACHE_TICKS_AMNT as usize {
                     continue;
                 }
@@ -125,7 +124,7 @@ pub(crate) fn server_sync_look_transform(
     mut humanoids: Query<&mut LookTransform>,
     mut messages: EventReader<IncomingUnreliableClientMessage<UnreliableControllerClientMessage>>,
     handle_to_entity: Res<HandleToEntity>,
-    mut queue: Local<HashMap<ClientId, HashMap<u64, HashMap<u8, Vec3>>>>,
+    mut queue: Local<HashMap<ClientId, BTreeMap<u64, BTreeMap<u8, Vec3>>>>,
     stamp: Res<TickRateStamp>,
 ) {
     for msg in messages.read() {
@@ -137,15 +136,15 @@ pub(crate) fn server_sync_look_transform(
                             q2.insert(id, target);
                         }
                         None => {
-                            let mut m = HashMap::new();
+                            let mut m = BTreeMap::new();
                             m.insert(id, target);
                             q1.insert(msg.stamp, m);
                         }
                     },
                     None => {
-                        let mut n = HashMap::new();
+                        let mut n = BTreeMap::new();
                         n.insert(id, target);
-                        let mut m = HashMap::new();
+                        let mut m = BTreeMap::new();
                         m.insert(msg.stamp, n);
                         queue.insert(msg.handle, m);
                     }
@@ -155,12 +154,12 @@ pub(crate) fn server_sync_look_transform(
     }
     let mut old_handles = vec![];
     for (handle, q) in queue.iter() {
-        for i in q.keys().sorted().rev() {
+        for i in q.keys().rev() {
             if i > &stamp.large {
                 continue;
             }
             let q2 = q.get(i).unwrap();
-            for sub in q2.keys().sorted().rev() {
+            for sub in q2.keys().rev() {
                 let target = *q2.get(sub).unwrap();
 
                 match handle_to_entity.map.get(&handle) {
@@ -189,7 +188,7 @@ pub(crate) fn server_sync_look_transform(
     for (_, cache) in queue.iter_mut() {
         if cache.len() > MAX_CACHE_TICKS_AMNT as usize {
             let mut j = 0;
-            for i in cache.clone().keys().sorted().rev() {
+            for i in cache.clone().keys().rev() {
                 if j >= MAX_CACHE_TICKS_AMNT {
                     cache.remove(i);
                 }

@@ -23,8 +23,6 @@ bevy_xpbd_3d = { version = "0.3.2" , features = ["enhanced-determinism"]}
 bevy_egui = { version = "0.24.0", default-features = false, features = [
     "manage_clipboard",
 ] }
-itertools = "0.12.0"
-ron = "0.8.0"
 
 metadata = { path = "../metadata" }
 combat = { path = "../combat" }
