@@ -55,16 +55,19 @@ pub(crate) fn clean_controller_cache(mut cache: ResMut<ControllerCache>) {
     for (_, cache) in cache.cache.iter_mut() {
         if cache.len() > MAX_CACHE_TICKS_AMNT as usize {
             let mut j = 0;
-
-            for i in cache.clone().keys().rev() {
+            let mut is = vec![];
+            for i in cache.keys().rev() {
                 if j as usize == cache.len() - MAX_CACHE_TICKS_AMNT as usize {
                     continue;
                 }
                 if j >= MAX_CACHE_TICKS_AMNT {
-                    cache.remove(i);
+                    is.push(*i);
                 }
 
                 j += 1;
+            }
+            for i in is {
+                cache.remove(&i);
             }
         }
     }
@@ -188,11 +191,16 @@ pub(crate) fn server_sync_look_transform(
     for (_, cache) in queue.iter_mut() {
         if cache.len() > MAX_CACHE_TICKS_AMNT as usize {
             let mut j = 0;
-            for i in cache.clone().keys().rev() {
+            let mut is = vec![];
+
+            for i in cache.keys().rev() {
                 if j >= MAX_CACHE_TICKS_AMNT {
-                    cache.remove(i);
+                    is.push(*i);
                 }
                 j += 1;
+            }
+            for i in is {
+                cache.remove(&i);
             }
         }
     }

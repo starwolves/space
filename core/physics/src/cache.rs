@@ -27,12 +27,15 @@ pub(crate) fn clear_physics_cache(mut cache0: ResMut<PhysicsCache>) {
     // Clean cache.
     if cache0.cache.len() > MAX_CACHE_TICKS_AMNT as usize {
         let mut j = 0;
-
-        for i in cache0.cache.clone().keys().rev() {
+        let mut is = vec![];
+        for i in cache0.cache.keys().rev() {
             if j >= MAX_CACHE_TICKS_AMNT {
-                cache0.cache.remove(i);
+                is.push(*i);
             }
             j += 1;
+        }
+        for i in is {
+            cache0.cache.remove(&i);
         }
     }
 }
@@ -40,12 +43,15 @@ pub(crate) fn clear_priority_cache(mut cache0: ResMut<PriorityPhysicsCache>) {
     // Clean cache.
     if cache0.cache.len() > MAX_CACHE_TICKS_AMNT as usize {
         let mut j = 0;
-
-        for i in cache0.cache.clone().keys().rev() {
+        let mut is = vec![];
+        for i in cache0.cache.keys().rev() {
             if j >= MAX_CACHE_TICKS_AMNT {
-                cache0.cache.remove(i);
+                is.push(*i);
             }
             j += 1;
+        }
+        for i in is {
+            cache0.cache.remove(&i);
         }
     }
 }

@@ -464,11 +464,16 @@ pub(crate) fn process_peer_input(
     for (_, cache) in look_update_queue.iter_mut() {
         if cache.len() > MAX_CACHE_TICKS_AMNT as usize {
             let mut j = 0;
-            for i in cache.clone().keys().rev() {
+            let mut is = vec![];
+
+            for i in cache.keys().rev() {
                 if j >= MAX_CACHE_TICKS_AMNT {
-                    cache.remove(i);
+                    is.push(*i);
                 }
                 j += 1;
+            }
+            for i in is {
+                cache.remove(&i);
             }
         }
     }
