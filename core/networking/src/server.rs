@@ -624,7 +624,8 @@ pub(crate) fn adjust_clients(
                 desired_max_point = min_limit as f32 + ((l.max as f32 - l.min as f32) / 2.).round();
             }
             None => {
-                warn!("Couldnt find handle in limits.");
+                //warn!("Couldnt find handle in limits.");
+                //client disconnected
                 continue;
             }
         }

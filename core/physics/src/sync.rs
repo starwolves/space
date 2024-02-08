@@ -247,52 +247,47 @@ pub fn init_physics_data(
                         }
                     }
                     match link.map.get(&client_entity) {
-                        Some(sims) => {
-                            let mut found = false;
-                            for sim in sims.iter() {
-                                match query.get_mut(*sim) {
-                                    Ok((
-                                        mut transform,
-                                        mut linear_velocity,
-                                        mut linear_damping,
-                                        mut angular_damping,
-                                        mut angular_velocity,
-                                        mut external_torque,
-                                        mut external_angular_impulse,
-                                        mut external_impulse,
-                                        mut external_force,
-                                        sleeping,
-                                        mut locked_axes,
-                                        mut collision_layers,
-                                        mut friction,
-                                    )) => {
-                                        *transform = cache.transform;
-                                        *linear_velocity = cache.linear_velocity;
-                                        *linear_damping = cache.linear_damping;
-                                        *angular_damping = cache.angular_damping;
-                                        *angular_velocity = cache.angular_velocity;
-                                        *external_torque = cache.external_torque;
-                                        *external_angular_impulse = cache.external_angular_impulse;
-                                        *external_impulse = cache.external_impulse;
-                                        *external_force = cache.external_force;
-                                        *locked_axes = cache.locked_axes;
-                                        *collision_layers = cache.collision_layers;
-                                        *friction = cache.collider_friction;
-                                        if sleeping.is_some() {
-                                            commands.entity(*sim).insert(Sleeping);
-                                        } else {
-                                            commands.entity(*sim).remove::<Sleeping>();
-                                        }
-                                        found = true;
-                                        break;
+                        Some(sims) => match sims.active_link {
+                            Some(sim) => match query.get_mut(sim) {
+                                Ok((
+                                    mut transform,
+                                    mut linear_velocity,
+                                    mut linear_damping,
+                                    mut angular_damping,
+                                    mut angular_velocity,
+                                    mut external_torque,
+                                    mut external_angular_impulse,
+                                    mut external_impulse,
+                                    mut external_force,
+                                    sleeping,
+                                    mut locked_axes,
+                                    mut collision_layers,
+                                    mut friction,
+                                )) => {
+                                    *transform = cache.transform;
+                                    *linear_velocity = cache.linear_velocity;
+                                    *linear_damping = cache.linear_damping;
+                                    *angular_damping = cache.angular_damping;
+                                    *angular_velocity = cache.angular_velocity;
+                                    *external_torque = cache.external_torque;
+                                    *external_angular_impulse = cache.external_angular_impulse;
+                                    *external_impulse = cache.external_impulse;
+                                    *external_force = cache.external_force;
+                                    *locked_axes = cache.locked_axes;
+                                    *collision_layers = cache.collision_layers;
+                                    *friction = cache.collider_friction;
+                                    if sleeping.is_some() {
+                                        commands.entity(sim).insert(Sleeping);
+                                    } else {
+                                        commands.entity(sim).remove::<Sleeping>();
                                     }
-                                    Err(_) => {}
                                 }
+                                Err(_) => {}
+                            },
+                            None => {
+                                warn!("no active link found.");
                             }
-                            if !found {
-                                warn!("Could not find entity in correction sync");
-                            }
-                        }
+                        },
                         None => {
                             warn!("Couldnt find link pd");
                         }
@@ -306,25 +301,70 @@ pub fn init_physics_data(
     }
 }
 
+#[derive(Clone, Default)]
+pub struct LinkData {
+    pub known_links: Vec<Entity>,
+    pub active_link: Option<Entity>,
+}
+
 #[derive(Resource, Default, Clone)]
 pub struct CorrectionServerRigidBodyLink {
     // Client entity, sim entities (they get (de)spawned acrosss time, varying IDs.)
-    // Needs to be cleaned from a system one day.
-    pub map: HashMap<Entity, Vec<Entity>>,
+    pub map: HashMap<Entity, LinkData>,
+    pub sim_client_link: HashMap<Entity, Entity>,
+    pub despawned_sims: Vec<Entity>,
 }
-
 impl CorrectionServerRigidBodyLink {
     pub fn get_client(&self, entity: &Entity) -> Option<&Entity> {
-        for (client_entity, sims) in self.map.iter() {
-            if sims.contains(entity) {
-                return Some(client_entity);
+        self.sim_client_link.get(entity)
+    }
+    pub fn sim_despawned(&mut self, sim: Entity) {
+        self.despawned_sims.push(sim);
+    }
+    pub fn clean_despawned(&mut self) {
+        for sim in self.despawned_sims.iter() {
+            match self.sim_client_link.get(sim) {
+                Some(e) => match self.map.get_mut(e) {
+                    Some(data) => match data.known_links.iter().position(|x| x == sim) {
+                        Some(i) => {
+                            data.known_links.remove(i);
+                        }
+                        None => {
+                            warn!("to be despanwed link not found");
+                        }
+                    },
+                    None => {
+                        warn!("sim_client_link link not found");
+                    }
+                },
+                None => {
+                    warn!("despawned sim not found in sim_client_link");
+                }
             }
         }
-        None
+        self.despawned_sims.clear();
+    }
+    pub fn new_sim(&mut self, sim: Entity, client_entity: Entity) {
+        match self.map.get_mut(&client_entity) {
+            Some(l) => {
+                l.known_links.push(sim);
+                l.active_link = Some(sim);
+            }
+            None => {
+                self.map.insert(
+                    client_entity,
+                    LinkData {
+                        known_links: vec![sim],
+                        active_link: Some(sim),
+                    },
+                );
+            }
+        }
+        self.sim_client_link.insert(sim, client_entity);
     }
     pub fn get_sims(&self, entity: &Entity) -> Option<&Vec<Entity>> {
         match self.get_client(entity) {
-            Some(e) => Some(self.map.get(e).unwrap()),
+            Some(e) => Some(&self.map.get(e).unwrap().known_links),
             None => None,
         }
     }
@@ -370,17 +410,27 @@ pub(crate) fn sync_correction_world_entities(
                     }
                 }
                 let mut spawn_frame = false;
-                for (_, c) in physics_cache.iter() {
-                    for sim in sims.iter() {
-                        if c.entity == *sim || c.entity == client_entity {
+                match sims.active_link {
+                    Some(s) => match physics_cache.get(&s) {
+                        Some(c) => {
                             found = true;
                             spawn_frame = c.spawn_frame;
-                            break;
                         }
+                        None => {}
+                    },
+                    None => {}
+                }
+                if !found {
+                    match physics_cache.get(&client_entity) {
+                        Some(c) => {
+                            found = true;
+                            spawn_frame = c.spawn_frame;
+                        }
+                        None => {}
                     }
                 }
                 if !found || spawn_frame {
-                    match link.get_client(&correction_entity) {
+                    /*match link.get_client(&correction_entity) {
                         Some(cid) => {
                             info!(
                                 "Tick {} correction despawn {:?}, cid:{:?}",
@@ -393,7 +443,9 @@ pub(crate) fn sync_correction_world_entities(
                                 stamp.large, correction_entity
                             );
                         }
-                    }
+                    }*/
+                    link.map.get_mut(&client_entity).unwrap().active_link = None;
+                    link.sim_despawned(correction_entity);
                     despawn.send(DespawnEntity {
                         entity: correction_entity,
                     });
@@ -417,22 +469,17 @@ pub(crate) fn sync_correction_world_entities(
                                 sims = s.clone();
                             }
                             None => {
-                                sims = vec![];
+                                sims = LinkData::default();
                             }
                         }
                     }
                 }
 
-                for correction_entity in query.iter() {
-                    for sim in sims.iter() {
-                        if *sim == correction_entity {
-                            found = true;
-                            break;
-                        }
+                match sims.active_link {
+                    Some(e) => {
+                        found = query.get(e).is_ok();
                     }
-                    if found {
-                        break;
-                    }
+                    None => {}
                 }
                 if !found || ncache.spawn_frame {
                     spawns.push((client_entity, ncache.clone()));
@@ -449,12 +496,8 @@ pub(crate) fn sync_correction_world_entities(
         // Try to manually call rigidbodybuilder and spawn function. Dont use SpawnEntity.
 
         let entity = commands.spawn(()).id();
-        match link.map.get_mut(&client_entity) {
-            Some(sims) => sims.push(entity),
-            None => {
-                link.map.insert(client_entity.clone(), vec![entity]);
-            }
-        }
+        link.new_sim(entity, client_entity);
+
         let dynamic;
         match ncache.rigidbody {
             RigidBody::Dynamic => {
@@ -496,10 +539,10 @@ pub(crate) fn sync_correction_world_entities(
             entity,
             entity_type: ncache.entity_type.clone(),
         });
-        info!(
+        /*info!(
             "Tick {} correction spawn {:?}, cid:{:?}, ncache.entity: {:?} ",
             stamp.large, entity, client_entity, ncache.entity,
-        );
+        );*/
     }
 }
 pub const DESYNC_FREQUENCY: f32 = 4.;

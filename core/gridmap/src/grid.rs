@@ -16,7 +16,6 @@ use bevy::{
 use bevy_renet::renet::ClientId;
 use bevy_xpbd_3d::prelude::{CoefficientCombine, Collider, CollisionLayers, Friction, RigidBody};
 use entity::{despawn::DespawnEntity, examine::RichName, health::Health};
-use networking::stamp::TickRateStamp;
 use networking::{
     client::IncomingReliableServerMessage,
     server::{ConnectedPlayer, OutgoingReliableServerMessage},
@@ -26,7 +25,6 @@ use physics::{
     physics::{get_bit_masks, ColliderGroup},
     rigid_body::STANDARD_BODY_FRICTION,
 };
-use resources::correction::MAX_CACHE_TICKS_AMNT;
 use resources::grid::TileCollider;
 use resources::player::SoftPlayer;
 use resources::{
@@ -313,7 +311,6 @@ impl Deref for GroupTypeId {
 pub struct Gridmap {
     pub grid: Vec<Option<GridmapChunk>>,
     pub updates: HashMap<TargetCell, AddedUpdate>,
-    pub updates_cache: GridmapCache,
     pub ordered_main_names: Vec<CellTypeName>,
     pub group_id_map: HashMap<GroupTypeName, GroupTypeId>,
     pub id_group_map: HashMap<GroupTypeId, GroupTypeName>,
@@ -326,11 +323,6 @@ pub struct Gridmap {
     pub main_name_id_map: HashMap<CellTypeName, CellTypeId>,
     pub main_id_name_map: HashMap<CellTypeId, CellTypeName>,
 }
-#[derive(Default, Clone)]
-pub struct GridmapCache {
-    pub cache: HashMap<u64, HashMap<TargetCell, AddedUpdate>>,
-}
-
 const EMPTY_CHUNK: Option<GridmapChunk> = None;
 
 impl Default for Gridmap {
@@ -338,7 +330,6 @@ impl Default for Gridmap {
         Self {
             grid: vec![EMPTY_CHUNK; GRID_CHUNK_AMOUNT],
             updates: HashMap::default(),
-            updates_cache: GridmapCache::default(),
             ordered_main_names: vec![],
             tile_properties: HashMap::default(),
             map_length_limit: MapLimits::default(),
@@ -778,23 +769,6 @@ use crate::{
     init::{CellDataExport, GroupItem, ItemExport},
     net::{GridmapServerMessage, NewCell},
 };
-pub(crate) fn cache_updates(stamp: Res<TickRateStamp>, mut grid: ResMut<Gridmap>) {
-    let new_updates = grid.updates.clone();
-    grid.updates_cache.cache.insert(stamp.large, new_updates);
-
-    let mut to_remove = vec![];
-    for recorded_stamp in grid.updates_cache.cache.keys() {
-        if stamp.large >= MAX_CACHE_TICKS_AMNT
-            && recorded_stamp < &(stamp.large - MAX_CACHE_TICKS_AMNT)
-        {
-            to_remove.push(*recorded_stamp);
-        }
-    }
-    for i in to_remove {
-        grid.updates_cache.cache.remove(&i);
-    }
-}
-
 pub(crate) fn remove_tile(
     mut events: EventReader<RemoveTile>,
     mut gridmap: ResMut<Gridmap>,

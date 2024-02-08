@@ -1,13 +1,5 @@
 //! Launcher and loop initializer.
 
-use bevy::app::Update as BevyUpdate;
-use resources::correction::ObtainedSynchronousSyncData;
-use resources::correction::SynchronousCorrection;
-use resources::correction::SynchronousCorrectionOnGoing;
-use std::env::current_dir;
-use std::fs;
-use std::path::Path;
-
 use actions::plugin::ActionsPlugin;
 use airlocks::plugin::AirLocksPlugin;
 use asana::plugin::AsanaPlugin;
@@ -19,6 +11,7 @@ use bevy::app::Main;
 use bevy::app::MainScheduleOrder;
 use bevy::app::ScheduleRunnerPlugin;
 use bevy::app::SubApp;
+use bevy::app::Update as BevyUpdate;
 use bevy::diagnostic::DiagnosticsPlugin;
 use bevy::ecs::reflect::AppTypeRegistry;
 use bevy::ecs::schedule::IntoSystemSetConfigs;
@@ -76,7 +69,7 @@ use counter_windows::plugin::CounterWindowsPlugin;
 use entity::plugin::EntityPlugin;
 use escape_menu::plugin::EscapeMenuPlugin;
 use graphics::plugin::GraphicsPlugin;
-use graphics::settings::PerformanceSettings;
+use graphics::settings::get_settings;
 use gridmap::plugin::GridmapPlugin;
 use helmet_security::plugin::HelmetsPlugin;
 use hud::plugin::HudPlugin;
@@ -101,6 +94,9 @@ use player::plugin::PlayerPlugin;
 use point_light::plugin::PointLightPlugin;
 use resources::core::ClientInformation;
 use resources::core::TickRate;
+use resources::correction::ObtainedSynchronousSyncData;
+use resources::correction::SynchronousCorrection;
+use resources::correction::SynchronousCorrectionOnGoing;
 use resources::modes::is_correction_mode;
 use resources::modes::is_server_mode;
 use resources::modes::AppMode;
@@ -114,6 +110,7 @@ use resources::plugin::ResourcesPlugin;
 use setup_menu::plugin::SetupMenuPlugin;
 use sfx::plugin::SfxPlugin;
 use sounds::plugin::SoundsPlugin;
+use std::env::current_dir;
 use token::plugin::TokenPlugin;
 use ui::plugin::UiPlugin;
 
@@ -139,18 +136,9 @@ struct CorrectionLabel;
 pub(crate) fn init_app(correction: Option<CorrectionMessengers>) {
     let mut app = App::new();
 
-    let path = Path::new("data").join("settings").join("settings.ron");
-    let syncronous_correction;
-    let settings_ron = fs::read_to_string(path.clone()).unwrap();
-    match ron::from_str::<PerformanceSettings>(&settings_ron) {
-        Ok(s) => {
-            syncronous_correction = s.synchronous_correction;
-        }
-        Err(_) => {
-            syncronous_correction = false;
-        }
-    }
-    app.insert_resource(SynchronousCorrection(syncronous_correction))
+    let perf = get_settings();
+    app.insert_resource(SynchronousCorrection(perf.synchronous_correction))
+        .insert_resource(perf.clone())
         .init_resource::<SynchronousCorrectionOnGoing>()
         .init_resource::<ObtainedSynchronousSyncData>();
 
@@ -171,10 +159,10 @@ pub(crate) fn init_app(correction: Option<CorrectionMessengers>) {
     init_shedules(&mut app);
     setup_plugins(&mut app);
 
-    if !is_server_mode(&mut app) && !syncronous_correction {
+    if !is_server_mode(&mut app) && !perf.synchronous_correction {
         let mut correction_sub_app = App::empty();
         correction_sub_app.insert_resource(AppMode::Correction);
-        correction_sub_app.insert_resource(SynchronousCorrection(syncronous_correction));
+        correction_sub_app.insert_resource(SynchronousCorrection(perf.synchronous_correction));
         correction_sub_app.insert_resource(CorrectionResultsSender { tx: None });
 
         setup_plugins(&mut correction_sub_app);

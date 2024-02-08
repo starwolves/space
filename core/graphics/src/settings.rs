@@ -39,7 +39,7 @@ pub(crate) fn init_light(mut commands: Commands) {
     });
 }
 
-#[derive(Resource, Serialize, Deserialize)]
+#[derive(Resource, Serialize, Deserialize, Clone)]
 pub struct PerformanceSettings {
     pub resolution: (u32, u32),
     pub window_mode: SFWindowMode,
@@ -122,37 +122,44 @@ impl Default for PerformanceSettings {
         }
     }
 }
-pub(crate) fn setup_graphics_settings(
-    mut settings: ResMut<PerformanceSettings>,
-    mut res_events: EventWriter<SetResolution>,
-    mut vsync_events: EventWriter<SetVsync>,
-    mut w_mode_events: EventWriter<SetWindowMode>,
-    mut fxaa_events: EventWriter<SetFxaa>,
-    mut msaa_events: EventWriter<SetMsaa>,
-) {
+
+pub fn get_settings() -> PerformanceSettings {
     let path = Path::new("data").join("settings").join("settings.ron");
     let settings_folder = Path::new("data").join("settings");
 
     let mut generate_new_config = !path.exists();
-
+    let settings;
     if path.exists() {
         let settings_ron = fs::read_to_string(path.clone()).unwrap();
         match ron::from_str(&settings_ron) {
-            Ok(s) => *settings = s,
+            Ok(s) => settings = s,
             Err(_) => {
                 generate_new_config = true;
+                settings = PerformanceSettings::default();
             }
         }
+    } else {
+        settings = PerformanceSettings::default();
     }
 
     if generate_new_config {
         if !settings_folder.exists() {
             create_dir_all(settings_folder).unwrap();
         }
-        let settings_ron = ron::ser::to_string_pretty(&*settings, PrettyConfig::default()).unwrap();
+        let settings_ron = ron::ser::to_string_pretty(&settings, PrettyConfig::default()).unwrap();
         fs::write(path, settings_ron).unwrap();
     }
+    settings
+}
 
+pub(crate) fn forward_performance_settings(
+    settings: Res<PerformanceSettings>,
+    mut res_events: EventWriter<SetResolution>,
+    mut vsync_events: EventWriter<SetVsync>,
+    mut w_mode_events: EventWriter<SetWindowMode>,
+    mut fxaa_events: EventWriter<SetFxaa>,
+    mut msaa_events: EventWriter<SetMsaa>,
+) {
     res_events.send(SetResolution {
         resolution: (settings.resolution.0, settings.resolution.1),
     });

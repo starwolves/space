@@ -27,7 +27,6 @@ use bevy_xpbd_3d::components::{
 use cameras::{LookTransform, LookTransformCache};
 use controller::controller::{ControllerCache, ControllerInput};
 use entity::entity_types::EntityTypeCache;
-use gridmap::grid::{Gridmap, GridmapCache};
 use itertools::Itertools;
 use networking::stamp::TickRateStamp;
 use physics::{
@@ -107,7 +106,7 @@ pub(crate) fn finish_correction(
     start: Res<StartCorrection>,
     mut results: ResMut<CorrectionResults>,
     mut storage: ResMut<SimulationStorage>,
-    link: Res<CorrectionServerRigidBodyLink>,
+    mut link: ResMut<CorrectionServerRigidBodyLink>,
     synchronous_correction: Res<SynchronousCorrection>,
     sender: Res<CorrectionResultsSender>,
 ) {
@@ -120,11 +119,14 @@ pub(crate) fn finish_correction(
             for (_, cache) in ncache.1 {
                 let mut found = false;
                 for (client, sims) in link.map.iter() {
-                    for e in sims.iter() {
-                        if *e == cache.entity {
-                            cache.entity = *client;
-                            found = true;
+                    match sims.active_link {
+                        Some(e) => {
+                            if e == cache.entity {
+                                cache.entity = *client;
+                                found = true;
+                            }
                         }
+                        None => {}
                     }
                 }
                 if !found {
@@ -161,6 +163,7 @@ pub(crate) fn finish_correction(
                 }
             }
         }
+        link.clean_despawned();
     }
 }
 
@@ -211,7 +214,7 @@ pub(crate) fn server_start_correcting(world: &mut World) {
                 let mut found: bool = false;
                 match link.map.get(&cache.entity) {
                     Some(sims) => {
-                        for sim in sims {
+                        for sim in &sims.known_links {
                             cache.entity = *sim;
                             found = true;
 
@@ -238,15 +241,14 @@ pub(crate) fn server_start_correcting(world: &mut World) {
             for (client, sims) in link.map.iter() {
                 if client == pentity {
                     let mut f = None;
-
-                    for sim in sims.iter() {
-                        match query.get(world, *sim) {
+                    match sims.active_link {
+                        Some(sim) => match query.get(world, sim) {
                             Ok(_) => {
-                                f = Some(*sim);
-                                break;
+                                f = Some(sim);
                             }
                             Err(_) => {}
-                        }
+                        },
+                        None => {}
                     }
                     match f {
                         Some(sim) => {
@@ -283,11 +285,6 @@ pub(crate) fn server_start_correcting(world: &mut World) {
     (|| {
         let mut correction = world.resource_mut::<StartCorrection>();
         *correction = start_data.start.clone();
-    })();
-
-    (|| {
-        let mut gridmap = world.resource_mut::<Gridmap>();
-        gridmap.updates_cache = start_data.gridmap_cache;
     })();
 
     (|| {
@@ -343,7 +340,6 @@ pub(crate) fn init_correction_server(mut first: Local<bool>, mut fixed: ResMut<T
 pub struct StartCorrectingMessage {
     pub start: StartCorrection,
     pub physics_cache: PhysicsCache,
-    pub gridmap_cache: GridmapCache,
     pub controller_cache: ControllerCache,
     pub look_transform_cache: LookTransformCache,
     pub priority_physics_cache: PriorityPhysicsCache,
@@ -362,7 +358,6 @@ pub(crate) fn start_correction(
     mut events: EventReader<StartCorrection>,
     physics_cache: Res<PhysicsCache>,
     //mut iterative_i: ResMut<CorrectionResource>,
-    grid: Res<Gridmap>,
     mut enabled: ResMut<CorrectionEnabled>,
     look_cache: Res<LookTransformCache>,
     controller_cache: Res<ControllerCache>,
@@ -424,7 +419,6 @@ pub(crate) fn start_correction(
             last_tick: highest_end,
         },
         physics_cache: physics_cache.clone(),
-        gridmap_cache: grid.updates_cache.clone(),
         controller_cache: controller_cache.clone(),
         look_transform_cache: look_cache.clone(),
         priority_physics_cache: priority.clone(),
