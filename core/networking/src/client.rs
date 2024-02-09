@@ -1,5 +1,5 @@
 use std::{
-    collections::{BTreeMap, HashMap},
+    collections::BTreeMap,
     net::{SocketAddr, UdpSocket},
     time::SystemTime,
 };
@@ -614,7 +614,7 @@ pub fn deserialize_incoming_reliable_server_message<
     mut outgoing: EventWriter<IncomingReliableServerMessage<T>>,
     typenames: Res<Typenames>,
     stamp: Res<TickRateStamp>,
-    mut queue: Local<HashMap<u64, Vec<IncomingReliableServerMessage<T>>>>,
+    mut queue: Local<BTreeMap<u64, Vec<IncomingReliableServerMessage<T>>>>,
     latency: Res<TickLatency>,
 ) {
     for batch in incoming_raw.read() {

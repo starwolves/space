@@ -64,6 +64,7 @@ pub(crate) fn clean_look_cache(mut cache: ResMut<LookTransformCache>) {
             let mut is = vec![];
             for i in cache.keys().rev() {
                 if j as usize == cache.len() - MAX_CACHE_TICKS_AMNT as usize {
+                    j += 1;
                     continue;
                 }
                 if j >= MAX_CACHE_TICKS_AMNT {
