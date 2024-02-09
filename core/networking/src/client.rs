@@ -127,7 +127,7 @@ pub fn starwolves_response(
         match serde_json::from_slice::<Response>(response.bytes.as_slice()) {
             Ok(d) => {
                 if !d.valid {
-                    warn!("Invalid token. Log in with the launcher. Try restarting it.");
+                    warn!("Invalid token. Log in with the launcher then restart the game. [https://store.starwolves.io]");
                 } else {
                     connect.send(ConnectToServer);
                     info!("[Starwolves.io] Token assigned to new connection.");
