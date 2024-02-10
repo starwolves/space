@@ -30,8 +30,8 @@ use crate::{
     graphics::{set_cell_graphics, CellGraphicsBuffer},
     grid::{
         add_cell_client, add_tile, add_tile_collision, add_tile_net, export_debug_map,
-        remove_cell_client, remove_tile, remove_tile_net, removed_tile, spawn_group, AddGroup,
-        AddTile, EditTileSet, Gridmap, RemoveTile,
+        remove_cell_client, remove_tile, remove_tile_net, spawn_group, AddGroup, AddTile,
+        EditTileSet, Gridmap, RemoveTile,
     },
     init::{
         init_tile_groups, init_tile_properties, load_ron_gridmap, InitTileGroups,
@@ -142,9 +142,6 @@ impl Plugin for GridmapPlugin {
                     (
                         add_cell_client.before(EditTileSet::Add),
                         remove_cell_client.in_set(EditTileSet::Remove),
-                        removed_tile
-                            .after(EditTileSet::Remove)
-                            .before(DespawnEntitySet),
                         set_cell_graphics.after(EditTileSet::Add),
                         create_select_cell_cam_state,
                         set_yplane_position
@@ -334,7 +331,7 @@ impl Plugin for GridmapPlugin {
                     remove_tile
                         .after(EditTileSet::Remove)
                         .before(DespawnEntitySet),
-                    add_tile_collision.after(EditTileSet::Add),
+                    add_tile_collision.after(add_tile).after(EditTileSet::Add),
                     add_tile.after(EditTileSet::Add),
                     spawn_group.before(EditTileSet::Add),
                 ),

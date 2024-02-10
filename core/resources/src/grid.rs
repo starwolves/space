@@ -31,4 +31,6 @@ pub struct TargetCellWithOrientation {
 pub struct Tile;
 
 #[derive(Component)]
-pub struct TileCollider;
+pub struct GridmapCollider {
+    pub chunk_id: usize,
+}

@@ -34,7 +34,7 @@ use networking::{
 };
 use resources::core::TickRate;
 use resources::correction::{IsCorrecting, StartCorrection};
-use resources::grid::{Tile, TileCollider};
+use resources::grid::{GridmapCollider, Tile};
 use resources::modes::AppMode;
 use resources::physics::{PriorityPhysicsCache, PriorityUpdate, SmallCache};
 use resources::player::SoftPlayer;
@@ -553,7 +553,7 @@ pub struct DisableSync;
 /// Send low frequency rigidbody data to clients for transform and velocities desync checks.
 pub(crate) fn send_desync_check(
     query: Query<(Entity, &Transform, &LinearVelocity, &AngularVelocity), With<SFRigidBody>>,
-    pawn_query: Query<Option<&DisableSync>, (With<RigidBodyLink>, Without<TileCollider>)>,
+    pawn_query: Query<Option<&DisableSync>, (With<RigidBodyLink>, Without<GridmapCollider>)>,
     rigid_bodies: Res<RigidBodies>,
     mut net: EventWriter<OutgoingUnreliableServerMessage<PhysicsUnreliableServerMessage>>,
     players: Query<&ConnectedPlayer, Without<SoftPlayer>>,

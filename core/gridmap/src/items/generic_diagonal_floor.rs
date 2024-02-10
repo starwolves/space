@@ -39,7 +39,6 @@ pub(crate) fn init_generic_diagonal_floor(
         },
         description: "A generic diagonal floor tile.".to_string(),
         constructable: true,
-        floor_cell: true,
         mesh_option,
         cell_type: CellType::Center,
         x_rotations: vec![0, 16, 3, 19],

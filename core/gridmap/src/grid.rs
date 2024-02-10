@@ -14,27 +14,21 @@ use bevy::{
 };
 
 use bevy_renet::renet::ClientId;
-use bevy_xpbd_3d::prelude::{CoefficientCombine, Collider, CollisionLayers, Friction, RigidBody};
+use bevy_xpbd_3d::components::{CoefficientCombine, CollisionLayers, Friction, RigidBody};
+use bevy_xpbd_3d::prelude::Collider;
 use entity::{despawn::DespawnEntity, examine::RichName, health::Health};
 use networking::{
     client::IncomingReliableServerMessage,
     server::{ConnectedPlayer, OutgoingReliableServerMessage},
 };
-use physics::{
-    entity::{RigidBodies, RigidBodyLink},
-    physics::{get_bit_masks, ColliderGroup},
-    rigid_body::STANDARD_BODY_FRICTION,
-};
-use resources::grid::TileCollider;
+use physics::physics::{get_bit_masks, ColliderGroup};
+use physics::rigid_body::STANDARD_BODY_FRICTION;
+use resources::grid::GridmapCollider;
+use resources::grid::{CellFace, Tile};
 use resources::player::SoftPlayer;
 use resources::{
     grid::TargetCell,
     math::{cell_id_to_world, Vec3Int},
-    modes::AppMode,
-};
-use resources::{
-    grid::{CellFace, Tile},
-    modes::is_server,
 };
 use serde::{Deserialize, Serialize};
 
@@ -89,11 +83,8 @@ pub struct TileProperties {
     pub collider_position: Transform,
     pub constructable: bool,
     pub vertical_rotation: bool,
-    pub floor_cell: bool,
     pub atmospherics_blocker: bool,
     pub atmospherics_pushes_up: bool,
-    pub friction: f32,
-    pub combine_rule: CoefficientCombine,
     /// Always available on client. Never available on server.
     pub mesh_option: Option<Handle<GltfMesh>>,
     pub material_option: Option<Handle<StandardMaterial>>,
@@ -115,11 +106,8 @@ impl Default for TileProperties {
             collider: Collider::cuboid(1., 1., 1.),
             collider_position: Transform::IDENTITY,
             constructable: false,
-            floor_cell: false,
             atmospherics_blocker: true,
             atmospherics_pushes_up: false,
-            friction: STANDARD_BODY_FRICTION,
-            combine_rule: CoefficientCombine::Min,
             mesh_option: None,
             material_option: None,
             cell_type: CellType::Wall,
@@ -200,8 +188,6 @@ pub struct CellItem {
     pub group_id_option: Option<u32>,
     /// Entity belonging to cell item.
     pub entity: Option<Entity>,
-    /// Rigidbody belonging to cell item.
-    pub rigidbody_entity: Option<Entity>,
     /// Health of this tile.
     pub health: Health,
     /// Rotation. Range of 0 - 24. See [OrthogonalBases].
@@ -322,6 +308,8 @@ pub struct Gridmap {
     pub group_type_incremental: u16,
     pub main_name_id_map: HashMap<CellTypeName, CellTypeId>,
     pub main_id_name_map: HashMap<CellTypeId, CellTypeName>,
+    // Colliders for chunks.
+    pub colliders: HashMap<usize, Entity>,
 }
 const EMPTY_CHUNK: Option<GridmapChunk> = None;
 
@@ -341,6 +329,7 @@ impl Default for Gridmap {
             group_type_incremental: 0,
             main_name_id_map: HashMap::default(),
             main_id_name_map: HashMap::default(),
+            colliders: HashMap::default(),
         }
     }
 }
@@ -628,6 +617,67 @@ impl Gridmap {
         transform.rotation *= OrthogonalBases::default().bases[orientation as usize];
         transform
     }
+    pub fn get_chunk_collider_data(&self, chunk_id: usize) -> Vec<(Vec3, Quat, Collider)> {
+        match self.grid.get(chunk_id) {
+            Some(chunk_data_option) => match chunk_data_option {
+                Some(chunk_data) => {
+                    let mut data = vec![];
+                    let mut cell_id = 0;
+                    for cell_option in chunk_data.cells.iter() {
+                        match cell_option {
+                            Some(cell_data) => {
+                                for (cell_item, cell_face) in cell_data.get_items() {
+                                    match self.tile_properties.get(&cell_item.tile_type) {
+                                        Some(properties) => {
+                                            let mut world_position = self.get_cell_transform(
+                                                TargetCell {
+                                                    id: self
+                                                        .get_id(CellIndexes {
+                                                            chunk: chunk_id,
+                                                            cell: cell_id,
+                                                        })
+                                                        .unwrap(),
+                                                    face: cell_face,
+                                                },
+                                                cell_item.orientation,
+                                            );
+                                            let relative_collider_position =
+                                                OrthogonalBases::default().bases
+                                                    [cell_item.orientation as usize]
+                                                    .mul_vec3(
+                                                        properties.collider_position.translation,
+                                                    );
+
+                                            world_position.translation +=
+                                                relative_collider_position;
+                                            world_position.rotation *=
+                                                properties.collider_position.rotation;
+                                            data.push((
+                                                world_position.translation,
+                                                world_position.rotation,
+                                                properties.collider.clone(),
+                                            ));
+                                        }
+                                        None => {
+                                            warn!("No tile_properties found for cell type.");
+                                        }
+                                    }
+                                }
+                            }
+                            None => {}
+                        }
+                        cell_id += 1;
+                    }
+                    data
+                }
+                None => vec![],
+            },
+            None => {
+                warn!("Chunk doesnt exist.");
+                vec![]
+            }
+        }
+    }
 }
 
 /// For entities that are also registered in the gridmap. (entity tiles)
@@ -668,25 +718,7 @@ pub struct RemoveTile {
     pub cell: TargetCell,
 }
 
-pub(crate) fn removed_tile(
-    mut events: EventReader<RemoveTile>,
-    mut despawn: EventWriter<DespawnEntity>,
-    gridmap: Res<Gridmap>,
-) {
-    for e in events.read() {
-        match gridmap.get_cell(e.cell.clone()) {
-            Some(cell) => {
-                despawn.send(DespawnEntity {
-                    entity: cell.rigidbody_entity.unwrap(),
-                });
-            }
-            None => {}
-        }
-    }
-}
-
 /// A pending cell update like a cell construction.
-
 pub struct CellUpdate {
     pub entities_received: Vec<Entity>,
     pub cell_data: CellItem,
@@ -724,7 +756,6 @@ pub struct AddTile {
     pub face: CellFace,
     pub group_instance_id_option: Option<u32>,
     pub entity: Entity,
-    pub rigidbody_entity: Entity,
     pub default_map_spawn: bool,
 }
 
@@ -737,7 +768,6 @@ impl Default for AddTile {
             face: CellFace::default(),
             group_instance_id_option: None,
             entity: Entity::from_bits(0),
-            rigidbody_entity: Entity::from_bits(0),
             default_map_spawn: false,
         }
     }
@@ -997,7 +1027,6 @@ pub(crate) fn add_cell_client(
                     face: new.cell.face.clone(),
                     group_instance_id_option: None,
                     entity: commands.spawn(()).id(),
-                    rigidbody_entity: commands.spawn(()).id(),
 
                     default_map_spawn: false,
                 });
@@ -1022,62 +1051,54 @@ pub(crate) fn remove_cell_client(
 pub(crate) fn add_tile_collision(
     mut events: EventReader<AddTile>,
     mut commands: Commands,
-    gridmap_data: Res<Gridmap>,
-    mut rigidbodies: ResMut<RigidBodies>,
-    app_mode: Res<AppMode>,
+    mut gridmap_data: ResMut<Gridmap>,
+    mut gridmap_collider_query: Query<(&GridmapCollider, &mut Collider)>,
 ) {
+    let mut changed_chunks = vec![];
     for event in events.read() {
-        let cell_properties;
-        match gridmap_data.tile_properties.get(&event.tile_type) {
-            Some(x) => {
-                cell_properties = x;
-            }
-            None => {
-                warn!("Unknown cellid {:?}. Initialization of gridmap cell in startup gridmap systems missing.", event.tile_type);
-                return;
-            }
+        let chunk_id = gridmap_data.get_indexes(event.id).chunk;
+        if !changed_chunks.contains(&chunk_id) {
+            changed_chunks.push(chunk_id);
         }
-
-        let mut world_position = gridmap_data.get_cell_transform(
-            TargetCell {
-                id: event.id,
-                face: event.face.clone(),
-            },
-            event.orientation,
-        );
-
-        let relative_collider_position = OrthogonalBases::default().bases
-            [event.orientation as usize]
-            .mul_vec3(cell_properties.collider_position.translation);
-
-        world_position.translation += relative_collider_position;
-        world_position.rotation *= cell_properties.collider_position.rotation;
-
+    }
+    for chunk_id in changed_chunks {
+        let mut friction_component = Friction::new(STANDARD_BODY_FRICTION);
+        friction_component.combine_rule = CoefficientCombine::Min;
         let masks = get_bit_masks(ColliderGroup::Standard);
 
-        let mut friction_component = Friction::new(cell_properties.friction);
-        friction_component.combine_rule = cell_properties.combine_rule;
+        let chunk_colliders = gridmap_data.get_chunk_collider_data(chunk_id);
 
-        let rigid_entity = commands
-            .entity(event.rigidbody_entity)
-            .insert((
-                friction_component,
-                CollisionLayers::from_bits(masks.0, masks.1),
-                RigidBody::Static,
-                TransformBundle::from(world_position),
-                cell_properties.collider.clone(),
-                TileCollider,
-            ))
-            .id();
-
-        rigidbodies.link_tile(&event.entity, &rigid_entity);
-
-        let mut entity_builder = commands.entity(event.entity);
-        entity_builder.insert((Cell { id: event.id }, RigidBodyLink::default()));
-
-        if is_server() || matches!(*app_mode, AppMode::Correction) {
-            entity_builder.insert(TransformBundle::from(world_position));
+        match gridmap_data.colliders.get(&chunk_id) {
+            Some(chunk_collider_entity) => {
+                match gridmap_collider_query.get_mut(*chunk_collider_entity) {
+                    Ok((gridmap_collider_component, mut collider)) => {
+                        if gridmap_collider_component.chunk_id == chunk_id {
+                            *collider = Collider::compound(chunk_colliders);
+                        }
+                    }
+                    Err(_) => {
+                        warn!("No collider chunk found.");
+                    }
+                }
+            }
+            None => {
+                let new_chunk_id = commands
+                    .spawn((
+                        Collider::compound(chunk_colliders),
+                        GridmapCollider { chunk_id: chunk_id },
+                        friction_component,
+                        RigidBody::Static,
+                        CollisionLayers::from_bits(masks.0, masks.1),
+                        TransformBundle::default(),
+                    ))
+                    .id();
+                gridmap_data.colliders.insert(chunk_id, new_chunk_id);
+            }
         }
+
+        /*if is_server() || matches!(*app_mode, AppMode::Correction) {
+            entity_builder.insert(TransformBundle::from(world_position));
+        }*/
     }
 }
 
@@ -1087,7 +1108,12 @@ pub(crate) fn add_tile(
     mut commands: Commands,
 ) {
     for add_tile_event in events.read() {
-        commands.entity(add_tile_event.entity).insert(Tile);
+        commands.entity(add_tile_event.entity).insert((
+            Tile,
+            Cell {
+                id: add_tile_event.id,
+            },
+        ));
         let strict = gridmap_main.get_strict_cell(TargetCell {
             id: add_tile_event.id,
             face: add_tile_event.face.clone(),
@@ -1132,7 +1158,6 @@ pub(crate) fn add_tile(
                             },
                             orientation: add_tile_event.orientation.clone(),
                             group_id_option: add_tile_event.group_instance_id_option,
-                            rigidbody_entity: Some(add_tile_event.rigidbody_entity),
                         });
 
                         match strict.face {
@@ -1323,7 +1348,6 @@ pub(crate) fn spawn_group(
                             gridmap_main.group_instance_incremental + i + 1,
                         ),
                         entity: commands.spawn(()).id(),
-                        rigidbody_entity: commands.spawn(()).id(),
                         default_map_spawn: add_group_event.default_map_spawn,
                     });
                     i += 1;

@@ -64,7 +64,6 @@ pub(crate) fn init_generic_floor(
         },
         description: "A generic floor tile.".to_string(),
         constructable: true,
-        floor_cell: true,
         mesh_option,
         cell_type: CellType::Floor,
         material_option,

@@ -66,7 +66,6 @@ pub(crate) fn init_reinforced_glass_floor(
         },
         description: "A reinforced glass floor tile.".to_string(),
         constructable: true,
-        floor_cell: true,
         mesh_option,
         cell_type: CellType::Floor,
         material_option,
