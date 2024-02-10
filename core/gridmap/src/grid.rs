@@ -803,8 +803,14 @@ pub(crate) fn remove_tile(
     mut events: EventReader<RemoveTile>,
     mut gridmap: ResMut<Gridmap>,
     mut despawn: EventWriter<DespawnEntity>,
+    mut gridmap_collider_query: Query<(&GridmapCollider, &mut Collider)>,
 ) {
+    let mut changed_chunks = vec![];
     for event in events.read() {
+        let chunk_id = gridmap.get_indexes(event.cell.id).chunk;
+        if !changed_chunks.contains(&chunk_id) {
+            changed_chunks.push(chunk_id);
+        }
         let strict_cell = gridmap.get_strict_cell(event.cell.clone());
         let indexes = gridmap.get_indexes(strict_cell.id);
         match gridmap.grid.get_mut(indexes.chunk) {
@@ -888,6 +894,27 @@ pub(crate) fn remove_tile(
                 }
             }
             None => {}
+        }
+    }
+    for chunk_id in changed_chunks {
+        let chunk_colliders = gridmap.get_chunk_collider_data(chunk_id);
+
+        match gridmap.colliders.get(&chunk_id) {
+            Some(chunk_collider_entity) => {
+                match gridmap_collider_query.get_mut(*chunk_collider_entity) {
+                    Ok((gridmap_collider_component, mut collider)) => {
+                        if gridmap_collider_component.chunk_id == chunk_id {
+                            *collider = Collider::compound(chunk_colliders);
+                        }
+                    }
+                    Err(_) => {
+                        warn!("No collider chunk found.");
+                    }
+                }
+            }
+            None => {
+                warn!("Trying to remove a non-existing chunk.");
+            }
         }
     }
 }
