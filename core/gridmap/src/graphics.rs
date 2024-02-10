@@ -76,8 +76,8 @@ pub(crate) fn set_cell_graphics(
                     Some(mesh) => {
                         commands.entity(add_tile.entity).insert((
                             PbrBundle {
-                                mesh: mesh.primitives[0].mesh.clone(),
-                                material: mat.clone(),
+                                mesh: mesh.primitives[0].mesh.clone_weak(),
+                                material: mat.clone_weak(),
                                 transform: transform.into(),
                                 ..Default::default()
                             },

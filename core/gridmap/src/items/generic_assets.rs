@@ -54,5 +54,5 @@ pub(crate) fn init_default_materials(
         metallic: 0.7,
         ..Default::default()
     });
-    mat.gray_metallic = m.clone();
+    mat.gray_metallic = m;
 }

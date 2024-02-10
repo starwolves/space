@@ -34,8 +34,8 @@ pub(crate) fn init_generic_wall_material(
         asset_server.load("gridmap/wall_template/generic/generic_wall_metal_rough.png");
 
     let material_handle = materials.add(StandardMaterial {
-        base_color_texture: Some(albedo_texture_handle.clone()),
-        metallic_roughness_texture: Some(metallic_roughness_texture_handle.clone()),
+        base_color_texture: Some(albedo_texture_handle),
+        metallic_roughness_texture: Some(metallic_roughness_texture_handle),
         perceptual_roughness: 0.9,
         metallic: 0.97,
         ..Default::default()
@@ -56,9 +56,9 @@ pub(crate) fn init_generic_wall(
     let mesh_option;
     let material_option;
     if !is_server() || matches!(*app_mode, AppMode::Correction) {
-        mesh_option = Some(meshes.wall.clone());
+        mesh_option = Some(meshes.wall.clone_weak());
 
-        material_option = Some(mat.material_handle.clone());
+        material_option = Some(mat.material_handle.clone_weak());
     } else {
         mesh_option = None;
         material_option = None;

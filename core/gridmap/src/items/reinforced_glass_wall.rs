@@ -27,8 +27,8 @@ pub(crate) fn init_reinforced_glass_wall_material(
         .load("gridmap/wall_template/reinforced_glass/reinforced_glass_wall_metal_rough.png");
 
     let material_handle = materials.add(StandardMaterial {
-        base_color_texture: Some(albedo_texture_handle.clone()),
-        metallic_roughness_texture: Some(metallic_roughness_texture_handle.clone()),
+        base_color_texture: Some(albedo_texture_handle),
+        metallic_roughness_texture: Some(metallic_roughness_texture_handle),
         alpha_mode: AlphaMode::Blend,
         perceptual_roughness: 0.9,
         metallic: 0.97,
@@ -52,8 +52,8 @@ pub(crate) fn init_reinforced_glass_wall(
     let material_option;
 
     if !is_server() || matches!(*app_mode, AppMode::Correction) {
-        mesh_option = Some(meshes.wall.clone());
-        material_option = Some(mat.material_handle.clone());
+        mesh_option = Some(meshes.wall.clone_weak());
+        material_option = Some(mat.material_handle.clone_weak());
     } else {
         mesh_option = None;
         material_option = None;

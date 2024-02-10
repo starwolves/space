@@ -31,8 +31,8 @@ pub(crate) fn init_bridge_floor_material(
         asset_server.load("gridmap/floor_template/bridge/filled_metal_rough.png");
 
     let material_handle = materials.add(StandardMaterial {
-        base_color_texture: Some(albedo_texture_handle.clone()),
-        metallic_roughness_texture: Some(metallic_roughness_texture_handle.clone()),
+        base_color_texture: Some(albedo_texture_handle),
+        metallic_roughness_texture: Some(metallic_roughness_texture_handle),
 
         perceptual_roughness: 0.9,
         metallic: 0.97,
@@ -46,8 +46,8 @@ pub(crate) fn init_bridge_floor_material(
         asset_server.load("gridmap/floor_template/bridge/filled_metal_rough.png");
 
     let material_handle = materials.add(StandardMaterial {
-        base_color_texture: Some(albedo_texture_handle.clone()),
-        metallic_roughness_texture: Some(metallic_roughness_texture_handle.clone()),
+        base_color_texture: Some(albedo_texture_handle),
+        metallic_roughness_texture: Some(metallic_roughness_texture_handle),
 
         perceptual_roughness: 0.9,
         metallic: 0.97,
@@ -60,8 +60,8 @@ pub(crate) fn init_bridge_floor_material(
         asset_server.load("gridmap/floor_template/bridge/filled_metal_rough.png");
 
     let material_handle = materials.add(StandardMaterial {
-        base_color_texture: Some(albedo_texture_handle.clone()),
-        metallic_roughness_texture: Some(metallic_roughness_texture_handle.clone()),
+        base_color_texture: Some(albedo_texture_handle),
+        metallic_roughness_texture: Some(metallic_roughness_texture_handle),
 
         perceptual_roughness: 0.9,
         metallic: 0.97,
@@ -74,8 +74,8 @@ pub(crate) fn init_bridge_floor_material(
         asset_server.load("gridmap/floor_template/bridge/filled_metal_rough.png");
 
     let material_handle = materials.add(StandardMaterial {
-        base_color_texture: Some(albedo_texture_handle.clone()),
-        metallic_roughness_texture: Some(metallic_roughness_texture_handle.clone()),
+        base_color_texture: Some(albedo_texture_handle),
+        metallic_roughness_texture: Some(metallic_roughness_texture_handle),
         perceptual_roughness: 0.9,
         metallic: 0.97,
         ..Default::default()
@@ -93,8 +93,8 @@ pub(crate) fn init_filled_bridge_floor(
     let material_option;
 
     if !is_server() || matches!(*app_mode, AppMode::Correction) {
-        mesh_option = Some(meshes.floor.clone());
-        material_option = Some(mat.filled_handle.clone());
+        mesh_option = Some(meshes.floor.clone_weak());
+        material_option = Some(mat.filled_handle.clone_weak());
     } else {
         mesh_option = None;
         material_option = None;
@@ -127,8 +127,8 @@ pub(crate) fn init_half_bridge_floor(
     let material_option;
 
     if !is_server() || matches!(*app_mode, AppMode::Correction) {
-        mesh_option = Some(meshes.floor.clone());
-        material_option = Some(mat.half_handle.clone());
+        mesh_option = Some(meshes.floor.clone_weak());
+        material_option = Some(mat.half_handle.clone_weak());
     } else {
         mesh_option = None;
         material_option = None;
@@ -161,8 +161,8 @@ pub(crate) fn init_corner_bridge_floor(
     let material_option;
 
     if !is_server() || matches!(*app_mode, AppMode::Correction) {
-        mesh_option = Some(meshes.floor.clone());
-        material_option = Some(mat.corner_handle.clone());
+        mesh_option = Some(meshes.floor.clone_weak());
+        material_option = Some(mat.corner_handle.clone_weak());
     } else {
         mesh_option = None;
         material_option = None;
@@ -194,8 +194,8 @@ pub(crate) fn init_corner2_bridge_floor(
     let material_option;
 
     if !is_server() || matches!(*app_mode, AppMode::Correction) {
-        mesh_option = Some(meshes.floor.clone());
-        material_option = Some(mat.corner2_handle.clone());
+        mesh_option = Some(meshes.floor.clone_weak());
+        material_option = Some(mat.corner2_handle.clone_weak());
     } else {
         mesh_option = None;
         material_option = None;

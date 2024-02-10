@@ -6,8 +6,8 @@ use bevy::{
     pbr::{NotShadowCaster, NotShadowReceiver},
     prelude::{
         AlphaMode, AssetServer, Assets, Color, Commands, Component, Entity, Event, EventReader,
-        EventWriter, Handle, KeyCode, Local, MouseButton, PbrBundle, Quat, Query, Res, ResMut,
-        Resource, StandardMaterial, SystemSet, Transform, Vec3, Visibility, With,
+        EventWriter, Handle, KeyCode, MouseButton, PbrBundle, Quat, Query, Res, ResMut, Resource,
+        StandardMaterial, SystemSet, Transform, Vec3, Visibility, With,
     },
     transform::TransformBundle,
 };
@@ -45,11 +45,7 @@ pub fn create_select_cell_cam_state(
     mut materials: ResMut<Assets<StandardMaterial>>,
     assets_gltfmesh: Res<Assets<GltfMesh>>,
     asset_server: Res<AssetServer>,
-    mut loaded: Local<bool>,
 ) {
-    if *loaded {
-        return;
-    }
     let plane_asset = asset_server.load("gridmap/ylevel_grid_plane/plane.glb#Mesh0");
 
     let m = materials.add(StandardMaterial {
@@ -63,7 +59,6 @@ pub fn create_select_cell_cam_state(
 
     match assets_gltfmesh.get(&plane_asset) {
         Some(mesh) => {
-            *loaded = true;
             let plane_entity = commands
                 .spawn(RigidBody::Static)
                 .insert(SelectCellCameraYPlane)

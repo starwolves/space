@@ -22,7 +22,7 @@ pub(crate) fn init_generic_diagonal_floor(
 ) {
     let mesh_option: Option<Handle<GltfMesh>>;
     if !is_server() || matches!(*app_mode, AppMode::Correction) {
-        mesh_option = Some(meshes.diagonal_template.clone());
+        mesh_option = Some(meshes.diagonal_template.clone_weak());
     } else {
         mesh_option = None;
     }

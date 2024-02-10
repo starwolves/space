@@ -39,8 +39,8 @@ pub(crate) fn init_reinforced_glass_half_diagonal_ceiling_material(
         asset_server.load("gridmap/half_diagonal_template/reinforced_glass/high_metal_rough.png");
 
     let material_handle = materials.add(StandardMaterial {
-        base_color_texture: Some(albedo_texture_handle.clone()),
-        metallic_roughness_texture: Some(metallic_roughness_texture_handle.clone()),
+        base_color_texture: Some(albedo_texture_handle),
+        metallic_roughness_texture: Some(metallic_roughness_texture_handle),
         alpha_mode: AlphaMode::Blend,
         perceptual_roughness: 0.9,
         metallic: 0.97,
@@ -54,8 +54,8 @@ pub(crate) fn init_reinforced_glass_half_diagonal_ceiling_material(
         asset_server.load("gridmap/half_diagonal_template/reinforced_glass/low_metal_rough.png");
 
     let material_handle = materials.add(StandardMaterial {
-        base_color_texture: Some(albedo_texture_handle.clone()),
-        metallic_roughness_texture: Some(metallic_roughness_texture_handle.clone()),
+        base_color_texture: Some(albedo_texture_handle),
+        metallic_roughness_texture: Some(metallic_roughness_texture_handle),
         alpha_mode: AlphaMode::Blend,
         perceptual_roughness: 0.9,
         metallic: 0.97,
@@ -74,8 +74,8 @@ pub(crate) fn init_reinforced_glass_half_diagonal_ceiling_low(
     let material_option;
 
     if !is_server() || matches!(*app_mode, AppMode::Correction) {
-        mesh_option = Some(meshes.half_diagonal_template_low.clone());
-        material_option = Some(mat.low_material_handle.clone());
+        mesh_option = Some(meshes.half_diagonal_template_low.clone_weak());
+        material_option = Some(mat.low_material_handle.clone_weak());
     } else {
         mesh_option = None;
         material_option = None;
@@ -116,8 +116,8 @@ pub(crate) fn init_reinforced_glass_half_diagonal_ceiling_high(
     let material_option;
 
     if !is_server() || matches!(*app_mode, AppMode::Correction) {
-        mesh_option = Some(meshes.half_diagonal_template_high.clone());
-        material_option = Some(mat.high_material_handle.clone());
+        mesh_option = Some(meshes.half_diagonal_template_high.clone_weak());
+        material_option = Some(mat.high_material_handle.clone_weak());
     } else {
         mesh_option = None;
         material_option = None;

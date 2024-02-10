@@ -143,7 +143,6 @@ impl Plugin for GridmapPlugin {
                         add_cell_client.before(EditTileSet::Add),
                         remove_cell_client.in_set(EditTileSet::Remove),
                         set_cell_graphics.after(EditTileSet::Add),
-                        create_select_cell_cam_state,
                         set_yplane_position
                             .run_if(resource_exists::<GridmapConstructionState>())
                             .after(YPlaneSet::Input)
@@ -181,6 +180,7 @@ impl Plugin for GridmapPlugin {
                 .add_systems(
                     Startup,
                     (
+                        create_select_cell_cam_state,
                         init_generic_meshes,
                         register_input,
                         init_default_materials,
