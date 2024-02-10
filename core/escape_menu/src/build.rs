@@ -518,7 +518,11 @@ pub struct ShadowsHList;
 #[derive(Component)]
 pub struct SyncCorrectionRestartLabel;
 #[derive(Component)]
+pub struct AmbientLightingRestartLabel;
+#[derive(Component)]
 pub struct RCASHList;
+#[derive(Component)]
+pub struct AmbientLightingHList;
 #[derive(Component)]
 pub struct FxaaHList;
 #[derive(Component)]
@@ -707,6 +711,46 @@ pub(crate) fn build_graphics_section(
                                 })
                                 .insert(WindowModeHList);
                         });
+                    parent
+                        .spawn(NodeBundle {
+                            style: Style {
+                                ..Default::default()
+                            },
+                            ..Default::default()
+                        })
+                        .with_children(|parent| {
+                            parent.spawn(TextBundle::from_section(
+                                "Synchronous physics (unfinished, causes jitter): ",
+                                TextStyle {
+                                    font: font.clone(),
+                                    font_size: ESC_MENU_FONT_SIZE,
+                                    color: ESC_MENU_FONT_COLOR.into(),
+                                },
+                            ));
+                            parent
+                                .spawn(NodeBundle {
+                                    style: Style {
+                                        ..Default::default()
+                                    },
+                                    ..Default::default()
+                                })
+                                .insert(HList {
+                                    selected: Some(settings.synchronous_correction as u8),
+                                    selections: vec!["Off".to_string(), "On".to_string()],
+                                    ..Default::default()
+                                })
+                                .insert(SyncCorrectionHList);
+                            parent
+                                .spawn(TextBundle::from_section(
+                                    " Restart required.",
+                                    TextStyle {
+                                        font: font.clone(),
+                                        font_size: ESC_MENU_FONT_SIZE,
+                                        color: Color::ORANGE_RED.into(),
+                                    },
+                                ))
+                                .insert((SyncCorrectionRestartLabel, Visibility::Hidden));
+                        });
 
                     parent
                         .spawn(NodeBundle {
@@ -738,36 +782,7 @@ pub(crate) fn build_graphics_section(
                                 })
                                 .insert(VsyncHList);
                         });
-                    parent
-                        .spawn(NodeBundle {
-                            style: Style {
-                                ..Default::default()
-                            },
-                            ..Default::default()
-                        })
-                        .with_children(|parent| {
-                            parent.spawn(TextBundle::from_section(
-                                "RCAS: ",
-                                TextStyle {
-                                    font: font.clone(),
-                                    font_size: ESC_MENU_FONT_SIZE,
-                                    color: ESC_MENU_FONT_COLOR.into(),
-                                },
-                            ));
-                            parent
-                                .spawn(NodeBundle {
-                                    style: Style {
-                                        ..Default::default()
-                                    },
-                                    ..Default::default()
-                                })
-                                .insert(HList {
-                                    selected: Some(settings.rcas as u8),
-                                    selections: vec!["Off".to_string(), "On".to_string()],
-                                    ..Default::default()
-                                })
-                                .insert(RCASHList);
-                        });
+
                     parent
                         .spawn(NodeBundle {
                             style: Style {
@@ -857,6 +872,36 @@ pub(crate) fn build_graphics_section(
                         })
                         .with_children(|parent| {
                             parent.spawn(TextBundle::from_section(
+                                "RCAS: ",
+                                TextStyle {
+                                    font: font.clone(),
+                                    font_size: ESC_MENU_FONT_SIZE,
+                                    color: ESC_MENU_FONT_COLOR.into(),
+                                },
+                            ));
+                            parent
+                                .spawn(NodeBundle {
+                                    style: Style {
+                                        ..Default::default()
+                                    },
+                                    ..Default::default()
+                                })
+                                .insert(HList {
+                                    selected: Some(settings.rcas as u8),
+                                    selections: vec!["Off".to_string(), "On".to_string()],
+                                    ..Default::default()
+                                })
+                                .insert(RCASHList);
+                        });
+                    parent
+                        .spawn(NodeBundle {
+                            style: Style {
+                                ..Default::default()
+                            },
+                            ..Default::default()
+                        })
+                        .with_children(|parent| {
+                            parent.spawn(TextBundle::from_section(
                                 "Shadows: ",
                                 TextStyle {
                                     font: font.clone(),
@@ -872,8 +917,12 @@ pub(crate) fn build_graphics_section(
                                     ..Default::default()
                                 })
                                 .insert(HList {
-                                    selected: Some(settings.shadows as u8),
-                                    selections: vec!["Off".to_string(), "On".to_string()],
+                                    selected: Some(settings.shadows.clone() as u8),
+                                    selections: vec![
+                                        "Off".to_string(),
+                                        "Medium".to_string(),
+                                        "High".to_string(),
+                                    ],
                                     ..Default::default()
                                 })
                                 .insert(ShadowsHList);
@@ -887,7 +936,7 @@ pub(crate) fn build_graphics_section(
                         })
                         .with_children(|parent| {
                             parent.spawn(TextBundle::from_section(
-                                "Synchronous physics (unfinished, causes jitter): ",
+                                "Ambient lighting: ",
                                 TextStyle {
                                     font: font.clone(),
                                     font_size: ESC_MENU_FONT_SIZE,
@@ -902,21 +951,21 @@ pub(crate) fn build_graphics_section(
                                     ..Default::default()
                                 })
                                 .insert(HList {
-                                    selected: Some(settings.synchronous_correction as u8),
+                                    selected: Some(settings.ambient_lighting as u8),
                                     selections: vec!["Off".to_string(), "On".to_string()],
                                     ..Default::default()
                                 })
-                                .insert(SyncCorrectionHList);
+                                .insert(AmbientLightingHList);
                             parent
                                 .spawn(TextBundle::from_section(
-                                    " Restart required.",
+                                    " Restart required if turning off.",
                                     TextStyle {
                                         font: font.clone(),
                                         font_size: ESC_MENU_FONT_SIZE,
                                         color: Color::ORANGE_RED.into(),
                                     },
                                 ))
-                                .insert((SyncCorrectionRestartLabel, Visibility::Hidden));
+                                .insert((AmbientLightingRestartLabel, Visibility::Hidden));
                         });
                 });
         });

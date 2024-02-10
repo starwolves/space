@@ -9,7 +9,7 @@ use entity::{
     sensable::Sensable,
     spawn::{EntityBuildData, SpawnEntity},
 };
-use graphics::settings::PerformanceSettings;
+use graphics::settings::{PerformanceSettings, Shadows};
 use resources::core::SF_CONTENT_PREFIX;
 
 pub struct PointLightBuilderBundle;
@@ -68,7 +68,7 @@ pub fn build_point_lights<T: PointLightBuilder<PointLightBuildData> + 'static>(
         spawn_event.entity_type.spawn(
             &spawn_event.spawn_data,
             PointLightBuildData {
-                shadows: perf_settings.shadows,
+                shadows: perf_settings.shadows.clone(),
             },
             &mut commands,
         );
@@ -80,7 +80,7 @@ pub trait PointLightBuilder<Y>: Send + Sync {
 }
 
 pub struct PointLightBuildData {
-    pub shadows: bool,
+    pub shadows: Shadows,
 }
 
 impl PointLightBuilder<PointLightBuildData> for PointLightType {
@@ -91,7 +91,17 @@ impl PointLightBuilder<PointLightBuildData> for PointLightType {
         commands: &mut Commands,
     ) {
         let mut light = self.light.clone();
-        light.shadows_enabled = data.shadows;
+        match data.shadows {
+            Shadows::Off => {
+                light.shadows_enabled = false;
+            }
+            Shadows::Medium => {
+                light.shadows_enabled = false;
+            }
+            Shadows::High => {
+                light.shadows_enabled = true;
+            }
+        }
         commands.spawn((
             PointLightBundle {
                 point_light: light,

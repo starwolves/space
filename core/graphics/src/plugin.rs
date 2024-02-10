@@ -3,10 +3,10 @@ use resources::{modes::is_server_mode, ordering::Update};
 
 use crate::{
     settings::{
-        forward_performance_settings, init_light, set_fxaa, set_msaa, set_rcas, set_resolution,
-        set_shadows, set_sync_correction, set_vsync, set_window_mode, settings_to_ron,
-        PerformanceSettings, SetFxaa, SetMsaa, SetRCAS, SetResolution, SetShadows,
-        SetSyncCorrection, SetVsync, SetWindowMode, SettingsSet,
+        forward_performance_settings, init_light, set_ambient_lighting, set_fxaa, set_msaa,
+        set_rcas, set_resolution, set_shadows, set_sync_correction, set_vsync, set_window_mode,
+        settings_to_ron, PerformanceSettings, SetAmbientLighting, SetFxaa, SetMsaa, SetRCAS,
+        SetResolution, SetShadows, SetSyncCorrection, SetVsync, SetWindowMode, SettingsSet,
     },
     skybox::preload_skybox,
     tonemapping::PerMethodSettings,
@@ -26,6 +26,7 @@ impl Plugin for GraphicsPlugin {
                     set_resolution,
                     set_vsync,
                     set_rcas,
+                    set_ambient_lighting,
                     set_shadows,
                     set_window_mode,
                     set_sync_correction,
@@ -47,6 +48,7 @@ impl Plugin for GraphicsPlugin {
             .add_event::<SetFxaa>()
             .add_event::<SetSyncCorrection>()
             .add_event::<SetRCAS>()
+            .add_event::<SetAmbientLighting>()
             .add_event::<SetShadows>()
             .add_event::<SetMsaa>()
             .init_resource::<PerMethodSettings>();

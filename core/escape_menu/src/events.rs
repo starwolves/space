@@ -10,6 +10,7 @@ use bevy::{
     ui::{Display, Interaction, Style},
 };
 
+use graphics::settings::SetAmbientLighting;
 use graphics::settings::SetRCAS;
 use graphics::settings::SetShadows;
 use graphics::settings::SetSyncCorrection;
@@ -23,6 +24,8 @@ use resources::{
 };
 use ui::{button::SFButton, hlist::HList, text_input::TextInputNode};
 
+use crate::build::AmbientLightingHList;
+use crate::build::AmbientLightingRestartLabel;
 use crate::build::RCASHList;
 use crate::build::ShadowsHList;
 use crate::build::SyncCorrectionHList;
@@ -412,6 +415,46 @@ pub(crate) fn apply_rcas(
     }
 }
 
+pub(crate) fn apply_ambient_lighting(
+    interaction_query: Query<
+        (Entity, &Interaction, &Parent),
+        (Changed<Interaction>, With<SFButton>),
+    >,
+    parent_query: Query<&AmbientLightingHList>,
+    mut events: EventWriter<SetAmbientLighting>,
+    hlist_query: Query<&HList>,
+    mut query: Query<&mut Visibility, With<AmbientLightingRestartLabel>>,
+) {
+    for (entity, interaction, parent) in interaction_query.iter() {
+        match interaction {
+            Interaction::Pressed => {
+                match parent_query.get(**parent) {
+                    Ok(_) => {}
+                    Err(_) => {
+                        continue;
+                    }
+                }
+                match hlist_query.get(**parent) {
+                    Ok(hlist) => {
+                        let id = hlist
+                            .selections_entities
+                            .iter()
+                            .position(|&r| r == entity)
+                            .unwrap() as u8;
+
+                        events.send(SetAmbientLighting { enabled: id != 0 });
+                        let mut restart_required_text_visibility = query.single_mut();
+                        *restart_required_text_visibility = Visibility::default();
+                    }
+                    Err(_) => {
+                        warn!("Couildnt find apply window hlist.");
+                    }
+                }
+            }
+            _ => (),
+        }
+    }
+}
 pub(crate) fn apply_shadows_setting(
     interaction_query: Query<
         (Entity, &Interaction, &Parent),
@@ -438,10 +481,21 @@ pub(crate) fn apply_shadows_setting(
                             .position(|&r| r == entity)
                             .unwrap() as u8;
 
-                        events.send(SetShadows { enabled: id != 0 });
+                        let mode;
+
+                        match FromPrimitive::from_u8(id) {
+                            Some(t) => {
+                                mode = t;
+                            }
+                            None => {
+                                warn!("Couldnt convert window mode enum.");
+                                continue;
+                            }
+                        }
+                        events.send(SetShadows { mode });
                     }
                     Err(_) => {
-                        warn!("Couldnt find apply window hlist.");
+                        warn!("Couildnt find apply window hlist.");
                     }
                 }
             }
@@ -449,6 +503,7 @@ pub(crate) fn apply_shadows_setting(
         }
     }
 }
+
 pub(crate) fn apply_syncronous_correction_setting(
     interaction_query: Query<
         (Entity, &Interaction, &Parent),

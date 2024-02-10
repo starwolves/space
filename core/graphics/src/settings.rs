@@ -5,15 +5,15 @@ use std::{
 };
 
 use bevy::{
-    core_pipeline::contrast_adaptive_sharpening::ContrastAdaptiveSharpeningSettings, log::warn,
-    pbr::PointLight,
+    core_pipeline::contrast_adaptive_sharpening::ContrastAdaptiveSharpeningSettings,
+    log::warn,
+    pbr::{AmbientLight, PointLight},
 };
 use bevy::{
     core_pipeline::fxaa::{Fxaa, Sensitivity},
     prelude::{
-        AmbientLight, Commands, DetectChanges, DirectionalLight, DirectionalLightBundle, Event,
-        EventReader, EventWriter, Msaa, Quat, Query, Res, ResMut, Resource, SystemSet, Transform,
-        With,
+        Commands, DetectChanges, DirectionalLight, DirectionalLightBundle, Event, EventReader,
+        EventWriter, Msaa, Quat, Query, Res, ResMut, Resource, SystemSet, Transform, With,
     },
     window::{PresentMode, PrimaryWindow, Window, WindowMode, WindowResolution},
 };
@@ -22,14 +22,33 @@ use num_derive::FromPrimitive;
 use ron::ser::PrettyConfig;
 use serde::{Deserialize, Serialize};
 
-pub(crate) fn init_light(mut commands: Commands, settings: Res<PerformanceSettings>) {
-    commands.insert_resource(AmbientLight {
+pub(crate) fn default_ambient_light() -> AmbientLight {
+    AmbientLight {
         brightness: 0.,
         ..Default::default()
-    });
+    }
+}
+
+pub(crate) fn init_light(mut commands: Commands, settings: Res<PerformanceSettings>) {
+    if settings.ambient_lighting {
+        commands.insert_resource(default_ambient_light());
+    }
+
+    let directional_shadows;
+    match settings.shadows {
+        Shadows::Off => {
+            directional_shadows = false;
+        }
+        Shadows::Medium => {
+            directional_shadows = true;
+        }
+        Shadows::High => {
+            directional_shadows = true;
+        }
+    }
     commands.spawn(DirectionalLightBundle {
         directional_light: DirectionalLight {
-            shadows_enabled: settings.shadows,
+            shadows_enabled: directional_shadows,
             ..Default::default()
         },
         transform: Transform {
@@ -48,8 +67,16 @@ pub struct PerformanceSettings {
     pub fxaa: Option<SFFxaa>,
     pub msaa: SFMsaa,
     pub rcas: bool,
-    pub shadows: bool,
+    pub shadows: Shadows,
     pub synchronous_correction: bool,
+    pub ambient_lighting: bool,
+}
+#[derive(Default, Clone, Serialize, Deserialize, FromPrimitive, Debug)]
+pub enum Shadows {
+    Off = 0,
+    #[default]
+    Medium = 1,
+    High = 2,
 }
 #[derive(Default, Clone, Serialize, Deserialize, FromPrimitive, Debug)]
 pub enum SFMsaa {
@@ -119,9 +146,10 @@ impl Default for PerformanceSettings {
             vsync: false,
             fxaa: Some(SFFxaa::default()),
             msaa: SFMsaa::Off,
-            rcas: false,
+            rcas: true,
             synchronous_correction: false,
-            shadows: true,
+            shadows: Shadows::default(),
+            ambient_lighting: true,
         }
     }
 }
@@ -206,8 +234,12 @@ pub struct SetRCAS {
     pub enabled: bool,
 }
 #[derive(Event)]
-pub struct SetShadows {
+pub struct SetAmbientLighting {
     pub enabled: bool,
+}
+#[derive(Event)]
+pub struct SetShadows {
+    pub mode: Shadows,
 }
 #[derive(Event)]
 pub struct SetSyncCorrection {
@@ -253,6 +285,20 @@ pub fn set_rcas(
         settings.rcas = event.enabled;
     }
 }
+pub fn set_ambient_lighting(
+    mut events: EventReader<SetAmbientLighting>,
+    mut commands: Commands,
+    mut settings: ResMut<PerformanceSettings>,
+) {
+    for event in events.read() {
+        settings.ambient_lighting = event.enabled;
+        if settings.ambient_lighting {
+            commands.insert_resource(default_ambient_light());
+        } else {
+            commands.remove_resource::<AmbientLight>();
+        }
+    }
+}
 
 pub fn set_shadows(
     mut events: EventReader<SetShadows>,
@@ -261,13 +307,30 @@ pub fn set_shadows(
     mut settings: ResMut<PerformanceSettings>,
 ) {
     for event in events.read() {
-        settings.shadows = event.enabled;
+        settings.shadows = event.mode.clone();
+
+        let directional_lights_enabled;
+        let point_lights_enabled;
+        match &settings.shadows {
+            Shadows::Off => {
+                directional_lights_enabled = false;
+                point_lights_enabled = false;
+            }
+            Shadows::Medium => {
+                directional_lights_enabled = true;
+                point_lights_enabled = false;
+            }
+            Shadows::High => {
+                directional_lights_enabled = true;
+                point_lights_enabled = true;
+            }
+        }
 
         for mut p in point_lights.iter_mut() {
-            p.shadows_enabled = event.enabled;
+            p.shadows_enabled = point_lights_enabled;
         }
         for mut d in directional_lights.iter_mut() {
-            d.shadows_enabled = event.enabled;
+            d.shadows_enabled = directional_lights_enabled;
         }
     }
 }
