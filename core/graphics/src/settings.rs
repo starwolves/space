@@ -6,6 +6,7 @@ use std::{
 
 use bevy::{
     core_pipeline::contrast_adaptive_sharpening::ContrastAdaptiveSharpeningSettings, log::warn,
+    pbr::PointLight,
 };
 use bevy::{
     core_pipeline::fxaa::{Fxaa, Sensitivity},
@@ -21,14 +22,14 @@ use num_derive::FromPrimitive;
 use ron::ser::PrettyConfig;
 use serde::{Deserialize, Serialize};
 
-pub(crate) fn init_light(mut commands: Commands) {
+pub(crate) fn init_light(mut commands: Commands, settings: Res<PerformanceSettings>) {
     commands.insert_resource(AmbientLight {
         brightness: 0.,
         ..Default::default()
     });
     commands.spawn(DirectionalLightBundle {
         directional_light: DirectionalLight {
-            shadows_enabled: true,
+            shadows_enabled: settings.shadows,
             ..Default::default()
         },
         transform: Transform {
@@ -47,13 +48,14 @@ pub struct PerformanceSettings {
     pub fxaa: Option<SFFxaa>,
     pub msaa: SFMsaa,
     pub rcas: bool,
+    pub shadows: bool,
     pub synchronous_correction: bool,
 }
 #[derive(Default, Clone, Serialize, Deserialize, FromPrimitive, Debug)]
 pub enum SFMsaa {
+    #[default]
     Off = 0,
     Sample2 = 1,
-    #[default]
     Sample4 = 2,
     Sample8 = 3,
 }
@@ -119,6 +121,7 @@ impl Default for PerformanceSettings {
             msaa: SFMsaa::Off,
             rcas: false,
             synchronous_correction: false,
+            shadows: true,
         }
     }
 }
@@ -203,6 +206,10 @@ pub struct SetRCAS {
     pub enabled: bool,
 }
 #[derive(Event)]
+pub struct SetShadows {
+    pub enabled: bool,
+}
+#[derive(Event)]
 pub struct SetSyncCorrection {
     pub enabled: bool,
 }
@@ -244,6 +251,24 @@ pub fn set_rcas(
             }
         }
         settings.rcas = event.enabled;
+    }
+}
+
+pub fn set_shadows(
+    mut events: EventReader<SetShadows>,
+    mut directional_lights: Query<&mut DirectionalLight>,
+    mut point_lights: Query<&mut PointLight>,
+    mut settings: ResMut<PerformanceSettings>,
+) {
+    for event in events.read() {
+        settings.shadows = event.enabled;
+
+        for mut p in point_lights.iter_mut() {
+            p.shadows_enabled = event.enabled;
+        }
+        for mut d in directional_lights.iter_mut() {
+            d.shadows_enabled = event.enabled;
+        }
     }
 }
 /// Label for systems ordering.

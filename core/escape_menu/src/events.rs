@@ -11,6 +11,7 @@ use bevy::{
 };
 
 use graphics::settings::SetRCAS;
+use graphics::settings::SetShadows;
 use graphics::settings::SetSyncCorrection;
 use graphics::settings::{SetFxaa, SetMsaa, SetResolution, SetVsync, SetWindowMode};
 use hud::inventory::build::{InventoryHudState, OpenHud};
@@ -23,6 +24,7 @@ use resources::{
 use ui::{button::SFButton, hlist::HList, text_input::TextInputNode};
 
 use crate::build::RCASHList;
+use crate::build::ShadowsHList;
 use crate::build::SyncCorrectionHList;
 use crate::build::SyncCorrectionRestartLabel;
 use crate::build::{
@@ -410,6 +412,43 @@ pub(crate) fn apply_rcas(
     }
 }
 
+pub(crate) fn apply_shadows_setting(
+    interaction_query: Query<
+        (Entity, &Interaction, &Parent),
+        (Changed<Interaction>, With<SFButton>),
+    >,
+    parent_query: Query<&ShadowsHList>,
+    mut events: EventWriter<SetShadows>,
+    hlist_query: Query<&HList>,
+) {
+    for (entity, interaction, parent) in interaction_query.iter() {
+        match interaction {
+            Interaction::Pressed => {
+                match parent_query.get(**parent) {
+                    Ok(_) => {}
+                    Err(_) => {
+                        continue;
+                    }
+                }
+                match hlist_query.get(**parent) {
+                    Ok(hlist) => {
+                        let id = hlist
+                            .selections_entities
+                            .iter()
+                            .position(|&r| r == entity)
+                            .unwrap() as u8;
+
+                        events.send(SetShadows { enabled: id != 0 });
+                    }
+                    Err(_) => {
+                        warn!("Couldnt find apply window hlist.");
+                    }
+                }
+            }
+            _ => (),
+        }
+    }
+}
 pub(crate) fn apply_syncronous_correction_setting(
     interaction_query: Query<
         (Entity, &Interaction, &Parent),

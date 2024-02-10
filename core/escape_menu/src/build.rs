@@ -514,6 +514,8 @@ pub struct VsyncHList;
 #[derive(Component)]
 pub struct SyncCorrectionHList;
 #[derive(Component)]
+pub struct ShadowsHList;
+#[derive(Component)]
 pub struct SyncCorrectionRestartLabel;
 #[derive(Component)]
 pub struct RCASHList;
@@ -845,6 +847,36 @@ pub(crate) fn build_graphics_section(
                                     ..Default::default()
                                 })
                                 .insert(MsaaHList);
+                        });
+                    parent
+                        .spawn(NodeBundle {
+                            style: Style {
+                                ..Default::default()
+                            },
+                            ..Default::default()
+                        })
+                        .with_children(|parent| {
+                            parent.spawn(TextBundle::from_section(
+                                "Shadows: ",
+                                TextStyle {
+                                    font: font.clone(),
+                                    font_size: ESC_MENU_FONT_SIZE,
+                                    color: ESC_MENU_FONT_COLOR.into(),
+                                },
+                            ));
+                            parent
+                                .spawn(NodeBundle {
+                                    style: Style {
+                                        ..Default::default()
+                                    },
+                                    ..Default::default()
+                                })
+                                .insert(HList {
+                                    selected: Some(settings.shadows as u8),
+                                    selections: vec!["Off".to_string(), "On".to_string()],
+                                    ..Default::default()
+                                })
+                                .insert(ShadowsHList);
                         });
                     parent
                         .spawn(NodeBundle {

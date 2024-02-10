@@ -21,4 +21,4 @@ default-features = false
 
 entity = { path = "../../core/entity"}
 resources = { path = "../../core/resources" }
-
+graphics = { path = "../../core/graphics" }
