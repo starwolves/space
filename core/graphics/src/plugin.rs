@@ -4,9 +4,10 @@ use resources::{modes::is_server_mode, ordering::Update};
 use crate::{
     settings::{
         forward_performance_settings, init_light, set_ambient_lighting, set_fxaa, set_msaa,
-        set_rcas, set_resolution, set_shadows, set_sync_correction, set_vsync, set_window_mode,
-        settings_to_ron, PerformanceSettings, SetAmbientLighting, SetFxaa, SetMsaa, SetRCAS,
-        SetResolution, SetShadows, SetSyncCorrection, SetVsync, SetWindowMode, SettingsSet,
+        set_rcas, set_resolution, set_shadows, set_ssao, set_sync_correction, set_vsync,
+        set_window_mode, settings_to_ron, PerformanceSettings, SetAmbientLighting, SetFxaa,
+        SetMsaa, SetRCAS, SetResolution, SetSSAO, SetShadows, SetSyncCorrection, SetVsync,
+        SetWindowMode, SettingsSet,
     },
     skybox::preload_skybox,
     tonemapping::PerMethodSettings,
@@ -28,6 +29,7 @@ impl Plugin for GraphicsPlugin {
                     set_rcas,
                     set_ambient_lighting,
                     set_shadows,
+                    set_ssao,
                     set_window_mode,
                     set_sync_correction,
                 )
@@ -51,6 +53,7 @@ impl Plugin for GraphicsPlugin {
             .add_event::<SetAmbientLighting>()
             .add_event::<SetShadows>()
             .add_event::<SetMsaa>()
+            .add_event::<SetSSAO>()
             .init_resource::<PerMethodSettings>();
             /*.add_plugins(AtmospherePlugin)
             .add_systems(Startup, add_atmosphere)*/

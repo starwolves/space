@@ -5,17 +5,23 @@ use std::{
 };
 
 use bevy::{
-    core_pipeline::contrast_adaptive_sharpening::ContrastAdaptiveSharpeningSettings,
-    log::warn,
-    pbr::{AmbientLight, PointLight},
-};
-use bevy::{
     core_pipeline::fxaa::{Fxaa, Sensitivity},
     prelude::{
         Commands, DetectChanges, DirectionalLight, DirectionalLightBundle, Event, EventReader,
         EventWriter, Msaa, Quat, Query, Res, ResMut, Resource, SystemSet, Transform, With,
     },
     window::{PresentMode, PrimaryWindow, Window, WindowMode, WindowResolution},
+};
+use bevy::{
+    core_pipeline::{
+        contrast_adaptive_sharpening::ContrastAdaptiveSharpeningSettings, core_3d::Camera3d,
+    },
+    ecs::entity::Entity,
+    log::warn,
+    pbr::{
+        AmbientLight, PointLight, ScreenSpaceAmbientOcclusionQualityLevel,
+        ScreenSpaceAmbientOcclusionSettings,
+    },
 };
 
 use num_derive::FromPrimitive;
@@ -70,6 +76,27 @@ pub struct PerformanceSettings {
     pub shadows: Shadows,
     pub synchronous_correction: bool,
     pub ambient_lighting: bool,
+    pub ssao: SSAO,
+}
+#[derive(Default, Clone, Serialize, Deserialize, FromPrimitive, Debug)]
+pub enum SSAO {
+    Off = 0,
+    Low = 1,
+    #[default]
+    Medium = 2,
+    High = 3,
+    Ultra = 4,
+}
+impl SSAO {
+    pub fn to_quality(&self) -> ScreenSpaceAmbientOcclusionQualityLevel {
+        match self {
+            SSAO::Off => ScreenSpaceAmbientOcclusionQualityLevel::Low,
+            SSAO::Low => ScreenSpaceAmbientOcclusionQualityLevel::Low,
+            SSAO::Medium => ScreenSpaceAmbientOcclusionQualityLevel::Medium,
+            SSAO::High => ScreenSpaceAmbientOcclusionQualityLevel::High,
+            SSAO::Ultra => ScreenSpaceAmbientOcclusionQualityLevel::Ultra,
+        }
+    }
 }
 #[derive(Default, Clone, Serialize, Deserialize, FromPrimitive, Debug)]
 pub enum Shadows {
@@ -150,6 +177,7 @@ impl Default for PerformanceSettings {
             synchronous_correction: false,
             shadows: Shadows::default(),
             ambient_lighting: true,
+            ssao: SSAO::default(),
         }
     }
 }
@@ -190,6 +218,11 @@ pub(crate) fn forward_performance_settings(
     mut w_mode_events: EventWriter<SetWindowMode>,
     mut fxaa_events: EventWriter<SetFxaa>,
     mut msaa_events: EventWriter<SetMsaa>,
+    //mut rcas: EventWriter<SetRCAS>,
+    mut shadows: EventWriter<SetShadows>,
+    mut ambient: EventWriter<SetAmbientLighting>,
+    //mut ssao: EventWriter<SetSSAO>,
+    mut sync: EventWriter<SetSyncCorrection>,
 ) {
     res_events.send(SetResolution {
         resolution: (settings.resolution.0, settings.resolution.1),
@@ -205,6 +238,15 @@ pub(crate) fn forward_performance_settings(
     });
     msaa_events.send(SetMsaa {
         mode: settings.msaa.clone(),
+    });
+    shadows.send(SetShadows {
+        mode: settings.shadows.clone(),
+    });
+    ambient.send(SetAmbientLighting {
+        enabled: settings.ambient_lighting,
+    });
+    sync.send(SetSyncCorrection {
+        enabled: settings.synchronous_correction,
     });
 }
 #[derive(Event)]
@@ -241,6 +283,11 @@ pub struct SetAmbientLighting {
 pub struct SetShadows {
     pub mode: Shadows,
 }
+#[derive(Event)]
+pub struct SetSSAO {
+    pub mode: SSAO,
+}
+
 #[derive(Event)]
 pub struct SetSyncCorrection {
     pub enabled: bool,
@@ -296,6 +343,43 @@ pub fn set_ambient_lighting(
             commands.insert_resource(default_ambient_light());
         } else {
             commands.remove_resource::<AmbientLight>();
+        }
+    }
+}
+pub fn set_ssao(
+    mut events: EventReader<SetSSAO>,
+    mut commands: Commands,
+    mut settings: ResMut<PerformanceSettings>,
+    mut query: Query<(Entity, &mut ScreenSpaceAmbientOcclusionSettings)>,
+    camera_query: Query<Entity, With<Camera3d>>,
+) {
+    for event in events.read() {
+        settings.ssao = event.mode.clone();
+        let quality_level = event.mode.to_quality();
+        let mut turn_off = false;
+
+        match event.mode {
+            SSAO::Off => {
+                turn_off = true;
+            }
+            _ => (),
+        }
+        match query.get_single_mut() {
+            Ok((entity, mut settings)) => {
+                if turn_off {
+                    commands
+                        .entity(entity)
+                        .remove::<ScreenSpaceAmbientOcclusionSettings>();
+                } else {
+                    *settings = ScreenSpaceAmbientOcclusionSettings { quality_level };
+                }
+            }
+            Err(_) => {
+                let camera_entity = camera_query.single();
+                commands
+                    .entity(camera_entity)
+                    .insert(ScreenSpaceAmbientOcclusionSettings { quality_level });
+            }
         }
     }
 }

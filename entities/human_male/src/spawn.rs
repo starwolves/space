@@ -3,6 +3,8 @@ use std::collections::{BTreeMap, HashMap};
 use bevy::core_pipeline::contrast_adaptive_sharpening::ContrastAdaptiveSharpeningSettings;
 use bevy::log::info;
 use bevy::log::warn;
+use bevy::pbr::ScreenSpaceAmbientOcclusionBundle;
+use bevy::pbr::ScreenSpaceAmbientOcclusionSettings;
 use bevy::{
     core_pipeline::{fxaa::Fxaa, tonemapping::Tonemapping, Skybox},
     prelude::{
@@ -281,6 +283,12 @@ pub fn attach_human_male_camera(
                             VisibilityBundle::default(),
                             ContrastAdaptiveSharpeningSettings {
                                 enabled: settings.rcas,
+                                ..Default::default()
+                            },
+                            ScreenSpaceAmbientOcclusionBundle {
+                                settings: ScreenSpaceAmbientOcclusionSettings {
+                                    quality_level: settings.ssao.to_quality(),
+                                },
                                 ..Default::default()
                             },
                         ))

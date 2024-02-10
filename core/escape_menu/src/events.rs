@@ -12,6 +12,7 @@ use bevy::{
 
 use graphics::settings::SetAmbientLighting;
 use graphics::settings::SetRCAS;
+use graphics::settings::SetSSAO;
 use graphics::settings::SetShadows;
 use graphics::settings::SetSyncCorrection;
 use graphics::settings::{SetFxaa, SetMsaa, SetResolution, SetVsync, SetWindowMode};
@@ -27,6 +28,7 @@ use ui::{button::SFButton, hlist::HList, text_input::TextInputNode};
 use crate::build::AmbientLightingHList;
 use crate::build::AmbientLightingRestartLabel;
 use crate::build::RCASHList;
+use crate::build::SSAOHList;
 use crate::build::ShadowsHList;
 use crate::build::SyncCorrectionHList;
 use crate::build::SyncCorrectionRestartLabel;
@@ -493,6 +495,55 @@ pub(crate) fn apply_shadows_setting(
                             }
                         }
                         events.send(SetShadows { mode });
+                    }
+                    Err(_) => {
+                        warn!("Couildnt find apply window hlist.");
+                    }
+                }
+            }
+            _ => (),
+        }
+    }
+}
+
+pub(crate) fn apply_ssao_setting(
+    interaction_query: Query<
+        (Entity, &Interaction, &Parent),
+        (Changed<Interaction>, With<SFButton>),
+    >,
+    parent_query: Query<&SSAOHList>,
+    mut events: EventWriter<SetSSAO>,
+    hlist_query: Query<&HList>,
+) {
+    for (entity, interaction, parent) in interaction_query.iter() {
+        match interaction {
+            Interaction::Pressed => {
+                match parent_query.get(**parent) {
+                    Ok(_) => {}
+                    Err(_) => {
+                        continue;
+                    }
+                }
+                match hlist_query.get(**parent) {
+                    Ok(hlist) => {
+                        let id = hlist
+                            .selections_entities
+                            .iter()
+                            .position(|&r| r == entity)
+                            .unwrap() as u8;
+
+                        let mode;
+
+                        match FromPrimitive::from_u8(id) {
+                            Some(t) => {
+                                mode = t;
+                            }
+                            None => {
+                                warn!("Couldnt convert window mode enum.");
+                                continue;
+                            }
+                        }
+                        events.send(SetSSAO { mode });
                     }
                     Err(_) => {
                         warn!("Couildnt find apply window hlist.");

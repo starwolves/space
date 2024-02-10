@@ -516,6 +516,8 @@ pub struct SyncCorrectionHList;
 #[derive(Component)]
 pub struct ShadowsHList;
 #[derive(Component)]
+pub struct SSAOHList;
+#[derive(Component)]
 pub struct SyncCorrectionRestartLabel;
 #[derive(Component)]
 pub struct AmbientLightingRestartLabel;
@@ -926,6 +928,42 @@ pub(crate) fn build_graphics_section(
                                     ..Default::default()
                                 })
                                 .insert(ShadowsHList);
+                        });
+                    parent
+                        .spawn(NodeBundle {
+                            style: Style {
+                                ..Default::default()
+                            },
+                            ..Default::default()
+                        })
+                        .with_children(|parent| {
+                            parent.spawn(TextBundle::from_section(
+                                "SSAO: ",
+                                TextStyle {
+                                    font: font.clone(),
+                                    font_size: ESC_MENU_FONT_SIZE,
+                                    color: ESC_MENU_FONT_COLOR.into(),
+                                },
+                            ));
+                            parent
+                                .spawn(NodeBundle {
+                                    style: Style {
+                                        ..Default::default()
+                                    },
+                                    ..Default::default()
+                                })
+                                .insert(HList {
+                                    selected: Some(settings.ssao.clone() as u8),
+                                    selections: vec![
+                                        "Off".to_string(),
+                                        "Low".to_string(),
+                                        "Medium".to_string(),
+                                        "High".to_string(),
+                                        "Ultra".to_string(),
+                                    ],
+                                    ..Default::default()
+                                })
+                                .insert(SSAOHList);
                         });
                     parent
                         .spawn(NodeBundle {
