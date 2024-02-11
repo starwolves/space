@@ -56,16 +56,11 @@ pub(crate) fn clean_controller_cache(mut cache: ResMut<ControllerCache>) {
         if cache.len() > MAX_CACHE_TICKS_AMNT as usize {
             let mut j = 0;
             let mut is = vec![];
-            for i in cache.keys().rev() {
-                if j as usize == cache.len() - MAX_CACHE_TICKS_AMNT as usize {
-                    j += 1;
 
-                    continue;
-                }
+            for i in cache.keys().rev() {
                 if j >= MAX_CACHE_TICKS_AMNT {
                     is.push(*i);
                 }
-
                 j += 1;
             }
             for i in is {
