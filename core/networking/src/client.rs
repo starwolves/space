@@ -314,7 +314,7 @@ pub(crate) fn step_buffer(
         match bincode::serialize(&ReliableClientMessageBatch {
             messages: res.reliable.clone(),
             stamp: stamp.tick,
-            not_timed: pause_loop.is_paused(),
+            fixed: pause_loop.is_paused(),
         }) {
             Ok(b) => {
                 bin = b;
@@ -332,7 +332,7 @@ pub(crate) fn step_buffer(
         match bincode::serialize(&ReliableClientMessageBatch {
             messages: res.reliable_unordered.clone(),
             stamp: stamp.tick,
-            not_timed: pause_loop.is_paused(),
+            fixed: pause_loop.is_paused(),
         }) {
             Ok(b) => {
                 bin = b;
@@ -350,7 +350,7 @@ pub(crate) fn step_buffer(
         match bincode::serialize(&UnreliableClientMessageBatch {
             messages: res.unreliable.clone(),
             stamp: stamp.tick,
-            not_timed: pause_loop.is_paused(),
+            fixed: pause_loop.is_paused(),
         }) {
             Ok(b) => {
                 bin = b;

@@ -34,14 +34,14 @@ use crate::{
     },
     server::{
         adjust_clients, clean_latency_reports, clear_construct_entity_updates,
-        clear_serialized_entity_updates, client_loaded_game_world, process_sync_confirmation,
+        clear_serialized_entity_updates, client_loaded_game_world,
+        latency_report_incoming_messages, process_sync_confirmation,
         receive_incoming_reliable_client_messages, receive_incoming_unreliable_client_messages,
-        server_events, start_sync_confirmation, step_incoming_client_messages, ClientsReadyForSync,
-        ConstructEntityUpdates, EntityUpdatesSerialized, EntityUpdatesSet, HandleToEntity,
+        server_events, start_sync_confirmation, ClientsReadyForSync, ConstructEntityUpdates,
+        EntityUpdatesSerialized, EntityUpdatesSet, HandleToEntity,
         IncomingRawReliableClientMessage, IncomingRawUnreliableClientMessage, Latency,
         LatencyLimits, NetworkingChatServerMessage, NetworkingServerMessage,
         PreUpdateMessageProcessor, SyncConfirmations, UnreliableServerMessage,
-        UpdateIncomingRawClientMessage,
     },
     stamp::{step_tickrate_stamp, PauseTickStep, TickRateStamp},
 };
@@ -73,7 +73,7 @@ impl Plugin for NetworkingPlugin {
                     .add_systems(
                         PreUpdate,
                         (
-                            step_incoming_client_messages.in_set(TypenamesSet::SendRawEvents),
+                            latency_report_incoming_messages.in_set(TypenamesSet::SendRawEvents),
                             adjust_clients.after(TypenamesSet::SendRawEvents),
                             server_events.after(RenetReceive).after(CoreSet::Pre),
                             /*_adjust_latency_limits
@@ -101,7 +101,6 @@ impl Plugin for NetworkingPlugin {
                         )
                             .chain(),
                     )
-                    .init_resource::<UpdateIncomingRawClientMessage>()
                     .init_resource::<ClientsReadyForSync>();
             }
 

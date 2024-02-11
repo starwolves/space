@@ -683,7 +683,7 @@ pub(crate) fn keyboard_input(
             bincode::serialize(&ReliableClientMessageBatch {
                 messages,
                 stamp: target_tick,
-                not_timed: true,
+                fixed: true,
             })
             .unwrap(),
         );
