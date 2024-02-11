@@ -467,7 +467,7 @@ pub(crate) fn deserialize_incoming_reliable_client_message<
     mut outgoing: EventWriter<IncomingReliableClientMessage<T>>,
     typenames: Res<Typenames>,
     stamp: Res<TickRateStamp>,
-    mut queue: Local<HashMap<u64, Vec<IncomingReliableClientMessage<T>>>>,
+    mut queue: Local<BTreeMap<u64, Vec<IncomingReliableClientMessage<T>>>>,
 ) {
     for event in incoming_raw.read() {
         for message in event.message.messages.iter() {

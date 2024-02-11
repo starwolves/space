@@ -238,10 +238,6 @@ pub(crate) fn cache_peer_sync_look_transform(
 
 #[derive(Resource, Default, Clone)]
 pub struct PeerInputCache {
-    pub reliable: HashMap<
-        ClientId,
-        HashMap<u64, Vec<IncomingReliableServerMessage<PeerReliableControllerMessage>>>,
-    >,
     pub look_transform_best_ticks: HashMap<ClientId, Vec<LookTick>>,
 }
 #[derive(Resource, Clone)]

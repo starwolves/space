@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 
 use crate::{
     entity::{RigidBodies, RigidBodyLink, SFRigidBody},
@@ -212,7 +212,7 @@ use resources::{
 
 #[derive(Resource, Default)]
 pub struct NewlySpawnedRigidbodies {
-    pub cache: HashMap<u64, HashMap<Entity, PhysicsSpawn>>,
+    pub cache: BTreeMap<u64, HashMap<Entity, PhysicsSpawn>>,
 }
 pub(crate) fn clear_new(mut cache: ResMut<NewlySpawnedRigidbodies>, stamp: Res<TickRateStamp>) {
     let mut to_remove = vec![];
