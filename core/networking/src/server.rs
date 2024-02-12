@@ -410,8 +410,8 @@ pub(crate) fn deserialize_incoming_unreliable_client_message<
     mut incoming_raw: EventReader<IncomingRawUnreliableClientMessage>,
     mut outgoing: EventWriter<IncomingUnreliableClientMessage<T>>,
     typenames: Res<Typenames>,
+
     stamp: Res<TickRateStamp>,
-    mut queue: Local<HashMap<ClientId, BTreeMap<u64, Vec<IncomingUnreliableClientMessage<T>>>>>,
 ) {
     for event in incoming_raw.read() {
         for message in event.message.messages.iter() {
@@ -425,41 +425,10 @@ pub(crate) fn deserialize_incoming_unreliable_client_message<
                         handle: event.handle,
                         stamp: b,
                     };
-
-                    match queue.get_mut(&event.handle) {
-                        Some(q1) => match q1.get_mut(&b) {
-                            Some(v) => {
-                                v.push(r);
-                            }
-                            None => {
-                                q1.insert(b, vec![r]);
-                            }
-                        },
-                        None => {
-                            queue.insert(event.handle, BTreeMap::from([(b, vec![r])]));
-                        }
-                    }
+                    outgoing.send(r);
                 }
                 None => {}
             }
-        }
-    }
-
-    for (_, message_queue) in queue.iter_mut() {
-        let mut processed_stamp = vec![];
-
-        for (i, tick_messages) in message_queue.iter() {
-            if i > &stamp.large {
-                break;
-            }
-
-            for m in tick_messages {
-                outgoing.send(m.clone());
-            }
-            processed_stamp.push(*i);
-        }
-        for i in processed_stamp {
-            message_queue.remove(&i);
         }
     }
 }
@@ -472,7 +441,6 @@ pub(crate) fn deserialize_incoming_reliable_client_message<
     mut outgoing: EventWriter<IncomingReliableClientMessage<T>>,
     typenames: Res<Typenames>,
     stamp: Res<TickRateStamp>,
-    mut queue: Local<HashMap<ClientId, BTreeMap<u64, Vec<IncomingReliableClientMessage<T>>>>>,
 ) {
     for event in incoming_raw.read() {
         for message in event.message.messages.iter() {
@@ -486,50 +454,10 @@ pub(crate) fn deserialize_incoming_reliable_client_message<
                         stamp: b,
                         fixed: event.message.fixed,
                     };
-
-                    match queue.get_mut(&event.handle) {
-                        Some(q1) => match q1.get_mut(&b) {
-                            Some(v) => {
-                                v.push(r);
-                            }
-                            None => {
-                                q1.insert(b, vec![r]);
-                            }
-                        },
-                        None => {
-                            queue.insert(event.handle, BTreeMap::from([(b, vec![r])]));
-                        }
-                    }
+                    outgoing.send(r);
                 }
                 None => {}
             }
-        }
-    }
-
-    // Process one fixed message per tick per client.
-    // There are also multiple small low latency messages that arrive and get injected in sync with the client's fixed messages.
-    for (_handle, client_messages) in queue.iter_mut() {
-        let mut processed_stamps = vec![];
-        let mut processed_fixed_message = false;
-        for (i, tick_messages) in client_messages.iter() {
-            if i > &stamp.large {
-                break;
-            }
-
-            for m in tick_messages {
-                if m.fixed {
-                    processed_fixed_message = true;
-                }
-                outgoing.send(m.clone());
-            }
-            processed_stamps.push(*i);
-            if processed_fixed_message {
-                break;
-            }
-        }
-
-        for i in processed_stamps {
-            client_messages.remove(&i);
         }
     }
 }
@@ -851,10 +779,20 @@ pub(crate) fn _adjust_latency_limits(
         }
     }
 }
-
+#[derive(Event, Clone)]
+pub struct IncomingReliableClientMessageToReport {
+    pub handle: ClientId,
+    pub message: ReliableClientMessageBatch,
+}
+#[derive(Event, Clone)]
+pub struct IncomingUnreliableClientMessageToReport {
+    pub handle: ClientId,
+    pub message: UnreliableClientMessageBatch,
+}
 pub(crate) fn latency_report_incoming_messages(
-    mut events: EventReader<IncomingRawReliableClientMessage>,
-    mut eventsu: EventReader<IncomingRawUnreliableClientMessage>,
+    mut events: EventReader<IncomingReliableClientMessageToReport>,
+    mut eventsu: EventReader<IncomingUnreliableClientMessageToReport>,
+
     confirmations: Res<SyncConfirmations>,
     mut latency: ResMut<Latency>,
     stampres: Res<TickRateStamp>,
@@ -951,68 +889,166 @@ pub(crate) fn process_sync_confirmation(
 
 /// Deserializes header of incoming client messages and writes to event.
 
-pub(crate) fn receive_incoming_unreliable_client_messages(
-    mut server: ResMut<RenetServer>,
-    mut events: EventWriter<IncomingRawUnreliableClientMessage>,
-) {
-    for handle in server.clients_id().into_iter() {
-        while let Some(message) = server.receive_message(handle, RENET_UNRELIABLE_CHANNEL_ID) {
-            match bincode::deserialize::<UnreliableClientMessageBatch>(&message) {
-                Ok(msg) => {
-                    let incoming = IncomingRawUnreliableClientMessage {
-                        message: msg.clone(),
-                        handle,
-                    };
-                    events.send(incoming);
-                }
-                Err(_) => {
-                    warn!("Received an invalid message 0.");
-                }
-            }
-        }
-    }
-}
-use crate::plugin::{RENET_RELIABLE_UNORDERED_ID, RENET_UNRELIABLE_CHANNEL_ID};
-
-/// Label for systems ordering.
-#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
-pub struct PreUpdateMessageProcessor;
-
-/// Deserializes header of incoming client messages and writes to event.
-
 pub(crate) fn receive_incoming_reliable_client_messages(
     mut server: ResMut<RenetServer>,
-
+    mut queue: Local<HashMap<ClientId, BTreeMap<u64, Vec<IncomingRawReliableClientMessage>>>>,
+    stamp: Res<TickRateStamp>,
     mut events: EventWriter<IncomingRawReliableClientMessage>,
+    mut report: EventWriter<IncomingReliableClientMessageToReport>,
 ) {
     for handle in server.clients_id().into_iter() {
-        while let Some(message) = server.receive_message(handle, RENET_RELIABLE_ORDERED_ID) {
-            match bincode::deserialize::<ReliableClientMessageBatch>(&message) {
-                Ok(msg) => {
+        while let Some(msg) = server.receive_message(handle, RENET_RELIABLE_ORDERED_ID) {
+            match bincode::deserialize::<ReliableClientMessageBatch>(&msg) {
+                Ok(message) => {
                     let incoming = IncomingRawReliableClientMessage {
-                        message: msg.clone(),
+                        message: message.clone(),
                         handle,
                     };
-                    events.send(incoming);
+                    let b = stamp.calculate_large(message.stamp);
+
+                    match queue.get_mut(&handle) {
+                        Some(q1) => match q1.get_mut(&b) {
+                            Some(v) => {
+                                v.push(incoming);
+                            }
+                            None => {
+                                q1.insert(b, vec![incoming]);
+                            }
+                        },
+                        None => {
+                            queue.insert(handle, BTreeMap::from([(b, vec![incoming])]));
+                        }
+                    }
+                    report.send(IncomingReliableClientMessageToReport {
+                        message: message.clone(),
+                        handle,
+                    });
                 }
                 Err(_) => {
                     warn!("Received an invalid message.");
                 }
             }
         }
-        while let Some(message) = server.receive_message(handle, RENET_RELIABLE_UNORDERED_ID) {
-            match bincode::deserialize::<ReliableClientMessageBatch>(&message) {
-                Ok(msg) => {
+        while let Some(msg) = server.receive_message(handle, RENET_RELIABLE_UNORDERED_ID) {
+            match bincode::deserialize::<ReliableClientMessageBatch>(&msg) {
+                Ok(message) => {
                     let incoming = IncomingRawReliableClientMessage {
-                        message: msg.clone(),
+                        message: message.clone(),
                         handle,
                     };
-                    events.send(incoming);
+                    let b = stamp.calculate_large(message.stamp);
+
+                    match queue.get_mut(&handle) {
+                        Some(q1) => match q1.get_mut(&b) {
+                            Some(v) => {
+                                v.push(incoming);
+                            }
+                            None => {
+                                q1.insert(b, vec![incoming]);
+                            }
+                        },
+                        None => {
+                            queue.insert(handle, BTreeMap::from([(b, vec![incoming])]));
+                        }
+                    }
                 }
                 Err(_) => {
                     warn!("Received an invalid message 1.");
                 }
             }
+        }
+    }
+    // Process one fixed message per tick per client.
+    // There are also multiple small low latency messages that arrive and get injected in sync with the client's fixed messages.
+
+    for (_handle, client_messages) in queue.iter_mut() {
+        let mut processed_stamps = vec![];
+        let mut processed_fixed_message = false;
+        for (i, tick_messages) in client_messages.iter() {
+            if i > &stamp.large {
+                break;
+            }
+
+            for msg in tick_messages {
+                if msg.message.fixed {
+                    processed_fixed_message = true;
+                }
+                events.send(msg.clone());
+
+                processed_stamps.push(*i);
+                if processed_fixed_message {
+                    break;
+                }
+            }
+        }
+
+        for i in processed_stamps {
+            client_messages.remove(&i);
+        }
+    }
+}
+use crate::plugin::{RENET_RELIABLE_UNORDERED_ID, RENET_UNRELIABLE_CHANNEL_ID};
+
+/// Deserializes header of incoming client messages and writes to event.
+
+pub(crate) fn receive_incoming_unreliable_client_messages(
+    mut server: ResMut<RenetServer>,
+    mut queue: Local<HashMap<ClientId, BTreeMap<u64, Vec<IncomingRawUnreliableClientMessage>>>>,
+    stamp: Res<TickRateStamp>,
+    mut events: EventWriter<IncomingRawUnreliableClientMessage>,
+    mut report: EventWriter<IncomingUnreliableClientMessageToReport>,
+) {
+    for handle in server.clients_id().into_iter() {
+        while let Some(msg) = server.receive_message(handle, RENET_UNRELIABLE_CHANNEL_ID) {
+            match bincode::deserialize::<UnreliableClientMessageBatch>(&msg) {
+                Ok(message) => {
+                    let incoming = IncomingRawUnreliableClientMessage {
+                        message: message.clone(),
+                        handle,
+                    };
+                    let b = stamp.calculate_large(message.stamp);
+
+                    match queue.get_mut(&handle) {
+                        Some(q1) => match q1.get_mut(&b) {
+                            Some(v) => {
+                                v.push(incoming);
+                            }
+                            None => {
+                                q1.insert(b, vec![incoming]);
+                            }
+                        },
+                        None => {
+                            queue.insert(handle, BTreeMap::from([(b, vec![incoming])]));
+                        }
+                    }
+                    report.send(IncomingUnreliableClientMessageToReport {
+                        message: message.clone(),
+                        handle,
+                    });
+                }
+                Err(_) => {
+                    warn!("Received an invalid message.");
+                }
+            }
+        }
+    }
+    // Process one fixed message per tick per client.
+    // There are also multiple small low latency messages that arrive and get injected in sync with the client's fixed messages.
+
+    for (_handle, client_messages) in queue.iter_mut() {
+        let mut processed_stamps = vec![];
+        for (i, tick_messages) in client_messages.iter() {
+            if i > &stamp.large {
+                break;
+            }
+            for msg in tick_messages {
+                events.send(msg.clone());
+                processed_stamps.push(*i);
+            }
+        }
+
+        for i in processed_stamps {
+            client_messages.remove(&i);
         }
     }
 }

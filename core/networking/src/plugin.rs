@@ -39,9 +39,10 @@ use crate::{
         receive_incoming_reliable_client_messages, receive_incoming_unreliable_client_messages,
         server_events, start_sync_confirmation, ClientsReadyForSync, ConstructEntityUpdates,
         EntityUpdatesSerialized, EntityUpdatesSet, HandleToEntity,
-        IncomingRawReliableClientMessage, IncomingRawUnreliableClientMessage, Latency,
-        LatencyLimits, NetworkingChatServerMessage, NetworkingServerMessage,
-        PreUpdateMessageProcessor, SyncConfirmations, UnreliableServerMessage,
+        IncomingRawReliableClientMessage, IncomingRawUnreliableClientMessage,
+        IncomingReliableClientMessageToReport, IncomingUnreliableClientMessageToReport, Latency,
+        LatencyLimits, NetworkingChatServerMessage, NetworkingServerMessage, SyncConfirmations,
+        UnreliableServerMessage,
     },
     stamp::{step_tickrate_stamp, PauseTickStep, TickRateStamp},
 };
@@ -61,19 +62,20 @@ impl Plugin for NetworkingPlugin {
                     .insert_resource(res.1)
                     .init_resource::<LatencyLimits>()
                     .add_systems(
-                        BevyPreUpdate,
+                        PreUpdate,
                         (
                             receive_incoming_reliable_client_messages,
                             receive_incoming_unreliable_client_messages
                                 .after(receive_incoming_reliable_client_messages),
                         )
-                            .after(RenetReceive)
-                            .in_set(PreUpdateMessageProcessor),
+                            .in_set(TypenamesSet::SendRawEvents),
                     )
                     .add_systems(
                         PreUpdate,
                         (
-                            latency_report_incoming_messages.in_set(TypenamesSet::SendRawEvents),
+                            latency_report_incoming_messages
+                                .in_set(TypenamesSet::SendRawEvents)
+                                .after(receive_incoming_unreliable_client_messages),
                             adjust_clients.after(TypenamesSet::SendRawEvents),
                             server_events.after(RenetReceive).after(CoreSet::Pre),
                             /*_adjust_latency_limits
@@ -115,6 +117,8 @@ impl Plugin for NetworkingPlugin {
             .add_systems(Update, souls)
             .add_event::<IncomingRawReliableClientMessage>()
             .add_event::<IncomingRawUnreliableClientMessage>()
+            .add_event::<IncomingReliableClientMessageToReport>()
+            .add_event::<IncomingUnreliableClientMessageToReport>()
             .add_systems(
                 PreUpdate,
                 (

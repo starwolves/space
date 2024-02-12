@@ -87,7 +87,7 @@ pub(crate) fn mouse_input(
                             typename_net: *id,
                         }],
                         stamp: target_tick,
-                        fixed: true,
+                        fixed: false,
                     })
                     .unwrap(),
                 );
