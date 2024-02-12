@@ -972,7 +972,6 @@ pub(crate) fn receive_incoming_reliable_client_messages(
             let mut j = 0;
             let mut remove_js = vec![];
             for msg in tick_messages.iter() {
-                j += 1;
                 if msg.message.fixed {
                     processed_fixed_message = true;
                 }
@@ -982,6 +981,7 @@ pub(crate) fn receive_incoming_reliable_client_messages(
                 if processed_fixed_message {
                     break;
                 }
+                j += 1;
             }
             for j in remove_js.iter().rev() {
                 tick_messages.remove(*j);
