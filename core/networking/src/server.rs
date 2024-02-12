@@ -960,25 +960,38 @@ pub(crate) fn receive_incoming_reliable_client_messages(
     }
     // Process one fixed message per tick per client.
     // There are also multiple small low latency messages that arrive and get injected in sync with the client's fixed messages.
+    // When client is making adjustments it can freeze for x amount of ticks and we can receive multiple fixed messages with the same stamp id.
 
     for (_handle, client_messages) in queue.iter_mut() {
         let mut processed_stamps = vec![];
         let mut processed_fixed_message = false;
-        for (i, tick_messages) in client_messages.iter() {
+        for (i, tick_messages) in client_messages.iter_mut() {
             if i > &stamp.large {
                 break;
             }
-
-            for msg in tick_messages {
+            let mut j = 0;
+            let mut remove_js = vec![];
+            for msg in tick_messages.iter() {
+                j += 1;
                 if msg.message.fixed {
                     processed_fixed_message = true;
                 }
                 events.send(msg.clone());
 
-                processed_stamps.push(*i);
+                remove_js.push(j);
                 if processed_fixed_message {
                     break;
                 }
+            }
+            for j in remove_js.iter().rev() {
+                tick_messages.remove(*j);
+            }
+            if tick_messages.len() == 0 {
+                processed_stamps.push(*i);
+            }
+
+            if processed_fixed_message {
+                break;
             }
         }
 
