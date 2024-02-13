@@ -6,7 +6,6 @@ use bevy::ecs::system::Commands;
 use bevy::ecs::system::Local;
 use bevy::ecs::system::ResMut;
 use bevy::ecs::system::Resource;
-use bevy::log::info;
 use bevy::log::warn;
 use bevy::math::Vec3;
 use bevy::prelude::EventWriter;
@@ -159,15 +158,6 @@ pub(crate) fn server_replicate_peer_input_messages(
                 handle: connected.handle,
                 message: new_message,
             });
-            match &message.message {
-                ControllerClientMessage::MovementInput(inp) => {
-                    info!(
-                        "Forwarding peer input at tick {}, pressed {}",
-                        stamp.tick, inp.pressed
-                    );
-                }
-                ControllerClientMessage::SyncControllerInput(_) => {}
-            }
         }
     }
     for message in unreliable.read() {

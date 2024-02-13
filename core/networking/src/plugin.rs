@@ -42,7 +42,6 @@ use crate::{
         IncomingRawReliableClientMessage, IncomingRawUnreliableClientMessage,
         IncomingReliableClientMessageToReport, IncomingUnreliableClientMessageToReport, Latency,
         LatencyLimits, NetworkingChatServerMessage, NetworkingServerMessage, SyncConfirmations,
-        UnreliableServerMessage,
     },
     stamp::{step_tickrate_stamp, PauseTickStep, TickRateStamp},
 };
@@ -213,7 +212,6 @@ impl Plugin for NetworkingPlugin {
         .init_resource::<Typenames>()
         .add_systems(Startup, generate_typenames.after(TypenamesSet::Generate));
         register_reliable_message::<NetworkingClientMessage>(app, MessageSender::Client, true);
-        register_unreliable_message::<UnreliableServerMessage>(app, MessageSender::Server);
         register_reliable_message::<NetworkingChatServerMessage>(app, MessageSender::Server, true);
         register_reliable_message::<NetworkingServerMessage>(app, MessageSender::Server, true);
         register_unreliable_message::<NetworkingUnreliableClientMessage>(

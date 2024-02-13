@@ -143,14 +143,6 @@ pub struct StartSync {
     pub stamp: TickRateStamp,
 }
 
-/// This message gets sent at high intervals.
-#[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
-
-pub enum UnreliableServerMessage {
-    TransformUpdate(u64, Vec3, Quat, Option<Vec3>, u64, u8),
-    PositionUpdate(u64, Vec3, u64),
-}
-
 /// Variant types for input console commands with values.
 #[derive(Serialize, Deserialize, Debug, Clone)]
 
@@ -576,7 +568,7 @@ pub(crate) fn adjust_clients(
         let mut length = 0;
         for difference in tickrate_differences.iter() {
             if difference.client_sync_iteration == server_sync {
-                accumulative += difference.tick_difference as i16;
+                accumulative += difference.tick_difference as i32;
                 length += 1;
             }
         }

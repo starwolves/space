@@ -684,12 +684,6 @@ pub(crate) fn receive_incoming_reliable_server_messages(
                         queue.insert(server_stamp, vec![r]);
                     }
                 }
-                info!(
-                    "Queng to fire batch server stamp {} (u8={}, d={}).",
-                    server_stamp,
-                    message.stamp,
-                    stamp.get_difference(message.stamp),
-                );
             }
             Err(_) => {
                 warn!("Received an invalid message.");
@@ -733,7 +727,6 @@ pub(crate) fn receive_incoming_reliable_server_messages(
         }
         is.push(*i);
 
-        info!("Firing message batch server stamp {}.", i);
         break;
     }
 

@@ -147,7 +147,7 @@ pub struct PeerSyncLookTransform {
 
 #[derive(Event, Default, Resource)]
 pub struct LastPeerLookTransform {
-    pub map: HashMap<ClientId, u64>,
+    pub map: HashMap<ClientId, u32>,
 }
 
 pub fn default_look_transform() -> LookTransform {
@@ -518,13 +518,11 @@ pub(crate) fn keyboard_input(
     mut pressed: Local<Pressed>,
     pawn_id: Res<PawnId>,
     mut movement_event: EventWriter<InputMovementInput>,
-    mut i: Local<u64>,
     hud_focus: Res<HudState>,
     escape_menu_state: Res<EscapeMenuState>,
 ) {
     let interrupted = hud_focus.expanded || escape_menu_state.visible;
 
-    *i += 1;
     if !start.0 {
         return;
     }
@@ -777,10 +775,6 @@ pub(crate) fn controller_input(
                 let input_stamp;
                 match new_event.peer_data {
                     Some((position, look_target, server_stamp)) => {
-                        info!(
-                            "controller_input sstamp {} ({})",
-                            server_stamp, new_event.pressed
-                        );
                         input_stamp = server_stamp;
                         let adjusted_stamp = server_stamp - 1;
 
