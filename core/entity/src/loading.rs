@@ -26,7 +26,7 @@ use crate::spawn::SpawnEntity;
 
 #[derive(Resource, Default)]
 pub struct NewToBeCachedSpawnedEntities {
-    pub list: Vec<(u64, Entity)>,
+    pub list: Vec<(u32, Entity)>,
 }
 
 /// Client loads in entities.
@@ -107,7 +107,7 @@ pub fn load_entity<T: Send + Sync + 'static + Default + EntityType>(
 
                     /*info!(
                         "Loading pos {:?} for tick {} at tick {}",
-                        transform.translation, server_tick, stamp.large
+                        transform.translation, server_tick, stamp.tick
                     );*/
 
                     spawn_events.send(SpawnEntity {
@@ -148,11 +148,11 @@ pub fn load_entity<T: Send + Sync + 'static + Default + EntityType>(
                         }
                     }
 
-                    if compare_tick != stamp.large {
+                    if compare_tick != stamp.tick {
                         new.list.push((compare_tick, c_id));
                         correction.send(StartCorrection {
                             start_tick: adjusted_tick,
-                            last_tick: stamp.large,
+                            last_tick: stamp.tick,
                         });
                     } else {
                         info!("Perfect load entity sync.");

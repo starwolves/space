@@ -66,7 +66,7 @@ pub(crate) fn mouse_input(
             let difference = (*prev_target - look_transform.target).abs();
             if difference.length() > 0.0001 && !physics_loop.is_paused() {
                 let large_target_tick;
-                large_target_tick = stamp.large + 1;
+                large_target_tick = stamp.tick + 1;
 
                 let target_tick = TickRateStamp::new(large_target_tick).tick;
                 let id = typenames

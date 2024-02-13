@@ -306,27 +306,27 @@ pub struct ReliableServerMessageBatch {
     // The messages of this batch.
     pub messages: Vec<ReliableMessage>,
     // The confirmed tick stamp.
-    pub stamp: u8,
+    pub stamp: u32,
 }
 
 /// Batch of reliable client messages.
 #[derive(Serialize, Deserialize, Clone)]
 pub struct ReliableClientMessageBatch {
     pub messages: Vec<ReliableMessage>,
-    pub stamp: u8,
+    pub stamp: u32,
     pub fixed: bool,
 }
 /// Batch of unreliable messages.
 #[derive(Serialize, Deserialize, Clone)]
 pub struct UnreliableServerMessageBatch {
     pub messages: Vec<UnreliableMessage>,
-    pub stamp: u8,
+    pub stamp: u32,
 }
 /// Batch of unreliable messages.
 #[derive(Serialize, Deserialize, Clone)]
 pub struct UnreliableClientMessageBatch {
     pub messages: Vec<UnreliableMessage>,
-    pub stamp: u8,
+    pub stamp: u32,
     pub fixed: bool,
 }
 /// Wrapper for unreliable messages.

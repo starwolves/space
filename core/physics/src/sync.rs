@@ -90,7 +90,7 @@ pub(crate) fn sync_loop(
     mut net: EventReader<IncomingReliableServerMessage<NetworkingServerMessage>>,
     mut physics_loop: ResMut<Time<Physics>>,
     mut paused: ResMut<SyncPause>,
-    mut sync_queue: Local<Vec<(AdjustSync, u64)>>,
+    mut sync_queue: Local<Vec<(AdjustSync, u32)>>,
     mut out: EventWriter<OutgoingReliableClientMessage<NetworkingClientMessage>>,
     mut fixed_time: ResMut<Time<Fixed>>,
     mut fast_forwarding: ResMut<FastForwarding>,
@@ -153,8 +153,8 @@ pub(crate) fn sync_loop(
     match adjustment_option {
         Some((adjustment, server_stamp)) => {
             if !paused.paused {
-                let new_desired_large_tick = tick_latency.latency as u64 + adjustment.tick;
-                let mut delta = (stamp.large as i64 - new_desired_large_tick as i64) as i16;
+                let new_desired_large_tick = tick_latency.latency as u32 + adjustment.tick;
+                let mut delta = (stamp.tick as i64 - new_desired_large_tick as i64) as i16;
                 if delta == 0 {
                     if adjustment.forward {
                         delta = -1;
@@ -230,8 +230,8 @@ pub fn init_physics_data(
     stamp: Res<TickRateStamp>,
     start: Res<StartCorrection>,
 ) {
-    if stamp.large == start.start_tick {
-        match cache.cache.get(&stamp.large) {
+    if stamp.tick == start.start_tick {
+        match cache.cache.get(&stamp.tick) {
             Some(physics_cache) => {
                 for (_, cache) in physics_cache.iter() {
                     if cache.spawn_frame {
@@ -385,7 +385,7 @@ pub(crate) fn sync_correction_world_entities(
     stamp: Res<TickRateStamp>,
     correcting: Res<IsCorrecting>,
 ) {
-    let cache_tick = stamp.large;
+    let cache_tick = stamp.tick;
     if !correcting.0 {
         return;
     }
@@ -434,13 +434,13 @@ pub(crate) fn sync_correction_world_entities(
                         Some(cid) => {
                             info!(
                                 "Tick {} correction despawn {:?}, cid:{:?}",
-                                stamp.large, correction_entity, cid
+                                stamp.tick, correction_entity, cid
                             );
                         }
                         None => {
                             warn!(
                                 "Tick {} correction despawn (nolink) {:?}",
-                                stamp.large, correction_entity
+                                stamp.tick, correction_entity
                             );
                         }
                     }*/
@@ -541,7 +541,7 @@ pub(crate) fn sync_correction_world_entities(
         });
         /*info!(
             "Tick {} correction spawn {:?}, cid:{:?}, ncache.entity: {:?} ",
-            stamp.large, entity, client_entity, ncache.entity,
+            stamp.tick, entity, client_entity, ncache.entity,
         );*/
     }
 }
@@ -717,13 +717,13 @@ pub(crate) fn desync_check_correction(
                         }
                     }
 
-                    if message.stamp == stamp.large {
+                    if message.stamp == stamp.tick {
                         info!("Perfect desync check.");
                         syncs.send(SyncEntitiesPhysics { entities: tosync });
                     } else {
                         correction.send(StartCorrection {
                             start_tick: adjusted_latest,
-                            last_tick: stamp.large,
+                            last_tick: stamp.tick,
                         });
                     }
                 }
@@ -743,7 +743,7 @@ pub(crate) fn client_apply_priority_cache(
     >,
     stamp: Res<TickRateStamp>,
 ) {
-    let adjusted_stamp = stamp.large;
+    let adjusted_stamp = stamp.tick;
 
     match priority.cache.get(&adjusted_stamp) {
         Some(priority_cache) => {
@@ -786,10 +786,10 @@ pub fn correction_server_apply_priority_cache(
     link: Res<CorrectionServerRigidBodyLink>,
     start: Res<StartCorrection>,
 ) {
-    if stamp.large < start.start_tick {
+    if stamp.tick < start.start_tick {
         return;
     }
-    let mut adjusted_stamp = stamp.large;
+    let mut adjusted_stamp = stamp.tick;
     if adjusted_stamp > 0 {
         adjusted_stamp -= 1;
     }
@@ -853,7 +853,7 @@ pub(crate) fn client_despawn_and_clean_cache(
         match message.message {
             EntityServerMessage::UnloadEntity(entity) => match links.map.get(&entity) {
                 Some(client_entity) => {
-                    for i in message.stamp..stamp.large {
+                    for i in message.stamp..stamp.tick {
                         match cache.cache.get_mut(&i) {
                             Some(c) => {
                                 c.remove(client_entity);
@@ -863,7 +863,7 @@ pub(crate) fn client_despawn_and_clean_cache(
                     }
                     start.send(StartCorrection {
                         start_tick: message.stamp,
-                        last_tick: stamp.large,
+                        last_tick: stamp.tick,
                     });
                 }
                 None => {

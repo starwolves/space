@@ -53,7 +53,7 @@ pub struct LookTransformBundle {
 }
 #[derive(Resource, Default, Clone)]
 pub struct LookTransformCache {
-    pub cache: BTreeMap<Entity, BTreeMap<u64, LookTransform>>,
+    pub cache: BTreeMap<Entity, BTreeMap<u32, LookTransform>>,
 }
 
 pub(crate) fn clean_look_cache(mut cache: ResMut<LookTransformCache>) {
@@ -85,7 +85,7 @@ pub(crate) fn apply_look_cache_to_peers(
         match cache.cache.get(&entity) {
             Some(look_cache) => {
                 for i in look_cache.keys().rev() {
-                    if i > &stamp.large {
+                    if i > &stamp.tick {
                         continue;
                     }
                     let lk = look_cache.get(&i).unwrap();
@@ -93,7 +93,7 @@ pub(crate) fn apply_look_cache_to_peers(
                     if look_transform.target != lk.target {
                         /*info!(
                             "apply_look_cache_to_peers tick {} entity {:?} target {:?}",
-                            stamp.large, entity, lk.target
+                            stamp.tick, entity, lk.target
                         );*/
                     }
 
@@ -115,11 +115,11 @@ pub(crate) fn cache_client_pawn_look_transform(
     for (entity, controller) in query.iter() {
         match cache.cache.get_mut(&entity) {
             Some(map) => {
-                map.insert(stamp.large, controller.clone());
+                map.insert(stamp.tick, controller.clone());
             }
             None => {
                 let mut map = BTreeMap::new();
-                map.insert(stamp.large, controller.clone());
+                map.insert(stamp.tick, controller.clone());
                 cache.cache.insert(entity, map);
             }
         }

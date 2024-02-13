@@ -21,7 +21,7 @@ use crate::entity::{RigidBodies, SFRigidBody};
 /// Correction server sometimes stores client-side entity ID when it is not yet spawned in.
 #[derive(Resource, Default, Clone)]
 pub struct PhysicsCache {
-    pub cache: BTreeMap<u64, HashMap<Entity, Cache>>,
+    pub cache: BTreeMap<u32, HashMap<Entity, Cache>>,
 }
 pub(crate) fn clear_physics_cache(mut cache0: ResMut<PhysicsCache>) {
     // Clean cache.
@@ -87,7 +87,7 @@ pub(crate) fn apply_newly_spawned_data(
 ) {
     for (spawn_stamp, entity) in new.list.iter() {
         let new_data;
-        match cache.cache.clone().get(&stampres.large) {
+        match cache.cache.clone().get(&stampres.tick) {
             Some(physics_cache) => match physics_cache.get(entity) {
                 Some(stepped_data) => {
                     new_data = stepped_data.clone();
@@ -95,7 +95,7 @@ pub(crate) fn apply_newly_spawned_data(
                 None => {
                     /*warn!(
                         "Couldnt find new spawned entity old entity cache. {:?} adjusted_tick {}",
-                        entity, stampres.large
+                        entity, stampres.tick
                     );*/
                     continue;
                 }
@@ -106,7 +106,7 @@ pub(crate) fn apply_newly_spawned_data(
             }
         }
 
-        for i in *spawn_stamp..stampres.large {
+        for i in *spawn_stamp..stampres.tick {
             let mut this_data = new_data.clone();
             if i == *spawn_stamp {
                 this_data.spawn_frame = true;
@@ -155,7 +155,7 @@ pub(crate) fn cache_data_prev_tick(
     types: Query<&EntityData>,
 ) {
     for (t0, collider_friction) in query.iter() {
-        let mut adjusted_stamp = stamp.large;
+        let mut adjusted_stamp = stamp.tick;
         if adjusted_stamp > 0 {
             adjusted_stamp -= 1;
         }
@@ -279,7 +279,7 @@ pub(crate) fn cache_data_new_spawns(
     types: Query<&EntityData>,
 ) {
     for (t0, collider_friction) in query.iter() {
-        let adjusted_stamp = stamp.large;
+        let adjusted_stamp = stamp.tick;
 
         let (
             rb_entity,
@@ -399,7 +399,7 @@ pub(crate) fn _cache_data(
     types: Query<&EntityData>,
 ) {
     for (t0, collider_friction) in query.iter() {
-        let adjusted_stamp = stamp.large - 1;
+        let adjusted_stamp = stamp.tick - 1;
 
         let (
             rb_entity,
@@ -519,7 +519,7 @@ pub fn sync_entities(
 ) {
     for sync in syncs.read() {
         for entity in sync.entities.iter() {
-            match physics_cache.cache.get(&(&stamp.large - 1)) {
+            match physics_cache.cache.get(&(&stamp.tick - 1)) {
                 Some(physics_cache) => {
                     let cache;
                     match physics_cache.get(entity) {

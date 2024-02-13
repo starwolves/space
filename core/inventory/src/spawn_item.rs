@@ -165,7 +165,7 @@ pub(crate) fn spawn_entity_for_client(
                 }
 
                 let physics_data;
-                match new.cache.get(&(stamp.large - 1)) {
+                match new.cache.get(&(stamp.tick - 1)) {
                     Some(previous_spawns) => match previous_spawns.get(&load_entity_event.entity) {
                         Some(newly_spawned) => {
                             physics_data = PhysicsData::SpawnData(newly_spawned.clone());

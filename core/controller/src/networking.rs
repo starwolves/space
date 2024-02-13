@@ -76,9 +76,9 @@ pub(crate) fn syncable_entity(
         match handle_to_entity.inv_map.get(&entity) {
             Some(handle) => match latest.0.get(handle) {
                 Some((last_input_stamp, _)) => {
-                    if stamp.large
+                    if stamp.tick
                         > *last_input_stamp
-                            + (tickrate.fixed_rate as f32 / (DESYNC_FREQUENCY * 2.)) as u64
+                            + (tickrate.fixed_rate as f32 / (DESYNC_FREQUENCY * 2.)) as u32
                     {
                         if disabled.is_some() {
                             commands.entity(entity).remove::<DisableSync>();
@@ -99,7 +99,7 @@ pub(crate) fn syncable_entity(
 }
 
 #[derive(Resource, Default)]
-pub struct PeerLatestLookSync(HashMap<ClientId, (u64, u8)>);
+pub struct PeerLatestLookSync(HashMap<ClientId, (u32, u8)>);
 
 pub(crate) fn server_replicate_peer_input_messages(
     mut reliable: EventReader<IncomingReliableClientMessage<ControllerClientMessage>>,
@@ -109,7 +109,7 @@ pub(crate) fn server_replicate_peer_input_messages(
     stamp: Res<TickRateStamp>,
     handle_to_entity: Res<HandleToEntity>,
     mut latest_look_transform_sync: ResMut<PeerLatestLookSync>,
-    mut queue: Local<HashMap<ClientId, BTreeMap<u64, BTreeMap<u8, Vec3>>>>,
+    mut queue: Local<HashMap<ClientId, BTreeMap<u32, BTreeMap<u8, Vec3>>>>,
     mut send_reliable: EventWriter<OutgoingReliableServerMessage<PeerReliableControllerMessage>>,
     mut send_unreliable: EventWriter<
         OutgoingUnreliableServerMessage<PeerUnreliableControllerMessage>,
@@ -163,7 +163,7 @@ pub(crate) fn server_replicate_peer_input_messages(
                 ControllerClientMessage::MovementInput(inp) => {
                     info!(
                         "Forwarding peer input at tick {}, pressed {}",
-                        stamp.large, inp.pressed
+                        stamp.tick, inp.pressed
                     );
                 }
                 ControllerClientMessage::SyncControllerInput(_) => {}
@@ -205,7 +205,7 @@ pub(crate) fn server_replicate_peer_input_messages(
             let mut latest = false;
             match message.message {
                 UnreliableControllerClientMessage::UpdateLookTransform(target, new_id) => {
-                    let large = stamp.large;
+                    let large = stamp.tick;
                     match queue.get_mut(&connected.handle) {
                         Some(q1) => match q1.get_mut(&large) {
                             Some(q2) => {

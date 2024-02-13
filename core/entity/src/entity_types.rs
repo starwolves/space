@@ -117,11 +117,11 @@ pub struct EntityTypeCache {
 pub(crate) fn clean_entity_type_cache(
     mut type_cache: ResMut<EntityTypeCache>,
     mut despawns: EventReader<DespawnEntity>,
-    mut store: Local<HashMap<Entity, u64>>,
+    mut store: Local<HashMap<Entity, u32>>,
     stamp: Res<TickRateStamp>,
 ) {
     for event in despawns.read() {
-        store.insert(event.entity, stamp.large);
+        store.insert(event.entity, stamp.tick);
     }
 
     for (entity, tick) in store.clone().iter() {
@@ -131,7 +131,7 @@ pub(crate) fn clean_entity_type_cache(
         } else {
             c = *tick - MAX_CACHE_TICKS_AMNT;
         }
-        if c > stamp.large {
+        if c > stamp.tick {
             type_cache.map.remove(entity);
             store.remove(entity);
         }

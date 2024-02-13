@@ -118,8 +118,8 @@ pub trait GridEntity {
 
 #[derive(Resource, Default)]
 pub struct QueuedSpawnEntityUpdates {
-    pub reliable: HashMap<Entity, (u64, Vec<Vec<u8>>)>,
-    pub unreliable: HashMap<Entity, (u64, Vec<Vec<u8>>)>,
+    pub reliable: HashMap<Entity, (u32, Vec<Vec<u8>>)>,
+    pub unreliable: HashMap<Entity, (u32, Vec<Vec<u8>>)>,
 }
 
 /// We have to deserialize raw messages for a second time that are inside the LoadEntity call as it supplies an additional collection of Entity Updates

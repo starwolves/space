@@ -410,15 +410,13 @@ pub(crate) fn deserialize_incoming_unreliable_client_message<
     mut incoming_raw: EventReader<IncomingRawUnreliableClientMessage>,
     mut outgoing: EventWriter<IncomingUnreliableClientMessage<T>>,
     typenames: Res<Typenames>,
-
-    stamp: Res<TickRateStamp>,
 ) {
     for event in incoming_raw.read() {
         for message in event.message.messages.iter() {
             match get_unreliable_message::<T>(&typenames, message.typename_net, &message.serialized)
             {
                 Some(data) => {
-                    let b = stamp.calculate_large(event.message.stamp);
+                    let b = event.message.stamp;
 
                     let r = IncomingUnreliableClientMessage {
                         message: data,
@@ -440,13 +438,12 @@ pub(crate) fn deserialize_incoming_reliable_client_message<
     mut incoming_raw: EventReader<IncomingRawReliableClientMessage>,
     mut outgoing: EventWriter<IncomingReliableClientMessage<T>>,
     typenames: Res<Typenames>,
-    stamp: Res<TickRateStamp>,
 ) {
     for event in incoming_raw.read() {
         for message in event.message.messages.iter() {
             match get_reliable_message::<T>(&typenames, message.typename_net, &message.serialized) {
                 Some(data) => {
-                    let b = stamp.calculate_large(event.message.stamp);
+                    let b = event.message.stamp;
 
                     let r = IncomingReliableClientMessage {
                         message: data,
@@ -466,7 +463,7 @@ pub(crate) fn deserialize_incoming_reliable_client_message<
 pub struct IncomingReliableClientMessage<T: TypeName + Send + Sync + Serialize> {
     pub handle: ClientId,
     pub message: T,
-    pub stamp: u64,
+    pub stamp: u32,
     pub fixed: bool,
 }
 ///  Messages that you receive with this event must be initiated from a plugin builder with [crate::messaging::init_unreliable_message].
@@ -474,7 +471,7 @@ pub struct IncomingReliableClientMessage<T: TypeName + Send + Sync + Serialize> 
 pub struct IncomingUnreliableClientMessage<T: TypeName + Send + Sync + Serialize + Clone> {
     pub handle: ClientId,
     pub message: T,
-    pub stamp: u64,
+    pub stamp: u32,
 }
 
 #[derive(Resource, Default)]
@@ -485,7 +482,7 @@ pub struct SyncConfirmations {
 #[derive(Debug)]
 pub struct LatencyReport {
     pub client_sync_iteration: u64,
-    pub tick_difference: i16,
+    pub tick_difference: i32,
 }
 
 /// Vectors containing adjustment iteration and tick difference linked by connection handle.
@@ -495,7 +492,7 @@ pub struct Latency {
 }
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct AdjustSync {
-    pub tick: u64,
+    pub tick: u32,
     pub forward: bool,
 }
 pub(crate) fn clean_latency_reports(
@@ -602,7 +599,7 @@ pub(crate) fn adjust_clients(
                     continue;
                 }
                 let sync = AdjustSync {
-                    tick: (stamp.large as i128 + num as i128) as u64,
+                    tick: (stamp.tick as i64 + num as i64) as u32,
                     forward: true,
                 };
 
@@ -627,7 +624,7 @@ pub(crate) fn adjust_clients(
                     continue;
                 }
                 let sync = AdjustSync {
-                    tick: (stamp.large as i128 - num as i128) as u64,
+                    tick: (stamp.tick as i64 - num as i64) as u32,
                     forward: false,
                 };
                 net.send(OutgoingReliableServerMessage {
@@ -758,14 +755,14 @@ pub(crate) fn _adjust_latency_limits(
 
             let difference = highest - lowest;
 
-            if difference >= l.min as i16 {
+            if difference >= l.min as i32 {
                 l.min += 1;
                 l.max += 2;
                 info!(
                     "Increasing latency min/max to {}/{} [{}].",
                     l.min, l.max, handle
                 );
-            } else if difference < l.min as i16 - 1 {
+            } else if difference < l.min as i32 - 1 {
                 if l.min == DEFAULT_MIN_LATENCY {
                     continue;
                 }
@@ -891,7 +888,7 @@ pub(crate) fn process_sync_confirmation(
 
 pub(crate) fn receive_incoming_reliable_client_messages(
     mut server: ResMut<RenetServer>,
-    mut queue: Local<HashMap<ClientId, BTreeMap<u64, Vec<IncomingRawReliableClientMessage>>>>,
+    mut queue: Local<HashMap<ClientId, BTreeMap<u32, Vec<IncomingRawReliableClientMessage>>>>,
     stamp: Res<TickRateStamp>,
     mut events: EventWriter<IncomingRawReliableClientMessage>,
     mut report: EventWriter<IncomingReliableClientMessageToReport>,
@@ -904,7 +901,7 @@ pub(crate) fn receive_incoming_reliable_client_messages(
                         message: message.clone(),
                         handle,
                     };
-                    let b = stamp.calculate_large(message.stamp);
+                    let b = message.stamp;
 
                     match queue.get_mut(&handle) {
                         Some(q1) => match q1.get_mut(&b) {
@@ -936,7 +933,7 @@ pub(crate) fn receive_incoming_reliable_client_messages(
                         message: message.clone(),
                         handle,
                     };
-                    let b = stamp.calculate_large(message.stamp);
+                    let b = message.stamp;
 
                     match queue.get_mut(&handle) {
                         Some(q1) => match q1.get_mut(&b) {
@@ -966,7 +963,7 @@ pub(crate) fn receive_incoming_reliable_client_messages(
         let mut processed_stamps = vec![];
         let mut processed_fixed_message = false;
         for (i, tick_messages) in client_messages.iter_mut() {
-            if i > &stamp.large {
+            if i > &stamp.tick {
                 break;
             }
             let mut j = 0;
@@ -1006,7 +1003,7 @@ use crate::plugin::{RENET_RELIABLE_UNORDERED_ID, RENET_UNRELIABLE_CHANNEL_ID};
 
 pub(crate) fn receive_incoming_unreliable_client_messages(
     mut server: ResMut<RenetServer>,
-    mut queue: Local<HashMap<ClientId, BTreeMap<u64, Vec<IncomingRawUnreliableClientMessage>>>>,
+    mut queue: Local<HashMap<ClientId, BTreeMap<u32, Vec<IncomingRawUnreliableClientMessage>>>>,
     stamp: Res<TickRateStamp>,
     mut events: EventWriter<IncomingRawUnreliableClientMessage>,
     mut report: EventWriter<IncomingUnreliableClientMessageToReport>,
@@ -1019,7 +1016,7 @@ pub(crate) fn receive_incoming_unreliable_client_messages(
                         message: message.clone(),
                         handle,
                     };
-                    let b = stamp.calculate_large(message.stamp);
+                    let b = message.stamp;
 
                     match queue.get_mut(&handle) {
                         Some(q1) => match q1.get_mut(&b) {
@@ -1051,7 +1048,7 @@ pub(crate) fn receive_incoming_unreliable_client_messages(
     for (_handle, client_messages) in queue.iter_mut() {
         let mut processed_stamps = vec![];
         for (i, tick_messages) in client_messages.iter() {
-            if i > &stamp.large {
+            if i > &stamp.tick {
                 break;
             }
             for msg in tick_messages {

@@ -466,10 +466,9 @@ pub(crate) fn deserialize_incoming_unreliable_server_message<
     mut incoming_raw: EventReader<IncomingRawUnreliableServerMessage>,
     mut outgoing: EventWriter<IncomingUnreliableServerMessage<T>>,
     typenames: Res<Typenames>,
-    stamp: Res<TickRateStamp>,
 ) {
     for batch in incoming_raw.read() {
-        let server_stamp = stamp.calculate_large(batch.message.stamp);
+        let server_stamp = batch.message.stamp;
 
         for message in batch.message.messages.iter() {
             match get_unreliable_message::<T>(&typenames, message.typename_net, &message.serialized)
@@ -504,10 +503,9 @@ pub fn deserialize_incoming_reliable_load_entity_updates<
     incoming_raw: Res<QueuedSpawnEntityRaw>,
     mut outgoing: EventWriter<IncomingReliableServerMessage<T>>,
     typenames: Res<Typenames>,
-    stamp: Res<TickRateStamp>,
 ) {
     for batch in incoming_raw.reliable.iter() {
-        let server_stamp = stamp.calculate_large(batch.message.stamp);
+        let server_stamp = batch.message.stamp;
 
         for message in batch.message.messages.iter() {
             match get_reliable_message::<T>(&typenames, message.typename_net, &message.serialized) {
@@ -555,10 +553,9 @@ pub fn deserialize_incoming_unreliable_load_entity_updates<
     incoming_raw: Res<QueuedSpawnEntityRaw>,
     mut outgoing: EventWriter<IncomingUnreliableServerMessage<T>>,
     typenames: Res<Typenames>,
-    stamp: Res<TickRateStamp>,
 ) {
     for batch in incoming_raw.unreliable.iter() {
-        let server_stamp = stamp.calculate_large(batch.message.stamp);
+        let server_stamp = batch.message.stamp;
 
         for message in batch.message.messages.iter() {
             match get_unreliable_message::<T>(&typenames, message.typename_net, &message.serialized)
@@ -582,10 +579,9 @@ pub fn deserialize_incoming_reliable_server_message<
     mut incoming_raw: EventReader<IncomingRawReliableServerMessage>,
     mut outgoing: EventWriter<IncomingReliableServerMessage<T>>,
     typenames: Res<Typenames>,
-    stamp: Res<TickRateStamp>,
 ) {
     for batch in incoming_raw.read() {
-        let server_stamp = stamp.calculate_large(batch.message.stamp);
+        let server_stamp = batch.message.stamp;
 
         for message in batch.message.messages.iter() {
             match get_reliable_message::<T>(&typenames, message.typename_net, &message.serialized) {
@@ -605,13 +601,13 @@ pub fn deserialize_incoming_reliable_server_message<
 #[derive(Event, Clone)]
 pub struct IncomingReliableServerMessage<T: TypeName + Send + Sync + Serialize> {
     pub message: T,
-    pub stamp: u64,
+    pub stamp: u32,
 }
 ///  Messages that you receive with this event must be initiated from a plugin builder with [crate::messaging::init_unreliable_message].
 #[derive(Event, Clone)]
 pub struct IncomingUnreliableServerMessage<T: TypeName + Send + Sync + Serialize> {
     pub message: T,
-    pub stamp: u64,
+    pub stamp: u32,
 }
 
 /// Dezerializes incoming server messages and writes to event.
@@ -619,14 +615,14 @@ pub struct IncomingUnreliableServerMessage<T: TypeName + Send + Sync + Serialize
 pub(crate) fn receive_incoming_unreliable_server_messages(
     mut events: EventWriter<IncomingRawUnreliableServerMessage>,
     mut client: ResMut<RenetClient>,
-    mut queue: Local<BTreeMap<u64, Vec<IncomingRawUnreliableServerMessage>>>,
+    mut queue: Local<BTreeMap<u32, Vec<IncomingRawUnreliableServerMessage>>>,
     stamp: Res<TickRateStamp>,
     latency: Res<TickLatency>,
 ) {
     while let Some(msg) = client.receive_message(RENET_UNRELIABLE_CHANNEL_ID) {
         match bincode::deserialize::<UnreliableServerMessageBatch>(&msg) {
             Ok(message) => {
-                let store_stamp = stamp.calculate_large(message.stamp);
+                let store_stamp = message.stamp;
                 let r = IncomingRawUnreliableServerMessage { message: message };
                 match queue.get_mut(&store_stamp) {
                     Some(v) => {
@@ -642,8 +638,8 @@ pub(crate) fn receive_incoming_unreliable_server_messages(
             }
         }
     }
-    let latency_in_ticks = latency.latency as u64;
-    let desired_tick = stamp.large - latency_in_ticks;
+    let latency_in_ticks = latency.latency as u32;
+    let desired_tick = stamp.tick - latency_in_ticks;
     let bound_queue = queue.clone();
     let mut is = vec![];
     // Messages are either main FixedUpdate reliable batches or separated small message batches sent from Update for low latency input replication.
@@ -668,14 +664,14 @@ pub(crate) fn receive_incoming_unreliable_server_messages(
 pub(crate) fn receive_incoming_reliable_server_messages(
     mut client: ResMut<RenetClient>,
     mut events: EventWriter<IncomingRawReliableServerMessage>,
-    mut queue: Local<BTreeMap<u64, Vec<IncomingRawReliableServerMessage>>>,
+    mut queue: Local<BTreeMap<u32, Vec<IncomingRawReliableServerMessage>>>,
     stamp: Res<TickRateStamp>,
     latency: Res<TickLatency>,
 ) {
     while let Some(msg) = client.receive_message(RENET_RELIABLE_ORDERED_ID) {
         match bincode::deserialize::<ReliableServerMessageBatch>(&msg) {
             Ok(message) => {
-                let server_stamp = stamp.calculate_large(message.stamp);
+                let server_stamp = message.stamp;
                 let r = IncomingRawReliableServerMessage {
                     message: message.clone(),
                 };
@@ -703,7 +699,7 @@ pub(crate) fn receive_incoming_reliable_server_messages(
     while let Some(msg) = client.receive_message(RENET_RELIABLE_UNORDERED_ID) {
         match bincode::deserialize::<ReliableServerMessageBatch>(&msg) {
             Ok(message) => {
-                let server_stamp = stamp.calculate_large(message.stamp);
+                let server_stamp = message.stamp;
                 let r = IncomingRawReliableServerMessage { message: message };
 
                 match queue.get_mut(&server_stamp) {
@@ -721,8 +717,8 @@ pub(crate) fn receive_incoming_reliable_server_messages(
         }
     }
 
-    let latency_in_ticks = latency.latency as u64;
-    let desired_tick = stamp.large - latency_in_ticks;
+    let latency_in_ticks = latency.latency as u32;
+    let desired_tick = stamp.tick - latency_in_ticks;
     let bound_queue = queue.clone();
     let mut is = vec![];
     // Process one message batch per tick.

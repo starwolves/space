@@ -212,13 +212,13 @@ use resources::{
 
 #[derive(Resource, Default)]
 pub struct NewlySpawnedRigidbodies {
-    pub cache: BTreeMap<u64, HashMap<Entity, PhysicsSpawn>>,
+    pub cache: BTreeMap<u32, HashMap<Entity, PhysicsSpawn>>,
 }
 pub(crate) fn clear_new(mut cache: ResMut<NewlySpawnedRigidbodies>, stamp: Res<TickRateStamp>) {
     let mut to_remove = vec![];
     for recorded_stamp in cache.cache.keys() {
-        if stamp.large >= MAX_CACHE_TICKS_AMNT
-            && recorded_stamp < &(stamp.large - MAX_CACHE_TICKS_AMNT)
+        if stamp.tick >= MAX_CACHE_TICKS_AMNT
+            && recorded_stamp < &(stamp.tick - MAX_CACHE_TICKS_AMNT)
         {
             to_remove.push(*recorded_stamp);
         }
@@ -242,7 +242,7 @@ pub fn build_rigid_bodies<T: RigidBodyBuilder<NoData> + 'static>(
             .entity_type
             .get_bundle(&spawn_event.spawn_data, NoData);
 
-        match new.cache.get_mut(&stamp.large) {
+        match new.cache.get_mut(&stamp.tick) {
             Some(l) => {
                 l.insert(
                     spawn_event.spawn_data.entity,
@@ -261,7 +261,7 @@ pub fn build_rigid_bodies<T: RigidBodyBuilder<NoData> + 'static>(
                         rotation: spawn_event.spawn_data.entity_transform.rotation,
                     },
                 );
-                new.cache.insert(stamp.large, map);
+                new.cache.insert(stamp.tick, map);
             }
         }
 

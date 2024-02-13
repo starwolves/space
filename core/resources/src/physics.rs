@@ -25,7 +25,7 @@ pub struct SmallCache {
 /// Contains known authorative physics data.
 #[derive(Resource, Default, Clone)]
 pub struct PriorityPhysicsCache {
-    pub cache: BTreeMap<u64, HashMap<Entity, PriorityUpdate>>,
+    pub cache: BTreeMap<u32, HashMap<Entity, PriorityUpdate>>,
 }
 #[derive(Clone, Debug)]
 pub enum PriorityUpdate {

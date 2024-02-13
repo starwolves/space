@@ -3,16 +3,35 @@ use bevy::{
     time::Time,
 };
 use bevy_xpbd_3d::prelude::{Physics, PhysicsTime};
-use resources::core::TickRate;
 use serde::{Deserialize, Serialize};
 
 #[derive(Resource, Default, Serialize, Deserialize, Debug, Clone)]
 pub struct TickRateStamp {
-    pub tick: u8,
-    pub iteration: u64,
-    pub large: u64,
+    pub tick: u32,
+    //pub iteration: u64,
+    //pub large: u64,
 }
-
+impl TickRateStamp {
+    pub fn new(tick: u32) -> Self {
+        //let iteration = large / (u8::MAX as u64 + 1);
+        //let tick = (large - (iteration * (u8::MAX as u64 + 1))) as u8;
+        Self { tick }
+    }
+    pub fn step(&mut self) {
+        self.tick += 1;
+    }
+    pub fn step_custom(&mut self, step_amount: u32) {
+        self.tick += step_amount;
+    }
+    pub fn get_difference(&self, input: u32) -> i32 {
+        if input > self.tick {
+            input as i32 - self.tick as i32
+        } else {
+            -(self.tick as i32 - input as i32)
+        }
+    }
+}
+/*
 impl TickRateStamp {
     pub fn new(large: u64) -> Self {
         let iteration = large / (u8::MAX as u64 + 1);
@@ -74,7 +93,7 @@ impl TickRateStamp {
         }
     }
 }
-
+*/
 #[derive(Resource, Default)]
 pub struct PauseTickStep(pub bool);
 

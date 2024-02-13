@@ -47,7 +47,7 @@ impl Default for ControllerInput {
 
 #[derive(Resource, Default, Clone)]
 pub struct ControllerCache {
-    pub cache: HashMap<Entity, BTreeMap<u64, ControllerInput>>,
+    pub cache: HashMap<Entity, BTreeMap<u32, ControllerInput>>,
 }
 
 pub(crate) fn clean_controller_cache(mut cache: ResMut<ControllerCache>) {
@@ -124,7 +124,7 @@ pub(crate) fn server_sync_look_transform(
     mut humanoids: Query<&mut LookTransform>,
     mut messages: EventReader<IncomingUnreliableClientMessage<UnreliableControllerClientMessage>>,
     handle_to_entity: Res<HandleToEntity>,
-    mut queue: Local<HashMap<ClientId, BTreeMap<u64, BTreeMap<u8, Vec3>>>>,
+    mut queue: Local<HashMap<ClientId, BTreeMap<u32, BTreeMap<u8, Vec3>>>>,
     stamp: Res<TickRateStamp>,
 ) {
     for msg in messages.read() {
@@ -155,7 +155,7 @@ pub(crate) fn server_sync_look_transform(
     let mut old_handles = vec![];
     for (handle, q) in queue.iter() {
         for i in q.keys().rev() {
-            if i > &stamp.large {
+            if i > &stamp.tick {
                 continue;
             }
             let q2 = q.get(i).unwrap();

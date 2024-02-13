@@ -109,7 +109,7 @@ pub(crate) fn finish_correction(
     synchronous_correction: Res<SynchronousCorrection>,
     sender: Res<CorrectionResultsSender>,
 ) {
-    if correcting.0 && stamp.large == start.last_tick {
+    if correcting.0 && stamp.tick == start.last_tick {
         correcting.0 = false;
 
         let new_storage = storage.0.clone();
@@ -338,7 +338,7 @@ pub(crate) fn start_correction(
     controller_cache: Res<ControllerCache>,
     priority: Res<PriorityPhysicsCache>,
     stamp: Res<TickRateStamp>,
-    mut previous_lowest_start: Local<u64>,
+    mut previous_lowest_start: Local<u32>,
     entity_type_cache: Res<EntityTypeCache>,
     mut start_message: ResMut<StartCorrectingMessage>,
     mut ongoing: ResMut<SynchronousCorrectionOnGoing>,
@@ -370,8 +370,8 @@ pub(crate) fn start_correction(
     if !one_event {
         return;
     }
-    if highest_end != stamp.large {
-        warn!("StartCorrection received last tick that is not equal to stamp.large");
+    if highest_end != stamp.tick {
+        warn!("StartCorrection received last tick that is not equal to stamp.tick");
     }
     if lowest_start < *previous_lowest_start {
         info!("StartCorrection received start tick that is less than previous lowest start.");
@@ -386,7 +386,7 @@ pub(crate) fn start_correction(
     }
     /*info!(
         "Start correction {}-{} at tick {}",
-        lowest_start, highest_end, stamp.large
+        lowest_start, highest_end, stamp.tick
     );*/
     *start_message = StartCorrectingMessage {
         start: StartCorrection {
@@ -516,10 +516,10 @@ pub(crate) fn store_tick_data(
     link: Res<CorrectionServerRigidBodyLink>,
     physics_cache: Res<PhysicsCache>,
 ) {
-    if !correcting.0 || stamp.large <= correction.start_tick {
+    if !correcting.0 || stamp.tick <= correction.start_tick {
         return;
     }
-    storage.0.cache.insert(stamp.large, HashMap::new());
+    storage.0.cache.insert(stamp.tick, HashMap::new());
 
     for (t0, collider_friction) in query.iter() {
         let (
@@ -539,7 +539,7 @@ pub(crate) fn store_tick_data(
             locked_axes,
             collision_layers,
         ) = t0;
-        let tick_cache = storage.0.cache.get_mut(&stamp.large).unwrap();
+        let tick_cache = storage.0.cache.get_mut(&stamp.tick).unwrap();
         let entity_type;
         let client_entity;
         match link.get_client(&rb_entity) {
@@ -560,7 +560,7 @@ pub(crate) fn store_tick_data(
                 continue;
             }
         }
-        match physics_cache.cache.get(&stamp.large) {
+        match physics_cache.cache.get(&stamp.tick) {
             Some(c) => match c.get(&rb_entity) {
                 Some(x) => {
                     if x.spawn_frame {
@@ -659,7 +659,7 @@ pub(crate) fn apply_correction_results(
         }
     }
 
-    match correction_results.data.cache.get(&stamp.large) {
+    match correction_results.data.cache.get(&stamp.tick) {
         Some(cache_vec) => {
             for (_, cache) in cache_vec {
                 match query.get_mut(cache.rb_entity) {
@@ -712,7 +712,7 @@ pub(crate) fn apply_correction_results(
             }
             warn!(
                 "Correction results did not contain current tick: {} {:?}",
-                stamp.large, d
+                stamp.tick, d
             );
         }
     }
@@ -730,7 +730,7 @@ pub(crate) fn apply_controller_caches(
     if !correcting.0 {
         return;
     }
-    if stamp.large <= start.start_tick {
+    if stamp.tick <= start.start_tick {
         return;
     }
     for (entity, mut look, mut controller) in query.iter_mut() {
@@ -752,7 +752,7 @@ pub(crate) fn apply_controller_caches(
         match controller_cache.cache.get(&client_entity) {
             Some(tick_cache) => {
                 for tick in tick_cache.keys().rev() {
-                    if tick > &stamp.large {
+                    if tick > &stamp.tick {
                         continue;
                     }
                     controller_t = Some(tick_cache.get(tick).unwrap());
@@ -764,7 +764,7 @@ pub(crate) fn apply_controller_caches(
         match look_cache.cache.get(&client_entity) {
             Some(tick_cache) => {
                 for tick in tick_cache.keys().rev() {
-                    if tick > &stamp.large {
+                    if tick > &stamp.tick {
                         continue;
                     }
                     look_t = Some(tick_cache.get(tick).unwrap());
@@ -779,7 +779,7 @@ pub(crate) fn apply_controller_caches(
                 *controller = controller_t.clone();
                 /*info!(
                     "Setting {:?} {:?} at {} start {:?}",
-                    client_entity, controller, stamp.large, start
+                    client_entity, controller, stamp.tick, start
                 );*/
             }
             None => {
@@ -791,7 +791,7 @@ pub(crate) fn apply_controller_caches(
                 if look.target != look_t.target {
                     /*info!(
                         "Correction tick {} applying look transform {:?}",
-                        stamp.large, look.target
+                        stamp.tick, look.target
                     );*/
                 }
 
