@@ -162,7 +162,7 @@ pub(crate) fn server_replicate_peer_input_messages(
             match &message.message {
                 ControllerClientMessage::MovementInput(inp) => {
                     info!(
-                        "Forwarding peer input of tick {}, pressed {}",
+                        "Forwarding peer input at tick {}, pressed {}",
                         stamp.large, inp.pressed
                     );
                 }

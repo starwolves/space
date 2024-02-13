@@ -689,7 +689,7 @@ pub(crate) fn receive_incoming_reliable_server_messages(
                     }
                 }
                 info!(
-                    "Queng to fire message batch server stamp ({}, d={}) {} at {}.",
+                    "Queng to fire message batch server stamp (u8={}, d={}) {} at {}.",
                     message.stamp,
                     stamp.get_difference(message.stamp),
                     server_stamp,

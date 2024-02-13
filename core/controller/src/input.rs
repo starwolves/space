@@ -287,7 +287,7 @@ pub(crate) fn process_peer_input(
                             peer_data: Some((*position, *look_transform_target, message.stamp)),
                         });
                         info!("Forwarding tick {}", message.stamp);
-                        new_correction = true;
+                        //new_correction = true;
                         let e = message.stamp - 1;
                         if e < earliest_tick || earliest_tick == 0 {
                             earliest_tick = e;
@@ -710,12 +710,12 @@ pub(crate) fn apply_controller_cache_to_peers(
                         continue;
                     }
                     let input = input_cache.get(i).unwrap();
-                    if input_component.movement_vector != input.movement_vector {
+                    /*if input_component.movement_vector != input.movement_vector {
                         info!(
                             "Apply controller cache to peer {:?} at {}",
                             input, stamp.large
                         );
-                    }
+                    }*/
 
                     *input_component = input.clone();
                     break;
@@ -779,11 +779,8 @@ pub(crate) fn controller_input(
                 match new_event.peer_data {
                     Some((position, look_target, server_stamp)) => {
                         info!(
-                            "controller_input: {} + {}, at {} {:?}",
-                            processed_input.movement_vector - additive,
-                            additive,
-                            stampres.large,
-                            new_event
+                            "controller_input sstamp {} at tick {} pressed {}",
+                            stampres.large, server_stamp, new_event.pressed
                         );
                         input_stamp = server_stamp;
                         let adjusted_stamp = server_stamp - 1;
