@@ -28,17 +28,19 @@ use num_derive::FromPrimitive;
 use ron::ser::PrettyConfig;
 use serde::{Deserialize, Serialize};
 
-pub(crate) fn default_ambient_light() -> AmbientLight {
-    AmbientLight {
-        brightness: 0.,
-        ..Default::default()
+pub(crate) fn default_ambient_light(enabled: bool) -> AmbientLight {
+    if enabled {
+        AmbientLight::default()
+    } else {
+        AmbientLight {
+            brightness: 0.,
+            ..Default::default()
+        }
     }
 }
 
 pub(crate) fn init_light(mut commands: Commands, settings: Res<PerformanceSettings>) {
-    if settings.ambient_lighting {
-        commands.insert_resource(default_ambient_light());
-    }
+    commands.insert_resource(default_ambient_light(settings.ambient_lighting));
 
     let directional_shadows;
     match settings.shadows {
@@ -176,7 +178,7 @@ impl Default for PerformanceSettings {
             rcas: true,
             synchronous_correction: false,
             shadows: Shadows::default(),
-            ambient_lighting: true,
+            ambient_lighting: false,
             ssao: SSAO::default(),
         }
     }
@@ -334,15 +336,15 @@ pub fn set_rcas(
 }
 pub fn set_ambient_lighting(
     mut events: EventReader<SetAmbientLighting>,
-    mut commands: Commands,
-    mut settings: ResMut<PerformanceSettings>,
+    // mut settings: ResMut<PerformanceSettings>,
+    mut ambient: ResMut<AmbientLight>,
 ) {
     for event in events.read() {
-        settings.ambient_lighting = event.enabled;
-        if settings.ambient_lighting {
-            commands.insert_resource(default_ambient_light());
+        //settings.ambient_lighting = event.enabled;
+        if event.enabled {
+            ambient.brightness = AmbientLight::default().brightness;
         } else {
-            commands.remove_resource::<AmbientLight>();
+            ambient.brightness = 0.
         }
     }
 }
@@ -389,29 +391,42 @@ pub fn set_shadows(
     mut directional_lights: Query<&mut DirectionalLight>,
     mut point_lights: Query<&mut PointLight>,
     mut settings: ResMut<PerformanceSettings>,
+    mut set_ambience: EventWriter<SetAmbientLighting>,
 ) {
     for event in events.read() {
         settings.shadows = event.mode.clone();
 
         let directional_lights_enabled;
         let point_lights_enabled;
+        let ambience_enabled;
         match &settings.shadows {
             Shadows::Off => {
                 directional_lights_enabled = false;
                 point_lights_enabled = false;
+                ambience_enabled = false;
             }
             Shadows::Medium => {
                 directional_lights_enabled = true;
                 point_lights_enabled = false;
+                ambience_enabled = true;
             }
             Shadows::High => {
                 directional_lights_enabled = true;
                 point_lights_enabled = true;
+                ambience_enabled = true;
             }
         }
+        set_ambience.send(SetAmbientLighting {
+            enabled: ambience_enabled,
+        });
 
         for mut p in point_lights.iter_mut() {
             p.shadows_enabled = point_lights_enabled;
+            if ambience_enabled {
+                p.intensity = 1200.
+            } else {
+                p.intensity = 1800.
+            }
         }
         for mut d in directional_lights.iter_mut() {
             d.shadows_enabled = directional_lights_enabled;

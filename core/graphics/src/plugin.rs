@@ -28,7 +28,7 @@ impl Plugin for GraphicsPlugin {
                     set_vsync,
                     set_rcas,
                     set_ambient_lighting,
-                    set_shadows,
+                    set_shadows.before(set_ambient_lighting),
                     set_ssao,
                     set_window_mode,
                     set_sync_correction,

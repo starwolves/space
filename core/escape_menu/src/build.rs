@@ -965,46 +965,46 @@ pub(crate) fn build_graphics_section(
                                 })
                                 .insert(SSAOHList);
                         });
-                    parent
-                        .spawn(NodeBundle {
-                            style: Style {
-                                ..Default::default()
-                            },
+                    /*parent
+                    .spawn(NodeBundle {
+                        style: Style {
                             ..Default::default()
-                        })
-                        .with_children(|parent| {
-                            parent.spawn(TextBundle::from_section(
-                                "Ambient lighting: ",
+                        },
+                        ..Default::default()
+                    })
+                    .with_children(|parent| {
+                        parent.spawn(TextBundle::from_section(
+                            "Ambient lighting: ",
+                            TextStyle {
+                                font: font.clone(),
+                                font_size: ESC_MENU_FONT_SIZE,
+                                color: ESC_MENU_FONT_COLOR.into(),
+                            },
+                        ));
+                        parent
+                            .spawn(NodeBundle {
+                                style: Style {
+                                    ..Default::default()
+                                },
+                                ..Default::default()
+                            })
+                            .insert(HList {
+                                selected: Some(settings.ambient_lighting as u8),
+                                selections: vec!["Off".to_string(), "On".to_string()],
+                                ..Default::default()
+                            })
+                            .insert(AmbientLightingHList);
+                        parent
+                            .spawn(TextBundle::from_section(
+                                " Restart required if turning off.",
                                 TextStyle {
                                     font: font.clone(),
                                     font_size: ESC_MENU_FONT_SIZE,
-                                    color: ESC_MENU_FONT_COLOR.into(),
+                                    color: Color::ORANGE_RED.into(),
                                 },
-                            ));
-                            parent
-                                .spawn(NodeBundle {
-                                    style: Style {
-                                        ..Default::default()
-                                    },
-                                    ..Default::default()
-                                })
-                                .insert(HList {
-                                    selected: Some(settings.ambient_lighting as u8),
-                                    selections: vec!["Off".to_string(), "On".to_string()],
-                                    ..Default::default()
-                                })
-                                .insert(AmbientLightingHList);
-                            parent
-                                .spawn(TextBundle::from_section(
-                                    " Restart required if turning off.",
-                                    TextStyle {
-                                        font: font.clone(),
-                                        font_size: ESC_MENU_FONT_SIZE,
-                                        color: Color::ORANGE_RED.into(),
-                                    },
-                                ))
-                                .insert((AmbientLightingRestartLabel, Visibility::Hidden));
-                        });
+                            ))
+                            .insert((AmbientLightingRestartLabel, Visibility::Hidden));
+                    });*/
                 });
         });
 }
