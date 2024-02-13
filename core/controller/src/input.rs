@@ -779,8 +779,8 @@ pub(crate) fn controller_input(
                 match new_event.peer_data {
                     Some((position, look_target, server_stamp)) => {
                         info!(
-                            "controller_input sstamp {} at tick {} pressed {}",
-                            stampres.large, server_stamp, new_event.pressed
+                            "controller_input sstamp {} at tick {} ({})",
+                            server_stamp, stampres.large, new_event.pressed
                         );
                         input_stamp = server_stamp;
                         let adjusted_stamp = server_stamp - 1;
