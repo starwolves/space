@@ -286,8 +286,7 @@ pub(crate) fn process_peer_input(
                             pressed: input.pressed,
                             peer_data: Some((*position, *look_transform_target, message.stamp)),
                         });
-                        info!("Forwarding tick {}", message.stamp);
-                        //new_correction = true;
+                        new_correction = true;
                         let e = message.stamp - 1;
                         if e < earliest_tick || earliest_tick == 0 {
                             earliest_tick = e;
@@ -779,8 +778,8 @@ pub(crate) fn controller_input(
                 match new_event.peer_data {
                     Some((position, look_target, server_stamp)) => {
                         info!(
-                            "controller_input sstamp {} at tick {} ({})",
-                            server_stamp, stampres.large, new_event.pressed
+                            "controller_input sstamp {} ({})",
+                            server_stamp, new_event.pressed
                         );
                         input_stamp = server_stamp;
                         let adjusted_stamp = server_stamp - 1;

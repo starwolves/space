@@ -689,11 +689,10 @@ pub(crate) fn receive_incoming_reliable_server_messages(
                     }
                 }
                 info!(
-                    "Queng to fire message batch server stamp (u8={}, d={}) {} at {}.",
+                    "Queng to fire batch server stamp {} (u8={}, d={}).",
+                    server_stamp,
                     message.stamp,
                     stamp.get_difference(message.stamp),
-                    server_stamp,
-                    stamp.large,
                 );
             }
             Err(_) => {
@@ -738,10 +737,7 @@ pub(crate) fn receive_incoming_reliable_server_messages(
         }
         is.push(*i);
 
-        info!(
-            "Firing message batch at tick {}, server stamp {}.",
-            stamp.large, i
-        );
+        info!("Firing message batch server stamp {}.", i);
         break;
     }
 
