@@ -27,7 +27,7 @@ use bevy_xpbd_3d::components::{
 use cameras::{LookTransform, LookTransformCache};
 use controller::controller::{ControllerCache, ControllerInput};
 use entity::entity_types::EntityTypeCache;
-use networking::stamp::TickRateStamp;
+use networking::{client::PostUpdateSendMessage, stamp::TickRateStamp};
 use physics::{
     cache::{Cache, PhysicsCache},
     correction_mode::CorrectionResults,
@@ -58,13 +58,17 @@ impl Plugin for CorrectionPlugin {
             app.add_systems(
                 PostUpdate,
                 (
-                    start_correction.before(message_correction_server),
-                    message_correction_server,
-                    apply_correction_results
-                        .after(message_correction_server)
-                        .in_set(PhysicsSet::Correct),
-                )
-                    .in_set(Correction),
+                    start_correction
+                        .after(PostUpdateSendMessage)
+                        .before(PhysicsStepSet),
+                    (
+                        message_correction_server,
+                        apply_correction_results
+                            .after(message_correction_server)
+                            .in_set(PhysicsSet::Correct),
+                    )
+                        .in_set(Correction),
+                ),
             )
             .add_systems(PostStartup, start_synchronous_correction_server);
         }
