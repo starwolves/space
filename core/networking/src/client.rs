@@ -676,7 +676,9 @@ pub(crate) fn receive_incoming_reliable_server_messages(
         match bincode::deserialize::<ReliableServerMessageBatch>(&msg) {
             Ok(message) => {
                 let server_stamp = stamp.calculate_large(message.stamp);
-                let r = IncomingRawReliableServerMessage { message: message };
+                let r = IncomingRawReliableServerMessage {
+                    message: message.clone(),
+                };
 
                 match queue.get_mut(&server_stamp) {
                     Some(v) => {
@@ -687,8 +689,11 @@ pub(crate) fn receive_incoming_reliable_server_messages(
                     }
                 }
                 info!(
-                    "Queng to fire message batch server stamp {} at {}.",
-                    server_stamp, stamp.large,
+                    "Queng to fire message batch server stamp ({}, d={}) {} at {}.",
+                    message.stamp,
+                    stamp.get_difference(message.stamp),
+                    server_stamp,
+                    stamp.large,
                 );
             }
             Err(_) => {

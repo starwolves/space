@@ -159,7 +159,15 @@ pub(crate) fn server_replicate_peer_input_messages(
                 handle: connected.handle,
                 message: new_message,
             });
-            info!("Forwarding peer input of tick {}", stamp.large);
+            match &message.message {
+                ControllerClientMessage::MovementInput(inp) => {
+                    info!(
+                        "Forwarding peer input of tick {}, pressed {}",
+                        stamp.large, inp.pressed
+                    );
+                }
+                ControllerClientMessage::SyncControllerInput(_) => {}
+            }
         }
     }
     for message in unreliable.read() {
