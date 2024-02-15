@@ -1,5 +1,6 @@
 use std::{collections::HashMap, f32::consts::PI};
 
+use bevy::ecs::system::Local;
 use bevy::log::warn;
 use bevy::{
     gltf::GltfMesh,
@@ -19,6 +20,7 @@ use cameras::{controllers::fps::ActiveCamera, LookTransform};
 use entity::despawn::DespawnEntity;
 use networking::client::{IncomingReliableServerMessage, OutgoingReliableClientMessage};
 use physics::physics::{get_bit_masks, ColliderGroup};
+use resources::pawn::ClientPawn;
 use resources::{
     grid::{CellFace, TargetCell},
     hud::HudState,
@@ -40,14 +42,16 @@ use crate::{
 #[derive(Component)]
 pub struct SelectCellCameraYPlane;
 
-pub fn create_select_cell_cam_state(
+pub fn insert_plane_resource(
     mut commands: Commands,
-    mut materials: ResMut<Assets<StandardMaterial>>,
+    mut local: Local<bool>,
     assets_gltfmesh: Res<Assets<GltfMesh>>,
-    asset_server: Res<AssetServer>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+    plane_res: Res<PlaneAsset>,
 ) {
-    let plane_asset = asset_server.load("gridmap/ylevel_grid_plane/plane.glb#Mesh0");
-
+    if *local {
+        return;
+    }
     let m = materials.add(StandardMaterial {
         base_color: Color::rgba(0., 255., 255., 0.5),
         emissive: Color::WHITE,
@@ -57,7 +61,7 @@ pub fn create_select_cell_cam_state(
     });
     let masks = get_bit_masks(ColliderGroup::GridmapSelection);
 
-    match assets_gltfmesh.get(&plane_asset) {
+    match assets_gltfmesh.get(&plane_res.0) {
         Some(mesh) => {
             let plane_entity = commands
                 .spawn(RigidBody::Static)
@@ -87,9 +91,19 @@ pub fn create_select_cell_cam_state(
                 rotated_ghost_ids: HashMap::default(),
                 first_show: false,
             });
+            *local = true;
         }
-        None => {}
+        None => {
+            //warn!("Could not load plane asset: {:?}", plane_asset);
+        }
     }
+}
+#[derive(Resource)]
+pub struct PlaneAsset(pub Handle<GltfMesh>);
+pub const PLANE_PATH: &str = "gridmap/ylevel_grid_plane/plane.glb#Mesh0";
+pub fn load_plane_asset(asset_server: Res<AssetServer>, mut commands: Commands) {
+    let plane_asset: Handle<GltfMesh> = asset_server.load(PLANE_PATH);
+    commands.insert_resource(PlaneAsset(plane_asset));
 }
 
 /// Doesnt exist until its assets are loaded.
@@ -148,46 +162,42 @@ pub(crate) fn show_ylevel_plane(
 }
 
 pub(crate) fn move_ylevel_plane(
-    camera_query: Query<&LookTransform>,
-    camera: Res<ActiveCamera>,
+    camera_query: Query<Entity, With<ClientPawn>>,
     mut state: ResMut<GridmapConstructionState>,
-    mut ylevel_query: Query<&mut Transform, With<SelectCellCameraYPlane>>,
+    ylevel_query: Query<Entity, With<SelectCellCameraYPlane>>,
+    mut transforms: Query<&mut Transform>,
 ) {
     if !state.is_constructing {
         return;
     }
-    match camera.option {
-        Some(camera_entity) => match camera_query.get(camera_entity) {
-            Ok(look_transform) => {
-                let camera_cell_id = world_to_cell_id(look_transform.eye);
-
-                if state.y_plane_position.x != camera_cell_id.x
-                    || state.y_plane_position.y != camera_cell_id.z
-                    || state.first_show
-                {
-                    state.first_show = false;
-                    match ylevel_query.get_mut(state.y_plane) {
-                        Ok(mut transform) => {
-                            let new_transform = cell_id_to_world(camera_cell_id);
-                            transform.translation.x = new_transform.x + 0.5;
-                            transform.translation.z = new_transform.z + 0.5;
-                            state.y_plane_position = Vec2Int {
-                                x: camera_cell_id.x,
-                                y: camera_cell_id.z,
-                            }
+    match camera_query.get_single() {
+        Ok(ent) => {
+            let transform = transforms.get(ent).unwrap();
+            let camera_cell_id = world_to_cell_id(transform.translation);
+            if state.y_plane_position.x != camera_cell_id.x
+                || state.y_plane_position.y != camera_cell_id.z
+                || state.first_show
+            {
+                state.first_show = false;
+                match ylevel_query.get(state.y_plane) {
+                    Ok(entity) => {
+                        let mut transform = transforms.get_mut(entity).unwrap();
+                        let new_transform = cell_id_to_world(camera_cell_id);
+                        transform.translation.x = new_transform.x + 0.5;
+                        transform.translation.z = new_transform.z + 0.5;
+                        state.y_plane_position = Vec2Int {
+                            x: camera_cell_id.x,
+                            y: camera_cell_id.z,
                         }
-                        Err(_) => {
-                            warn!("Couldnt find yplane.");
-                        }
+                    }
+                    Err(_) => {
+                        warn!("Couldnt find yplane.");
                     }
                 }
             }
-            Err(_) => {
-                warn!("Couldnt query camera.");
-            }
-        },
-        None => {
-            warn!("Couldnt find camera.");
+        }
+        Err(_) => {
+            warn!("Couldnt query camera.");
         }
     }
 }

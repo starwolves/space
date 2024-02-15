@@ -16,10 +16,10 @@ use crate::{
     connections::configure,
     construction::{
         apply_ghost_rotation, change_ghost_tile_request, client_mouse_click_input,
-        create_select_cell_cam_state, input_yplane_position, move_ylevel_plane, register_input,
-        select_cell_in_front_camera, set_yplane_position, show_ylevel_plane, update_ghost_cell,
-        ConstructionCellSelectionChanged, ConstructionSelection, GridmapConstructionState,
-        NewGhostBuffer, SetYPlanePosition, YPlaneSet,
+        input_yplane_position, insert_plane_resource, load_plane_asset, move_ylevel_plane,
+        register_input, select_cell_in_front_camera, set_yplane_position, show_ylevel_plane,
+        update_ghost_cell, ConstructionCellSelectionChanged, ConstructionSelection,
+        GridmapConstructionState, NewGhostBuffer, SetYPlanePosition, YPlaneSet,
     },
     examine::{
         examine_grid, examine_map, examine_map_abilities, examine_map_health, finalize_examine_map,
@@ -177,10 +177,11 @@ impl Plugin for GridmapPlugin {
                 )
                 .add_event::<SetYPlanePosition>()
                 .add_event::<ConstructionCellSelectionChanged>()
+                .add_systems(Update, insert_plane_resource)
                 .add_systems(
                     Startup,
                     (
-                        create_select_cell_cam_state,
+                        load_plane_asset,
                         init_generic_meshes,
                         register_input,
                         init_default_materials,

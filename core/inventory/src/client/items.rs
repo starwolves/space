@@ -61,6 +61,7 @@ pub fn active_item_display_camera<T: Send + Sync + EntityType + Default + 'stati
                 if data.entity_type.get_identity() != T::default().get_identity() {
                     continue;
                 }
+
                 transform.translation = Vec3::new(0.4, -0.4, -1.);
                 let mut look_at_translation = transform.translation.clone();
                 look_at_translation.x += 1.;
