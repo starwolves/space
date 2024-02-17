@@ -909,10 +909,21 @@ pub(crate) fn receive_incoming_reliable_client_messages(
                             queue.insert(handle, BTreeMap::from([(b, vec![incoming])]));
                         }
                     }
-                    report.send(IncomingReliableClientMessageToReport {
-                        message: message.clone(),
-                        handle,
-                    });
+                    let ready_to_sync;
+                    match sync_ready.0.get(&handle) {
+                        Some(ready) => {
+                            ready_to_sync = *ready;
+                        }
+                        None => {
+                            ready_to_sync = false;
+                        }
+                    }
+                    if ready_to_sync {
+                        report.send(IncomingReliableClientMessageToReport {
+                            message: message.clone(),
+                            handle,
+                        });
+                    }
                 }
                 Err(_) => {
                     warn!("Received an invalid message.");
@@ -1037,10 +1048,22 @@ pub(crate) fn receive_incoming_unreliable_client_messages(
                             queue.insert(handle, BTreeMap::from([(b, vec![incoming])]));
                         }
                     }
-                    report.send(IncomingUnreliableClientMessageToReport {
-                        message: message.clone(),
-                        handle,
-                    });
+
+                    let ready_to_sync;
+                    match sync_ready.0.get(&handle) {
+                        Some(ready) => {
+                            ready_to_sync = *ready;
+                        }
+                        None => {
+                            ready_to_sync = false;
+                        }
+                    }
+                    if ready_to_sync {
+                        report.send(IncomingUnreliableClientMessageToReport {
+                            message: message.clone(),
+                            handle,
+                        });
+                    }
                 }
                 Err(_) => {
                     warn!("Received an invalid message.");
