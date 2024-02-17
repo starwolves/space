@@ -59,33 +59,6 @@ pub struct SyncPause {
     pub paused: bool,
 }
 
-#[derive(Resource, Default)]
-pub struct ClientStartedSyncing(pub bool);
-
-pub(crate) fn start_sync(
-    mut out: EventReader<IncomingReliableServerMessage<NetworkingServerMessage>>,
-    mut net: EventWriter<OutgoingReliableClientMessage<NetworkingClientMessage>>,
-    mut stamp: ResMut<TickRateStamp>,
-    mut tickrate: ResMut<TickRate>,
-    mut start: ResMut<ClientStartedSyncing>,
-    mut i: Local<u16>,
-) {
-    for message in out.read() {
-        match &message.message {
-            NetworkingServerMessage::StartSync(start_sync) => {
-                *stamp = start_sync.stamp.clone();
-                *tickrate = start_sync.tick_rate.clone();
-                start.0 = true;
-                *i = 0;
-                net.send(OutgoingReliableClientMessage {
-                    message: NetworkingClientMessage::StartSyncConfirmation,
-                });
-            }
-            _ => (),
-        }
-    }
-}
-
 pub(crate) fn sync_loop(
     mut net: EventReader<IncomingReliableServerMessage<NetworkingServerMessage>>,
     mut physics_loop: ResMut<Time<Physics>>,

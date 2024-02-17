@@ -610,6 +610,33 @@ pub struct IncomingUnreliableServerMessage<T: TypeName + Send + Sync + Serialize
     pub stamp: u32,
 }
 
+#[derive(Resource, Default)]
+pub struct ClientStartedSyncing(pub bool);
+
+pub fn start_sync(
+    mut out: EventReader<IncomingReliableServerMessage<NetworkingServerMessage>>,
+    mut net: EventWriter<OutgoingReliableClientMessage<NetworkingClientMessage>>,
+    mut stamp: ResMut<TickRateStamp>,
+    mut tickrate: ResMut<TickRate>,
+    mut start: ResMut<ClientStartedSyncing>,
+    mut i: Local<u16>,
+) {
+    for message in out.read() {
+        match &message.message {
+            NetworkingServerMessage::StartSync(start_sync) => {
+                *stamp = start_sync.stamp.clone();
+                *tickrate = start_sync.tick_rate.clone();
+                start.0 = true;
+                *i = 0;
+                net.send(OutgoingReliableClientMessage {
+                    message: NetworkingClientMessage::StartSyncConfirmation,
+                });
+            }
+            _ => (),
+        }
+    }
+}
+
 /// Dezerializes incoming server messages and writes to event.
 
 pub(crate) fn receive_incoming_unreliable_server_messages(
@@ -618,6 +645,7 @@ pub(crate) fn receive_incoming_unreliable_server_messages(
     mut queue: Local<BTreeMap<u32, Vec<IncomingRawUnreliableServerMessage>>>,
     stamp: Res<TickRateStamp>,
     latency: Res<TickLatency>,
+    started_sync: Res<ClientStartedSyncing>,
 ) {
     while let Some(msg) = client.receive_message(RENET_UNRELIABLE_CHANNEL_ID) {
         match bincode::deserialize::<UnreliableServerMessageBatch>(&msg) {
@@ -644,8 +672,10 @@ pub(crate) fn receive_incoming_unreliable_server_messages(
     let mut is = vec![];
     // Messages are either main FixedUpdate reliable batches or separated small message batches sent from Update for low latency input replication.
     for i in bound_queue.keys() {
-        if *i > desired_tick {
-            break;
+        if started_sync.0 {
+            if *i > desired_tick {
+                break;
+            }
         }
         let msgs = queue.get(i).unwrap();
 
@@ -667,6 +697,7 @@ pub(crate) fn receive_incoming_reliable_server_messages(
     mut queue: Local<BTreeMap<u32, Vec<IncomingRawReliableServerMessage>>>,
     stamp: Res<TickRateStamp>,
     latency: Res<TickLatency>,
+    started_sync: Res<ClientStartedSyncing>,
 ) {
     while let Some(msg) = client.receive_message(RENET_RELIABLE_ORDERED_ID) {
         match bincode::deserialize::<ReliableServerMessageBatch>(&msg) {
@@ -717,8 +748,10 @@ pub(crate) fn receive_incoming_reliable_server_messages(
     let mut is = vec![];
     // Process one message batch per tick.
     for i in bound_queue.keys() {
-        if *i > desired_tick {
-            break;
+        if started_sync.0 {
+            if *i > desired_tick {
+                break;
+            }
         }
         let msgs = queue.get(i).unwrap();
 

@@ -884,6 +884,7 @@ pub(crate) fn receive_incoming_reliable_client_messages(
     stamp: Res<TickRateStamp>,
     mut events: EventWriter<IncomingRawReliableClientMessage>,
     mut report: EventWriter<IncomingReliableClientMessageToReport>,
+    sync_ready: Res<ClientsReadyForSync>,
 ) {
     for handle in server.clients_id().into_iter() {
         while let Some(msg) = server.receive_message(handle, RENET_RELIABLE_ORDERED_ID) {
@@ -951,12 +952,24 @@ pub(crate) fn receive_incoming_reliable_client_messages(
     // There are also multiple small low latency messages that arrive and get injected in sync with the client's fixed messages.
     // When client is making adjustments it can freeze for x amount of ticks and we can receive multiple fixed messages with the same stamp id.
 
-    for (_handle, client_messages) in queue.iter_mut() {
+    for (handle, client_messages) in queue.iter_mut() {
         let mut processed_stamps = vec![];
         let mut processed_fixed_message = false;
+        let ready_to_sync;
+        match sync_ready.0.get(handle) {
+            Some(ready) => {
+                ready_to_sync = *ready;
+            }
+            None => {
+                ready_to_sync = false;
+            }
+        }
+
         for (i, tick_messages) in client_messages.iter_mut() {
-            if i > &stamp.tick {
-                break;
+            if ready_to_sync {
+                if i > &stamp.tick {
+                    break;
+                }
             }
             let mut j = 0;
             let mut remove_js = vec![];
@@ -999,6 +1012,7 @@ pub(crate) fn receive_incoming_unreliable_client_messages(
     stamp: Res<TickRateStamp>,
     mut events: EventWriter<IncomingRawUnreliableClientMessage>,
     mut report: EventWriter<IncomingUnreliableClientMessageToReport>,
+    sync_ready: Res<ClientsReadyForSync>,
 ) {
     for handle in server.clients_id().into_iter() {
         while let Some(msg) = server.receive_message(handle, RENET_UNRELIABLE_CHANNEL_ID) {
@@ -1037,11 +1051,23 @@ pub(crate) fn receive_incoming_unreliable_client_messages(
     // Process one fixed message per tick per client.
     // There are also multiple small low latency messages that arrive and get injected in sync with the client's fixed messages.
 
-    for (_handle, client_messages) in queue.iter_mut() {
+    for (handle, client_messages) in queue.iter_mut() {
         let mut processed_stamps = vec![];
+        let ready_to_sync;
+        match sync_ready.0.get(handle) {
+            Some(ready) => {
+                ready_to_sync = *ready;
+            }
+            None => {
+                ready_to_sync = false;
+            }
+        }
+
         for (i, tick_messages) in client_messages.iter() {
-            if i > &stamp.tick {
-                break;
+            if ready_to_sync {
+                if i > &stamp.tick {
+                    break;
+                }
             }
             for msg in tick_messages {
                 events.send(msg.clone());

@@ -20,13 +20,14 @@ use crate::{
         clear_raw_spawn_entity_queue, confirm_connection, connect_to_server, connected,
         detect_client_world_loaded, is_client_connected, on_disconnect, post_update_send_messages,
         pre_update_send_messages, receive_incoming_reliable_server_messages,
-        receive_incoming_unreliable_server_messages, starwolves_response, step_buffer,
+        receive_incoming_unreliable_server_messages, start_sync, starwolves_response, step_buffer,
         sync_check_client, token_assign_server, update_tick_latency, AssignTokenToServer,
-        AssigningServerToken, BevyPreUpdateSendMessage, ClientGameWorldLoaded, ConnectToServer,
-        Connection, ConnectionPreferences, IncomingRawReliableServerMessage,
-        IncomingRawUnreliableServerMessage, LoadedGameWorldBuffer, NetworkingClientMessage,
-        NetworkingUnreliableClientMessage, OutgoingBuffer, PostUpdateSendMessage,
-        QueuedSpawnEntityRaw, TickLatency, TokenAssignServer, TotalAdjustment,
+        AssigningServerToken, BevyPreUpdateSendMessage, ClientGameWorldLoaded,
+        ClientStartedSyncing, ConnectToServer, Connection, ConnectionPreferences,
+        IncomingRawReliableServerMessage, IncomingRawUnreliableServerMessage,
+        LoadedGameWorldBuffer, NetworkingClientMessage, NetworkingUnreliableClientMessage,
+        OutgoingBuffer, PostUpdateSendMessage, QueuedSpawnEntityRaw, TickLatency,
+        TokenAssignServer, TotalAdjustment,
     },
     messaging::{
         generate_typenames, register_reliable_message, register_unreliable_message, MessageSender,
@@ -158,6 +159,7 @@ impl Plugin for NetworkingPlugin {
                 .init_resource::<Connection>()
                 .init_resource::<AssigningServerToken>()
                 .init_resource::<TotalAdjustment>()
+                .init_resource::<ClientStartedSyncing>()
                 .add_systems(
                     PreUpdate,
                     (
@@ -194,7 +196,11 @@ impl Plugin for NetworkingPlugin {
                 )
                 .add_systems(Update, detect_client_world_loaded)
                 .init_resource::<LoadedGameWorldBuffer>()
-                .add_event::<ClientGameWorldLoaded>();
+                .add_event::<ClientGameWorldLoaded>()
+                .add_systems(
+                    PreUpdate,
+                    start_sync.after(MessagingSet::DeserializeIncoming),
+                );
         }
 
         app.configure_sets(

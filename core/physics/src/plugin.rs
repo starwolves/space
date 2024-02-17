@@ -9,7 +9,10 @@ use bevy::{
 use bevy_renet::renet::RenetClient;
 use bevy_xpbd_3d::{prelude::PhysicsPlugins, resources::SubstepCount};
 use entity::despawn::DespawnEntitySet;
-use networking::messaging::{register_unreliable_message, MessageSender, MessagingSet};
+use networking::{
+    client::start_sync,
+    messaging::{register_unreliable_message, MessageSender, MessagingSet},
+};
 use resources::{
     core::TickRate,
     correction::{SynchronousCorrection, SynchronousCorrectionOnGoing},
@@ -35,9 +38,9 @@ use crate::{
     sync::{
         client_apply_priority_cache, client_despawn_and_clean_cache,
         correction_server_apply_priority_cache, desync_check_correction, init_physics_data,
-        send_desync_check, start_sync, sync_correction_world_entities, sync_loop,
-        ClientStartedSyncing, CorrectionEnabled, CorrectionServerRigidBodyLink, FastForwarding,
-        SimulationStorage, SpawningSimulation, SpawningSimulationRigidBody, SyncPause,
+        send_desync_check, sync_correction_world_entities, sync_loop, CorrectionEnabled,
+        CorrectionServerRigidBodyLink, FastForwarding, SimulationStorage, SpawningSimulation,
+        SpawningSimulationRigidBody, SyncPause,
     },
 };
 
@@ -92,17 +95,14 @@ impl Plugin for PhysicsPlugin {
                     PreUpdate,
                     (
                         sync_loop
+                            .before(start_sync)
                             .after(MessagingSet::DeserializeIncoming)
                             .run_if(resource_exists::<RenetClient>()),
-                        start_sync
-                            .after(MessagingSet::DeserializeIncoming)
-                            .before(sync_loop),
                         cache_data_prev_tick,
                     ),
                 )
                 .add_systems(Fin, (clear_priority_cache, clear_physics_cache))
                 .init_resource::<FastForwarding>()
-                .init_resource::<ClientStartedSyncing>()
                 .add_event::<SyncEntitiesPhysics>();
         }
         app.add_plugins(PhysicsPlugins::new(PhysicsStep))

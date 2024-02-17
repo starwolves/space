@@ -21,13 +21,16 @@ use bevy_renet::renet::{ClientId, RenetClient};
 use cameras::{LookTransform, LookTransformCache};
 use entity::spawn::{PawnId, PeerPawns};
 use networking::{
-    client::{IncomingReliableServerMessage, IncomingUnreliableServerMessage, TickLatency},
+    client::{
+        ClientStartedSyncing, IncomingReliableServerMessage, IncomingUnreliableServerMessage,
+        TickLatency,
+    },
     messaging::{ReliableClientMessageBatch, ReliableMessage, Typenames},
     plugin::RENET_RELIABLE_ORDERED_ID,
     stamp::TickRateStamp,
 };
 use pawn::net::{PeerUpdateLookTransform, UnreliablePeerControllerClientMessage};
-use physics::{cache::PhysicsCache, sync::ClientStartedSyncing};
+use physics::cache::PhysicsCache;
 use resources::{
     correction::{StartCorrection, MAX_CACHE_TICKS_AMNT},
     hud::{EscapeMenuState, HudState},
