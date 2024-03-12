@@ -438,8 +438,7 @@ pub(crate) fn counter_window_events(
 
         match request.opener_option {
             Some(opener) => {
-                let pawn_space_access_component_result =
-                    pawn_query.get_component::<ShipAuthorization>(opener);
+                let pawn_space_access_component_result = pawn_query.get(opener);
                 let pawn_space_access_component;
 
                 match pawn_space_access_component_result {
@@ -453,6 +452,7 @@ pub(crate) fn counter_window_events(
 
                 for space_permission in &counter_window_component.access_permissions {
                     if pawn_space_access_component
+                        .1
                         .access
                         .contains(space_permission)
                         == true
@@ -561,8 +561,7 @@ pub(crate) fn counter_window_events(
 
                 match request.interacter_option {
                     Some(interacter) => {
-                        let pawn_space_access_component_result =
-                            pawn_query.get_component::<ShipAuthorization>(interacter);
+                        let pawn_space_access_component_result = pawn_query.get(interacter);
                         let pawn_space_access_component;
 
                         match pawn_space_access_component_result {
@@ -576,6 +575,7 @@ pub(crate) fn counter_window_events(
 
                         for space_permission in &counter_window_component.access_permissions {
                             if pawn_space_access_component
+                                .1
                                 .access
                                 .contains(space_permission)
                                 == true

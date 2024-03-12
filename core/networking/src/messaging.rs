@@ -163,10 +163,10 @@ pub fn register_reliable_message<
                 deserialize_incoming_reliable_server_message::<T>
                     .after(TypenamesSet::SendRawEvents)
                     .in_set(MessagingSet::DeserializeIncoming)
-                    .run_if(resource_exists::<RenetClient>()),
+                    .run_if(resource_exists::<RenetClient>),
                 deserialize_incoming_reliable_load_entity_updates::<T>
                     .in_set(DeserializeSpawnUpdates)
-                    .run_if(resource_exists::<RenetClient>()),
+                    .run_if(resource_exists::<RenetClient>),
             ),
         );
     }
@@ -266,10 +266,10 @@ pub fn register_unreliable_message<
                 deserialize_incoming_unreliable_server_message::<T>
                     .after(TypenamesSet::SendRawEvents)
                     .in_set(MessagingSet::DeserializeIncoming)
-                    .run_if(resource_exists::<RenetClient>()),
+                    .run_if(resource_exists::<RenetClient>),
                 deserialize_incoming_unreliable_load_entity_updates::<T>
                     .in_set(DeserializeSpawnUpdates)
-                    .run_if(resource_exists::<RenetClient>()),
+                    .run_if(resource_exists::<RenetClient>),
             ),
         );
     }
@@ -277,7 +277,7 @@ pub fn register_unreliable_message<
         app.add_systems(
             PostUpdate,
             send_outgoing_unreliable_client_messages::<T>
-                .run_if(resource_exists::<RenetClient>())
+                .run_if(resource_exists::<RenetClient>)
                 .before(step_buffer),
         );
     }

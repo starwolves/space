@@ -77,7 +77,7 @@ impl Plugin for ControllerPlugin {
                     Update,
                     (
                         process_peer_input
-                            .run_if(resource_exists::<RenetClient>())
+                            .run_if(resource_exists::<RenetClient>)
                             .in_set(InputSet::Prepare)
                             .before(UpdateSet::StandardCharacters),
                         cache_peer_sync_look_transform
@@ -96,7 +96,7 @@ impl Plugin for ControllerPlugin {
                         .before(BevyPreUpdateSendMessage)
                         .before(UpdateSet::StandardCharacters)
                         .in_set(InputSet::Prepare)
-                        .run_if(resource_exists::<RenetClient>())
+                        .run_if(resource_exists::<RenetClient>)
                         .after(InputSystem),
                 )
                 .add_event::<PeerSyncLookTransform>()

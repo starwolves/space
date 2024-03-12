@@ -40,7 +40,7 @@ impl Plugin for PawnPlugin {
                 mouse_input
                     .before(BevyPreUpdateSendMessage)
                     .after(control_system)
-                    .run_if(resource_exists::<RenetClient>())
+                    .run_if(resource_exists::<RenetClient>)
                     .in_set(LookTransformSet::Sync)
                     .run_if(on_timer(Duration::from_secs_f32(1. / 60.))),
             )

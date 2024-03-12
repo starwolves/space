@@ -86,7 +86,7 @@ pub fn build_computers<T: Send + Sync + 'static>(
 ) {
     for spawn_event in spawn_events.read() {
         commands
-            .entity(spawn_event.spawn_data.entity)
+            .entity(spawn_event.spawn_data.entity.unwrap())
             .insert(Computer);
     }
 }

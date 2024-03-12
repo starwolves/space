@@ -129,7 +129,7 @@ pub fn build_base_human_males<T: BaseEntityBuilder<HumanMaleBuildData> + 'static
                 showcase_handle_option: spawn_event.spawn_data.showcase_data_option.clone(),
                 ..Default::default()
             },
-            spawn_event.spawn_data.entity,
+            spawn_event.spawn_data.entity.unwrap(),
         );
 
         match &spawn_event.spawn_data.showcase_data_option {
@@ -138,7 +138,7 @@ pub fn build_base_human_males<T: BaseEntityBuilder<HumanMaleBuildData> + 'static
                     handle: showcase_data.handle,
                     message: EntityServerMessage::LoadEntity(LoadEntity {
                         type_id: *types.netcode_types.get(&entity_type).unwrap(),
-                        entity: spawn_event.spawn_data.entity,
+                        entity: spawn_event.spawn_data.entity.unwrap(),
                         physics_data: PhysicsData::LoadData(LoadData {
                             translation: spawn_event.spawn_data.entity_transform.translation,
                             rotation: spawn_event.spawn_data.entity_transform.rotation,
@@ -238,10 +238,10 @@ pub fn attach_human_male_camera(
             Some(server_id) => match spawn_event.spawn_data.server_entity {
                 Some(ent) => {
                     if server_id == ent {
-                        pawn_id.client = Some(spawn_event.spawn_data.entity);
+                        pawn_id.client = Some(spawn_event.spawn_data.entity.unwrap());
                         is_player_pawn = true;
                         commands
-                            .entity(spawn_event.spawn_data.entity)
+                            .entity(spawn_event.spawn_data.entity.unwrap())
                             .insert(ClientPawn);
                         info!("Client pawn id: {:?}", spawn_event.spawn_data.entity);
                     }
@@ -254,7 +254,7 @@ pub fn attach_human_male_camera(
         if is_player_pawn {
             // Add camera.
             commands
-                .entity(spawn_event.spawn_data.entity)
+                .entity(spawn_event.spawn_data.entity.unwrap())
                 .with_children(|parent| {
                     let controller = FpsCameraController::default();
                     let id = parent
@@ -275,7 +275,10 @@ pub fn attach_human_male_camera(
                                 smoother: Smoother::new(controller.smoothing_weight),
                             },
                             controller,
-                            Skybox(handle.h.clone_weak()),
+                            Skybox {
+                                image: handle.h.clone_weak(),
+                                brightness: 1.,
+                            },
                             Fxaa {
                                 enabled: settings.fxaa.is_some(),
                                 ..Default::default()
@@ -313,7 +316,7 @@ pub fn build_human_males(
             Some(server_id) => match spawn_event.spawn_data.server_entity {
                 Some(ent) => {
                     if server_id == ent {
-                        pawn_id.client = Some(spawn_event.spawn_data.entity);
+                        pawn_id.client = Some(spawn_event.spawn_data.entity.unwrap());
                     }
                 }
                 None => {}
@@ -321,7 +324,7 @@ pub fn build_human_males(
             None => {}
         }
 
-        let mut spawner = commands.entity(spawn_event.spawn_data.entity);
+        let mut spawner = commands.entity(spawn_event.spawn_data.entity.unwrap());
 
         let spawn_pawn_data = spawn_event.entity_type.get_spawn_pawn_data();
 
@@ -410,7 +413,7 @@ pub fn build_human_males(
         test_slot.name = "Backpack".to_string();
         test_slot.size = Vec2Int { x: 16, y: 8 };
         add_slot.buffer.push(AddSlot {
-            inventory_entity: spawn_event.spawn_data.entity,
+            inventory_entity: spawn_event.spawn_data.entity.unwrap(),
             slot: test_slot,
         });
         spawner.insert(Inventory::default());
@@ -449,11 +452,11 @@ pub fn spawn_held_item<T: Send + Sync + Default + 'static>(
                 spawn_data: EntityBuildData {
                     entity_transform: Transform::IDENTITY,
                     correct_transform: false,
-                    holder_entity_option: Some(spawn_event.spawn_data.entity),
+                    holder_entity_option: Some(spawn_event.spawn_data.entity.unwrap()),
                     default_map_spawn: false,
                     raw_entity_option: None,
                     showcase_data_option: spawn_event.spawn_data.showcase_data_option.clone(),
-                    entity: return_entity,
+                    entity: Some(return_entity),
                     held_entity_option: Some(return_entity),
                     server_entity: spawn_event.spawn_data.server_entity,
                 },
@@ -475,7 +478,7 @@ pub fn spawn_held_item<T: Send + Sync + Default + 'static>(
             }
             add_slot_item.buffer.push(AddItemToSlot {
                 slot_id: 0,
-                inventory_entity: spawn_event.spawn_data.entity,
+                inventory_entity: spawn_event.spawn_data.entity.unwrap(),
                 item_entity: item,
                 item_type_id: net_type,
             });

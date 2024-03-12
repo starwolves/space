@@ -4,8 +4,9 @@ use bevy::{
     app::prelude::*,
     ecs::{bundle::Bundle, prelude::*},
     input::{
-        mouse::{MouseMotion, MouseScrollUnit, MouseWheel},
-        prelude::*,
+        keyboard::KeyCode,
+        mouse::{MouseButton, MouseMotion, MouseScrollUnit, MouseWheel},
+        ButtonInput,
     },
     math::prelude::*,
     time::Time,
@@ -98,8 +99,8 @@ pub fn default_input_map(
     mut events: EventWriter<ControlEvent>,
     mut mouse_wheel_reader: EventReader<MouseWheel>,
     mut mouse_motion_events: EventReader<MouseMotion>,
-    mouse_buttons: Res<Input<MouseButton>>,
-    keyboard: Res<Input<KeyCode>>,
+    mouse_buttons: Res<ButtonInput<MouseButton>>,
+    keyboard: Res<ButtonInput<KeyCode>>,
     controllers: Query<&OrbitCameraController>,
 ) {
     // Can only control one camera at a time.

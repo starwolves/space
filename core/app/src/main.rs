@@ -232,6 +232,7 @@ fn setup_plugins(mut app: &mut App) {
             .add_plugins(HierarchyPlugin::default())
             .add_plugins(RenderPlugin {
                 render_creation: RenderCreation::Automatic(wgpu_settings),
+                ..Default::default()
             })
             .add_plugins(task_pool);
     } else {

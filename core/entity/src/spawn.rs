@@ -159,7 +159,7 @@ pub fn build_base_entities<T: BaseEntityBuilder<NoData> + 'static>(
                 is_item_in_storage: spawn_event.spawn_data.holder_entity_option.is_some(),
                 ..Default::default()
             },
-            spawn_event.spawn_data.entity,
+            spawn_event.spawn_data.entity.unwrap(),
         );
 
         match &spawn_event.spawn_data.showcase_data_option {
@@ -168,7 +168,7 @@ pub fn build_base_entities<T: BaseEntityBuilder<NoData> + 'static>(
                     handle: showcase_data.handle,
                     message: EntityServerMessage::LoadEntity(LoadEntity {
                         type_id: *types.netcode_types.get(&entity_type).unwrap(),
-                        entity: spawn_event.spawn_data.entity,
+                        entity: spawn_event.spawn_data.entity.unwrap(),
 
                         physics_data: PhysicsData::LoadData(LoadData {
                             translation: spawn_event.spawn_data.entity_transform.translation,
@@ -213,7 +213,7 @@ pub struct EntityBuildData {
     pub raw_entity_option: Option<RawEntityRon>,
     /// If the entity is spawned in a showcase find its data here.
     pub showcase_data_option: Option<ShowcaseData>,
-    pub entity: Entity,
+    pub entity: Option<Entity>,
     /// For client to keep reference to server-side entity id.
     pub server_entity: Option<Entity>,
 }
@@ -228,7 +228,7 @@ impl Default for EntityBuildData {
             default_map_spawn: false,
             raw_entity_option: None,
             showcase_data_option: None,
-            entity: Entity::from_bits(0),
+            entity: None,
             server_entity: None,
         }
     }
@@ -270,7 +270,7 @@ pub fn spawn_entity<T: EntityType + Send + Sync + 'static>(
             holder_entity_option: held,
             raw_entity_option: raw_entity_option,
             showcase_data_option: showcase_handle_option,
-            entity: return_entity,
+            entity: Some(return_entity),
 
             ..Default::default()
         },

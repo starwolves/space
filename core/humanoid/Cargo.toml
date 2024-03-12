@@ -11,14 +11,14 @@ edition = "2021"
 
 
 [dependencies.bevy]
-version = "0.12.1"
+version = "0.13.0"
 
 default-features = false
 
 [dependencies]
-bevy_renet = { version = "0.0.10", git = "https://github.com/starwolfy/renet.git"}
+bevy_renet = { version = "0.0.11", git = "https://github.com/starwolfy/renet.git"}
 const_format = "0.2.31"
-bevy_xpbd_3d = { version = "0.3.2" , features = ["enhanced-determinism"]}
+bevy_xpbd_3d = { version = "0.4.2" , features = ["enhanced-determinism"]}
 
 networking = { path = "../networking" }
 pawn = { path = "../pawn" }

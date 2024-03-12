@@ -759,19 +759,6 @@ pub struct AddTile {
     pub default_map_spawn: bool,
 }
 
-impl Default for AddTile {
-    fn default() -> Self {
-        Self {
-            id: Vec3Int::default(),
-            tile_type: CellTypeId(0),
-            orientation: 0,
-            face: CellFace::default(),
-            group_instance_id_option: None,
-            entity: Entity::from_bits(0),
-            default_map_spawn: false,
-        }
-    }
-}
 #[derive(Clone, Debug)]
 pub struct FullCell {
     pub face: CellFace,
@@ -1069,8 +1056,10 @@ pub(crate) fn remove_cell_client(
 ) {
     for message in net.read() {
         match &message.message {
-            GridmapServerMessage::RemoveCell(new) => event.send(RemoveTile { cell: new.clone() }),
-            _ => (),
+            GridmapServerMessage::RemoveCell(new) => {
+                event.send(RemoveTile { cell: new.clone() });
+            }
+            _ => {}
         }
     }
 }

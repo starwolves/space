@@ -7,7 +7,7 @@ use crate::{
 };
 use bevy::{
     ecs::{query::Without, system::Local},
-    input::Input,
+    input::ButtonInput,
     log::info,
     prelude::{
         Entity, Event, EventReader, EventWriter, KeyCode, Query, Res, ResMut, Resource, SystemSet,
@@ -64,25 +64,11 @@ pub struct SyncControllerInput {
     pub server_stamp: u32,
 }
 
-impl Default for InputMovementInput {
-    fn default() -> Self {
-        Self {
-            entity: Entity::from_bits(0),
-            up: false,
-            left: false,
-            right: false,
-            down: false,
-            pressed: false,
-            peer_data: None,
-        }
-    }
-}
-
 pub(crate) fn create_input_map(mut map: ResMut<KeyBinds>) {
     map.list.insert(
         MOVE_FORWARD_BIND.to_string(),
         KeyBind {
-            key_code: KeyCodeEnum::Keyboard(KeyCode::W),
+            key_code: KeyCodeEnum::Keyboard(KeyCode::KeyW),
             description: "Moves the player forward.".to_string(),
             name: "Move Forward".to_string(),
             customizable: true,
@@ -91,7 +77,7 @@ pub(crate) fn create_input_map(mut map: ResMut<KeyBinds>) {
     map.list.insert(
         MOVE_BACKWARD_BIND.to_string(),
         KeyBind {
-            key_code: KeyCodeEnum::Keyboard(KeyCode::S),
+            key_code: KeyCodeEnum::Keyboard(KeyCode::KeyS),
             description: "Moves the player backward.".to_string(),
             name: "Move Backward".to_string(),
             customizable: true,
@@ -100,7 +86,7 @@ pub(crate) fn create_input_map(mut map: ResMut<KeyBinds>) {
     map.list.insert(
         MOVE_LEFT_BIND.to_string(),
         KeyBind {
-            key_code: KeyCodeEnum::Keyboard(KeyCode::A),
+            key_code: KeyCodeEnum::Keyboard(KeyCode::KeyA),
             description: "Moves the player left.".to_string(),
             name: "Move Left".to_string(),
             customizable: true,
@@ -109,7 +95,7 @@ pub(crate) fn create_input_map(mut map: ResMut<KeyBinds>) {
     map.list.insert(
         MOVE_RIGHT_BIND.to_string(),
         KeyBind {
-            key_code: KeyCodeEnum::Keyboard(KeyCode::D),
+            key_code: KeyCodeEnum::Keyboard(KeyCode::KeyD),
             description: "Moves the player right.".to_string(),
             name: "Move Right".to_string(),
             customizable: true,
@@ -512,7 +498,7 @@ pub(crate) struct Pressed {
 
 /// Sends client input instantly from Update schedule.
 pub(crate) fn keyboard_input(
-    keyboard: Res<Input<KeyCode>>,
+    keyboard: Res<ButtonInput<KeyCode>>,
     mut client: ResMut<RenetClient>,
     binds: Res<KeyBinds>,
     typenames: Res<Typenames>,
@@ -551,7 +537,10 @@ pub(crate) fn keyboard_input(
             entity: pawn_entity,
             up: true,
             pressed: true,
-            ..Default::default()
+            left: false,
+            right: false,
+            down: false,
+            peer_data: None,
         });
     }
     if keyboard.just_pressed(binds.keyboard_bind(MOVE_BACKWARD_BIND))
@@ -569,7 +558,10 @@ pub(crate) fn keyboard_input(
             entity: pawn_entity,
             down: true,
             pressed: true,
-            ..Default::default()
+            up: false,
+            left: false,
+            right: false,
+            peer_data: None,
         });
     }
     if keyboard.just_pressed(binds.keyboard_bind(MOVE_LEFT_BIND)) && !pressed.left && !interrupted {
@@ -584,7 +576,10 @@ pub(crate) fn keyboard_input(
             entity: pawn_entity,
             left: true,
             pressed: true,
-            ..Default::default()
+            up: false,
+            right: false,
+            down: false,
+            peer_data: None,
         });
     }
     if keyboard.just_pressed(binds.keyboard_bind(MOVE_RIGHT_BIND)) && !pressed.right && !interrupted
@@ -601,7 +596,10 @@ pub(crate) fn keyboard_input(
             entity: pawn_entity,
             right: true,
             pressed: true,
-            ..Default::default()
+            up: false,
+            left: false,
+            down: false,
+            peer_data: None,
         });
     }
 
@@ -616,7 +614,10 @@ pub(crate) fn keyboard_input(
             entity: pawn_entity,
             up: true,
             pressed: false,
-            ..Default::default()
+            left: false,
+            right: false,
+            down: false,
+            peer_data: None,
         });
     }
     if keyboard.just_released(binds.keyboard_bind(MOVE_BACKWARD_BIND)) && pressed.down {
@@ -625,7 +626,10 @@ pub(crate) fn keyboard_input(
             entity: pawn_entity,
             down: true,
             pressed: false,
-            ..Default::default()
+            up: false,
+            left: false,
+            right: false,
+            peer_data: None,
         });
         inputs.push(ControllerClientMessage::MovementInput(MovementInput {
             down: true,
@@ -644,7 +648,10 @@ pub(crate) fn keyboard_input(
             entity: pawn_entity,
             left: true,
             pressed: false,
-            ..Default::default()
+            up: false,
+            right: false,
+            down: false,
+            peer_data: None,
         });
     }
     if keyboard.just_released(binds.keyboard_bind(MOVE_RIGHT_BIND)) && pressed.right {
@@ -658,7 +665,10 @@ pub(crate) fn keyboard_input(
             entity: pawn_entity,
             right: true,
             pressed: false,
-            ..Default::default()
+            up: false,
+            left: false,
+            down: false,
+            peer_data: None,
         });
     }
 

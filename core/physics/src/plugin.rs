@@ -80,7 +80,7 @@ impl Plugin for PhysicsPlugin {
                     Update,
                     (
                         desync_check_correction
-                            .run_if(resource_exists::<RenetClient>())
+                            .run_if(resource_exists::<RenetClient>)
                             .before(sync_entities),
                         sync_entities,
                         client_despawn_and_clean_cache,
@@ -97,7 +97,7 @@ impl Plugin for PhysicsPlugin {
                         sync_loop
                             .before(start_sync)
                             .after(MessagingSet::DeserializeIncoming)
-                            .run_if(resource_exists::<RenetClient>()),
+                            .run_if(resource_exists::<RenetClient>),
                         cache_data_prev_tick,
                     ),
                 )

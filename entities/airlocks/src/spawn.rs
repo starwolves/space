@@ -129,7 +129,7 @@ pub fn build_airlocks<T: Send + Sync + 'static>(
 ) {
     for spawn_event in airlock_spawns.read() {
         commands
-            .entity(spawn_event.spawn_data.entity)
+            .entity(spawn_event.spawn_data.entity.unwrap())
             .insert(Airlock {
                 access_permissions: vec![ShipAuthorizationEnum::Security],
                 ..Default::default()

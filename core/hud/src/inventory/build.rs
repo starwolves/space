@@ -38,7 +38,7 @@ pub(crate) fn create_inventory_hud(
         .add_child(entity_id);
     let mut root_builder = commands.entity(entity_id);
 
-    let mut slots_node = Entity::from_bits(0);
+    let mut slots_node = None;
 
     root_builder
         .insert(NodeBundle {
@@ -106,24 +106,26 @@ pub(crate) fn create_inventory_hud(
                     ..Default::default()
                 })
                 .with_children(|parent| {
-                    slots_node = parent
-                        .spawn(NodeBundle {
-                            style: Style {
-                                width: Val::Percent(97.5),
-                                height: Val::Percent(100.),
+                    slots_node = Some(
+                        parent
+                            .spawn(NodeBundle {
+                                style: Style {
+                                    width: Val::Percent(97.5),
+                                    height: Val::Percent(100.),
+                                    ..Default::default()
+                                },
                                 ..Default::default()
-                            },
-                            ..Default::default()
-                        })
-                        .insert(InventorySlotsNode)
-                        .id();
+                            })
+                            .insert(InventorySlotsNode)
+                            .id(),
+                    );
                 });
         });
 
     commands.insert_resource(InventoryHudState {
         open: false,
         root_node: entity_id,
-        slots_node,
+        slots_node: slots_node.unwrap(),
         slots: HashMap::new(),
 
         active_item: None,

@@ -33,7 +33,7 @@ pub fn link_base_mesh<T: Send + Sync + 'static + EntityType + Default>(
         match id.server {
             Some(o) => match map.map.get(&o) {
                 Some(op) => {
-                    if spawn.spawn_data.entity == *op {
+                    if spawn.spawn_data.entity.unwrap() == *op {
                         // Own pawn entity.
                         //visibility = Visibility::Hidden;
                     }
@@ -61,7 +61,7 @@ pub fn link_base_mesh<T: Send + Sync + 'static + EntityType + Default>(
         }
 
         commands
-            .entity(spawn.spawn_data.entity)
+            .entity(spawn.spawn_data.entity.unwrap())
             .insert(SceneBundle {
                 scene: mesh,
                 transform: spawn.spawn_data.entity_transform,

@@ -35,7 +35,10 @@ pub(crate) fn spawn_debug_camera(
                 tonemapping: Tonemapping::ReinhardLuminance,
                 ..Default::default()
             })
-            .insert(Skybox(handle.h.clone_weak()))
+            .insert(Skybox {
+                image: handle.h.clone_weak(),
+                brightness: 1.,
+            })
             .insert(FpsCameraBundle::new(
                 FpsCameraController::default(),
                 Vec3::new(0., 1.8, 0.),

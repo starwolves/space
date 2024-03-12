@@ -2,6 +2,7 @@ use std::{collections::HashMap, f32::consts::PI};
 
 use bevy::ecs::system::Local;
 use bevy::log::warn;
+use bevy::math::primitives::Direction3d;
 use bevy::{
     gltf::GltfMesh,
     pbr::{NotShadowCaster, NotShadowReceiver},
@@ -237,7 +238,7 @@ pub(crate) fn register_input(mut binds: ResMut<KeyBinds>) {
     binds.list.insert(
         YPLANE_MOVE_UP_BIND.to_string(),
         KeyBind {
-            key_code: KeyCodeEnum::Keyboard(KeyCode::E),
+            key_code: KeyCodeEnum::Keyboard(KeyCode::KeyE),
             description: "Increase y-level of gridmap construction.".to_string(),
             name: "Map Construction add height".to_string(),
             customizable: true,
@@ -246,7 +247,7 @@ pub(crate) fn register_input(mut binds: ResMut<KeyBinds>) {
     binds.list.insert(
         YPLANE_MOVE_DOWN_BIND.to_string(),
         KeyBind {
-            key_code: KeyCodeEnum::Keyboard(KeyCode::Q),
+            key_code: KeyCodeEnum::Keyboard(KeyCode::KeyQ),
             description: "Decrease y-level of gridmap construction.".to_string(),
             name: "Map Construction decrease height".to_string(),
             customizable: true,
@@ -255,7 +256,7 @@ pub(crate) fn register_input(mut binds: ResMut<KeyBinds>) {
     binds.list.insert(
         ROTATE_CONSTRUCTION_LEFT_BIND.to_string(),
         KeyBind {
-            key_code: KeyCodeEnum::Keyboard(KeyCode::Left),
+            key_code: KeyCodeEnum::Keyboard(KeyCode::ArrowLeft),
             description: "Rotates map construction.".to_string(),
             name: "Map Construction Rotate Left".to_string(),
             customizable: true,
@@ -264,7 +265,7 @@ pub(crate) fn register_input(mut binds: ResMut<KeyBinds>) {
     binds.list.insert(
         ROTATE_CONSTRUCTION_RIGHT_BIND.to_string(),
         KeyBind {
-            key_code: KeyCodeEnum::Keyboard(KeyCode::Right),
+            key_code: KeyCodeEnum::Keyboard(KeyCode::ArrowRight),
             description: "Rotates map construction.".to_string(),
             name: "Map Construction Rotate Right".to_string(),
             customizable: true,
@@ -273,7 +274,7 @@ pub(crate) fn register_input(mut binds: ResMut<KeyBinds>) {
     binds.list.insert(
         ROTATE_CONSTRUCTION_UP_BIND.to_string(),
         KeyBind {
-            key_code: KeyCodeEnum::Keyboard(KeyCode::Up),
+            key_code: KeyCodeEnum::Keyboard(KeyCode::ArrowUp),
             description: "Rotates map construction.".to_string(),
             name: "Map Construction Rotate Up".to_string(),
             customizable: true,
@@ -282,7 +283,7 @@ pub(crate) fn register_input(mut binds: ResMut<KeyBinds>) {
     binds.list.insert(
         ROTATE_CONSTRUCTION_DOWN_BIND.to_string(),
         KeyBind {
-            key_code: KeyCodeEnum::Keyboard(KeyCode::Down),
+            key_code: KeyCodeEnum::Keyboard(KeyCode::ArrowDown),
             description: "Rotates map construction.".to_string(),
             name: "Map Construction Rotate Down".to_string(),
             customizable: true,
@@ -933,11 +934,21 @@ pub(crate) fn select_cell_in_front_camera(
     let solid = true;
     let collider_groups = get_bit_masks(ColliderGroup::GridmapSelection);
 
-    let filter = SpatialQueryFilter::new().with_masks_from_bits(collider_groups.1);
+    let filter = SpatialQueryFilter::from_mask(collider_groups.1);
 
     let intersection_position;
+    let dir3d;
+    match Direction3d::new(ray_dir) {
+        Ok(dir) => {
+            dir3d = dir;
+        }
+        Err(rr) => {
+            warn!("Invalid direction. {}", rr);
+            return;
+        }
+    }
 
-    if let Some(hit) = spatial_query.cast_ray(ray_pos, ray_dir, max_toi, solid, filter) {
+    if let Some(hit) = spatial_query.cast_ray(ray_pos, dir3d, max_toi, solid, filter) {
         intersection_position = ray_pos + ray_dir * hit.time_of_impact;
     } else {
         return;

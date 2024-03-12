@@ -4,8 +4,7 @@ use bevy::{
         AccessibilityNode,
     },
     prelude::{
-        BuildChildren, ButtonBundle, Color, Commands, Component, Entity, Label, NodeBundle, Res,
-        TextBundle,
+        BuildChildren, ButtonBundle, Color, Commands, Component, Label, NodeBundle, Res, TextBundle,
     },
     render::view::Visibility,
     text::TextStyle,
@@ -50,11 +49,11 @@ pub const ESC_MENU_FONT_SIZE: f32 = 15.;
 pub(crate) fn build_escape_menu(mut commands: Commands, fonts: Res<Fonts>) {
     let arizone_font = fonts.handles.get(ARIZONE_FONT).unwrap();
     let empire_font = fonts.handles.get(EMPIRE_FONT).unwrap();
-    let mut controls_bg_section_entity = Entity::from_bits(0);
-    let mut graphics_bg_section_entity = Entity::from_bits(0);
-    let mut general_section_entity = Entity::from_bits(0);
-    let mut controls_section = Entity::from_bits(0);
-    let mut graphics_section_entity = Entity::from_bits(0);
+    let mut controls_bg_section_entity = None;
+    let mut graphics_bg_section_entity = None;
+    let mut general_section_entity = None;
+    let mut controls_section = None;
+    let mut graphics_section_entity = None;
 
     let escape_root = commands
         .spawn(NodeBundle {
@@ -207,93 +206,89 @@ pub(crate) fn build_escape_menu(mut commands: Commands, fonts: Res<Fonts>) {
                                         });
                                 });
                         });
-                    controls_bg_section_entity = parent
-                        .spawn(NodeBundle {
-                            style: Style {
-                                width: Val::Percent(100.),
-                                height: Val::Percent(100.),
-                                display: Display::None,
-                                flex_direction: FlexDirection::Column,
-                                overflow: Overflow::clip(),
-
-                                ..Default::default()
-                            },
-                            ..Default::default()
-                        })
-                        .with_children(|parent| {
-                            controls_section = parent
-                                .spawn((NodeBundle {
-                                    style: Style {
-                                        flex_direction: FlexDirection::Column,
-                                        ..Default::default()
-                                    },
-                                    ..Default::default()
-                                },))
-                                .insert((
-                                    ScrollingList::default(),
-                                    AccessibilityNode(NodeBuilder::new(Role::List)),
-                                ))
-                                .insert(ControlsSection)
-                                .id();
-                        })
-                        .insert(ControlsBGSection)
-                        .id();
-                    graphics_bg_section_entity = parent
-                        .spawn(NodeBundle {
-                            style: Style {
-                                width: Val::Percent(100.),
-                                height: Val::Percent(100.),
-                                display: Display::None,
-                                flex_direction: FlexDirection::Column,
-                                ..Default::default()
-                            },
-                            ..Default::default()
-                        })
-                        .with_children(|parent| {
-                            graphics_section_entity = parent
-                                .spawn((NodeBundle {
-                                    style: Style {
-                                        flex_direction: FlexDirection::Column,
-                                        ..Default::default()
-                                    },
-                                    ..Default::default()
-                                },))
-                                .insert((
-                                    ScrollingList::default(),
-                                    AccessibilityNode(NodeBuilder::new(Role::List)),
-                                ))
-                                .insert(PerformanceSection)
-                                .id();
-                        })
-                        .insert(PerformanceBGSection)
-                        .id();
-                    general_section_entity = parent
-                        .spawn(NodeBundle {
-                            style: Style {
-                                width: Val::Percent(100.),
-                                height: Val::Percent(100.),
-                                display: Display::None,
-                                flex_direction: FlexDirection::Column,
-                                ..Default::default()
-                            },
-                            ..Default::default()
-                        })
-                        .insert(GeneralSection)
-                        .with_children(|parent| {
-                            parent.spawn(NodeBundle {
+                    controls_bg_section_entity = Some(
+                        parent
+                            .spawn(NodeBundle {
                                 style: Style {
                                     width: Val::Percent(100.),
-                                    height: Val::Percent(10.),
+                                    height: Val::Percent(100.),
+                                    display: Display::None,
                                     flex_direction: FlexDirection::Column,
-                                    justify_content: JustifyContent::Center,
-                                    align_items: AlignItems::Center,
-                                    flex_wrap: FlexWrap::Wrap,
+                                    overflow: Overflow::clip(),
+
                                     ..Default::default()
                                 },
                                 ..Default::default()
-                            });
-                            parent
-                                .spawn(NodeBundle {
+                            })
+                            .with_children(|parent| {
+                                controls_section = Some(
+                                    parent
+                                        .spawn((NodeBundle {
+                                            style: Style {
+                                                flex_direction: FlexDirection::Column,
+                                                ..Default::default()
+                                            },
+                                            ..Default::default()
+                                        },))
+                                        .insert((
+                                            ScrollingList::default(),
+                                            AccessibilityNode(NodeBuilder::new(Role::List)),
+                                        ))
+                                        .insert(ControlsSection)
+                                        .id(),
+                                );
+                            })
+                            .insert(ControlsBGSection)
+                            .id(),
+                    );
+                    graphics_bg_section_entity = Some(
+                        parent
+                            .spawn(NodeBundle {
+                                style: Style {
+                                    width: Val::Percent(100.),
+                                    height: Val::Percent(100.),
+                                    display: Display::None,
+                                    flex_direction: FlexDirection::Column,
+                                    ..Default::default()
+                                },
+                                ..Default::default()
+                            })
+                            .with_children(|parent| {
+                                graphics_section_entity = Some(
+                                    parent
+                                        .spawn((NodeBundle {
+                                            style: Style {
+                                                flex_direction: FlexDirection::Column,
+                                                ..Default::default()
+                                            },
+                                            ..Default::default()
+                                        },))
+                                        .insert((
+                                            ScrollingList::default(),
+                                            AccessibilityNode(NodeBuilder::new(Role::List)),
+                                        ))
+                                        .insert(PerformanceSection)
+                                        .id(),
+                                );
+                            })
+                            .insert(PerformanceBGSection)
+                            .id(),
+                    );
+                    general_section_entity = Some(
+                        parent
+                            .spawn(NodeBundle {
+                                style: Style {
+                                    width: Val::Percent(100.),
+                                    height: Val::Percent(100.),
+                                    display: Display::None,
+                                    flex_direction: FlexDirection::Column,
+                                    ..Default::default()
+                                },
+                                ..Default::default()
+                            })
+                            .insert(GeneralSection)
+                            .with_children(|parent| {
+                                parent.spawn(NodeBundle {
                                     style: Style {
                                         width: Val::Percent(100.),
                                         height: Val::Percent(10.),
@@ -304,81 +299,95 @@ pub(crate) fn build_escape_menu(mut commands: Commands, fonts: Res<Fonts>) {
                                         ..Default::default()
                                     },
                                     ..Default::default()
-                                })
-                                .with_children(|parent| {
-                                    parent.spawn(TextBundle::from_section(
-                                        "Press ESCAPE to hide menu".to_string(),
-                                        TextStyle {
-                                            font: empire_font.clone(),
-                                            font_size: 12.0,
-                                            color: ESC_MENU_FONT_COLOR.into(),
-                                        },
-                                    ));
                                 });
-                            parent
-                                .spawn(NodeBundle {
-                                    style: Style {
-                                        width: Val::Percent(100.),
-                                        height: Val::Percent(6.),
-                                        flex_direction: FlexDirection::Column,
-                                        justify_content: JustifyContent::Center,
-                                        align_items: AlignItems::Center,
-                                        flex_wrap: FlexWrap::Wrap,
-                                        ..Default::default()
-                                    },
-                                    ..Default::default()
-                                })
-                                .with_children(|parent| {
-                                    parent
-                                        .spawn(NodeBundle {
-                                            style: Style {
-                                                width: Val::Percent(35.),
-                                                height: Val::Percent(100.),
-                                                ..Default::default()
-                                            },
+                                parent
+                                    .spawn(NodeBundle {
+                                        style: Style {
+                                            width: Val::Percent(100.),
+                                            height: Val::Percent(10.),
+                                            flex_direction: FlexDirection::Column,
+                                            justify_content: JustifyContent::Center,
+                                            align_items: AlignItems::Center,
+                                            flex_wrap: FlexWrap::Wrap,
                                             ..Default::default()
-                                        })
-                                        .with_children(|parent| {
-                                            parent
-                                                .spawn(ButtonBundle {
-                                                    style: Style {
-                                                        width: Val::Percent(100.),
-                                                        height: Val::Percent(100.),
-                                                        flex_direction: FlexDirection::Row,
-                                                        justify_content: JustifyContent::Center,
-                                                        align_items: AlignItems::Center,
-                                                        flex_wrap: FlexWrap::Wrap,
-                                                        ..Default::default()
-                                                    },
+                                        },
+                                        ..Default::default()
+                                    })
+                                    .with_children(|parent| {
+                                        parent.spawn(TextBundle::from_section(
+                                            "Press ESCAPE to hide menu".to_string(),
+                                            TextStyle {
+                                                font: empire_font.clone(),
+                                                font_size: 12.0,
+                                                color: ESC_MENU_FONT_COLOR.into(),
+                                            },
+                                        ));
+                                    });
+                                parent
+                                    .spawn(NodeBundle {
+                                        style: Style {
+                                            width: Val::Percent(100.),
+                                            height: Val::Percent(6.),
+                                            flex_direction: FlexDirection::Column,
+                                            justify_content: JustifyContent::Center,
+                                            align_items: AlignItems::Center,
+                                            flex_wrap: FlexWrap::Wrap,
+                                            ..Default::default()
+                                        },
+                                        ..Default::default()
+                                    })
+                                    .with_children(|parent| {
+                                        parent
+                                            .spawn(NodeBundle {
+                                                style: Style {
+                                                    width: Val::Percent(35.),
+                                                    height: Val::Percent(100.),
                                                     ..Default::default()
-                                                })
-                                                .insert(SFButton::default())
-                                                .insert(ExitGameButton)
-                                                .with_children(|parent| {
-                                                    parent.spawn(TextBundle::from_section(
-                                                        "Exit Game".to_string(),
-                                                        TextStyle {
-                                                            font: arizone_font.clone(),
-                                                            font_size: 12.0,
-                                                            color: Color::WHITE.into(),
+                                                },
+                                                ..Default::default()
+                                            })
+                                            .with_children(|parent| {
+                                                parent
+                                                    .spawn(ButtonBundle {
+                                                        style: Style {
+                                                            width: Val::Percent(100.),
+                                                            height: Val::Percent(100.),
+                                                            flex_direction: FlexDirection::Row,
+                                                            justify_content: JustifyContent::Center,
+                                                            align_items: AlignItems::Center,
+                                                            flex_wrap: FlexWrap::Wrap,
+                                                            ..Default::default()
                                                         },
-                                                    ));
-                                                });
-                                        });
-                                });
-                        })
-                        .id();
+                                                        ..Default::default()
+                                                    })
+                                                    .insert(SFButton::default())
+                                                    .insert(ExitGameButton)
+                                                    .with_children(|parent| {
+                                                        parent.spawn(TextBundle::from_section(
+                                                            "Exit Game".to_string(),
+                                                            TextStyle {
+                                                                font: arizone_font.clone(),
+                                                                font_size: 12.0,
+                                                                color: Color::WHITE.into(),
+                                                            },
+                                                        ));
+                                                    });
+                                            });
+                                    });
+                            })
+                            .id(),
+                    );
                 });
         })
         .id();
     commands.insert_resource(EscapeMenuState {
         root: escape_root,
         visible: false,
-        controls_section,
-        controls_bg_section: controls_bg_section_entity,
-        graphics_section: graphics_section_entity,
-        general_section: general_section_entity,
-        graphics_bg_section: graphics_bg_section_entity,
+        controls_section: controls_section.unwrap(),
+        controls_bg_section: controls_bg_section_entity.unwrap(),
+        graphics_section: graphics_section_entity.unwrap(),
+        general_section: general_section_entity.unwrap(),
+        graphics_bg_section: graphics_bg_section_entity.unwrap(),
     })
 }
 #[derive(Component)]

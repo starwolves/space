@@ -309,18 +309,6 @@ pub struct InputExamineMap {
     pub message: String,
 }
 
-impl Default for InputExamineMap {
-    fn default() -> Self {
-        Self {
-            handle: ClientId::from_raw(0),
-            entity: Entity::from_bits(0),
-            gridmap_cell_id: Vec3Int::default(),
-            message: ASTRIX.to_string(),
-            face: CellFace::default(),
-        }
-    }
-}
-
 /// Stores examine messages being built this frame for gridmap examination.
 #[derive(Default, Resource)]
 
@@ -384,7 +372,8 @@ pub(crate) fn examine_grid(
                                 handle: *handle,
                                 entity: building.action_taker,
                                 gridmap_cell_id: c.id,
-                                ..Default::default()
+                                face: CellFace::default(),
+                                message: ASTRIX.to_string(),
                             });
                         }
                         None => {}
@@ -423,7 +412,8 @@ pub(crate) fn incoming_messages(
                                 y: cell_id_y,
                                 z: cell_id_z,
                             },
-                            ..Default::default()
+                            face: CellFace::default(),
+                            message: ASTRIX.to_string(),
                         });
                     }
                     None => {

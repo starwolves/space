@@ -19,10 +19,13 @@ use bevy::{
     prelude::{App, EventReader, IntoSystemConfigs, Local, Plugin, Res, ResMut, Resource, World},
     time::{Fixed, Time},
 };
-use bevy_xpbd_3d::components::{
-    AngularDamping, AngularVelocity, Collider, CollisionLayers, ExternalAngularImpulse,
-    ExternalForce, ExternalImpulse, ExternalTorque, Friction, LinearDamping, LinearVelocity,
-    LockedAxes, RigidBody, Sleeping,
+use bevy_xpbd_3d::{
+    components::{
+        AngularDamping, AngularVelocity, CollisionLayers, ExternalAngularImpulse, ExternalForce,
+        ExternalImpulse, ExternalTorque, Friction, LinearDamping, LinearVelocity, LockedAxes,
+        RigidBody, Sleeping,
+    },
+    plugins::collision::Collider,
 };
 use cameras::{LookTransform, LookTransformCache};
 use controller::controller::{ControllerCache, ControllerInput};

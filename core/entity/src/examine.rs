@@ -598,17 +598,6 @@ pub struct InputExamineEntity {
     pub message: String,
 }
 
-impl Default for InputExamineEntity {
-    fn default() -> Self {
-        Self {
-            handle: ClientId::from_raw(0),
-            examine_entity: Entity::from_bits(0),
-            entity: Entity::from_bits(0),
-            message: ASTRIX.to_string(),
-        }
-    }
-}
-
 use networking::server::IncomingReliableClientMessage;
 
 use crate::net::EntityClientMessage;
@@ -630,7 +619,7 @@ pub(crate) fn incoming_messages(
                             handle: message.handle,
                             examine_entity: Entity::from_bits(entity_id),
                             entity: *player_entity,
-                            ..Default::default()
+                            message: ASTRIX.to_string(),
                         });
                     }
                     None => {

@@ -224,8 +224,9 @@ pub(crate) fn connect_to_server_button(
                 }
 
                 let server_address_node = server_address_input_query
-                    .get_component::<TextInputNode>(server_address_input_entity)
-                    .unwrap();
+                    .get(server_address_input_entity)
+                    .unwrap()
+                    .2;
 
                 let server_address = server_address_node.input.trim().to_string();
 

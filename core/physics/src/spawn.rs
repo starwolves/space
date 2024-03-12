@@ -245,7 +245,7 @@ pub fn build_rigid_bodies<T: RigidBodyBuilder<NoData> + 'static>(
         match new.cache.get_mut(&stamp.tick) {
             Some(l) => {
                 l.insert(
-                    spawn_event.spawn_data.entity,
+                    spawn_event.spawn_data.entity.unwrap(),
                     PhysicsSpawn {
                         translation: spawn_event.spawn_data.entity_transform.translation,
                         rotation: spawn_event.spawn_data.entity_transform.rotation,
@@ -255,7 +255,7 @@ pub fn build_rigid_bodies<T: RigidBodyBuilder<NoData> + 'static>(
             None => {
                 let mut map = HashMap::new();
                 map.insert(
-                    spawn_event.spawn_data.entity,
+                    spawn_event.spawn_data.entity.unwrap(),
                     PhysicsSpawn {
                         translation: spawn_event.spawn_data.entity_transform.translation,
                         rotation: spawn_event.spawn_data.entity_transform.rotation,
@@ -279,7 +279,7 @@ pub fn build_rigid_bodies<T: RigidBodyBuilder<NoData> + 'static>(
                 mesh_offset: rigidbody_bundle.mesh_offset,
                 ..Default::default()
             },
-            spawn_event.spawn_data.entity,
+            spawn_event.spawn_data.entity.unwrap(),
             spawn_event.spawn_data.showcase_data_option.is_some(),
             &mut rigidbodies,
             &app_mode,

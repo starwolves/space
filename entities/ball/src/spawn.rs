@@ -60,7 +60,7 @@ impl RigidBodyBuilder<NoData> for BallType {
         friction.combine_rule = CoefficientCombine::Multiply;
 
         RigidBodyBundle {
-            collider: Collider::ball(0.25),
+            collider: Collider::sphere(0.25),
             collider_transform: Transform::IDENTITY,
             collider_friction: friction,
             ..Default::default()
@@ -85,6 +85,8 @@ pub fn build_balls<T: Send + Sync + 'static>(
     mut spawn_events: EventReader<SpawnEntity<T>>,
 ) {
     for spawn_event in spawn_events.read() {
-        commands.entity(spawn_event.spawn_data.entity).insert(Ball);
+        commands
+            .entity(spawn_event.spawn_data.entity.unwrap())
+            .insert(Ball);
     }
 }

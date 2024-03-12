@@ -74,7 +74,7 @@ pub fn build_inventory_items<T: InventoryItemBuilder + 'static>(
 
         inventory_item_builder(
             &mut commands,
-            spawn_event.spawn_data.entity,
+            spawn_event.spawn_data.entity.unwrap(),
             InventoryBuilderData {
                 inventory_item: inventory_item_bundle.inventory_item,
                 holder_entity_option: spawn_event.spawn_data.holder_entity_option,

@@ -119,7 +119,7 @@ pub fn ui_events(
 use bevy::log::warn;
 use bevy::prelude::Children;
 use bevy::prelude::Res;
-use bevy::prelude::{Input, KeyCode};
+use bevy::prelude::{ButtonInput, KeyCode};
 use bevy::text::Text;
 use bevy::{prelude::EventReader, window::ReceivedCharacter};
 
@@ -284,7 +284,7 @@ pub(crate) fn register_input(mut map: ResMut<KeyBinds>) {
     map.list.insert(
         COPY_PASTE_V.to_string(),
         KeyBind {
-            key_code: KeyCodeEnum::Keyboard(KeyCode::V),
+            key_code: KeyCodeEnum::Keyboard(KeyCode::KeyV),
             description: "For copy pasting.".to_string(),
             name: "V button.".to_string(),
             customizable: false,
@@ -293,7 +293,7 @@ pub(crate) fn register_input(mut map: ResMut<KeyBinds>) {
     map.list.insert(
         INPUT_BACK.to_string(),
         KeyBind {
-            key_code: KeyCodeEnum::Keyboard(KeyCode::Back),
+            key_code: KeyCodeEnum::Keyboard(KeyCode::Backspace),
             description: "For removing text from input.".to_string(),
             name: "Return key.".to_string(),
             customizable: false,
@@ -311,7 +311,7 @@ pub(crate) fn input_characters(
     mut char_evr: EventReader<ReceivedCharacter>,
     mut text_input_node_query: Query<(&mut TextInputNode, &Children)>,
     mut text_query: Query<&mut Text>,
-    keys: Res<Input<KeyCode>>,
+    keys: Res<ButtonInput<KeyCode>>,
     keys2: Res<KeyBinds>,
 
     time: Res<Time>,
@@ -420,47 +420,49 @@ pub(crate) fn input_characters(
                             }
                         } else {
                             for ev in char_evr.read() {
-                                if input_node.placeholder_active {
-                                    input_node.placeholder_active = false;
-                                    text.value = "".to_string();
-                                }
-
-                                let mut valid_char = false;
-
-                                match &input_node.character_filter_option {
-                                    Some(char_filter) => match char_filter {
-                                        CharacterFilter::AccountName => {
-                                            if ev.char.is_ascii_alphanumeric() {
-                                                valid_char = true;
-                                            }
-                                        }
-                                        CharacterFilter::ServerAddress => {
-                                            if ev.char.is_ascii_alphanumeric()
-                                                || ev.char.is_ascii_graphic()
-                                            {
-                                                valid_char = true;
-                                            }
-                                        }
-                                        CharacterFilter::Chat => {
-                                            if (ev.char.is_whitespace() && ev.char != '\t')
-                                                || ev.char.is_ascii_alphanumeric()
-                                                || ev.char.is_ascii_graphic()
-                                            {
-                                                valid_char = true;
-                                            }
-                                        }
-                                        CharacterFilter::Integer => {
-                                            if ev.char.is_numeric() {
-                                                valid_char = true;
-                                            }
-                                        }
-                                    },
-                                    None => {
-                                        valid_char = true;
+                                for char in ev.char.chars() {
+                                    if input_node.placeholder_active {
+                                        input_node.placeholder_active = false;
+                                        text.value = "".to_string();
                                     }
-                                }
-                                if valid_char {
-                                    input_node.input.push(ev.char);
+
+                                    let mut valid_char = false;
+
+                                    match &input_node.character_filter_option {
+                                        Some(char_filter) => match char_filter {
+                                            CharacterFilter::AccountName => {
+                                                if char.is_ascii_alphanumeric() {
+                                                    valid_char = true;
+                                                }
+                                            }
+                                            CharacterFilter::ServerAddress => {
+                                                if char.is_ascii_alphanumeric()
+                                                    || char.is_ascii_graphic()
+                                                {
+                                                    valid_char = true;
+                                                }
+                                            }
+                                            CharacterFilter::Chat => {
+                                                if (char.is_whitespace() && char != '\t')
+                                                    || char.is_ascii_alphanumeric()
+                                                    || char.is_ascii_graphic()
+                                                {
+                                                    valid_char = true;
+                                                }
+                                            }
+                                            CharacterFilter::Integer => {
+                                                if char.is_numeric() {
+                                                    valid_char = true;
+                                                }
+                                            }
+                                        },
+                                        None => {
+                                            valid_char = true;
+                                        }
+                                    }
+                                    if valid_char {
+                                        input_node.input.push(char);
+                                    }
                                 }
                             }
                             input_node.input = input_node.input.to_string();
@@ -613,7 +615,7 @@ pub struct TextTreeInputSelection {
 /// Manages focus of text input.
 
 pub(crate) fn input_mouse_press_unfocus(
-    buttons: Res<Input<MouseButton>>,
+    buttons: Res<ButtonInput<MouseButton>>,
     text_input: Res<TextInput>,
     mut unfocus: EventWriter<UnfocusTextInput>,
     mut focus: EventReader<FocusTextInput>,

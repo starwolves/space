@@ -64,7 +64,7 @@ pub(crate) fn spawn_boarding_player(
 
                 spawn_human.send(SpawnEntity {
                     spawn_data: EntityBuildData {
-                        entity: new_human_entity,
+                        entity: Some(new_human_entity),
                         entity_transform: spawning_event.transform.clone(),
                         ..Default::default()
                     },

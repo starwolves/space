@@ -123,79 +123,87 @@ pub(crate) fn build_communication_ui(
 ) {
     let sourcecode_font = fonts.handles.get(SOURCECODE_REGULAR_FONT).unwrap();
 
-    let mut chat_messages_node = Entity::from_bits(0);
-    let mut chat_messages_bg_node = Entity::from_bits(0);
+    let mut chat_messages_node = None;
+    let mut chat_messages_bg_node = None;
 
-    let mut console_messages_node = Entity::from_bits(0);
-    let mut communication_input_node = Entity::from_bits(0);
-    let mut console_messages_bg_node = Entity::from_bits(0);
+    let mut console_messages_node = None;
+    let mut communication_input_node = None;
+    let mut console_messages_bg_node = None;
     commands
         .entity(hud_state.left_edge_node)
         .with_children(|parent| {
-            chat_messages_bg_node = parent
-                .spawn(NodeBundle {
-                    style: Style {
-                        width: Val::Percent(100.),
-                        height: Val::Percent(35.),
-                        flex_direction: FlexDirection::ColumnReverse,
-                        overflow: Overflow::clip(),
+            chat_messages_bg_node = Some(
+                parent
+                    .spawn(NodeBundle {
+                        style: Style {
+                            width: Val::Percent(100.),
+                            height: Val::Percent(35.),
+                            flex_direction: FlexDirection::ColumnReverse,
+                            overflow: Overflow::clip(),
+
+                            ..Default::default()
+                        },
+                        background_color: Color::rgba(0.0, 0.0, 1.0, 0.05).into(),
+                        ..Default::default()
+                    })
+                    .insert(ChatMessagesBGNode)
+                    .with_children(|parent| {
+                        chat_messages_node = Some(
+                            parent
+                                .spawn((
+                                    NodeBundle {
+                                        style: Style {
+                                            flex_direction: FlexDirection::ColumnReverse,
+                                            ..Default::default()
+                                        },
+                                        ..Default::default()
+                                    },
+                                    ScrollingListInverted::default(),
+                                    AccessibilityNode(NodeBuilder::new(Role::List)),
+                                ))
+                                .insert(ChatMessagesNode)
+                                .id(),
+                        );
+                    })
+                    .id(),
+            );
+
+            console_messages_bg_node = Some(
+                parent
+                    .spawn(NodeBundle {
+                        style: Style {
+                            width: Val::Percent(100.),
+                            height: Val::Percent(35.),
+                            flex_direction: FlexDirection::ColumnReverse,
+                            display: Display::None,
+                            overflow: Overflow::clip(),
+                            ..Default::default()
+                        },
+                        background_color: Color::rgba(0.25, 0.25, 0.25, 0.4).into(),
 
                         ..Default::default()
-                    },
-                    background_color: Color::rgba(0.0, 0.0, 1.0, 0.05).into(),
-                    ..Default::default()
-                })
-                .insert(ChatMessagesBGNode)
-                .with_children(|parent| {
-                    chat_messages_node = parent
-                        .spawn((
-                            NodeBundle {
-                                style: Style {
-                                    flex_direction: FlexDirection::ColumnReverse,
-                                    ..Default::default()
-                                },
-                                ..Default::default()
-                            },
-                            ScrollingListInverted::default(),
-                            AccessibilityNode(NodeBuilder::new(Role::List)),
-                        ))
-                        .insert(ChatMessagesNode)
-                        .id();
-                })
-                .id();
-
-            console_messages_bg_node = parent
-                .spawn(NodeBundle {
-                    style: Style {
-                        width: Val::Percent(100.),
-                        height: Val::Percent(35.),
-                        flex_direction: FlexDirection::ColumnReverse,
-                        display: Display::None,
-                        overflow: Overflow::clip(),
-                        ..Default::default()
-                    },
-                    background_color: Color::rgba(0.25, 0.25, 0.25, 0.4).into(),
-
-                    ..Default::default()
-                })
-                .insert(ConsoleMessagesBGNode)
-                .with_children(|parent| {
-                    console_messages_node = parent
-                        .spawn((
-                            NodeBundle {
-                                style: Style {
-                                    flex_direction: FlexDirection::ColumnReverse,
-                                    ..Default::default()
-                                },
-                                ..Default::default()
-                            },
-                            ScrollingListInverted::default(),
-                            AccessibilityNode(NodeBuilder::new(Role::List)),
-                        ))
-                        .insert(ConsoleMessagesNode)
-                        .id();
-                })
-                .id();
+                    })
+                    .insert(ConsoleMessagesBGNode)
+                    .with_children(|parent| {
+                        console_messages_node = Some(
+                            parent
+                                .spawn((
+                                    NodeBundle {
+                                        style: Style {
+                                            flex_direction: FlexDirection::ColumnReverse,
+                                            ..Default::default()
+                                        },
+                                        ..Default::default()
+                                    },
+                                    ScrollingListInverted::default(),
+                                    AccessibilityNode(NodeBuilder::new(Role::List)),
+                                ))
+                                .insert(ConsoleMessagesNode)
+                                .id(),
+                        );
+                    })
+                    .id(),
+            );
         });
 
     commands
@@ -221,7 +229,7 @@ pub(crate) fn build_communication_ui(
                         },
                         ..Default::default()
                     });
-                    communication_input_node = builder.id();
+                    communication_input_node = Some(builder.id());
                     builder.insert((
                         TextInputNode {
                             placeholder_active: true,
@@ -284,13 +292,13 @@ pub(crate) fn build_communication_ui(
                 });
         });
     commands.insert_resource(HudCommunicationState {
-        chat_messages_node,
-        communication_input_node,
+        chat_messages_node: chat_messages_node.unwrap(),
+        communication_input_node: communication_input_node.unwrap(),
         communication_input_focused: false,
-        console_messages_node,
+        console_messages_node: console_messages_node.unwrap(),
         is_displaying_console: false,
-        console_messages_bg_node,
-        chat_messages_bg_node,
+        console_messages_bg_node: console_messages_bg_node.unwrap(),
+        chat_messages_bg_node: chat_messages_bg_node.unwrap(),
     });
 }
 

@@ -144,35 +144,35 @@ impl Plugin for GridmapPlugin {
                         remove_cell_client.in_set(EditTileSet::Remove),
                         set_cell_graphics.after(EditTileSet::Add),
                         set_yplane_position
-                            .run_if(resource_exists::<GridmapConstructionState>())
+                            .run_if(resource_exists::<GridmapConstructionState>)
                             .after(YPlaneSet::Input)
                             .after(YPlaneSet::Position),
                         show_ylevel_plane
-                            .run_if(resource_exists::<GridmapConstructionState>())
+                            .run_if(resource_exists::<GridmapConstructionState>)
                             .after(YPlaneSet::Show)
                             .in_set(YPlaneSet::Position),
                         input_yplane_position
                             .in_set(YPlaneSet::Input)
                             .in_set(YPlaneSet::Position)
-                            .run_if(resource_exists::<GridmapConstructionState>()),
-                        move_ylevel_plane.run_if(resource_exists::<GridmapConstructionState>()),
+                            .run_if(resource_exists::<GridmapConstructionState>),
+                        move_ylevel_plane.run_if(resource_exists::<GridmapConstructionState>),
                         update_ghost_cell
                             .after(ConstructionSelection::Changed)
-                            .run_if(resource_exists::<GridmapConstructionState>()),
+                            .run_if(resource_exists::<GridmapConstructionState>),
                         change_ghost_tile_request
                             .in_set(ConstructionSelection::Changed)
-                            .run_if(resource_exists::<GridmapConstructionState>()),
+                            .run_if(resource_exists::<GridmapConstructionState>),
                         select_cell_in_front_camera
                             .in_set(ConstructionSelection::Changed)
-                            .run_if(resource_exists::<GridmapConstructionState>())
+                            .run_if(resource_exists::<GridmapConstructionState>)
                             .run_if(on_timer(Duration::from_secs_f32(1. / 8.))),
                         apply_ghost_rotation
                             .after(ConstructionSelection::Changed)
-                            .run_if(resource_exists::<GridmapConstructionState>())
+                            .run_if(resource_exists::<GridmapConstructionState>)
                             .before(update_ghost_cell),
                         (client_mouse_click_input
                             .after(update_ghost_cell)
-                            .run_if(resource_exists::<GridmapConstructionState>()),),
+                            .run_if(resource_exists::<GridmapConstructionState>),),
                     ),
                 )
                 .add_event::<SetYPlanePosition>()

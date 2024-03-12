@@ -1,7 +1,8 @@
 use bevy::log::warn;
 use bevy::{
     prelude::{
-        Children, Event, EventReader, EventWriter, Input, KeyCode, Query, Res, ResMut, SystemSet,
+        ButtonInput, Children, Event, EventReader, EventWriter, KeyCode, Query, Res, ResMut,
+        SystemSet,
     },
     text::Text,
     ui::{Display, Style},
@@ -95,7 +96,7 @@ pub(crate) enum CommunicationToggleSet {
 pub(crate) struct ToggleCommunication;
 
 pub(crate) fn tab_communication_input_toggle(
-    keys: Res<Input<KeyCode>>,
+    keys: Res<ButtonInput<KeyCode>>,
     binds: Res<KeyBinds>,
     mut event: EventWriter<ToggleCommunication>,
 ) {

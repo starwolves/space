@@ -1,8 +1,7 @@
 use bevy::log::warn;
 use bevy::{
     prelude::{
-        BuildChildren, Commands, Component, Entity, Event, EventReader, NodeBundle, Query, Res,
-        With,
+        BuildChildren, Commands, Component, Event, EventReader, NodeBundle, Query, Res, With,
     },
     ui::{Display, FlexDirection, Style, Val},
 };
@@ -54,16 +53,16 @@ pub fn create_hud(mut commands: Commands) {
     let mut builder = commands.spawn(HudRootNode);
     let entity = builder.id();
 
-    let mut top_edge = Entity::from_bits(0);
-    let mut center = Entity::from_bits(0);
-    let mut bottom_edge = Entity::from_bits(0);
+    let mut top_edge = None;
+    let mut center = None;
+    let mut bottom_edge = None;
 
-    let mut left = Entity::from_bits(0);
-    let mut right = Entity::from_bits(0);
+    let mut left = None;
+    let mut right = None;
 
-    let mut left_content = Entity::from_bits(0);
-    let mut center_content = Entity::from_bits(0);
-    let mut right_content = Entity::from_bits(0);
+    let mut left_content = None;
+    let mut center_content = None;
+    let mut right_content = None;
 
     builder
         .insert(NodeBundle {
@@ -77,117 +76,133 @@ pub fn create_hud(mut commands: Commands) {
             ..Default::default()
         })
         .with_children(|parent| {
-            top_edge = parent
-                .spawn(NodeBundle {
-                    style: Style {
-                        width: Val::Percent(100.),
-                        height: Val::Percent(10.),
-                        flex_direction: FlexDirection::RowReverse,
+            top_edge = Some(
+                parent
+                    .spawn(NodeBundle {
+                        style: Style {
+                            width: Val::Percent(100.),
+                            height: Val::Percent(10.),
+                            flex_direction: FlexDirection::RowReverse,
 
+                            ..Default::default()
+                        },
                         ..Default::default()
-                    },
-                    ..Default::default()
-                })
-                .insert(TopEdgeHud)
-                .id();
-            center = parent
-                .spawn(NodeBundle {
-                    style: Style {
-                        width: Val::Percent(100.),
-                        height: Val::Percent(80.),
+                    })
+                    .insert(TopEdgeHud)
+                    .id(),
+            );
+            center = Some(
+                parent
+                    .spawn(NodeBundle {
+                        style: Style {
+                            width: Val::Percent(100.),
+                            height: Val::Percent(80.),
+                            ..Default::default()
+                        },
                         ..Default::default()
-                    },
-                    ..Default::default()
-                })
-                .insert(CenterHud)
-                .with_children(|parent| {
-                    left = parent
-                        .spawn(NodeBundle {
-                            style: Style {
-                                width: Val::Percent(LEFT_RIGHT_EDGE_HUD_EXPANDED_WIDTH),
-                                height: Val::Percent(100.),
-                                flex_direction: FlexDirection::ColumnReverse,
+                    })
+                    .insert(CenterHud)
+                    .with_children(|parent| {
+                        left = Some(
+                            parent
+                                .spawn(NodeBundle {
+                                    style: Style {
+                                        width: Val::Percent(LEFT_RIGHT_EDGE_HUD_EXPANDED_WIDTH),
+                                        height: Val::Percent(100.),
+                                        flex_direction: FlexDirection::ColumnReverse,
 
-                                ..Default::default()
-                            },
-                            ..Default::default()
-                        })
-                        .insert(LeftEdgeHud)
-                        .id();
-                    left_content = parent
-                        .spawn(NodeBundle {
-                            style: Style {
-                                display: Display::None,
+                                        ..Default::default()
+                                    },
+                                    ..Default::default()
+                                })
+                                .insert(LeftEdgeHud)
+                                .id(),
+                        );
+                        left_content = Some(
+                            parent
+                                .spawn(NodeBundle {
+                                    style: Style {
+                                        display: Display::None,
 
-                                width: Val::Percent(LEFT_RIGHT_CONTENT_HUD_WIDTH),
-                                height: Val::Percent(100.),
-                                ..Default::default()
-                            },
+                                        width: Val::Percent(LEFT_RIGHT_CONTENT_HUD_WIDTH),
+                                        height: Val::Percent(100.),
+                                        ..Default::default()
+                                    },
 
-                            ..Default::default()
-                        })
-                        .insert(LeftContentHud)
-                        .id();
-                    center_content = parent
-                        .spawn(NodeBundle {
-                            style: Style {
-                                width: Val::Percent(50.),
-                                height: Val::Percent(100.),
-                                ..Default::default()
-                            },
-                            ..Default::default()
-                        })
-                        .insert(CenterContentHud)
-                        .id();
-                    right_content = parent
-                        .spawn(NodeBundle {
-                            style: Style {
-                                display: Display::None,
+                                    ..Default::default()
+                                })
+                                .insert(LeftContentHud)
+                                .id(),
+                        );
+                        center_content = Some(
+                            parent
+                                .spawn(NodeBundle {
+                                    style: Style {
+                                        width: Val::Percent(50.),
+                                        height: Val::Percent(100.),
+                                        ..Default::default()
+                                    },
+                                    ..Default::default()
+                                })
+                                .insert(CenterContentHud)
+                                .id(),
+                        );
+                        right_content = Some(
+                            parent
+                                .spawn(NodeBundle {
+                                    style: Style {
+                                        display: Display::None,
 
-                                width: Val::Percent(LEFT_RIGHT_CONTENT_HUD_WIDTH),
-                                height: Val::Percent(100.),
-                                ..Default::default()
-                            },
+                                        width: Val::Percent(LEFT_RIGHT_CONTENT_HUD_WIDTH),
+                                        height: Val::Percent(100.),
+                                        ..Default::default()
+                                    },
+                                    ..Default::default()
+                                })
+                                .insert(RightContentHud)
+                                .id(),
+                        );
+                        right = Some(
+                            parent
+                                .spawn(NodeBundle {
+                                    style: Style {
+                                        width: Val::Percent(LEFT_RIGHT_EDGE_HUD_EXPANDED_WIDTH),
+                                        height: Val::Percent(100.),
+                                        ..Default::default()
+                                    },
+                                    ..Default::default()
+                                })
+                                .insert(RightEdgeHud)
+                                .id(),
+                        );
+                    })
+                    .id(),
+            );
+            bottom_edge = Some(
+                parent
+                    .spawn(NodeBundle {
+                        style: Style {
+                            width: Val::Percent(100.),
+                            height: Val::Percent(10.),
                             ..Default::default()
-                        })
-                        .insert(RightContentHud)
-                        .id();
-                    right = parent
-                        .spawn(NodeBundle {
-                            style: Style {
-                                width: Val::Percent(LEFT_RIGHT_EDGE_HUD_EXPANDED_WIDTH),
-                                height: Val::Percent(100.),
-                                ..Default::default()
-                            },
-                            ..Default::default()
-                        })
-                        .insert(RightEdgeHud)
-                        .id();
-                })
-                .id();
-            bottom_edge = parent
-                .spawn(NodeBundle {
-                    style: Style {
-                        width: Val::Percent(100.),
-                        height: Val::Percent(10.),
+                        },
                         ..Default::default()
-                    },
-                    ..Default::default()
-                })
-                .insert(BottomEdgeHud)
-                .id();
+                    })
+                    .insert(BottomEdgeHud)
+                    .id(),
+            );
         });
 
     commands.insert_resource(HudState {
         root_entity: entity,
         expanded: false,
-        left_content_node: left_content,
-        right_content_node: right_content,
-        center_content_node: center_content,
-        left_edge_node: left,
-        right_edge_node: right,
-        top_edge_node: top_edge,
-        bottom_edge_node: bottom_edge,
+        left_content_node: left_content.unwrap(),
+        right_content_node: right_content.unwrap(),
+        center_content_node: center_content.unwrap(),
+        left_edge_node: left.unwrap(),
+        right_edge_node: right.unwrap(),
+        top_edge_node: top_edge.unwrap(),
+        bottom_edge_node: bottom_edge.unwrap(),
     });
 }
 

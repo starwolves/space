@@ -26,7 +26,7 @@ pub(crate) fn _human_male_setup_ui(
 
         spawn_human_male.send(SpawnEntity {
             spawn_data: EntityBuildData {
-                entity: human_male_entity,
+                entity: Some(human_male_entity),
                 showcase_data_option: Some(ShowcaseData {
                     handle: connected_player_component.handle,
                 }),

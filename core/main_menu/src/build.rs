@@ -833,7 +833,7 @@ pub(crate) fn auto_fill_connect_menu(
             set_text.send(SetText {
                 entity,
                 text: local_ipaddress::get().unwrap_or_default(),
-            })
+            });
         }
     }
 }

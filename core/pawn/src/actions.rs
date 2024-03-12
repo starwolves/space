@@ -47,7 +47,7 @@ pub(crate) fn examine(
                                 handle: *handle,
                                 examine_entity: ex,
                                 entity: building.action_taker,
-                                ..Default::default()
+                                message: ASTRIX.to_string(),
                             });
                         }
                         None => {}
@@ -63,6 +63,7 @@ pub(crate) fn examine(
 use actions::core::{Action, ActionData};
 use bevy::prelude::Query;
 use entity::examine::Examinable;
+use text_api::core::ASTRIX;
 
 /// Build examine action.
 

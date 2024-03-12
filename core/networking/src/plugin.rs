@@ -134,14 +134,14 @@ impl Plugin for NetworkingPlugin {
                     BevyPreUpdate,
                     pre_update_send_messages
                         .in_set(BevyPreUpdateSendMessage)
-                        .run_if(resource_exists::<RenetClient>()),
+                        .run_if(resource_exists::<RenetClient>),
                 )
                 .init_resource::<QueuedSpawnEntityRaw>()
                 .add_systems(
                     Update,
                     (
-                        update_tick_latency.run_if(resource_exists::<RenetClient>()),
-                        starwolves_response.run_if(resource_exists::<TokenAssignServer>()),
+                        update_tick_latency.run_if(resource_exists::<RenetClient>),
+                        starwolves_response.run_if(resource_exists::<TokenAssignServer>),
                         token_assign_server,
                         connect_to_server.after(starwolves_response),
                         clear_raw_spawn_entity_queue,
@@ -166,7 +166,7 @@ impl Plugin for NetworkingPlugin {
                         receive_incoming_reliable_server_messages,
                         receive_incoming_unreliable_server_messages,
                     )
-                        .run_if(resource_exists::<RenetClient>())
+                        .run_if(resource_exists::<RenetClient>)
                         .in_set(TypenamesSet::SendRawEvents),
                 )
                 .add_event::<IncomingRawReliableServerMessage>()
@@ -188,10 +188,10 @@ impl Plugin for NetworkingPlugin {
                 .add_systems(
                     PostUpdate,
                     (
-                        step_buffer.run_if(resource_exists::<RenetClient>()),
+                        step_buffer.run_if(resource_exists::<RenetClient>),
                         post_update_send_messages
                             .in_set(PostUpdateSendMessage)
-                            .run_if(resource_exists::<RenetClient>()),
+                            .run_if(resource_exists::<RenetClient>),
                     ),
                 )
                 .add_systems(Update, detect_client_world_loaded)

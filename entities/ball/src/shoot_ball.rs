@@ -21,7 +21,7 @@ pub(crate) fn register_input(mut keys: ResMut<KeyBinds>) {
     keys.list.insert(
         SHOOT_BALL_BIND.to_string(),
         KeyBind {
-            key_code: KeyCodeEnum::Keyboard(KeyCode::F),
+            key_code: KeyCodeEnum::Keyboard(KeyCode::KeyF),
             description: "Shoot a ball.".to_string(),
             name: "Shoot ball".to_string(),
             customizable: false,
@@ -87,7 +87,7 @@ pub(crate) fn shoot_ball_server(
                         entity_transform: Transform::from_translation(
                             entity_transform.translation + camera_transform.eye + offset * 2.,
                         ),
-                        entity: new,
+                        entity: Some(new),
                         ..Default::default()
                     },
                     entity_type: BallType::default(),

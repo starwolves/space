@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use bevy::{
     ecs::{schedule::SystemSet, system::Local},
-    prelude::{Input, KeyCode, MouseButton, Res, ResMut, Resource},
+    prelude::{ButtonInput, KeyCode, MouseButton, Res, ResMut, Resource},
 };
 
 /// Label for systems ordering.
@@ -87,8 +87,8 @@ pub(crate) fn _sanitize_input(mut local: Local<LastBuffer>, mut buffer: ResMut<I
 pub(crate) fn buffer_input(
     keys: Res<KeyBinds>,
     mut buffer: ResMut<InputBuffer>,
-    keyboard: Res<Input<KeyCode>>,
-    mouse: Res<Input<MouseButton>>,
+    keyboard: Res<ButtonInput<KeyCode>>,
+    mouse: Res<ButtonInput<MouseButton>>,
 ) {
     for (id, bind) in keys.list.iter() {
         match bind.key_code {

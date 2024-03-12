@@ -4,7 +4,8 @@ use bevy::ecs::event::{Event, EventReader};
 use bevy::ecs::system::Commands;
 use bevy::log::warn;
 use bevy::prelude::{Entity, Query, Res, ResMut, Resource, Transform, With};
-use bevy_xpbd_3d::components::{Collider, CollisionLayers, Friction, LockedAxes, Sleeping};
+use bevy_xpbd_3d::components::{CollisionLayers, Friction, LockedAxes, Sleeping};
+use bevy_xpbd_3d::plugins::collision::Collider;
 use bevy_xpbd_3d::prelude::{
     AngularDamping, AngularVelocity, ExternalAngularImpulse, ExternalForce, ExternalImpulse,
     ExternalTorque, LinearDamping, LinearVelocity, RigidBody,

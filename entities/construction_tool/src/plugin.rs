@@ -91,7 +91,7 @@ impl Plugin for ConstructionToolAdminPlugin {
                         .in_set(InventoryHudSet::QueueUpdate)
                         .after(ClientBuildInventoryLabel::Net),
                     construction_tool_enable_select_cell_in_front_camera
-                        .run_if(resource_exists::<GridmapConstructionState>())
+                        .run_if(resource_exists::<GridmapConstructionState>)
                         .in_set(YPlaneSet::Show),
                 ),
             )

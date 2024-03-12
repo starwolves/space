@@ -111,8 +111,8 @@ impl Plugin for HudPlugin {
                             display_chat_message.after(receive_chat_message),
                             queue_inventory_updates
                                 .after(ClientBuildInventoryLabel::AddSlot)
-                                .run_if(not(resource_exists::<InventoryHudState>())),
-                            update_server_stats.run_if(resource_exists::<RenetClient>()),
+                                .run_if(not(resource_exists::<InventoryHudState>)),
+                            update_server_stats.run_if(resource_exists::<RenetClient>),
                             window_unfocus_event
                                 .before(TextInputLabel::MousePressUnfocus)
                                 .before(CursorSet::Perform)

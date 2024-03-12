@@ -52,7 +52,7 @@ pub(crate) fn entity_console_commands(
                 spawn_data: EntityBuildData {
                     entity_transform: passed_transform,
                     correct_transform: false,
-                    entity: commands.spawn(()).id(),
+                    entity: Some(commands.spawn(()).id()),
                     ..Default::default()
                 },
                 entity_type: LineArrowType {

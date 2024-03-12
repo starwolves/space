@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use bevy::{
     core_pipeline::tonemapping::Tonemapping,
-    prelude::{Input, KeyCode, Query, Res, Resource},
+    prelude::{ButtonInput, KeyCode, Query, Res, Resource},
     render::view::ColorGrading,
 };
 
@@ -58,28 +58,28 @@ impl Default for PerMethodSettings {
 }
 
 pub fn toggle_tonemapping_method(
-    keys: Res<Input<KeyCode>>,
+    keys: Res<ButtonInput<KeyCode>>,
     mut tonemapping: Query<&mut Tonemapping>,
     mut color_grading: Query<&mut ColorGrading>,
     per_method_settings: Res<PerMethodSettings>,
 ) {
     for mut method in tonemapping.iter_mut() {
         for mut color_grading in color_grading.iter_mut() {
-            if keys.just_pressed(KeyCode::Key1) {
+            if keys.just_pressed(KeyCode::Digit1) {
                 *method = Tonemapping::None;
-            } else if keys.just_pressed(KeyCode::Key2) {
+            } else if keys.just_pressed(KeyCode::Digit2) {
                 *method = Tonemapping::Reinhard;
-            } else if keys.just_pressed(KeyCode::Key3) {
+            } else if keys.just_pressed(KeyCode::Digit3) {
                 *method = Tonemapping::ReinhardLuminance;
-            } else if keys.just_pressed(KeyCode::Key4) {
+            } else if keys.just_pressed(KeyCode::Digit4) {
                 *method = Tonemapping::AcesFitted;
-            } else if keys.just_pressed(KeyCode::Key5) {
+            } else if keys.just_pressed(KeyCode::Digit5) {
                 *method = Tonemapping::AgX;
-            } else if keys.just_pressed(KeyCode::Key6) {
+            } else if keys.just_pressed(KeyCode::Digit6) {
                 *method = Tonemapping::SomewhatBoringDisplayTransform;
-            } else if keys.just_pressed(KeyCode::Key7) {
+            } else if keys.just_pressed(KeyCode::Digit7) {
                 *method = Tonemapping::TonyMcMapface;
-            } else if keys.just_pressed(KeyCode::Key8) {
+            } else if keys.just_pressed(KeyCode::Digit8) {
                 *method = Tonemapping::BlenderFilmic;
             }
 

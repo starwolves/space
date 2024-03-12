@@ -1,4 +1,4 @@
-use bevy::prelude::{EventReader, EventWriter, Input, MouseButton, Res};
+use bevy::prelude::{ButtonInput, EventReader, EventWriter, MouseButton, Res};
 use player::configuration::Boarded;
 use resources::{
     hud::{EscapeMenuState, HudState},
@@ -54,7 +54,7 @@ pub fn grab_mouse_hud_expand(
 /// Manages focus of text input.
 
 pub(crate) fn mouse_press_hud_unfocus(
-    buttons: Res<Input<MouseButton>>,
+    buttons: Res<ButtonInput<MouseButton>>,
     mut event: EventWriter<ToggleCommunication>,
     mut focus: EventReader<FocusTextInput>,
     text_input: Res<TextInput>,

@@ -126,7 +126,7 @@ pub fn build_counter_windows<T: Send + Sync + 'static>(
 
     for spawn_event in spawn_events.read() {
         commands
-            .entity(spawn_event.spawn_data.entity)
+            .entity(spawn_event.spawn_data.entity.unwrap())
             .insert(CounterWindow {
                 access_permissions: vec![ShipAuthorizationEnum::Security],
                 ..Default::default()
@@ -142,7 +142,7 @@ pub fn build_counter_windows<T: Send + Sync + 'static>(
         let sensor = Sensor;
 
         commands
-            .entity(spawn_event.spawn_data.entity)
+            .entity(spawn_event.spawn_data.entity.unwrap())
             .with_children(|children| {
                 children
                     .spawn(())
@@ -151,7 +151,7 @@ pub fn build_counter_windows<T: Send + Sync + 'static>(
                     .insert(Transform::IDENTITY)
                     .insert((
                         CounterWindowSensor {
-                            parent: spawn_event.spawn_data.entity,
+                            parent: spawn_event.spawn_data.entity.unwrap(),
                         },
                         EntityData {
                             entity_type: Box::new(BlankEntityType::default()),

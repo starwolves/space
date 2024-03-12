@@ -7,7 +7,7 @@ use bevy::{
         BuildChildren, Button, ButtonBundle, Changed, Children, Color, Commands, Component,
         EventReader, EventWriter, NodeBundle, Query, Res, TextBundle, With,
     },
-    text::{TextAlignment, TextStyle},
+    text::{JustifyText, TextStyle},
     ui::{AlignItems, FlexDirection, Interaction, JustifyContent, Style, Val},
 };
 use entity::{despawn::DespawnEntity, spawn::PawnId};
@@ -166,9 +166,7 @@ pub(crate) fn slot_item_actions(
                                                                     font: empire_font.clone(),
                                                                 },
                                                             )
-                                                            .with_text_alignment(
-                                                                TextAlignment::Center,
-                                                            ),
+                                                            .with_text_justify(JustifyText::Center),
                                                         );
                                                     });
                                             });

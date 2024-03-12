@@ -72,15 +72,20 @@ pub fn build_line_arrows<T: LinerArrowBuilder + 'static>(
     mut spawn_events: EventReader<SpawnEntity<T>>,
 ) {
     for spawn_event in spawn_events.read() {
-        commands.entity(spawn_event.spawn_data.entity).insert((
-            spawn_event.spawn_data.entity_transform,
-            LineArrow,
-            PointArrow {
-                timer: Timer::from_seconds(spawn_event.entity_type.get_duration(), TimerMode::Once),
-            },
-            WorldMode {
-                mode: WorldModes::Static,
-            },
-        ));
+        commands
+            .entity(spawn_event.spawn_data.entity.unwrap())
+            .insert((
+                spawn_event.spawn_data.entity_transform,
+                LineArrow,
+                PointArrow {
+                    timer: Timer::from_seconds(
+                        spawn_event.entity_type.get_duration(),
+                        TimerMode::Once,
+                    ),
+                },
+                WorldMode {
+                    mode: WorldModes::Static,
+                },
+            ));
     }
 }
