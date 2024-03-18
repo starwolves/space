@@ -1,5 +1,5 @@
 use bevy::{
-    app::Startup,
+    app::{PostStartup, Startup},
     prelude::{App, IntoSystemConfigs, Plugin, SystemSet},
 };
 use entity::despawn::DespawnEntitySet;
@@ -37,6 +37,7 @@ pub struct MainMenuPlugin;
 impl Plugin for MainMenuPlugin {
     fn build(&self, app: &mut App) {
         if !is_server_mode(app) {
+            app.add_systems(PostStartup, show_main_menu);
             app.add_systems(
                 Update,
                 (
