@@ -1,8 +1,9 @@
 use std::{collections::HashMap, f32::consts::PI};
 
 use bevy::ecs::system::Local;
-use bevy::log::warn;
+use bevy::log::{info, warn};
 use bevy::math::primitives::Direction3d;
+use bevy::transform::components::GlobalTransform;
 use bevy::{
     gltf::GltfMesh,
     pbr::{NotShadowCaster, NotShadowReceiver},
@@ -891,7 +892,7 @@ pub enum ConstructionSelection {
     Changed,
 }
 pub(crate) fn select_cell_in_front_camera(
-    camera_query: Query<&LookTransform>,
+    camera_query: Query<(&GlobalTransform, &LookTransform)>,
     active_camera: Res<ActiveCamera>,
     spatial_query: SpatialQuery,
     mut state: ResMut<GridmapConstructionState>,
@@ -901,11 +902,12 @@ pub(crate) fn select_cell_in_front_camera(
         return;
     }
     let camera_look_transform;
-
+    let camera_transform;
     match active_camera.option {
         Some(camera_entity) => match camera_query.get(camera_entity) {
-            Ok(transform) => {
-                camera_look_transform = transform;
+            Ok((transform, look_transform)) => {
+                camera_look_transform = look_transform;
+                camera_transform = transform;
             }
 
             Err(_) => {
@@ -929,7 +931,7 @@ pub(crate) fn select_cell_in_front_camera(
         }
     }
 
-    let ray_pos = camera_look_transform.eye;
+    let ray_pos = camera_transform.translation();
     let max_toi = 32.0;
     let solid = true;
     let collider_groups = get_bit_masks(ColliderGroup::GridmapSelection);
@@ -947,6 +949,7 @@ pub(crate) fn select_cell_in_front_camera(
             return;
         }
     }
+    info!("ray_pos as origin: {} , dir {:?}", ray_pos, dir3d);
 
     if let Some(hit) = spatial_query.cast_ray(ray_pos, dir3d, max_toi, solid, filter) {
         intersection_position = ray_pos + ray_dir * hit.time_of_impact;
@@ -971,6 +974,7 @@ pub(crate) fn select_cell_in_front_camera(
         }
         None => {}
     }
+    info!("New select id {:?}", n);
     state.selected = Some(n);
 }
 

@@ -51,7 +51,6 @@ impl Default for PointLightType {
         Self {
             light: PointLight {
                 shadows_enabled: true,
-                intensity: 1200.,
                 ..Default::default()
             },
             identifier: SF_CONTENT_PREFIX.to_string() + "point_light",

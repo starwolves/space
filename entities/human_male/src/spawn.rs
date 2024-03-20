@@ -277,7 +277,7 @@ pub fn attach_human_male_camera(
                             controller,
                             Skybox {
                                 image: handle.h.clone_weak(),
-                                brightness: 1.,
+                                brightness: 2000.,
                             },
                             Fxaa {
                                 enabled: settings.fxaa.is_some(),
