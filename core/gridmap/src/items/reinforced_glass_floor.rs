@@ -31,7 +31,7 @@ pub(crate) fn init_reinforced_glass_floor_material(
     let material_handle = materials.add(StandardMaterial {
         base_color_texture: Some(albedo_texture_handle),
         metallic_roughness_texture: Some(metallic_roughness_texture_handle),
-        alpha_mode: AlphaMode::Blend,
+        alpha_mode: AlphaMode::Mask(0.5),
         perceptual_roughness: 0.9,
         metallic: 0.97,
 

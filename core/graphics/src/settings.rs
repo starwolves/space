@@ -6,6 +6,7 @@ use std::{
 
 use bevy::{
     core_pipeline::fxaa::{Fxaa, Sensitivity},
+    pbr::light_consts::lux::AMBIENT_DAYLIGHT,
     prelude::{
         Commands, DetectChanges, DirectionalLight, DirectionalLightBundle, Event, EventReader,
         EventWriter, Msaa, Quat, Query, Res, ResMut, Resource, SystemSet, Transform, With,
@@ -57,6 +58,7 @@ pub(crate) fn init_light(mut commands: Commands, settings: Res<PerformanceSettin
     commands.spawn(DirectionalLightBundle {
         directional_light: DirectionalLight {
             shadows_enabled: directional_shadows,
+            illuminance: AMBIENT_DAYLIGHT * 17.,
             ..Default::default()
         },
         transform: Transform {
