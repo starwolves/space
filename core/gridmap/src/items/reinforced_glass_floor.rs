@@ -34,6 +34,8 @@ pub(crate) fn init_reinforced_glass_floor_material(
         alpha_mode: AlphaMode::Mask(0.5),
         perceptual_roughness: 0.9,
         metallic: 0.97,
+        thickness: 0.2,
+        ior: 1.52,
 
         ..Default::default()
     });
