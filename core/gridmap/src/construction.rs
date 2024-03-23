@@ -575,9 +575,9 @@ pub(crate) fn apply_ghost_rotation(
     let mut new_ids: HashMap<Vec3Int, Vec3Int> = HashMap::default();
 
     for (local_id, tile) in state.ghost_items.iter_mut() {
-        //let int = &Vec3Int { x: 0, y: 0, z: 0 };
+        let int = &Vec3Int { x: 0, y: 0, z: 0 };
 
-        let new_id;
+        let mut new_id = local_id.clone();
 
         match tile.ghost_entity_option {
             Some(ghost_entity) => match ghost_query.get_mut(ghost_entity) {
@@ -775,105 +775,99 @@ pub(crate) fn apply_ghost_rotation(
                                     }
                                 }
 
-                                //if local_id != int {
-
-                                let mut point = Vec3::new(
-                                    local_id.x as f32,
-                                    local_id.y as f32,
-                                    local_id.z as f32,
-                                );
-                                let relative_rotation;
-                                let properties;
-                                match gridmap.tile_properties.get(&tile.tile_type) {
-                                    Some(p) => {
-                                        properties = p;
-                                    }
-                                    None => {
-                                        warn!("Couldnt find tiletype. {:?}", tile.tile_type);
-                                        continue;
-                                    }
-                                }
-
-                                if !properties.vertical_rotation {
-                                    let x_rotations;
-
-                                    if properties.x_rotations.len() > 0 {
-                                        x_rotations = properties.x_rotations.clone();
-                                        relative_rotation = x_rotations
-                                            .iter()
-                                            .position(|&r| r == new_rotation)
-                                            .unwrap();
-                                    } else {
-                                        let rotations = vec![0, 22, 10, 16];
-                                        relative_rotation = rotations
-                                            .iter()
-                                            .position(|&r| r == new_rotation)
-                                            .unwrap();
-                                        //relative_rotation = new_rotation as usize;
-                                    }
-                                } else {
-                                    let y_rotations;
-
-                                    if properties.y_rotations.len() > 0 {
-                                        y_rotations = properties.y_rotations.clone();
-
-                                        relative_rotation = y_rotations
-                                            .iter()
-                                            .position(|&r| r == new_rotation)
-                                            .unwrap();
-                                    } else {
-                                        let rotations = vec![0, 22, 10, 16];
-                                        relative_rotation = rotations
-                                            .iter()
-                                            .position(|&r| r == new_rotation)
-                                            .unwrap();
-                                        //relative_rotation = new_rotation as usize;
-                                    }
-                                }
-
-                                let mut quat;
-                                if !properties.vertical_rotation {
-                                    match relative_rotation {
-                                        0 => quat = Quat::from_rotation_y(0. * PI),
-                                        1 => quat = Quat::from_rotation_y(1.5 * PI),
-                                        2 => quat = Quat::from_rotation_y(1. * PI),
-                                        3 => quat = Quat::from_rotation_y(0.5 * PI),
-                                        _ => {
-                                            warn!(
-                                                "Relative rotation is not supported {}.",
-                                                relative_rotation
-                                            );
+                                if local_id != int {
+                                    let mut point = Vec3::new(
+                                        local_id.x as f32,
+                                        local_id.y as f32,
+                                        local_id.z as f32,
+                                    );
+                                    let relative_rotation;
+                                    let properties;
+                                    match gridmap.tile_properties.get(&tile.tile_type) {
+                                        Some(p) => {
+                                            properties = p;
+                                        }
+                                        None => {
+                                            warn!("Couldnt find tiletype. {:?}", tile.tile_type);
                                             continue;
                                         }
                                     }
-                                } else {
-                                    match relative_rotation {
-                                        0 => quat = Quat::from_rotation_z(0. * PI),
-                                        1 => quat = Quat::from_rotation_z(1.5 * PI),
-                                        2 => quat = Quat::from_rotation_z(1. * PI),
-                                        3 => quat = Quat::from_rotation_z(0.5 * PI),
-                                        _ => {
-                                            warn!("Relative vrotation is not supported.");
-                                            continue;
+
+                                    if !properties.vertical_rotation {
+                                        let x_rotations;
+
+                                        if properties.x_rotations.len() > 0 {
+                                            x_rotations = properties.x_rotations.clone();
+                                            relative_rotation = x_rotations
+                                                .iter()
+                                                .position(|&r| r == new_rotation)
+                                                .unwrap();
+                                        } else {
+                                            let rotations = vec![0, 22, 10, 16];
+                                            relative_rotation = rotations
+                                                .iter()
+                                                .position(|&r| r == new_rotation)
+                                                .unwrap();
+                                            //relative_rotation = new_rotation as usize;
+                                        }
+                                    } else {
+                                        let y_rotations;
+
+                                        if properties.y_rotations.len() > 0 {
+                                            y_rotations = properties.y_rotations.clone();
+
+                                            relative_rotation = y_rotations
+                                                .iter()
+                                                .position(|&r| r == new_rotation)
+                                                .unwrap();
+                                        } else {
+                                            let rotations = vec![0, 22, 10, 16];
+                                            relative_rotation = rotations
+                                                .iter()
+                                                .position(|&r| r == new_rotation)
+                                                .unwrap();
+                                            //relative_rotation = new_rotation as usize;
                                         }
                                     }
+
+                                    let mut quat;
+                                    if !properties.vertical_rotation {
+                                        match relative_rotation {
+                                            0 => quat = Quat::from_rotation_y(0. * PI),
+                                            1 => quat = Quat::from_rotation_y(1.5 * PI),
+                                            2 => quat = Quat::from_rotation_y(1. * PI),
+                                            3 => quat = Quat::from_rotation_y(0.5 * PI),
+                                            _ => {
+                                                warn!(
+                                                    "Relative rotation is not supported {}.",
+                                                    relative_rotation
+                                                );
+                                                continue;
+                                            }
+                                        }
+                                    } else {
+                                        match relative_rotation {
+                                            0 => quat = Quat::from_rotation_z(0. * PI),
+                                            1 => quat = Quat::from_rotation_z(1.5 * PI),
+                                            2 => quat = Quat::from_rotation_z(1. * PI),
+                                            3 => quat = Quat::from_rotation_z(0.5 * PI),
+                                            _ => {
+                                                warn!("Relative vrotation is not supported.");
+                                                continue;
+                                            }
+                                        }
+                                    }
+                                    quat = quat.normalize();
+                                    point = quat.mul_vec3(point);
+
+                                    new_id = Vec3Int {
+                                        x: point.x.round() as i16,
+                                        y: point.y.round() as i16,
+                                        z: point.z.round() as i16,
+                                    };
+
+                                    new_ids.insert(*local_id, new_id);
                                 }
-                                quat = quat.normalize();
-                                point = quat.mul_vec3(point);
-
-                                /*if relative_rotation == 2 || relative_rotation == 3 {
-                                    point = -point;
-                                }*/
-
-                                new_id = Vec3Int {
-                                    x: point.x as i16,
-                                    y: point.y as i16,
-                                    z: point.z as i16,
-                                };
-
-                                new_ids.insert(*local_id, new_id);
-                                //}
-
                                 let full_id = new_id + selected_id;
 
                                 ghost_transform.scale = Vec3::from([1.05; 3]);
