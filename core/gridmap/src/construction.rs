@@ -1130,8 +1130,22 @@ pub(crate) fn client_mouse_click_input(
         let mut construct_cells = vec![];
 
         for (local_id, tile) in state.ghost_items.iter() {
+            let rotated_id;
+            if local_id == &(Vec3Int { x: 0, y: 0, z: 0 }) {
+                rotated_id = local_id.clone();
+            } else {
+                match state.rotated_ghost_ids.get(local_id) {
+                    Some(rot) => {
+                        rotated_id = rot.clone();
+                    }
+                    None => {
+                        warn!("no rotated ghost id found.");
+                        continue;
+                    }
+                }
+            }
             construct_cells.push(TargetCell {
-                id: cell_id + *local_id,
+                id: cell_id + rotated_id,
                 face: tile.ghost_face.clone(),
             });
         }
