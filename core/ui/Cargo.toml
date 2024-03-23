@@ -21,6 +21,6 @@ resources = { path = "../resources" }
 bevy_renet = { version = "0.0.11", git = "https://github.com/starwolfy/renet.git"}
 
 [dependencies.bevy]
-version = "0.13.0"
+version = "0.13.1"
 
 default-features = false
