@@ -5,6 +5,7 @@ use bevy::log::info;
 use bevy::log::warn;
 use bevy::pbr::ScreenSpaceAmbientOcclusionBundle;
 use bevy::pbr::ScreenSpaceAmbientOcclusionSettings;
+use bevy::render::camera::Exposure;
 use bevy::{
     core_pipeline::{fxaa::Fxaa, tonemapping::Tonemapping, Skybox},
     prelude::{
@@ -268,6 +269,8 @@ pub fn attach_human_male_camera(
                                     ..Default::default()
                                 },
                                 tonemapping: Tonemapping::ReinhardLuminance,
+                                exposure: Exposure { ev100: 18. },
+
                                 ..Default::default()
                             },
                             LookTransformBundle {
@@ -277,7 +280,7 @@ pub fn attach_human_male_camera(
                             controller,
                             Skybox {
                                 image: handle.h.clone_weak(),
-                                brightness: 2000.,
+                                brightness: 400000.,
                             },
                             Fxaa {
                                 enabled: settings.fxaa.is_some(),

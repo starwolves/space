@@ -22,7 +22,6 @@ impl PointLightBuilderBundle {
         point_light_component: PointLight,
     ) {
         let static_transform_component = entity_transform;
-
         commands.spawn((
             point_light_component,
             Sensable {
