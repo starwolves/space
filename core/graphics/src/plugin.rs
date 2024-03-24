@@ -4,9 +4,10 @@ use resources::{modes::is_server_mode, ordering::Update};
 use crate::{
     settings::{
         forward_performance_settings, init_light, set_ambient_lighting, set_fxaa, set_msaa,
-        set_rcas, set_resolution, set_shadows, set_ssao, set_sync_correction, set_vsync,
-        set_window_mode, settings_to_ron, PerformanceSettings, SetAmbientLighting, SetFxaa,
-        SetMsaa, SetRCAS, SetResolution, SetSSAO, SetShadows, SetSyncCorrection, SetVsync,
+        set_rcas, set_resolution, set_shadows, set_shadows_cascading, set_shadows_resolution,
+        set_ssao, set_sync_correction, set_vsync, set_window_mode, settings_to_ron,
+        PerformanceSettings, SetAmbientLighting, SetFxaa, SetMsaa, SetRCAS, SetResolution, SetSSAO,
+        SetShadows, SetShadowsCascading, SetShadowsResolution, SetSyncCorrection, SetVsync,
         SetWindowMode, SettingsSet,
     },
     skybox::preload_skybox,
@@ -29,6 +30,8 @@ impl Plugin for GraphicsPlugin {
                     set_rcas,
                     set_ambient_lighting,
                     set_shadows.before(set_ambient_lighting),
+                    set_shadows_resolution,
+                    set_shadows_cascading,
                     set_ssao,
                     set_window_mode,
                     set_sync_correction,
@@ -52,6 +55,8 @@ impl Plugin for GraphicsPlugin {
             .add_event::<SetRCAS>()
             .add_event::<SetAmbientLighting>()
             .add_event::<SetShadows>()
+            .add_event::<SetShadowsResolution>()
+            .add_event::<SetShadowsCascading>()
             .add_event::<SetMsaa>()
             .add_event::<SetSSAO>()
             .init_resource::<PerMethodSettings>();

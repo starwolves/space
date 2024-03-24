@@ -14,6 +14,8 @@ use graphics::settings::SetAmbientLighting;
 use graphics::settings::SetRCAS;
 use graphics::settings::SetSSAO;
 use graphics::settings::SetShadows;
+use graphics::settings::SetShadowsCascading;
+use graphics::settings::SetShadowsResolution;
 use graphics::settings::SetSyncCorrection;
 use graphics::settings::{SetFxaa, SetMsaa, SetResolution, SetVsync, SetWindowMode};
 use hud::inventory::build::{InventoryHudState, OpenHud};
@@ -29,7 +31,9 @@ use crate::build::AmbientLightingHList;
 use crate::build::AmbientLightingRestartLabel;
 use crate::build::RCASHList;
 use crate::build::SSAOHList;
+use crate::build::ShadowsCascadingHList;
 use crate::build::ShadowsHList;
+use crate::build::ShadowsResolutionHList;
 use crate::build::SyncCorrectionHList;
 use crate::build::SyncCorrectionRestartLabel;
 use crate::build::{
@@ -495,6 +499,105 @@ pub(crate) fn apply_shadows_setting(
                             }
                         }
                         events.send(SetShadows { mode });
+                    }
+                    Err(_) => {
+                        warn!("Couildnt find apply window hlist.");
+                    }
+                }
+            }
+            _ => (),
+        }
+    }
+}
+
+pub(crate) fn apply_shadows_resolution_setting(
+    interaction_query: Query<
+        (Entity, &Interaction, &Parent),
+        (Changed<Interaction>, With<SFButton>),
+    >,
+    parent_query: Query<&ShadowsResolutionHList>,
+    mut events: EventWriter<SetShadowsResolution>,
+    hlist_query: Query<&HList>,
+) {
+    for (entity, interaction, parent) in interaction_query.iter() {
+        match interaction {
+            Interaction::Pressed => {
+                match parent_query.get(**parent) {
+                    Ok(_) => {}
+                    Err(_) => {
+                        continue;
+                    }
+                }
+                match hlist_query.get(**parent) {
+                    Ok(hlist) => {
+                        let id = hlist
+                            .selections_entities
+                            .iter()
+                            .position(|&r| r == entity)
+                            .unwrap() as u8;
+
+                        let mode;
+
+                        match FromPrimitive::from_u8(id) {
+                            Some(t) => {
+                                mode = t;
+                            }
+                            None => {
+                                warn!("Couldnt convert window mode enum.");
+                                continue;
+                            }
+                        }
+
+                        events.send(SetShadowsResolution { mode });
+                    }
+                    Err(_) => {
+                        warn!("Couildnt find apply window hlist.");
+                    }
+                }
+            }
+            _ => (),
+        }
+    }
+}
+
+pub(crate) fn apply_shadows_cascading_setting(
+    interaction_query: Query<
+        (Entity, &Interaction, &Parent),
+        (Changed<Interaction>, With<SFButton>),
+    >,
+    parent_query: Query<&ShadowsCascadingHList>,
+    mut events: EventWriter<SetShadowsCascading>,
+    hlist_query: Query<&HList>,
+) {
+    for (entity, interaction, parent) in interaction_query.iter() {
+        match interaction {
+            Interaction::Pressed => {
+                match parent_query.get(**parent) {
+                    Ok(_) => {}
+                    Err(_) => {
+                        continue;
+                    }
+                }
+                match hlist_query.get(**parent) {
+                    Ok(hlist) => {
+                        let id = hlist
+                            .selections_entities
+                            .iter()
+                            .position(|&r| r == entity)
+                            .unwrap() as u8;
+
+                        let mode;
+
+                        match FromPrimitive::from_u8(id) {
+                            Some(t) => {
+                                mode = t;
+                            }
+                            None => {
+                                warn!("Couldnt convert window mode enum.");
+                                continue;
+                            }
+                        }
+                        events.send(SetShadowsCascading { mode });
                     }
                     Err(_) => {
                         warn!("Couildnt find apply window hlist.");

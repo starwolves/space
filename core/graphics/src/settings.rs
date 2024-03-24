@@ -6,7 +6,10 @@ use std::{
 
 use bevy::{
     core_pipeline::fxaa::{Fxaa, Sensitivity},
-    pbr::light_consts::lux::DIRECT_SUNLIGHT,
+    pbr::{
+        light_consts::lux::DIRECT_SUNLIGHT, CascadeShadowConfig, CascadeShadowConfigBuilder,
+        DirectionalLightShadowMap, PointLightShadowMap,
+    },
     prelude::{
         Commands, DetectChanges, DirectionalLight, DirectionalLightBundle, Event, EventReader,
         EventWriter, Msaa, Quat, Query, Res, ResMut, Resource, SystemSet, Transform, With,
@@ -39,7 +42,13 @@ pub(crate) fn default_ambient_light(enabled: bool) -> AmbientLight {
         }
     }
 }
-
+pub const DIRECTIONAL_CASCADE_CONFIG: CascadeShadowConfigBuilder = CascadeShadowConfigBuilder {
+    num_cascades: 4,
+    maximum_distance: 100.0,
+    first_cascade_far_bound: 10.0,
+    minimum_distance: 0.1,
+    overlap_proportion: 0.2,
+};
 pub(crate) fn init_light(mut commands: Commands, settings: Res<PerformanceSettings>) {
     commands.insert_resource(default_ambient_light(settings.ambient_lighting));
 
@@ -55,12 +64,27 @@ pub(crate) fn init_light(mut commands: Commands, settings: Res<PerformanceSettin
             directional_shadows = true;
         }
     }
+    let mut config = DIRECTIONAL_CASCADE_CONFIG;
+    let cascade_num;
+    match settings.shadows_cascading {
+        ShadowsCascading::Low => {
+            cascade_num = 2;
+        }
+        ShadowsCascading::Medium => {
+            cascade_num = 4;
+        }
+        ShadowsCascading::High => {
+            cascade_num = 8;
+        }
+    }
+    config.num_cascades = cascade_num;
     commands.spawn(DirectionalLightBundle {
         directional_light: DirectionalLight {
             shadows_enabled: directional_shadows,
             illuminance: DIRECT_SUNLIGHT * 100.,
             ..Default::default()
         },
+        cascade_shadow_config: config.into(),
         transform: Transform {
             rotation: Quat::from_rotation_y(-PI * 1.).mul_quat(Quat::from_rotation_x(-PI * 0.1)),
             ..Default::default()
@@ -78,9 +102,26 @@ pub struct PerformanceSettings {
     pub msaa: SFMsaa,
     pub rcas: bool,
     pub shadows: Shadows,
+    pub shadows_resolution: ShadowsResolution,
+    pub shadows_cascading: ShadowsCascading,
     pub synchronous_correction: bool,
     pub ambient_lighting: bool,
     pub ssao: SSAO,
+}
+#[derive(Default, Clone, Serialize, Deserialize, FromPrimitive, Debug)]
+pub enum ShadowsResolution {
+    Low = 1,
+    #[default]
+    Medium = 2,
+    High = 3,
+    Ultra = 4,
+}
+#[derive(Default, Clone, Serialize, Deserialize, FromPrimitive, Debug)]
+pub enum ShadowsCascading {
+    Low = 1,
+    #[default]
+    Medium = 2,
+    High = 3,
 }
 #[derive(Default, Clone, Serialize, Deserialize, FromPrimitive, Debug)]
 pub enum SSAO {
@@ -182,6 +223,8 @@ impl Default for PerformanceSettings {
             shadows: Shadows::default(),
             ambient_lighting: false,
             ssao: SSAO::default(),
+            shadows_resolution: ShadowsResolution::default(),
+            shadows_cascading: ShadowsCascading::default(),
         }
     }
 }
@@ -224,10 +267,18 @@ pub(crate) fn forward_performance_settings(
     mut msaa_events: EventWriter<SetMsaa>,
     //mut rcas: EventWriter<SetRCAS>,
     mut shadows: EventWriter<SetShadows>,
+    mut shadows_cascade: EventWriter<SetShadowsCascading>,
+    mut shadows_resolution: EventWriter<SetShadowsResolution>,
     mut ambient: EventWriter<SetAmbientLighting>,
     //mut ssao: EventWriter<SetSSAO>,
     mut sync: EventWriter<SetSyncCorrection>,
 ) {
+    shadows_cascade.send(SetShadowsCascading {
+        mode: settings.shadows_cascading.clone(),
+    });
+    shadows_resolution.send(SetShadowsResolution {
+        mode: settings.shadows_resolution.clone(),
+    });
     res_events.send(SetResolution {
         resolution: (settings.resolution.0, settings.resolution.1),
     });
@@ -286,6 +337,14 @@ pub struct SetAmbientLighting {
 #[derive(Event)]
 pub struct SetShadows {
     pub mode: Shadows,
+}
+#[derive(Event)]
+pub struct SetShadowsResolution {
+    pub mode: ShadowsResolution,
+}
+#[derive(Event)]
+pub struct SetShadowsCascading {
+    pub mode: ShadowsCascading,
 }
 #[derive(Event)]
 pub struct SetSSAO {
@@ -387,7 +446,61 @@ pub fn set_ssao(
         }
     }
 }
+pub fn set_shadows_resolution(
+    mut events: EventReader<SetShadowsResolution>,
+    mut directional: ResMut<DirectionalLightShadowMap>,
+    mut point: ResMut<PointLightShadowMap>,
+    mut settings: ResMut<PerformanceSettings>,
+) {
+    for event in events.read() {
+        match event.mode {
+            ShadowsResolution::Low => {
+                directional.size = 1024;
+                point.size = 512;
+            }
+            ShadowsResolution::Medium => {
+                directional.size = 1024 * 2;
+                point.size = 512 * 2;
+            }
+            ShadowsResolution::High => {
+                directional.size = 1024 * 4;
+                point.size = 512 * 4;
+            }
+            ShadowsResolution::Ultra => {
+                directional.size = 1024 * 8;
+                point.size = 512 * 8;
+            }
+        }
+        settings.shadows_resolution = event.mode.clone();
+    }
+}
+pub fn set_shadows_cascading(
+    mut events: EventReader<SetShadowsCascading>,
+    mut cascade: Query<&mut CascadeShadowConfig>,
+    mut settings: ResMut<PerformanceSettings>,
+) {
+    for event in events.read() {
+        let cascade_num;
 
+        match event.mode {
+            ShadowsCascading::Low => {
+                cascade_num = 2;
+            }
+            ShadowsCascading::Medium => {
+                cascade_num = 4;
+            }
+            ShadowsCascading::High => {
+                cascade_num = 8;
+            }
+        }
+        for mut cascade in cascade.iter_mut() {
+            let mut config = DIRECTIONAL_CASCADE_CONFIG;
+            config.num_cascades = cascade_num;
+            *cascade = config.into();
+        }
+        settings.shadows_cascading = event.mode.clone();
+    }
+}
 pub fn set_shadows(
     mut events: EventReader<SetShadows>,
     mut directional_lights: Query<&mut DirectionalLight>,
