@@ -70,7 +70,16 @@ pub fn ui_events(
     mut focus: EventWriter<FocusTextInput>,
     primary_query: Query<&Window, With<PrimaryWindow>>,
 ) {
-    let primary = primary_query.get_single().unwrap();
+    let primary;
+    match primary_query.get_single() {
+        Ok(pr) => {
+            primary = pr;
+        }
+        Err(_) => {
+            warn!("ui event missed primary window.");
+            return;
+        }
+    }
 
     for (entity, interaction, text_input_node, mut color) in interaction_query.iter_mut() {
         let mut input_has_focus = false;
