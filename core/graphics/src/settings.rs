@@ -424,11 +424,11 @@ pub fn set_shadows(
 
         for mut p in point_lights.iter_mut() {
             p.shadows_enabled = point_lights_enabled;
-            if ambience_enabled {
+            /*if ambience_enabled {
                 p.intensity = 1200.
             } else {
                 p.intensity = 1800.
-            }
+            }*/
         }
         for mut d in directional_lights.iter_mut() {
             d.shadows_enabled = directional_lights_enabled;
