@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use bevy::{
-    ecs::{schedule::SystemSet, system::Local},
+    ecs::schedule::SystemSet,
     prelude::{ButtonInput, KeyCode, MouseButton, Res, ResMut, Resource},
 };
 
@@ -12,6 +12,7 @@ pub enum InputSet {
     Cache,
     ApplyLiveCache,
 }
+
 pub const MOVE_FORWARD_BIND: &str = "moveForward";
 pub const MOVE_BACKWARD_BIND: &str = "moveBackward";
 pub const MOVE_LEFT_BIND: &str = "moveLeft";
@@ -67,23 +68,6 @@ impl InputBuffer {
 pub(crate) fn clear_buffer(mut buffer: ResMut<InputBuffer>) {
     buffer.clear();
 }
-#[derive(Resource, Default)]
-pub(crate) struct LastBuffer(InputBuffer);
-pub(crate) fn _sanitize_input(mut local: Local<LastBuffer>, mut buffer: ResMut<InputBuffer>) {
-    for (id, pressed) in buffer.clone().pressed.iter() {
-        match local.0.pressed.get(id) {
-            Some(p) => {
-                if pressed == p {
-                    buffer.buffer.remove(id);
-                }
-            }
-            None => {}
-        }
-    }
-
-    local.0 = buffer.clone();
-}
-
 pub(crate) fn buffer_input(
     keys: Res<KeyBinds>,
     mut buffer: ResMut<InputBuffer>,
