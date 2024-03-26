@@ -28,9 +28,9 @@ pub(crate) fn init_bridge_wall_material(
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut res: ResMut<BridgeWallMaterial>,
 ) {
-    let albedo_texture_handle = asset_server.load("gridmap/wall_template/bridge/bridge_base.png");
+    let albedo_texture_handle = asset_server.load("gridmap/wall_flat/bridge/bridge_base.png");
     let metallic_roughness_texture_handle =
-        asset_server.load("gridmap/wall_template/bridge/bridge_metal_rough.png");
+        asset_server.load("gridmap/wall_flat/bridge/bridge_metal_rough.png");
 
     let material_handle = materials.add(StandardMaterial {
         base_color_texture: Some(albedo_texture_handle),
@@ -55,7 +55,7 @@ pub(crate) fn init_bridge_wall(
     let mesh_option;
     let material_option;
     if !is_server() || matches!(*app_mode, AppMode::Correction) {
-        mesh_option = Some(meshes.wall.clone_weak());
+        mesh_option = Some(meshes.wall_flat.clone_weak());
 
         material_option = Some(mat.material_handle.clone_weak());
     } else {

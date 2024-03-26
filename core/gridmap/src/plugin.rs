@@ -50,6 +50,7 @@ use crate::{
         bridge_wall::{
             init_bridge_wall, init_bridge_wall_group, init_bridge_wall_material, BridgeWallMaterial,
         },
+        exterior_wall::{init_exterior_wall, init_exterior_wall_material},
         generic_assets::{
             init_default_materials, init_generic_meshes, GenericMaterials, GenericMeshes,
         },
@@ -66,10 +67,6 @@ use crate::{
             init_generic_half_diagonal_floor_low, init_generic_half_diagonal_floor_material,
             GenericHalfDiagonalFloorMaterial,
         },
-        generic_wall::{
-            init_generic_wall, init_generic_wall_group, init_generic_wall_material,
-            GenericWallMaterial,
-        },
         reinforced_glass_floor::{
             init_reinforced_glass_floor, init_reinforced_glass_floor_material,
             ReinforcedGlassFloorMaterial,
@@ -85,6 +82,12 @@ use crate::{
             init_reinforced_glass_wall, init_reinforced_glass_wall_material,
             ReinforcedGlassWallMaterial,
         },
+        wall_clean::{init_clean_wall, init_wall_clean_material},
+        wall_flat::{
+            init_flat_wall, init_flat_wall_material, init_generic_wall_group, WallMaterials,
+        },
+        wall_high_curbed::{init_wall_high_curb, init_wall_high_curb_material},
+        wall_low_curbed::{init_wall_low_curb, init_wall_low_curb_material},
     },
     net::{GridmapClientMessage, GridmapServerMessage},
 };
@@ -185,7 +188,11 @@ impl Plugin for GridmapPlugin {
                         init_generic_meshes,
                         register_input,
                         init_default_materials,
-                        init_generic_wall_material.before(init_generic_wall),
+                        init_flat_wall_material.before(init_flat_wall),
+                        init_wall_clean_material.before(init_clean_wall),
+                        init_wall_low_curb_material.before(init_wall_low_curb),
+                        init_wall_high_curb_material.before(init_wall_high_curb),
+                        init_exterior_wall_material.before(init_exterior_wall),
                         init_bridge_wall_material.before(init_bridge_wall),
                         init_generic_floor_material.before(init_generic_floor),
                         init_generic_half_diagonal_floor_material
@@ -212,7 +219,7 @@ impl Plugin for GridmapPlugin {
         }
         app.init_resource::<GenericMaterials>()
             .init_resource::<GenericMeshes>()
-            .init_resource::<GenericWallMaterial>()
+            .init_resource::<WallMaterials>()
             .init_resource::<GenericHalfDiagonalFloorMaterial>()
             .init_resource::<GenericFloorMaterial>()
             .init_resource::<GenericHalfDiagonalCeilingMaterial>()
@@ -265,7 +272,10 @@ impl Plugin for GridmapPlugin {
                             .after(init_tile_properties)
                             .after(init_generic_meshes)
                             .before(init_tile_groups),
-                        init_generic_wall
+                        init_flat_wall
+                            .before(init_tile_properties)
+                            .after(init_generic_meshes),
+                        init_clean_wall
                             .before(init_tile_properties)
                             .after(init_generic_meshes),
                         init_bridge_wall
@@ -319,6 +329,15 @@ impl Plugin for GridmapPlugin {
                             .before(init_tile_properties)
                             .after(init_generic_meshes),
                         init_corner2_bridge_floor
+                            .before(init_tile_properties)
+                            .after(init_generic_meshes),
+                        init_exterior_wall
+                            .before(init_tile_properties)
+                            .after(init_generic_meshes),
+                        init_wall_low_curb
+                            .before(init_tile_properties)
+                            .after(init_generic_meshes),
+                        init_wall_high_curb
                             .before(init_tile_properties)
                             .after(init_generic_meshes),
                     ),

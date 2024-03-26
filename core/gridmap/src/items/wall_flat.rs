@@ -19,19 +19,23 @@ use crate::grid::{FullCell, Gridmap, GroupTypeName};
 use super::generic_assets::GenericMeshes;
 
 #[derive(Default, Resource)]
-pub struct GenericWallMaterial {
-    pub material_handle: Handle<StandardMaterial>,
+pub struct WallMaterials {
+    pub flat_handle: Handle<StandardMaterial>,
+    pub clean_handle: Handle<StandardMaterial>,
+    pub exterior_handle: Handle<StandardMaterial>,
+    pub low_curb_handle: Handle<StandardMaterial>,
+    pub high_curb_handle: Handle<StandardMaterial>,
 }
 
-pub(crate) fn init_generic_wall_material(
+pub(crate) fn init_flat_wall_material(
     asset_server: Res<AssetServer>,
     mut materials: ResMut<Assets<StandardMaterial>>,
-    mut res: ResMut<GenericWallMaterial>,
+    mut res: ResMut<WallMaterials>,
 ) {
     let albedo_texture_handle =
-        asset_server.load("gridmap/wall_template/generic/generic_wall_base.png");
+        asset_server.load("gridmap/wall_flat/generic/generic_wall_base.png");
     let metallic_roughness_texture_handle =
-        asset_server.load("gridmap/wall_template/generic/generic_wall_metal_rough.png");
+        asset_server.load("gridmap/wall_flat/generic/generic_wall_metal_rough.png");
 
     let material_handle = materials.add(StandardMaterial {
         base_color_texture: Some(albedo_texture_handle),
@@ -40,13 +44,13 @@ pub(crate) fn init_generic_wall_material(
         metallic: 0.97,
         ..Default::default()
     });
-    res.material_handle = material_handle;
+    res.flat_handle = material_handle;
 }
 
-pub(crate) fn init_generic_wall(
+pub(crate) fn init_flat_wall(
     mut init: ResMut<InitTileProperties>,
     meshes: Res<GenericMeshes>,
-    mat: Res<GenericWallMaterial>,
+    mat: Res<WallMaterials>,
     app_mode: Res<AppMode>,
 ) {
     let mut default_isometry = Transform::IDENTITY;
@@ -56,21 +60,21 @@ pub(crate) fn init_generic_wall(
     let mesh_option;
     let material_option;
     if !is_server() || matches!(*app_mode, AppMode::Correction) {
-        mesh_option = Some(meshes.wall.clone_weak());
+        mesh_option = Some(meshes.wall_flat.clone_weak());
 
-        material_option = Some(mat.material_handle.clone_weak());
+        material_option = Some(mat.flat_handle.clone_weak());
     } else {
         mesh_option = None;
         material_option = None;
     }
     init.properties.push(TileProperties {
-        name_id: CellTypeName("generic_wall".to_string()),
+        name_id: CellTypeName("flat_wall".to_string()),
         name: RichName {
             name: "aluminum wall".to_string(),
             n: true,
             the: false,
         },
-        description: "A generic wall tile.".to_string(),
+        description: "A flat wall tile.".to_string(),
         constructable: true,
         mesh_option,
         cell_type: CellType::Wall,
@@ -91,7 +95,7 @@ pub(crate) fn init_generic_wall_group(
             orientation: 0,
             tile_type: *gridmap_data
                 .main_name_id_map
-                .get(&CellTypeName("generic_wall".to_string()))
+                .get(&CellTypeName("flat_wall".to_string()))
                 .unwrap(),
             entity_option: None,
         },
@@ -103,14 +107,14 @@ pub(crate) fn init_generic_wall_group(
             orientation: 0,
             tile_type: *gridmap_data
                 .main_name_id_map
-                .get(&CellTypeName("generic_wall".to_string()))
+                .get(&CellTypeName("flat_wall".to_string()))
                 .unwrap(),
             entity_option: None,
         },
     );
 
     groups.groups.push(TileGroup {
-        name_id: GroupTypeName("generic_wall_group".to_string()),
+        name_id: GroupTypeName("flat_wall_group".to_string()),
         map: wall_group,
     });
 }
