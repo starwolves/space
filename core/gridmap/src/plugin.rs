@@ -67,6 +67,7 @@ use crate::{
             init_generic_half_diagonal_floor_low, init_generic_half_diagonal_floor_material,
             GenericHalfDiagonalFloorMaterial,
         },
+        half_ceiling::{init_half_ceiling, init_half_ceiling_material, HalfCeilingMaterial},
         reinforced_glass_floor::{
             init_reinforced_glass_floor, init_reinforced_glass_floor_material,
             ReinforcedGlassFloorMaterial,
@@ -78,16 +79,13 @@ use crate::{
             init_reinforced_glass_half_diagonal_ceiling_material,
             HalfDiagonalReinforcedGlassMaterial,
         },
-        reinforced_glass_wall::{
-            init_reinforced_glass_wall, init_reinforced_glass_wall_material,
-            ReinforcedGlassWallMaterial,
-        },
         wall_clean::{init_clean_wall, init_wall_clean_material},
         wall_flat::{
             init_flat_wall, init_flat_wall_material, init_generic_wall_group, WallMaterials,
         },
         wall_high_curbed::{init_wall_high_curb, init_wall_high_curb_material},
         wall_low_curbed::{init_wall_low_curb, init_wall_low_curb_material},
+        wall_reinforced_glass::{init_wall_reinforced_glass, init_wall_reinforced_glass_material},
     },
     net::{GridmapClientMessage, GridmapServerMessage},
 };
@@ -212,19 +210,20 @@ impl Plugin for GridmapPlugin {
                         init_reinforced_glass_half_diagonal_ceiling_material
                             .before(init_reinforced_glass_half_diagonal_ceiling_low)
                             .before(init_reinforced_glass_half_diagonal_ceiling_high),
-                        init_reinforced_glass_wall_material.before(init_reinforced_glass_wall),
                         init_reinforced_glass_floor_material.before(init_reinforced_glass_floor),
+                        init_half_ceiling_material.before(init_half_ceiling),
+                        init_wall_reinforced_glass_material.before(init_wall_reinforced_glass),
                     ),
                 );
         }
         app.init_resource::<GenericMaterials>()
+            .init_resource::<HalfCeilingMaterial>()
             .init_resource::<GenericMeshes>()
             .init_resource::<WallMaterials>()
             .init_resource::<GenericHalfDiagonalFloorMaterial>()
             .init_resource::<GenericFloorMaterial>()
             .init_resource::<GenericHalfDiagonalCeilingMaterial>()
             .init_resource::<BridgeFloorMaterial>()
-            .init_resource::<ReinforcedGlassWallMaterial>()
             .init_resource::<ReinforcedGlassFloorMaterial>()
             .init_resource::<HalfDiagonalReinforcedGlassMaterial>()
             .init_resource::<BridgeWallMaterial>()
@@ -281,9 +280,6 @@ impl Plugin for GridmapPlugin {
                         init_bridge_wall
                             .before(init_tile_properties)
                             .after(init_generic_meshes),
-                        init_reinforced_glass_wall
-                            .before(init_tile_properties)
-                            .after(init_generic_meshes),
                         init_reinforced_glass_floor
                             .before(init_tile_properties)
                             .after(init_generic_meshes),
@@ -338,6 +334,12 @@ impl Plugin for GridmapPlugin {
                             .before(init_tile_properties)
                             .after(init_generic_meshes),
                         init_wall_high_curb
+                            .before(init_tile_properties)
+                            .after(init_generic_meshes),
+                        init_half_ceiling
+                            .before(init_tile_properties)
+                            .after(init_generic_meshes),
+                        init_wall_reinforced_glass
                             .before(init_tile_properties)
                             .after(init_generic_meshes),
                     ),

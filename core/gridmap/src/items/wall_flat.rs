@@ -68,7 +68,7 @@ pub(crate) fn init_flat_wall(
         material_option = None;
     }
     init.properties.push(TileProperties {
-        name_id: CellTypeName("flat_wall".to_string()),
+        name_id: CellTypeName("wall_flat".to_string()),
         name: RichName {
             name: "aluminum wall".to_string(),
             n: true,
@@ -95,7 +95,7 @@ pub(crate) fn init_generic_wall_group(
             orientation: 0,
             tile_type: *gridmap_data
                 .main_name_id_map
-                .get(&CellTypeName("flat_wall".to_string()))
+                .get(&CellTypeName("wall_flat".to_string()))
                 .unwrap(),
             entity_option: None,
         },
@@ -107,14 +107,14 @@ pub(crate) fn init_generic_wall_group(
             orientation: 0,
             tile_type: *gridmap_data
                 .main_name_id_map
-                .get(&CellTypeName("flat_wall".to_string()))
+                .get(&CellTypeName("wall_flat".to_string()))
                 .unwrap(),
             entity_option: None,
         },
     );
 
     groups.groups.push(TileGroup {
-        name_id: GroupTypeName("flat_wall_group".to_string()),
+        name_id: GroupTypeName("wall_flat_group".to_string()),
         map: wall_group,
     });
 }

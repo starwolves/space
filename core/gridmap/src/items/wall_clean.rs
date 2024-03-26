@@ -49,7 +49,7 @@ pub(crate) fn init_clean_wall(
         material_option = None;
     }
     init.properties.push(TileProperties {
-        name_id: CellTypeName("clean_wall".to_string()),
+        name_id: CellTypeName("wall_clean".to_string()),
         name: RichName {
             name: "clean aluminum wall".to_string(),
             n: true,
