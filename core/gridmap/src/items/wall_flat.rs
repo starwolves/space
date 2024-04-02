@@ -25,6 +25,9 @@ pub struct WallMaterials {
     pub exterior_handle: Handle<StandardMaterial>,
     pub low_curb_handle: Handle<StandardMaterial>,
     pub high_curb_handle: Handle<StandardMaterial>,
+    pub wall_reinforced_glass: Handle<StandardMaterial>,
+    pub evac_clean: Handle<StandardMaterial>,
+    pub evac_lights: Handle<StandardMaterial>,
 }
 
 pub(crate) fn init_flat_wall_material(

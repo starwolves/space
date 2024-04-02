@@ -76,6 +76,9 @@ pub fn done_boarding(
         //let mut assigned_spawn_transform = spawn_points.list[spawn_points.i].transform;
         let mut assigned_spawn_transform = Transform::IDENTITY;
         assigned_spawn_transform.translation.y = 1.8 - 0.5 - 0.5 + 0.2;
+        assigned_spawn_transform.translation.x += 3.;
+        assigned_spawn_transform.translation.z += 7.;
+
         commands
             .entity(entity_id)
             .remove::<(SetupPhase, SoftPlayer)>();

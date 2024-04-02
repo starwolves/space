@@ -1,13 +1,24 @@
 [
-    (entity_type:"sf::point_light",translation:(5.0,1.9,-8.0),rotation:(0.0,0.0,0.0,1.0),scale:(1.0,1.0,1.0),data:""),
-    (entity_type:"sf::point_light",translation:(5.0,1.9,8.0),rotation:(0.0,0.0,0.0,1.0),scale:(1.0,1.0,1.0),data:""),
-    (entity_type:"sf::point_light",translation:(-5.0,1.9,-8.0),rotation:(0.0,0.0,0.0,1.0),scale:(1.0,1.0,1.0),data:""),
-    (entity_type:"sf::point_light",translation:(-5.0,1.9,8.0),rotation:(0.0,0.0,0.0,1.0),scale:(1.0,1.0,1.0),data:""),
-
-    (entity_type:"sf::point_light",translation:(.0,2.9,-15.0),rotation:(0.0,0.0,0.0,1.0),scale:(1.0,1.0,1.0),data:""),
-
-    (entity_type:"sf::point_light",translation:(-4.0,3.9,-32.0),rotation:(0.0,0.0,0.0,1.0),scale:(1.0,1.0,1.0),data:""),
-    (entity_type:"sf::point_light",translation:(-4.0,3.9,-22.0),rotation:(0.0,0.0,0.0,1.0),scale:(1.0,1.0,1.0),data:""),
-    (entity_type:"sf::point_light",translation:(4.0,3.9,-32.0),rotation:(0.0,0.0,0.0,1.0),scale:(1.0,1.0,1.0),data:""),
-    (entity_type:"sf::point_light",translation:(4.0,3.9,-22.0),rotation:(0.0,0.0,0.0,1.0),scale:(1.0,1.0,1.0),data:"")
+    // Spawn corner light
+    (entity_type:"sf::point_light",translation:(3.5,1.9,6.0),rotation:(0.0,0.0,0.0,1.0),scale:(1.0,1.0,1.0),data:""),
+    // Spawn hallway side light
+    (entity_type:"sf::point_light",translation:(7.4,1.9,-2.0),rotation:(0.0,0.0,0.0,1.0),scale:(1.0,1.0,1.0),data:""),
+    // Spawn hallway corner light
+    (entity_type:"sf::point_light",translation:(3.2,1.9,-12.0),rotation:(0.0,0.0,0.0,1.0),scale:(1.0,1.0,1.0),data:""),
+    // arrivals to lobby hallway light
+    (entity_type:"sf::point_light",translation:(16.0,1.9,-12.0),rotation:(0.0,0.0,0.0,1.0),scale:(1.0,1.0,1.0),data:""),
+    // Spawn center hallway corner light
+    (entity_type:"sf::point_light",translation:(21.5,1.9,-5.6),rotation:(0.0,0.0,0.0,1.0),scale:(1.0,1.0,1.0),data:""),
+    // Spawn 2rd corner hallway light
+    (entity_type:"sf::point_light",translation:(25.6,1.9,-12.3),rotation:(0.0,0.0,0.0,1.0),scale:(1.0,1.0,1.0),data:""),
+    // Center arrival light
+    (entity_type:"sf::point_light",translation:(21.1,1.9,0.7),rotation:(0.0,0.0,0.0,1.0),scale:(1.0,1.0,1.0),data:""),
+    // Spawn 3rd corner hallway light
+    (entity_type:"sf::point_light",translation:(31.1,1.9,-13.0),rotation:(0.0,0.0,0.0,1.0),scale:(1.0,1.0,1.0),data:""),
+    // Spawn 3rd hallway center
+    (entity_type:"sf::point_light",translation:(34.6,1.9,-2.4),rotation:(0.0,0.0,0.0,1.0),scale:(1.0,1.0,1.0),data:""),
+    // Spawn 3rd halfway edge
+    (entity_type:"sf::point_light",translation:(31.2,1.9,6.4),rotation:(0.0,0.0,0.0,1.0),scale:(1.0,1.0,1.0),data:""),
+    // Arrival lobby center
+    (entity_type:"sf::point_light",translation:(18.0,1.9,-21.5),rotation:(0.0,0.0,0.0,1.0),scale:(1.0,1.0,1.0),data:""),
 ]

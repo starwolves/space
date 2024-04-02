@@ -34,36 +34,38 @@ pub(crate) fn init_reinforced_glass_half_diagonal_ceiling_material(
     mut res: ResMut<HalfDiagonalReinforcedGlassMaterial>,
 ) {
     let albedo_texture_handle =
-        asset_server.load("gridmap/half_diagonal_template/reinforced_glass/high_base.png");
+        asset_server.load("gridmap/half_diagonal_reinforced/half_diagonal_high_base.png");
     let metallic_roughness_texture_handle =
-        asset_server.load("gridmap/half_diagonal_template/reinforced_glass/high_metal_rough.png");
+        asset_server.load("gridmap/half_diagonal_reinforced/half_diagonal_high_metal_rough.png");
 
     let material_handle = materials.add(StandardMaterial {
         base_color_texture: Some(albedo_texture_handle),
         metallic_roughness_texture: Some(metallic_roughness_texture_handle),
-        alpha_mode: AlphaMode::Mask(0.5),
+        alpha_mode: AlphaMode::Blend,
         perceptual_roughness: 0.9,
         metallic: 0.97,
         thickness: 0.2,
         ior: 1.52,
+        diffuse_transmission: 1.,
+
         ..Default::default()
     });
     res.high_material_handle = material_handle;
 
     let albedo_texture_handle =
-        asset_server.load("gridmap/half_diagonal_template/reinforced_glass/low_base.png");
+        asset_server.load("gridmap/half_diagonal_reinforced/half_diagonal_low_base.png");
     let metallic_roughness_texture_handle =
-        asset_server.load("gridmap/half_diagonal_template/reinforced_glass/low_metal_rough.png");
+        asset_server.load("gridmap/half_diagonal_reinforced/half_diagonal_low_metal_rough.png");
 
     let material_handle = materials.add(StandardMaterial {
         base_color_texture: Some(albedo_texture_handle),
         metallic_roughness_texture: Some(metallic_roughness_texture_handle),
-        alpha_mode: AlphaMode::Mask(0.5),
+        alpha_mode: AlphaMode::Blend,
         perceptual_roughness: 0.9,
         metallic: 0.97,
         thickness: 0.2,
         ior: 1.52,
-
+        diffuse_transmission: 1.,
         ..Default::default()
     });
     res.low_material_handle = material_handle;
@@ -79,7 +81,7 @@ pub(crate) fn init_reinforced_glass_half_diagonal_ceiling_low(
     let material_option;
 
     if !is_server() || matches!(*app_mode, AppMode::Correction) {
-        mesh_option = Some(meshes.half_diagonal_template_low.clone_weak());
+        mesh_option = Some(meshes.half_diagonal_template_low_reinforced.clone_weak());
         material_option = Some(mat.low_material_handle.clone_weak());
     } else {
         mesh_option = None;
@@ -121,7 +123,7 @@ pub(crate) fn init_reinforced_glass_half_diagonal_ceiling_high(
     let material_option;
 
     if !is_server() || matches!(*app_mode, AppMode::Correction) {
-        mesh_option = Some(meshes.half_diagonal_template_high.clone_weak());
+        mesh_option = Some(meshes.half_diagonal_template_high_reinforced.clone_weak());
         material_option = Some(mat.high_material_handle.clone_weak());
     } else {
         mesh_option = None;

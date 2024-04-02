@@ -1,7 +1,4 @@
-use bevy::{
-    gltf::GltfMesh,
-    prelude::{AssetServer, Assets, Handle, Res, ResMut, Resource, StandardMaterial},
-};
+use bevy::prelude::{AssetServer, Assets, Res, ResMut, StandardMaterial, Transform};
 use bevy_xpbd_3d::prelude::Collider;
 use entity::examine::RichName;
 use resources::modes::{is_server, AppMode};
@@ -11,23 +8,16 @@ use crate::{
     init::InitTileProperties,
 };
 
-use super::generic_assets::GenericMeshes;
-
-#[derive(Default, Resource)]
-pub struct GenericFloorMaterial {
-    pub material_handle: Handle<StandardMaterial>,
-    pub evac_handle: Handle<StandardMaterial>,
-}
-
-pub(crate) fn init_generic_floor_material(
+use super::{generic_assets::GenericMeshes, wall_flat::WallMaterials};
+pub(crate) fn init_wall_evac_clean_material(
     asset_server: Res<AssetServer>,
     mut materials: ResMut<Assets<StandardMaterial>>,
-    mut res: ResMut<GenericFloorMaterial>,
+    mut res: ResMut<WallMaterials>,
 ) {
     let albedo_texture_handle =
-        asset_server.load("gridmap/floor_template/generic/generic_floor_base.png");
+        asset_server.load("gridmap/wall_evac_clean/wall_evac_clean_base.png");
     let metallic_roughness_texture_handle =
-        asset_server.load("gridmap/floor_template/generic/generic_floor_metal_rough.png");
+        asset_server.load("gridmap/wall_evac_clean/wall_evac_clean_metal_rough.png");
 
     let material_handle = materials.add(StandardMaterial {
         base_color_texture: Some(albedo_texture_handle),
@@ -36,39 +26,42 @@ pub(crate) fn init_generic_floor_material(
         metallic: 0.97,
         ..Default::default()
     });
-    res.material_handle = material_handle;
+    res.evac_clean = material_handle;
 }
 
-pub(crate) fn init_generic_floor(
+pub(crate) fn init_wall_evac_clean(
     mut init: ResMut<InitTileProperties>,
     meshes: Res<GenericMeshes>,
-    mat: Res<GenericFloorMaterial>,
+    mat: Res<WallMaterials>,
     app_mode: Res<AppMode>,
 ) {
-    let mesh_option: Option<Handle<GltfMesh>>;
-    let material_option;
+    let mut default_isometry = Transform::IDENTITY;
 
+    default_isometry.translation.y = -0.5;
+
+    let mesh_option;
+    let material_option;
     if !is_server() || matches!(*app_mode, AppMode::Correction) {
-        mesh_option = Some(meshes.floor.clone_weak());
-        material_option = Some(mat.material_handle.clone_weak());
+        mesh_option = Some(meshes.wall_clean.clone_weak());
+
+        material_option = Some(mat.evac_clean.clone_weak());
     } else {
         mesh_option = None;
         material_option = None;
     }
-
     init.properties.push(TileProperties {
-        name_id: CellTypeName("generic_floor".to_string()),
+        name_id: CellTypeName("wall_evac_clean".to_string()),
         name: RichName {
-            name: "aluminum floor".to_string(),
+            name: "clean aluminum wall".to_string(),
             n: true,
             the: false,
         },
-        description: "A generic floor tile.".to_string(),
+        description: "A clean wall tile.".to_string(),
         constructable: true,
         mesh_option,
-        cell_type: CellType::Floor,
+        cell_type: CellType::Wall,
         material_option,
-        collider: Collider::cuboid(1., 0.2, 1.),
+        collider: Collider::cuboid(1., 1., 0.2),
         ..Default::default()
     });
 }

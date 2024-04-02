@@ -1,6 +1,6 @@
 use bevy::{
     gltf::GltfMesh,
-    prelude::{AlphaMode, AssetServer, Assets, Handle, Res, ResMut, Resource, StandardMaterial},
+    prelude::{AssetServer, Assets, Handle, Res, ResMut, StandardMaterial},
 };
 use bevy_xpbd_3d::prelude::Collider;
 use entity::examine::RichName;
@@ -11,62 +11,52 @@ use crate::{
     init::InitTileProperties,
 };
 
-use super::generic_assets::GenericMeshes;
+use super::{generic_assets::GenericMeshes, generic_floor::GenericFloorMaterial};
 
-#[derive(Default, Resource)]
-pub struct ReinforcedGlassFloorMaterial {
-    pub material_handle: Handle<StandardMaterial>,
-}
-
-pub(crate) fn init_reinforced_glass_floor_material(
+pub(crate) fn init_floor_evac_material(
     asset_server: Res<AssetServer>,
     mut materials: ResMut<Assets<StandardMaterial>>,
-    mut res: ResMut<ReinforcedGlassFloorMaterial>,
+    mut res: ResMut<GenericFloorMaterial>,
 ) {
-    let albedo_texture_handle =
-        asset_server.load("gridmap/floor_reinforced/floor_reinforced_base.png");
+    let albedo_texture_handle = asset_server.load("gridmap/floor_evac/floor_base.png");
     let metallic_roughness_texture_handle =
-        asset_server.load("gridmap/floor_reinforced/floor_reinforced_metal_rough.png");
+        asset_server.load("gridmap/floor_evac/floor_metal_rough.png");
 
     let material_handle = materials.add(StandardMaterial {
         base_color_texture: Some(albedo_texture_handle),
         metallic_roughness_texture: Some(metallic_roughness_texture_handle),
-        alpha_mode: AlphaMode::Blend,
         perceptual_roughness: 0.9,
         metallic: 0.97,
-        thickness: 0.2,
-        ior: 1.52,
-        diffuse_transmission: 1.,
         ..Default::default()
     });
-    res.material_handle = material_handle;
+    res.evac_handle = material_handle;
 }
 
-pub(crate) fn init_reinforced_glass_floor(
+pub(crate) fn init_floor_evac(
     mut init: ResMut<InitTileProperties>,
     meshes: Res<GenericMeshes>,
-    mat: Res<ReinforcedGlassFloorMaterial>,
+    mat: Res<GenericFloorMaterial>,
     app_mode: Res<AppMode>,
 ) {
     let mesh_option: Option<Handle<GltfMesh>>;
     let material_option;
 
     if !is_server() || matches!(*app_mode, AppMode::Correction) {
-        mesh_option = Some(meshes.floor_reinforced.clone_weak());
-        material_option = Some(mat.material_handle.clone_weak());
+        mesh_option = Some(meshes.floor.clone_weak());
+        material_option = Some(mat.evac_handle.clone_weak());
     } else {
         mesh_option = None;
         material_option = None;
     }
 
     init.properties.push(TileProperties {
-        name_id: CellTypeName("reinforced_glass_floor".to_string()),
+        name_id: CellTypeName("floor_evac".to_string()),
         name: RichName {
-            name: "reinforced glass floor".to_string(),
+            name: "evacuation warning floor".to_string(),
             n: true,
             the: false,
         },
-        description: "A reinforced glass floor tile.".to_string(),
+        description: "An evac warning floor tile.".to_string(),
         constructable: true,
         mesh_option,
         cell_type: CellType::Floor,

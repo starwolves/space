@@ -41,7 +41,7 @@ pub(crate) fn init_clean_wall(
     let mesh_option;
     let material_option;
     if !is_server() || matches!(*app_mode, AppMode::Correction) {
-        mesh_option = Some(meshes.wall_flat.clone_weak());
+        mesh_option = Some(meshes.wall_clean.clone_weak());
 
         material_option = Some(mat.clean_handle.clone_weak());
     } else {

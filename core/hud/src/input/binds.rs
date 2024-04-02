@@ -19,7 +19,7 @@ pub(crate) fn register_input(mut binds: ResMut<KeyBinds>) {
     binds.list.insert(
         SUBMIT_CONSOLE_BIND.to_string(),
         KeyBind {
-            key_code: KeyCodeEnum::Keyboard(KeyCode::Backspace),
+            key_code: KeyCodeEnum::Keyboard(KeyCode::Enter),
             description: "Submits the given console input.".to_string(),
             name: "Submit Console Input".to_string(),
             customizable: true,

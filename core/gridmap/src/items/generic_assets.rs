@@ -18,6 +18,13 @@ pub struct GenericMeshes {
     pub wall_high_curbed: Handle<GltfMesh>,
     pub half_ceiling: Handle<GltfMesh>,
     pub wall_reinforced: Handle<GltfMesh>,
+    pub floor_reinforced: Handle<GltfMesh>,
+    pub half_diagonal_template_low_reinforced: Handle<GltfMesh>,
+    pub half_diagonal_template_high_reinforced: Handle<GltfMesh>,
+    pub large_window_3x3: Handle<GltfMesh>,
+    pub small_window_3x3: Handle<GltfMesh>,
+    pub wall_lights: Handle<GltfMesh>,
+    pub airlock: Handle<GltfMesh>,
 }
 
 pub(crate) fn init_generic_meshes(
@@ -35,12 +42,19 @@ pub(crate) fn init_generic_meshes(
     res.half_diagonal_template_high =
         assets.load("gridmap/half_diagonal_template/half_diagonal_template_high.glb#Mesh0");
     res.half_ceiling = assets.load("gridmap/half_ceiling/half_ceiling.glb#Mesh0");
-
+    res.large_window_3x3 = assets.load("gridmap/large_windows/3x3/window.glb#Mesh0");
+    res.small_window_3x3 = assets.load("gridmap/small_windows/3x3/window.glb#Mesh0");
     res.wall_low_curbed = assets.load("gridmap/wall_low_curbed/wall.glb#Mesh0");
     res.wall_high_curbed = assets.load("gridmap/wall_high_curbed/wall.glb#Mesh0");
     res.exterior_wall = assets.load("gridmap/wall_exterior/wall.glb#Mesh0");
     res.wall_reinforced = assets.load("gridmap/wall_reinforced/wall.glb#Mesh0");
-
+    res.floor_reinforced = assets.load("gridmap/floor_reinforced/floor.glb#Mesh0");
+    res.half_diagonal_template_high_reinforced =
+        assets.load("gridmap/half_diagonal_reinforced/half_diagonal_high.glb#Mesh0");
+    res.half_diagonal_template_low_reinforced =
+        assets.load("gridmap/half_diagonal_reinforced/half_diagonal_low.glb#Mesh0");
+    res.wall_lights = assets.load("gridmap/wall_evac_lights/wall_lights.glb#Mesh0");
+    res.airlock = assets.load("gridmap/airlock_evac/airlock.glb#Mesh0");
     let mat = materials.add(StandardMaterial {
         base_color: Color::rgba(0., 1., 0., 0.5),
         perceptual_roughness: 0.9,

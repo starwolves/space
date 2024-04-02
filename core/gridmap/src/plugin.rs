@@ -38,6 +38,7 @@ use crate::{
         InitTileProperties,
     },
     items::{
+        airlock_evac::{init_airlock_evac, init_airlock_evac_material, AirlockMaterials},
         bridge_floor::{
             init_bridge_floor_material, init_corner2_bridge_floor, init_corner_bridge_floor,
             init_filled_bridge_floor, init_half_bridge_floor, BridgeFloorMaterial,
@@ -50,7 +51,10 @@ use crate::{
         bridge_wall::{
             init_bridge_wall, init_bridge_wall_group, init_bridge_wall_material, BridgeWallMaterial,
         },
+        evac_wall_clean::{init_wall_evac_clean, init_wall_evac_clean_material},
+        evac_wall_lights::{init_evac_wall_lights_material, init_evec_wall_lights},
         exterior_wall::{init_exterior_wall, init_exterior_wall_material},
+        floor_evac::{init_floor_evac, init_floor_evac_material},
         generic_assets::{
             init_default_materials, init_generic_meshes, GenericMaterials, GenericMeshes,
         },
@@ -68,6 +72,9 @@ use crate::{
             GenericHalfDiagonalFloorMaterial,
         },
         half_ceiling::{init_half_ceiling, init_half_ceiling_material, HalfCeilingMaterial},
+        large_window_3x3::{
+            init_large_window_3x3, init_large_window_3x3_material, LargeWindowMaterials,
+        },
         reinforced_glass_floor::{
             init_reinforced_glass_floor, init_reinforced_glass_floor_material,
             ReinforcedGlassFloorMaterial,
@@ -79,6 +86,7 @@ use crate::{
             init_reinforced_glass_half_diagonal_ceiling_material,
             HalfDiagonalReinforcedGlassMaterial,
         },
+        small_window_3x3::{init_small_window_3x3, init_small_window_3x3_material},
         wall_clean::{init_clean_wall, init_wall_clean_material},
         wall_flat::{
             init_flat_wall, init_flat_wall_material, init_generic_wall_group, WallMaterials,
@@ -182,43 +190,56 @@ impl Plugin for GridmapPlugin {
                 .add_systems(
                     Startup,
                     (
-                        load_plane_asset,
-                        init_generic_meshes,
-                        register_input,
-                        init_default_materials,
-                        init_flat_wall_material.before(init_flat_wall),
-                        init_wall_clean_material.before(init_clean_wall),
-                        init_wall_low_curb_material.before(init_wall_low_curb),
-                        init_wall_high_curb_material.before(init_wall_high_curb),
-                        init_exterior_wall_material.before(init_exterior_wall),
-                        init_bridge_wall_material.before(init_bridge_wall),
-                        init_generic_floor_material.before(init_generic_floor),
-                        init_generic_half_diagonal_floor_material
-                            .before(init_generic_half_diagonal_floor_low)
-                            .before(init_generic_half_diagonal_floor_high),
-                        init_generic_half_diagonal_ceiling_material
-                            .before(init_generic_half_diagonal_ceiling_low)
-                            .before(init_generic_half_diagonal_ceiling_high),
-                        init_bridge_half_diagonal_ceiling_material
-                            .before(init_bridge_half_diagonal_ceiling_low)
-                            .before(init_bridge_half_diagonal_ceiling_high),
-                        init_bridge_floor_material
-                            .before(init_filled_bridge_floor)
-                            .before(init_half_bridge_floor)
-                            .before(init_corner_bridge_floor)
-                            .before(init_corner2_bridge_floor),
-                        init_reinforced_glass_half_diagonal_ceiling_material
-                            .before(init_reinforced_glass_half_diagonal_ceiling_low)
-                            .before(init_reinforced_glass_half_diagonal_ceiling_high),
-                        init_reinforced_glass_floor_material.before(init_reinforced_glass_floor),
-                        init_half_ceiling_material.before(init_half_ceiling),
-                        init_wall_reinforced_glass_material.before(init_wall_reinforced_glass),
+                        (
+                            load_plane_asset,
+                            init_generic_meshes,
+                            register_input,
+                            init_default_materials,
+                            init_flat_wall_material.before(init_flat_wall),
+                            init_wall_clean_material.before(init_clean_wall),
+                            init_wall_low_curb_material.before(init_wall_low_curb),
+                            init_wall_high_curb_material.before(init_wall_high_curb),
+                            init_exterior_wall_material.before(init_exterior_wall),
+                            init_bridge_wall_material.before(init_bridge_wall),
+                            init_generic_floor_material.before(init_generic_floor),
+                            init_generic_half_diagonal_floor_material
+                                .before(init_generic_half_diagonal_floor_low)
+                                .before(init_generic_half_diagonal_floor_high),
+                            init_generic_half_diagonal_ceiling_material
+                                .before(init_generic_half_diagonal_ceiling_low)
+                                .before(init_generic_half_diagonal_ceiling_high),
+                            init_bridge_half_diagonal_ceiling_material
+                                .before(init_bridge_half_diagonal_ceiling_low)
+                                .before(init_bridge_half_diagonal_ceiling_high),
+                            init_bridge_floor_material
+                                .before(init_filled_bridge_floor)
+                                .before(init_half_bridge_floor)
+                                .before(init_corner_bridge_floor)
+                                .before(init_corner2_bridge_floor),
+                            init_reinforced_glass_half_diagonal_ceiling_material
+                                .before(init_reinforced_glass_half_diagonal_ceiling_low)
+                                .before(init_reinforced_glass_half_diagonal_ceiling_high),
+                            init_reinforced_glass_floor_material
+                                .before(init_reinforced_glass_floor),
+                            init_half_ceiling_material.before(init_half_ceiling),
+                            init_wall_reinforced_glass_material.before(init_wall_reinforced_glass),
+                            init_large_window_3x3_material.before(init_large_window_3x3),
+                        ),
+                        (
+                            init_small_window_3x3_material.before(init_small_window_3x3),
+                            init_wall_evac_clean_material.before(init_wall_evac_clean),
+                            init_evac_wall_lights_material.before(init_evec_wall_lights),
+                            init_airlock_evac_material.before(init_airlock_evac),
+                            init_floor_evac_material.before(init_floor_evac),
+                        ),
                     ),
                 );
         }
         app.init_resource::<GenericMaterials>()
             .init_resource::<HalfCeilingMaterial>()
+            .init_resource::<LargeWindowMaterials>()
             .init_resource::<GenericMeshes>()
+            .init_resource::<AirlockMaterials>()
             .init_resource::<WallMaterials>()
             .init_resource::<GenericHalfDiagonalFloorMaterial>()
             .init_resource::<GenericFloorMaterial>()
@@ -340,6 +361,24 @@ impl Plugin for GridmapPlugin {
                             .before(init_tile_properties)
                             .after(init_generic_meshes),
                         init_wall_reinforced_glass
+                            .before(init_tile_properties)
+                            .after(init_generic_meshes),
+                        init_large_window_3x3
+                            .before(init_tile_properties)
+                            .after(init_generic_meshes),
+                        init_small_window_3x3
+                            .before(init_tile_properties)
+                            .after(init_generic_meshes),
+                        init_wall_evac_clean
+                            .before(init_tile_properties)
+                            .after(init_generic_meshes),
+                        init_evec_wall_lights
+                            .before(init_tile_properties)
+                            .after(init_generic_meshes),
+                        init_airlock_evac
+                            .before(init_tile_properties)
+                            .after(init_generic_meshes),
+                        init_floor_evac
                             .before(init_tile_properties)
                             .after(init_generic_meshes),
                     ),

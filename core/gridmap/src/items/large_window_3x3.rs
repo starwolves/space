@@ -1,8 +1,10 @@
 use bevy::{
-    pbr::AlphaMode,
-    prelude::{AssetServer, Assets, Res, ResMut, StandardMaterial, Transform},
+    asset::{AssetServer, Assets, Handle},
+    ecs::system::{Res, ResMut, Resource},
+    pbr::{AlphaMode, StandardMaterial},
+    transform::components::Transform,
 };
-use bevy_xpbd_3d::prelude::Collider;
+use bevy_xpbd_3d::plugins::collision::Collider;
 use entity::examine::RichName;
 use resources::modes::{is_server, AppMode};
 
@@ -11,17 +13,20 @@ use crate::{
     init::InitTileProperties,
 };
 
-use super::{generic_assets::GenericMeshes, wall_flat::WallMaterials};
-
-pub(crate) fn init_wall_reinforced_glass_material(
+use super::generic_assets::GenericMeshes;
+#[derive(Resource, Default)]
+pub struct LargeWindowMaterials {
+    pub large_3x3: Handle<StandardMaterial>,
+    pub small_3x3: Handle<StandardMaterial>,
+}
+pub(crate) fn init_large_window_3x3_material(
     asset_server: Res<AssetServer>,
     mut materials: ResMut<Assets<StandardMaterial>>,
-    mut res: ResMut<WallMaterials>,
+    mut res: ResMut<LargeWindowMaterials>,
 ) {
-    let albedo_texture_handle =
-        asset_server.load("gridmap/wall_reinforced/glass/wall_reinforced_base.png");
+    let albedo_texture_handle = asset_server.load("gridmap/large_windows/3x3/window_base.png");
     let metallic_roughness_texture_handle =
-        asset_server.load("gridmap/wall_reinforced/glass/wall_reinforced_metal_rough.png");
+        asset_server.load("gridmap/large_windows/3x3/window_metal_rough.png");
 
     let material_handle = materials.add(StandardMaterial {
         base_color_texture: Some(albedo_texture_handle),
@@ -34,13 +39,13 @@ pub(crate) fn init_wall_reinforced_glass_material(
         diffuse_transmission: 1.,
         ..Default::default()
     });
-    res.wall_reinforced_glass = material_handle;
+    res.large_3x3 = material_handle;
 }
 
-pub(crate) fn init_wall_reinforced_glass(
+pub(crate) fn init_large_window_3x3(
     mut init: ResMut<InitTileProperties>,
     meshes: Res<GenericMeshes>,
-    mat: Res<WallMaterials>,
+    mat: Res<LargeWindowMaterials>,
     app_mode: Res<AppMode>,
 ) {
     let mut default_isometry = Transform::IDENTITY;
@@ -50,21 +55,21 @@ pub(crate) fn init_wall_reinforced_glass(
     let mesh_option;
     let material_option;
     if !is_server() || matches!(*app_mode, AppMode::Correction) {
-        mesh_option = Some(meshes.wall_reinforced.clone_weak());
+        mesh_option = Some(meshes.large_window_3x3.clone_weak());
 
-        material_option = Some(mat.wall_reinforced_glass.clone_weak());
+        material_option = Some(mat.large_3x3.clone_weak());
     } else {
         mesh_option = None;
         material_option = None;
     }
     init.properties.push(TileProperties {
-        name_id: CellTypeName("wall_reinforced_glass".to_string()),
+        name_id: CellTypeName("large_window_3x3".to_string()),
         name: RichName {
-            name: "reinforced glass wall".to_string(),
+            name: "large window".to_string(),
             n: true,
             the: false,
         },
-        description: "A reinforced glass wall.".to_string(),
+        description: "A large window.".to_string(),
         constructable: true,
         mesh_option,
         cell_type: CellType::Wall,
