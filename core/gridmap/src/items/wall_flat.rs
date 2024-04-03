@@ -97,7 +97,7 @@ pub(crate) fn init_generic_wall_group(
             face: CellFace::default(),
             orientation: 0,
             tile_type: *gridmap_data
-                .main_name_id_map
+                .name_id_map
                 .get(&CellTypeName("wall_flat".to_string()))
                 .unwrap(),
             entity_option: None,
@@ -109,7 +109,7 @@ pub(crate) fn init_generic_wall_group(
             face: CellFace::default(),
             orientation: 0,
             tile_type: *gridmap_data
-                .main_name_id_map
+                .name_id_map
                 .get(&CellTypeName("wall_flat".to_string()))
                 .unwrap(),
             entity_option: None,

@@ -112,7 +112,7 @@ pub fn send_constructable_items(
         match event.handle_option {
             Some(handle) => {
                 let mut names = vec![];
-                for name in gridmap.ordered_main_names.iter() {
+                for name in gridmap.ordered_names.iter() {
                     for (_id, prop) in gridmap.tile_properties.iter() {
                         if prop.name_id == *name {
                             if prop.constructable {
@@ -282,10 +282,7 @@ pub(crate) fn construction_tool_select_construction_option(
     for event in input_events.read() {
         if event.id == CONSTRUCTION_OPTIONS_TEXT_LIST_ID {
             match query.get_mut(event.entity) {
-                Ok(mut c) => match gridmap
-                    .main_name_id_map
-                    .get(&CellTypeName(event.entry.clone()))
-                {
+                Ok(mut c) => match gridmap.name_id_map.get(&CellTypeName(event.entry.clone())) {
                     Some(type_id) => {
                         c.construction_option = Some(CellIds::CellType(*type_id));
 

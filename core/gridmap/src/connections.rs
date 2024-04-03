@@ -15,7 +15,7 @@ pub(crate) fn configure(
         server.send(OutgoingReliableServerMessage {
             handle: event.handle,
             message: GridmapServerMessage::ConfigOrderedCellsMain(
-                gridmap_data.ordered_main_names.clone(),
+                gridmap_data.ordered_names.clone(),
             ),
         });
     }

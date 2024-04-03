@@ -1,6 +1,7 @@
 use bevy::log::warn;
 use bevy::prelude::{Commands, EventReader, EventWriter, Query, Res};
 use entity::spawn::ServerEntityClientEntity;
+use gridmap::grid::Gridmap;
 use gridmap::{
     construction::{GridmapConstructionState, ShowYLevelPlane},
     grid::{AddTile, RemoveTile},
@@ -55,6 +56,7 @@ pub(crate) fn mouse_click_input(
     mut add_events: EventWriter<AddTile>,
     mut remove_events: EventWriter<RemoveTile>,
     mut commands: Commands,
+    gridmap: Res<Gridmap>,
 ) {
     for message in net.read() {
         let client_entity;
@@ -111,6 +113,17 @@ pub(crate) fn mouse_click_input(
                 match type_id {
                     gridmap::grid::CellIds::CellType(id) => {
                         for cell in construct.cells.iter() {
+                            let is_detail;
+                            match gridmap.tile_properties.get(&id) {
+                                Some(properties) => {
+                                    is_detail = properties.is_detail;
+                                }
+                                None => {
+                                    warn!("Couldnt find tile properties.");
+                                    continue;
+                                }
+                            }
+
                             add_events.send(AddTile {
                                 id: cell.id,
                                 tile_type: id,
@@ -119,11 +132,22 @@ pub(crate) fn mouse_click_input(
                                 group_instance_id_option: None,
                                 entity: commands.spawn(()).id(),
                                 default_map_spawn: false,
+                                is_detail: is_detail,
                             });
                         }
                     }
                     gridmap::grid::CellIds::GroupType(_id) => {
                         for cell in construct.cells.iter() {
+                            let is_detail;
+                            match gridmap.tile_properties.get(&cell.tile_type) {
+                                Some(properties) => {
+                                    is_detail = properties.is_detail;
+                                }
+                                None => {
+                                    warn!("Couldnt find tile properties.");
+                                    continue;
+                                }
+                            }
                             add_events.send(AddTile {
                                 id: cell.id,
                                 tile_type: cell.tile_type,
@@ -132,6 +156,7 @@ pub(crate) fn mouse_click_input(
                                 group_instance_id_option: None,
                                 entity: commands.spawn(()).id(),
                                 default_map_spawn: false,
+                                is_detail: is_detail,
                             });
                         }
                     }

@@ -91,6 +91,7 @@ pub struct TileProperties {
     pub cell_type: CellType,
     pub x_rotations: Vec<u8>,
     pub y_rotations: Vec<u8>,
+    pub is_detail: bool,
 }
 
 impl Default for TileProperties {
@@ -114,6 +115,7 @@ impl Default for TileProperties {
             x_rotations: vec![],
             y_rotations: vec![],
             vertical_rotation: false,
+            is_detail: false,
         }
     }
 }
@@ -292,12 +294,19 @@ impl Deref for GroupTypeId {
         &self.0
     }
 }
+#[derive(PartialEq, Eq, Hash, Serialize, Deserialize, Debug, Clone)]
+pub struct LayerTargetCell {
+    pub target: TargetCell,
+    pub is_detail: bool,
+}
+
 /// Stores the main gridmap layer data, huge map data resource. In favor of having each ordinary tile having its own entity with its own sets of components.
 #[derive(Resource)]
 pub struct Gridmap {
-    pub grid: Vec<Option<GridmapChunk>>,
-    pub updates: HashMap<TargetCell, AddedUpdate>,
-    pub ordered_main_names: Vec<CellTypeName>,
+    pub main_grid: Vec<Option<GridmapChunk>>,
+    pub details_grid: Vec<Option<GridmapChunk>>,
+    pub updates: HashMap<LayerTargetCell, AddedUpdate>,
+    pub ordered_names: Vec<CellTypeName>,
     pub group_id_map: HashMap<GroupTypeName, GroupTypeId>,
     pub id_group_map: HashMap<GroupTypeId, GroupTypeName>,
     pub tile_properties: HashMap<CellTypeId, TileProperties>,
@@ -306,8 +315,8 @@ pub struct Gridmap {
     pub group_instance_incremental: u32,
     pub tile_type_incremental: u16,
     pub group_type_incremental: u16,
-    pub main_name_id_map: HashMap<CellTypeName, CellTypeId>,
-    pub main_id_name_map: HashMap<CellTypeId, CellTypeName>,
+    pub name_id_map: HashMap<CellTypeName, CellTypeId>,
+    pub id_name_map: HashMap<CellTypeId, CellTypeName>,
     // Colliders for chunks.
     pub colliders: HashMap<usize, Entity>,
 }
@@ -316,9 +325,10 @@ const EMPTY_CHUNK: Option<GridmapChunk> = None;
 impl Default for Gridmap {
     fn default() -> Self {
         Self {
-            grid: vec![EMPTY_CHUNK; GRID_CHUNK_AMOUNT],
+            main_grid: vec![EMPTY_CHUNK; GRID_CHUNK_AMOUNT],
+            details_grid: vec![EMPTY_CHUNK; GRID_CHUNK_AMOUNT],
             updates: HashMap::default(),
-            ordered_main_names: vec![],
+            ordered_names: vec![],
             tile_properties: HashMap::default(),
             map_length_limit: MapLimits::default(),
             groups: HashMap::default(),
@@ -327,8 +337,8 @@ impl Default for Gridmap {
             group_instance_incremental: 0,
             tile_type_incremental: 0,
             group_type_incremental: 0,
-            main_name_id_map: HashMap::default(),
-            main_id_name_map: HashMap::default(),
+            name_id_map: HashMap::default(),
+            id_name_map: HashMap::default(),
             colliders: HashMap::default(),
         }
     }
@@ -378,6 +388,7 @@ pub(crate) fn export_debug_map() {
             orientation: 0,
             face: CellFace::Floor,
             item: ItemExport::Cell(CellTypeName("generic_floor".to_string())),
+            is_detail: false,
         });
         x += 1;
         if x > floor_length / 2 {
@@ -400,17 +411,20 @@ impl Gridmap {
     pub fn export_binary(&self) -> Vec<u8> {
         let mut data = vec![];
         let mut chunk_i = 0;
-        for chunk_option in &self.grid {
-            match chunk_option {
+        for chunk_option in &self.main_grid {
+            let details_chunk_option = &self.details_grid[chunk_i];
+
+            match details_chunk_option {
                 Some(chunk) => {
                     let mut cell_i = 0;
+
                     for cell_option in chunk.cells.iter() {
                         match cell_option {
                             Some(cell) => {
                                 for (item, face) in cell.get_items() {
                                     let cell_item_id;
 
-                                    match self.main_id_name_map.get(&item.tile_type) {
+                                    match self.id_name_map.get(&item.tile_type) {
                                         Some(x) => {
                                             cell_item_id = x.clone();
                                         }
@@ -424,7 +438,7 @@ impl Gridmap {
                                     match item.group_id_option {
                                         Some(group_id) => {
                                             let name;
-                                            match self.main_id_name_map.get(&item.tile_type) {
+                                            match self.id_name_map.get(&item.tile_type) {
                                                 Some(n) => {
                                                     name = n;
                                                 }
@@ -456,6 +470,75 @@ impl Gridmap {
                                         item: cell_item,
                                         orientation: item.orientation,
                                         face: face,
+                                        is_detail: true,
+                                    });
+                                }
+                            }
+                            None => {}
+                        }
+                        cell_i += 1;
+                    }
+                }
+                None => {}
+            }
+
+            match chunk_option {
+                Some(chunk) => {
+                    let mut cell_i = 0;
+
+                    for cell_option in chunk.cells.iter() {
+                        match cell_option {
+                            Some(cell) => {
+                                for (item, face) in cell.get_items() {
+                                    let cell_item_id;
+
+                                    match self.id_name_map.get(&item.tile_type) {
+                                        Some(x) => {
+                                            cell_item_id = x.clone();
+                                        }
+                                        None => {
+                                            warn!("Couldnt find item {:?}", item.tile_type);
+                                            continue;
+                                        }
+                                    };
+                                    let cell_item;
+
+                                    match item.group_id_option {
+                                        Some(group_id) => {
+                                            let name;
+                                            match self.id_name_map.get(&item.tile_type) {
+                                                Some(n) => {
+                                                    name = n;
+                                                }
+                                                None => {
+                                                    warn!("couldnt find name");
+                                                    continue;
+                                                }
+                                            }
+                                            cell_item = ItemExport::Group(GroupItem {
+                                                name: GroupTypeName(cell_item_id.to_string()),
+                                                group_id: group_id,
+                                                cell: name.clone(),
+                                            });
+                                        }
+                                        None => {
+                                            cell_item = ItemExport::Cell(CellTypeName(
+                                                cell_item_id.to_string(),
+                                            ));
+                                        }
+                                    }
+
+                                    data.push(CellDataExport {
+                                        id: self
+                                            .get_id(CellIndexes {
+                                                chunk: chunk_i,
+                                                cell: cell_i,
+                                            })
+                                            .unwrap(),
+                                        item: cell_item,
+                                        orientation: item.orientation,
+                                        face: face,
+                                        is_detail: false,
                                     });
                                 }
                             }
@@ -579,7 +662,7 @@ impl Gridmap {
 
         let indexes = self.get_indexes(strict.id);
 
-        match self.grid.get(indexes.chunk) {
+        match self.main_grid.get(indexes.chunk) {
             Some(chunk_option) => match chunk_option {
                 Some(chunk) => match chunk.cells.get(indexes.cell) {
                     Some(cell_data_option) => match cell_data_option {
@@ -618,7 +701,7 @@ impl Gridmap {
         transform
     }
     pub fn get_chunk_collider_data(&self, chunk_id: usize) -> Vec<(Vec3, Quat, Collider)> {
-        match self.grid.get(chunk_id) {
+        match self.main_grid.get(chunk_id) {
             Some(chunk_data_option) => match chunk_data_option {
                 Some(chunk_data) => {
                     let mut data = vec![];
@@ -715,7 +798,7 @@ pub enum AdjacentTileDirection {
 /// Remove gridmap cell event.
 #[derive(Event)]
 pub struct RemoveTile {
-    pub cell: TargetCell,
+    pub cell: LayerTargetCell,
 }
 
 /// A pending cell update like a cell construction.
@@ -757,6 +840,7 @@ pub struct AddTile {
     pub group_instance_id_option: Option<u32>,
     pub entity: Entity,
     pub default_map_spawn: bool,
+    pub is_detail: bool,
 }
 
 #[derive(Clone, Debug)]
@@ -794,13 +878,13 @@ pub(crate) fn remove_tile(
 ) {
     let mut changed_chunks = vec![];
     for event in events.read() {
-        let chunk_id = gridmap.get_indexes(event.cell.id).chunk;
+        let chunk_id = gridmap.get_indexes(event.cell.target.id).chunk;
         if !changed_chunks.contains(&chunk_id) {
             changed_chunks.push(chunk_id);
         }
-        let strict_cell = gridmap.get_strict_cell(event.cell.clone());
+        let strict_cell = gridmap.get_strict_cell(event.cell.target.clone());
         let indexes = gridmap.get_indexes(strict_cell.id);
-        match gridmap.grid.get_mut(indexes.chunk) {
+        match gridmap.main_grid.get_mut(indexes.chunk) {
             Some(grid_chunk_option) => {
                 let mut clear_chunk = false;
                 match grid_chunk_option {
@@ -928,7 +1012,10 @@ pub(crate) fn add_tile_net(
                 net.send(OutgoingReliableServerMessage {
                     handle: connected_player.handle,
                     message: GridmapServerMessage::AddCell(NewCell {
-                        cell: target.clone(),
+                        cell: LayerTargetCell {
+                            target: target.clone(),
+                            is_detail: event.is_detail,
+                        },
                         orientation: event.orientation,
                         tile_type: event.tile_type,
                     }),
@@ -936,10 +1023,16 @@ pub(crate) fn add_tile_net(
                 received.push(connected_player.handle);
             }
             gridmap.updates.insert(
-                target.clone(),
+                LayerTargetCell {
+                    target: target.clone(),
+                    is_detail: event.is_detail,
+                },
                 AddedUpdate {
                     cell: GridmapUpdate::Added(NewCell {
-                        cell: target,
+                        cell: LayerTargetCell {
+                            target,
+                            is_detail: event.is_detail,
+                        },
                         orientation: event.orientation,
                         tile_type: event.tile_type,
                     }),
@@ -1035,13 +1128,13 @@ pub(crate) fn add_cell_client(
         match &message.message {
             GridmapServerMessage::AddCell(new) => {
                 event.send(AddTile {
-                    id: new.cell.id,
+                    id: new.cell.target.id,
                     tile_type: new.tile_type,
                     orientation: new.orientation,
-                    face: new.cell.face.clone(),
+                    face: new.cell.target.face.clone(),
                     group_instance_id_option: None,
                     entity: commands.spawn(()).id(),
-
+                    is_detail: new.cell.is_detail,
                     default_map_spawn: false,
                 });
             }
@@ -1136,7 +1229,7 @@ pub(crate) fn add_tile(
         });
 
         let indexes = gridmap_main.get_indexes(strict.id);
-        match gridmap_main.grid.get_mut(indexes.chunk) {
+        match gridmap_main.main_grid.get_mut(indexes.chunk) {
             Some(chunk_option) => {
                 match chunk_option {
                     Some(_) => {}
@@ -1354,6 +1447,17 @@ pub(crate) fn spawn_group(
                             z: point.translation.z as i16,
                         }
                     }
+                    let is_detail;
+
+                    match gridmap_main.tile_properties.get(&tile_type.tile_type) {
+                        Some(properties) => {
+                            is_detail = properties.is_detail;
+                        }
+                        None => {
+                            warn!("no tile properties found");
+                            continue;
+                        }
+                    }
 
                     set_tile.send(AddTile {
                         id: add_group_event.id + new_id,
@@ -1365,6 +1469,7 @@ pub(crate) fn spawn_group(
                         ),
                         entity: commands.spawn(()).id(),
                         default_map_spawn: add_group_event.default_map_spawn,
+                        is_detail: is_detail,
                     });
                     i += 1;
                 }

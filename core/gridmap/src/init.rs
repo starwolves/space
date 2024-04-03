@@ -32,16 +32,16 @@ pub(crate) fn init_tile_properties(mut gridmap: ResMut<Gridmap>, init: Res<InitT
         gridmap.tile_properties.insert(gri_id, properties.clone());
 
         gridmap
-            .main_name_id_map
+            .name_id_map
             .insert(properties.name_id.clone(), gri_id);
         gridmap
-            .main_id_name_map
+            .id_name_map
             .insert(gri_id, properties.name_id.clone());
         current_map_mainordered_cells_typed.push(properties.name_id.clone());
 
         gridmap.tile_type_incremental += 1;
     }
-    gridmap.ordered_main_names = current_map_mainordered_cells_typed;
+    gridmap.ordered_names = current_map_mainordered_cells_typed;
     info!("Loaded {} gridmap cell types.", init.properties.len());
 }
 
@@ -95,7 +95,7 @@ pub(crate) fn load_ron_gridmap(
             ItemExport::Cell(item) => {
                 let cell_item_id;
 
-                match gridmap.main_name_id_map.get(item) {
+                match gridmap.name_id_map.get(item) {
                     Some(x) => {
                         cell_item_id = *x;
                     }
@@ -113,11 +113,12 @@ pub(crate) fn load_ron_gridmap(
                     group_instance_id_option: None,
                     entity: commands.spawn(()).id(),
                     default_map_spawn: true,
+                    is_detail: cell_data.is_detail,
                 });
             }
             ItemExport::Group(item) => {
                 let id;
-                match gridmap.main_name_id_map.get(&item.cell) {
+                match gridmap.name_id_map.get(&item.cell) {
                     Some(n) => {
                         id = n;
                     }
@@ -135,6 +136,7 @@ pub(crate) fn load_ron_gridmap(
                     group_instance_id_option: Some(item.group_id),
                     entity: commands.spawn(()).id(),
                     default_map_spawn: true,
+                    is_detail: cell_data.is_detail,
                 });
             }
         }
@@ -146,6 +148,16 @@ pub(crate) fn load_ron_gridmap(
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
+pub struct OldCellDataExport {
+    pub id: Vec3Int,
+    /// Cell item id.
+    pub item: ItemExport,
+    /// Cell rotation.
+    pub orientation: u8,
+    pub face: CellFace,
+}
+
+#[derive(Serialize, Deserialize)]
 pub struct CellDataExport {
     pub id: Vec3Int,
     /// Cell item id.
@@ -153,6 +165,7 @@ pub struct CellDataExport {
     /// Cell rotation.
     pub orientation: u8,
     pub face: CellFace,
+    pub is_detail: bool,
 }
 
 #[derive(Serialize, Deserialize)]

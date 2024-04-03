@@ -89,7 +89,7 @@ pub(crate) fn init_bridge_wall_group(
             face: CellFace::default(),
             orientation: 0,
             tile_type: *gridmap_data
-                .main_name_id_map
+                .name_id_map
                 .get(&CellTypeName("bridge_wall".to_string()))
                 .unwrap(),
             entity_option: None,
@@ -101,7 +101,7 @@ pub(crate) fn init_bridge_wall_group(
             face: CellFace::default(),
             orientation: 0,
             tile_type: *gridmap_data
-                .main_name_id_map
+                .name_id_map
                 .get(&CellTypeName("bridge_wall".to_string()))
                 .unwrap(),
             entity_option: None,

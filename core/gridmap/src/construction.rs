@@ -33,6 +33,7 @@ use resources::{
     ui::TextInput,
 };
 
+use crate::grid::LayerTargetCell;
 use crate::{
     grid::{
         CellIds, CellTypeId, Gridmap, GroupTypeId, Orthogonal, OrthogonalBases,
@@ -129,6 +130,7 @@ pub struct GhostTile {
     pub ghost_entity_option: Option<Entity>,
     pub ghost_rotation: u8,
     pub ghost_face: CellFace,
+    pub is_detail: bool,
 }
 #[derive(Event)]
 pub struct ShowYLevelPlane {
@@ -411,6 +413,7 @@ pub(crate) fn update_ghost_cell(
                                                 ghost_entity_option: None,
                                                 ghost_rotation: tile.orientation,
                                                 ghost_face: f.clone(),
+                                                is_detail: properties.is_detail,
                                             };
                                         }
                                     }
@@ -444,6 +447,7 @@ pub(crate) fn update_ghost_cell(
                                                 ghost_entity_option: Some(ghost_entity),
                                                 ghost_rotation: prev_item.ghost_rotation,
                                                 ghost_face: prev_item.ghost_face.clone(),
+                                                is_detail: properties.is_detail,
                                             };
 
                                             state.ghost_items.insert(*local_id, new_tile);
@@ -1004,6 +1008,7 @@ pub(crate) fn change_ghost_tile_request(
     mut net: EventReader<IncomingReliableServerMessage<GridmapServerMessage>>,
     mut events: EventWriter<ConstructionCellSelectionChanged>,
     mut select_state: ResMut<GridmapConstructionState>,
+    gridmap: Res<Gridmap>,
 ) {
     for message in net.read() {
         match &message.message {
@@ -1018,6 +1023,16 @@ pub(crate) fn change_ghost_tile_request(
                                 tile.tile_type = *id;
                             }
                             None => {
+                                let is_detail;
+                                match gridmap.tile_properties.get(id) {
+                                    Some(properties) => {
+                                        is_detail = properties.is_detail;
+                                    }
+                                    None => {
+                                        warn!("Couldnt find tile properties.");
+                                        continue;
+                                    }
+                                }
                                 select_state.ghost_items.insert(
                                     Vec3Int { x: 0, y: 0, z: 0 },
                                     GhostTile {
@@ -1025,6 +1040,7 @@ pub(crate) fn change_ghost_tile_request(
                                         ghost_entity_option: None,
                                         ghost_rotation: 0,
                                         ghost_face: CellFace::default(),
+                                        is_detail: is_detail,
                                     },
                                 );
                             }
@@ -1144,9 +1160,12 @@ pub(crate) fn client_mouse_click_input(
                     }
                 }
             }
-            construct_cells.push(TargetCell {
-                id: cell_id + rotated_id,
-                face: tile.ghost_face.clone(),
+            construct_cells.push(LayerTargetCell {
+                target: TargetCell {
+                    id: cell_id + rotated_id,
+                    face: tile.ghost_face.clone(),
+                },
+                is_detail: tile.is_detail,
             });
         }
 

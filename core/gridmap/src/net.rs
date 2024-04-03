@@ -1,5 +1,4 @@
 use bevy::prelude::Vec3;
-use resources::grid::TargetCell;
 use resources::math::Vec3Int;
 use serde::Deserialize;
 use serde::Serialize;
@@ -8,6 +7,7 @@ use typename::TypeName;
 use crate::grid::CellIds;
 use crate::grid::CellTypeId;
 use crate::grid::CellTypeName;
+use crate::grid::LayerTargetCell;
 use crate::grid::TargetCellWithOrientationWType;
 
 /// Gets serialized and sent over the net, this is the client message.
@@ -26,20 +26,20 @@ pub struct ConstructCell {
 }
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct NewCell {
-    pub cell: TargetCell,
+    pub cell: LayerTargetCell,
     pub orientation: u8,
     pub tile_type: CellTypeId,
 }
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct DeconstructCell {
-    pub cells: Vec<TargetCell>,
+    pub cells: Vec<LayerTargetCell>,
 }
 
 /// Gets serialized and sent over the net, this is the server message.
 #[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
 
 pub enum GridmapServerMessage {
-    RemoveCell(TargetCell),
+    RemoveCell(LayerTargetCell),
     AddCell(NewCell),
     FireProjectile(ProjectileData),
     ConfigOrderedCellsMain(Vec<CellTypeName>),

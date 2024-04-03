@@ -166,7 +166,7 @@ pub(crate) fn init_reinforced_glass_half_diagonal_ceiling_group(
             face: CellFace::default(),
             orientation: 0,
             tile_type: *gridmap_data
-                .main_name_id_map
+                .name_id_map
                 .get(&CellTypeName(
                     "reinforced_glass_half_diagonal_high".to_string(),
                 ))
@@ -180,7 +180,7 @@ pub(crate) fn init_reinforced_glass_half_diagonal_ceiling_group(
             face: CellFace::default(),
             orientation: 0,
             tile_type: *gridmap_data
-                .main_name_id_map
+                .name_id_map
                 .get(&CellTypeName(
                     "reinforced_glass_half_diagonal_low".to_string(),
                 ))
