@@ -592,7 +592,7 @@ pub(crate) fn apply_ghost_rotation(
 
                         match gridmap.tile_properties.get(&tile.tile_type) {
                             Some(properties) => {
-                                new_face = properties.cell_type.default_face();
+                                new_face = tile.ghost_face.clone();
                                 match properties.cell_type {
                                     crate::grid::CellType::Wall => {
                                         if keys.just_pressed(ROTATE_CONSTRUCTION_LEFT_BIND) {
@@ -773,6 +773,79 @@ pub(crate) fn apply_ghost_rotation(
                                                     rotation *=
                                                         Quat::from_axis_angle(Vec3::Y, PI / 2.);
                                                     new_rotation = rotation.get_orthogonal_index();
+                                                }
+                                            }
+                                        }
+                                    }
+                                    crate::grid::CellType::WallDetail => {
+                                        if properties.x_rotations.len() > 0 {
+                                            let mut rot_i = 0;
+                                            for rot in properties.x_rotations.iter() {
+                                                if tile.ghost_rotation == *rot {
+                                                    break;
+                                                }
+                                                rot_i += 1;
+                                            }
+                                            if rot_i > properties.x_rotations.len() - 1 {
+                                                rot_i = 0;
+                                            }
+                                            if keys.just_pressed(ROTATE_CONSTRUCTION_RIGHT_BIND) {
+                                                rot_i += 1;
+
+                                                if rot_i > properties.x_rotations.len() - 1 {
+                                                    rot_i = 0;
+                                                }
+                                            } else if keys
+                                                .just_pressed(ROTATE_CONSTRUCTION_LEFT_BIND)
+                                            {
+                                                if rot_i == 0 {
+                                                    rot_i = properties.x_rotations.len() - 1;
+                                                } else {
+                                                    rot_i -= 1;
+                                                }
+                                            }
+
+                                            let new_rot = properties.x_rotations[rot_i];
+
+                                            let rotation =
+                                                OrthogonalBases::default().bases[new_rot as usize];
+                                            new_rotation = rotation.get_orthogonal_index();
+                                        }
+
+                                        if keys.just_pressed(ROTATE_CONSTRUCTION_UP_BIND) {
+                                            match tile.ghost_face {
+                                                CellFace::FrontWall => {
+                                                    new_face = CellFace::LeftWall;
+                                                }
+                                                CellFace::RightWall => {
+                                                    new_face = CellFace::FrontWall;
+                                                }
+                                                CellFace::BackWall => {
+                                                    new_face = CellFace::RightWall;
+                                                }
+                                                CellFace::LeftWall => {
+                                                    new_face = CellFace::BackWall;
+                                                }
+                                                _ => {
+                                                    warn!("Invalid wall rotation.");
+                                                }
+                                            }
+                                        } else if keys.just_pressed(ROTATE_CONSTRUCTION_DOWN_BIND) {
+                                            match tile.ghost_face {
+                                                CellFace::FrontWall => {
+                                                    new_face = CellFace::RightWall;
+                                                }
+                                                CellFace::RightWall => {
+                                                    new_face = CellFace::BackWall;
+                                                }
+                                                CellFace::BackWall => {
+                                                    new_face = CellFace::LeftWall;
+                                                }
+                                                CellFace::LeftWall => {
+                                                    new_face = CellFace::FrontWall;
+                                                }
+                                                _ => {
+                                                    warn!("Invalid wall rotation.");
                                                 }
                                             }
                                         }
@@ -1069,7 +1142,6 @@ pub(crate) fn client_mouse_click_input(
     state: Res<GridmapConstructionState>,
     mut net: EventWriter<OutgoingReliableClientMessage<GridmapClientMessage>>,
     hud_state: Res<HudState>,
-    gridmap: Res<Gridmap>,
 ) {
     if !state.is_constructing || hud_state.expanded {
         return;
@@ -1093,7 +1165,7 @@ pub(crate) fn client_mouse_click_input(
 
         let mut construct_cells = vec![];
 
-        let mut block_construction = false;
+        //let mut block_construction = false;
 
         for (local_id, tile) in state.ghost_items.iter() {
             let used_id;
@@ -1110,7 +1182,7 @@ pub(crate) fn client_mouse_click_input(
                 tile_type: tile.tile_type,
             };
 
-            if gridmap
+            /*match gridmap
                 .get_cell(TargetCell {
                     id: target.id,
                     face: target.face.clone(),
@@ -1118,18 +1190,18 @@ pub(crate) fn client_mouse_click_input(
                 .is_some()
             {
                 block_construction = true;
-            }
+            }*/
 
             construct_cells.push(target);
         }
-        if !block_construction {
-            net.send(OutgoingReliableClientMessage {
-                message: GridmapClientMessage::ConstructCells(ConstructCell {
-                    cells: construct_cells,
-                    group_option: Some(cell_id),
-                }),
-            });
-        }
+        //if !block_construction {
+        net.send(OutgoingReliableClientMessage {
+            message: GridmapClientMessage::ConstructCells(ConstructCell {
+                cells: construct_cells,
+                group_option: Some(cell_id),
+            }),
+        });
+        //}
     }
     if buttons.just_pressed(DECONSTRUCT_CELL) {
         let cell_id;

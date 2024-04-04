@@ -28,6 +28,8 @@ pub struct WallMaterials {
     pub wall_reinforced_glass: Handle<StandardMaterial>,
     pub evac_clean: Handle<StandardMaterial>,
     pub evac_lights: Handle<StandardMaterial>,
+    pub horizontal_light_strip_handle: Handle<StandardMaterial>,
+    pub star_lights_handle: Handle<StandardMaterial>,
 }
 
 pub(crate) fn init_flat_wall_material(

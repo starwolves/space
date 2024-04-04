@@ -75,6 +75,9 @@ use crate::{
         large_window_3x3::{
             init_large_window_3x3, init_large_window_3x3_material, LargeWindowMaterials,
         },
+        light_strip_horizontal::{
+            init_light_strip_horizontal, init_light_strip_horizontal_material,
+        },
         reinforced_glass_floor::{
             init_reinforced_glass_floor, init_reinforced_glass_floor_material,
             ReinforcedGlassFloorMaterial,
@@ -87,6 +90,7 @@ use crate::{
             HalfDiagonalReinforcedGlassMaterial,
         },
         small_window_3x3::{init_small_window_3x3, init_small_window_3x3_material},
+        star_lights::{init_star_lights, init_star_lights_material},
         wall_clean::{init_clean_wall, init_wall_clean_material},
         wall_flat::{
             init_flat_wall, init_flat_wall_material, init_generic_wall_group, WallMaterials,
@@ -231,6 +235,9 @@ impl Plugin for GridmapPlugin {
                             init_evac_wall_lights_material.before(init_evec_wall_lights),
                             init_airlock_evac_material.before(init_airlock_evac),
                             init_floor_evac_material.before(init_floor_evac),
+                            init_light_strip_horizontal_material
+                                .before(init_light_strip_horizontal),
+                            init_star_lights_material.before(init_star_lights),
                         ),
                     ),
                 );
@@ -322,6 +329,9 @@ impl Plugin for GridmapPlugin {
                         init_generic_half_diagonal_floor_low
                             .before(init_tile_properties)
                             .after(init_generic_meshes),
+                        init_star_lights
+                            .before(init_tile_properties)
+                            .after(init_generic_meshes),
                     ),
                     (
                         init_generic_half_diagonal_ceiling_high
@@ -379,6 +389,9 @@ impl Plugin for GridmapPlugin {
                             .before(init_tile_properties)
                             .after(init_generic_meshes),
                         init_floor_evac
+                            .before(init_tile_properties)
+                            .after(init_generic_meshes),
+                        init_light_strip_horizontal
                             .before(init_tile_properties)
                             .after(init_generic_meshes),
                     ),

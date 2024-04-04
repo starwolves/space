@@ -25,6 +25,8 @@ pub struct GenericMeshes {
     pub small_window_3x3: Handle<GltfMesh>,
     pub wall_lights: Handle<GltfMesh>,
     pub airlock: Handle<GltfMesh>,
+    pub horizontal_light_strip: Handle<GltfMesh>,
+    pub star_lights: Handle<GltfMesh>,
 }
 
 pub(crate) fn init_generic_meshes(
@@ -55,6 +57,10 @@ pub(crate) fn init_generic_meshes(
         assets.load("gridmap/half_diagonal_reinforced/half_diagonal_low.glb#Mesh0");
     res.wall_lights = assets.load("gridmap/wall_evac_lights/wall_lights.glb#Mesh0");
     res.airlock = assets.load("gridmap/airlock_evac/airlock.glb#Mesh0");
+    res.horizontal_light_strip =
+        assets.load("gridmap/light_strip_horizontal/light_strip_horizontal.glb#Mesh0");
+    res.star_lights = assets.load("gridmap/star_lights/star_lights.glb#Mesh0");
+
     let mat = materials.add(StandardMaterial {
         base_color: Color::rgba(0., 1., 0., 0.5),
         perceptual_roughness: 0.9,

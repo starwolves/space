@@ -17,6 +17,7 @@ use resources::math::Vec3Int;
 
 use crate::grid::AddTile;
 use crate::grid::Gridmap;
+use crate::grid::LayerTargetCell;
 use crate::items::generic_assets::GenericMaterials;
 
 #[derive(Component)]
@@ -26,7 +27,7 @@ pub struct GraphicsGridLink {
 
 #[derive(Default, Resource)]
 pub(crate) struct CellGraphicsBuffer {
-    pub buffer: HashMap<BufferId, AddTile>,
+    pub buffer: HashMap<LayerTargetCell, AddTile>,
 }
 #[derive(Clone, Eq, PartialEq, Hash)]
 pub(crate) struct BufferId {
@@ -44,9 +45,12 @@ pub(crate) fn set_cell_graphics(
 ) {
     for set_cell in events.read() {
         buffer.buffer.insert(
-            BufferId {
-                id: set_cell.id,
-                face: set_cell.face.clone(),
+            LayerTargetCell {
+                target: TargetCell {
+                    id: set_cell.id,
+                    face: set_cell.face.clone(),
+                },
+                is_detail: set_cell.is_detail,
             },
             set_cell.clone(),
         );

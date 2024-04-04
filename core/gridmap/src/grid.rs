@@ -46,6 +46,7 @@ impl Default for MapLimits {
 #[derive(Clone, Debug)]
 pub enum CellType {
     Wall,
+    WallDetail,
     Floor,
     Center,
 }
@@ -54,6 +55,7 @@ impl CellType {
     pub fn default_face(&self) -> CellFace {
         match self {
             CellType::Wall => CellFace::FrontWall,
+            CellType::WallDetail => CellFace::FrontWall,
             CellType::Floor => CellFace::Floor,
             CellType::Center => CellFace::Center,
         }
@@ -459,7 +461,6 @@ impl Gridmap {
                                             ));
                                         }
                                     }
-
                                     data.push(CellDataExport {
                                         id: self
                                             .get_id(CellIndexes {
@@ -884,7 +885,13 @@ pub(crate) fn remove_tile(
         }
         let strict_cell = gridmap.get_strict_cell(event.cell.target.clone());
         let indexes = gridmap.get_indexes(strict_cell.id);
-        match gridmap.main_grid.get_mut(indexes.chunk) {
+        let grid;
+        if !event.cell.is_detail {
+            grid = &mut gridmap.main_grid;
+        } else {
+            grid = &mut gridmap.details_grid;
+        }
+        match grid.get_mut(indexes.chunk) {
             Some(grid_chunk_option) => {
                 let mut clear_chunk = false;
                 match grid_chunk_option {
@@ -1229,7 +1236,13 @@ pub(crate) fn add_tile(
         });
 
         let indexes = gridmap_main.get_indexes(strict.id);
-        match gridmap_main.main_grid.get_mut(indexes.chunk) {
+        let grid;
+        if !add_tile_event.is_detail {
+            grid = &mut gridmap_main.main_grid;
+        } else {
+            grid = &mut gridmap_main.details_grid;
+        }
+        match grid.get_mut(indexes.chunk) {
             Some(chunk_option) => {
                 match chunk_option {
                     Some(_) => {}
