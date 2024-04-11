@@ -15,6 +15,7 @@ pub mod generic_half_diagonal_floor;
 pub mod half_ceiling;
 pub mod large_window_3x3;
 pub mod light_strip_horizontal;
+pub mod radar;
 pub mod reinforced_glass_floor;
 pub mod reinforced_glass_half_diagonal;
 pub mod small_window_3x3;

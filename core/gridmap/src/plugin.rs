@@ -78,6 +78,7 @@ use crate::{
         light_strip_horizontal::{
             init_light_strip_horizontal, init_light_strip_horizontal_material,
         },
+        radar::{init_radar, init_radar_material, RadarMaterials},
         reinforced_glass_floor::{
             init_reinforced_glass_floor, init_reinforced_glass_floor_material,
             ReinforcedGlassFloorMaterial,
@@ -238,6 +239,7 @@ impl Plugin for GridmapPlugin {
                             init_light_strip_horizontal_material
                                 .before(init_light_strip_horizontal),
                             init_star_lights_material.before(init_star_lights),
+                            init_radar_material.before(init_radar),
                         ),
                     ),
                 );
@@ -247,6 +249,7 @@ impl Plugin for GridmapPlugin {
             .init_resource::<LargeWindowMaterials>()
             .init_resource::<GenericMeshes>()
             .init_resource::<AirlockMaterials>()
+            .init_resource::<RadarMaterials>()
             .init_resource::<WallMaterials>()
             .init_resource::<GenericHalfDiagonalFloorMaterial>()
             .init_resource::<GenericFloorMaterial>()
@@ -395,6 +398,9 @@ impl Plugin for GridmapPlugin {
                             .before(init_tile_properties)
                             .after(init_generic_meshes),
                     ),
+                    (init_radar
+                        .before(init_tile_properties)
+                        .after(init_generic_meshes),),
                 ),
             )
             .init_resource::<Gridmap>()
