@@ -10,6 +10,7 @@ pub mod correction;
 pub mod grid;
 pub mod hud;
 pub mod input;
+pub mod light;
 pub mod math;
 pub mod modes;
 pub mod pawn;

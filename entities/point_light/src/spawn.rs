@@ -10,7 +10,7 @@ use entity::{
     spawn::{EntityBuildData, SpawnEntity},
 };
 use graphics::settings::{PerformanceSettings, Shadows};
-use resources::core::SF_CONTENT_PREFIX;
+use resources::{core::SF_CONTENT_PREFIX, light::default_point_light};
 
 pub struct PointLightBuilderBundle;
 
@@ -48,11 +48,7 @@ pub struct PointLightType {
 impl Default for PointLightType {
     fn default() -> Self {
         Self {
-            light: PointLight {
-                shadows_enabled: true,
-                intensity: 700_000_000.,
-                ..Default::default()
-            },
+            light: default_point_light(),
             identifier: SF_CONTENT_PREFIX.to_string() + "point_light",
         }
     }

@@ -51,6 +51,9 @@ use crate::{
         bridge_wall::{
             init_bridge_wall, init_bridge_wall_group, init_bridge_wall_material, BridgeWallMaterial,
         },
+        ceiling_light_bar::{
+            init_ceiling_light_bar, init_ceiling_light_bar_material, LightMaterials,
+        },
         evac_wall_clean::{init_wall_evac_clean, init_wall_evac_clean_material},
         evac_wall_lights::{init_evac_wall_lights_material, init_evec_wall_lights},
         exterior_wall::{init_exterior_wall, init_exterior_wall_material},
@@ -97,6 +100,7 @@ use crate::{
             init_flat_wall, init_flat_wall_material, init_generic_wall_group, WallMaterials,
         },
         wall_high_curbed::{init_wall_high_curb, init_wall_high_curb_material},
+        wall_light_bulb::{init_wall_light_bulb, init_wall_light_bulb_material},
         wall_low_curbed::{init_wall_low_curb, init_wall_low_curb_material},
         wall_reinforced_glass::{init_wall_reinforced_glass, init_wall_reinforced_glass_material},
     },
@@ -240,6 +244,8 @@ impl Plugin for GridmapPlugin {
                                 .before(init_light_strip_horizontal),
                             init_star_lights_material.before(init_star_lights),
                             init_radar_material.before(init_radar),
+                            init_ceiling_light_bar_material.before(init_ceiling_light_bar),
+                            init_wall_light_bulb_material.before(init_wall_light_bulb),
                         ),
                     ),
                 );
@@ -259,6 +265,7 @@ impl Plugin for GridmapPlugin {
             .init_resource::<HalfDiagonalReinforcedGlassMaterial>()
             .init_resource::<BridgeWallMaterial>()
             .init_resource::<BridgeHalfDiagonalCeilingMaterial>()
+            .init_resource::<LightMaterials>()
             .add_systems(
                 Startup,
                 load_ron_gridmap
@@ -398,9 +405,17 @@ impl Plugin for GridmapPlugin {
                             .before(init_tile_properties)
                             .after(init_generic_meshes),
                     ),
-                    (init_radar
-                        .before(init_tile_properties)
-                        .after(init_generic_meshes),),
+                    (
+                        init_radar
+                            .before(init_tile_properties)
+                            .after(init_generic_meshes),
+                        init_ceiling_light_bar
+                            .before(init_tile_properties)
+                            .after(init_generic_meshes),
+                        init_wall_light_bulb
+                            .before(init_tile_properties)
+                            .after(init_generic_meshes),
+                    ),
                 ),
             )
             .init_resource::<Gridmap>()

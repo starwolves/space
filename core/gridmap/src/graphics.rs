@@ -1,6 +1,8 @@
 use std::collections::HashMap;
 
 use bevy::gltf::GltfMesh;
+use bevy::hierarchy::BuildChildren;
+use bevy::pbr::PointLightBundle;
 use bevy::prelude::Assets;
 use bevy::prelude::Commands;
 use bevy::prelude::Component;
@@ -11,6 +13,7 @@ use bevy::prelude::PbrBundle;
 use bevy::prelude::Res;
 use bevy::prelude::ResMut;
 use bevy::prelude::Resource;
+use bevy::transform::components::Transform;
 use resources::grid::CellFace;
 use resources::grid::TargetCell;
 use resources::math::Vec3Int;
@@ -78,7 +81,8 @@ pub(crate) fn set_cell_graphics(
                 }
                 match assets_gltfmesh.get(&properties.mesh_option.clone().unwrap()) {
                     Some(mesh) => {
-                        commands.entity(add_tile.entity).insert((
+                        let mut builder = commands.entity(add_tile.entity);
+                        builder.insert((
                             PbrBundle {
                                 mesh: mesh.primitives[0].mesh.clone_weak(),
                                 material: mat.clone_weak(),
@@ -89,6 +93,20 @@ pub(crate) fn set_cell_graphics(
                                 id: add_tile.id.clone(),
                             },
                         ));
+                        match &properties.is_light {
+                            Some(tile_light) => {
+                                builder.with_children(|child| {
+                                    child.spawn(PointLightBundle {
+                                        point_light: tile_light.light,
+                                        transform: Transform::from_translation(
+                                            tile_light.local_offset,
+                                        ),
+                                        ..Default::default()
+                                    });
+                                });
+                            }
+                            None => {}
+                        }
                         remove_ids.push(id.clone());
                     }
                     None => {}

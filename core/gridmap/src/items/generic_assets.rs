@@ -28,6 +28,8 @@ pub struct GenericMeshes {
     pub horizontal_light_strip: Handle<GltfMesh>,
     pub star_lights: Handle<GltfMesh>,
     pub radar: Handle<GltfMesh>,
+    pub ceiling_light: Handle<GltfMesh>,
+    pub wall_light: Handle<GltfMesh>,
 }
 
 pub(crate) fn init_generic_meshes(
@@ -62,6 +64,8 @@ pub(crate) fn init_generic_meshes(
         assets.load("gridmap/light_strip_horizontal/light_strip_horizontal.glb#Mesh0");
     res.star_lights = assets.load("gridmap/star_lights/star_lights.glb#Mesh0");
     res.radar = assets.load("gridmap/radar/radar.glb#Mesh0");
+    res.ceiling_light = assets.load("gridmap/ceiling_light_bar/ceiling_light.glb#Mesh0");
+    res.wall_light = assets.load("gridmap/wall_light_bulb/wall_light.glb#Mesh0");
 
     let mat = materials.add(StandardMaterial {
         base_color: Color::rgba(0., 1., 0., 0.5),

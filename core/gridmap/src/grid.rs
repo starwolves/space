@@ -4,6 +4,7 @@ use std::path::Path;
 use std::{collections::HashMap, f32::consts::PI, ops::Deref};
 
 use bevy::log::{info, warn};
+use bevy::pbr::PointLight;
 use bevy::{
     gltf::GltfMesh,
     prelude::{
@@ -69,6 +70,11 @@ pub struct TileGroup {
     pub name_id: GroupTypeName,
     pub map: HashMap<Vec3Int, FullCell>,
 }
+#[derive(Clone, Debug)]
+pub struct TileLight {
+    pub light: PointLight,
+    pub local_offset: Vec3,
+}
 
 /// Gridmap meta-data set.
 #[derive(Clone, Debug)]
@@ -94,6 +100,7 @@ pub struct TileProperties {
     pub x_rotations: Vec<u8>,
     pub y_rotations: Vec<u8>,
     pub is_detail: bool,
+    pub is_light: Option<TileLight>,
 }
 
 impl Default for TileProperties {
@@ -118,6 +125,7 @@ impl Default for TileProperties {
             y_rotations: vec![],
             vertical_rotation: false,
             is_detail: false,
+            is_light: None,
         }
     }
 }
