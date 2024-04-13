@@ -95,6 +95,7 @@ use crate::{
         },
         small_window_3x3::{init_small_window_3x3, init_small_window_3x3_material},
         star_lights::{init_star_lights, init_star_lights_material},
+        vents_access::{init_vents_access, init_vents_access_material},
         wall_clean::{init_clean_wall, init_wall_clean_material},
         wall_flat::{
             init_flat_wall, init_flat_wall_material, init_generic_wall_group, WallMaterials,
@@ -246,6 +247,7 @@ impl Plugin for GridmapPlugin {
                             init_radar_material.before(init_radar),
                             init_ceiling_light_bar_material.before(init_ceiling_light_bar),
                             init_wall_light_bulb_material.before(init_wall_light_bulb),
+                            init_vents_access_material.before(init_vents_access),
                         ),
                     ),
                 );
@@ -413,6 +415,9 @@ impl Plugin for GridmapPlugin {
                             .before(init_tile_properties)
                             .after(init_generic_meshes),
                         init_wall_light_bulb
+                            .before(init_tile_properties)
+                            .after(init_generic_meshes),
+                        init_vents_access
                             .before(init_tile_properties)
                             .after(init_generic_meshes),
                     ),

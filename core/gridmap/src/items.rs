@@ -21,6 +21,7 @@ pub mod reinforced_glass_floor;
 pub mod reinforced_glass_half_diagonal;
 pub mod small_window_3x3;
 pub mod star_lights;
+pub mod vents_access;
 pub mod wall_clean;
 pub mod wall_flat;
 pub mod wall_high_curbed;

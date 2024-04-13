@@ -30,6 +30,7 @@ pub struct GenericMeshes {
     pub radar: Handle<GltfMesh>,
     pub ceiling_light: Handle<GltfMesh>,
     pub wall_light: Handle<GltfMesh>,
+    pub vents_access: Handle<GltfMesh>,
 }
 
 pub(crate) fn init_generic_meshes(
@@ -66,6 +67,7 @@ pub(crate) fn init_generic_meshes(
     res.radar = assets.load("gridmap/radar/radar.glb#Mesh0");
     res.ceiling_light = assets.load("gridmap/ceiling_light_bar/ceiling_light.glb#Mesh0");
     res.wall_light = assets.load("gridmap/wall_light_bulb/wall_light.glb#Mesh0");
+    res.vents_access = assets.load("gridmap/vents_access/vents_access.glb#Mesh0");
 
     let mat = materials.add(StandardMaterial {
         base_color: Color::rgba(0., 1., 0., 0.5),
