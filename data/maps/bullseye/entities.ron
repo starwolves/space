@@ -1,2 +1,6 @@
 [
+    // Exterior 1st bay
+    (entity_type:"sf::point_light",translation:(12.7,1.9,-4.0),rotation:(0.0,0.0,0.0,1.0),scale:(1.0,1.0,1.0),data:""),
+    // Exterior 2nd bay
+    (entity_type:"sf::point_light",translation:(26,1.9,-4.0),rotation:(0.0,0.0,0.0,1.0),scale:(1.0,1.0,1.0),data:""),
 ]
