@@ -1,9 +1,6 @@
 # Space Frontiers [pre-alpha]
 
 ![Continuous integration](https://gitlab.starwolves.io/starwolves/space/badges/master/pipeline.svg)
-<a href="https://discord.gg/yYpMun9CTT">
-    <img src="https://img.shields.io/discord/942798229953716274.svg?logo=discord&colorB=7289DA">
-</a>
 
 *"You gotta die for something." - STARWOLF*
 
@@ -21,7 +18,8 @@
 
 **There are gameplay videos of the prototype on [YouTube](https://youtu.be/u1K3T5uzebE).**
 
-![Screenshot of new Space Frontiers gridmap](/data/project/sfss.png?raw=true)
+<img src="/data/project/sf_door_ss.png?raw=true" data-canonical-src="/data/project/sf_door_ss.png?raw=true" width="352" height="211"/><img src="/data/project/sf_hallway_ss.png?raw=true" data-canonical-src="/data/project/sf_hallway_ss.png?raw=true" width="352" height="211"/><img src="/data/project/sf_secondarybay_ss.png?raw=true" data-canonical-src="/data/project/sf_secondarybay_ss.png?raw=true" width="352" height="211"/><img src="/data/project/sf_old_ss.png?raw=true" data-canonical-src="/data/project/sf_old_ss.png?raw=true" width="352" height="211"/>
+
 
 ### Technology
 
