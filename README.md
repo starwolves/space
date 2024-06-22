@@ -30,12 +30,6 @@ The repository contains both the server and the client. Both are entirely writte
 Socials:
 
 * [Forum Board](https://starwolves.io)
-* [Discord](https://discord.gg/yYpMun9CTT)
-
-#### Community description
-
-Christian. Not ordinary, revolutionary would be a better word.
-There is community sovereignty, integrity, values and strong personalities together with honest beings and experienced leaders that operate in Truth and good faith.
 
 **Space Frontiers and the community are age rated 18+ 🔞. Minors may not be present without parental approval and parental supervision.**
 
