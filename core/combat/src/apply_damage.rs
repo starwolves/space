@@ -61,8 +61,6 @@ pub struct DamageMultiplier {
     pub brute: f32,
     pub burn: f32,
     pub toxin: f32,
-    /// Damage applyer type, "main" most of the time.
-    pub signature: String,
 }
 
 /// Initiate damage applying.

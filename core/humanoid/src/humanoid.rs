@@ -14,7 +14,7 @@ use physics::entity::{RigidBodies, SFRigidBody};
 use player::connections::ServerEventBuffer;
 
 use std::time::Duration;
-
+/*
 /// Component link repeated footstep sfx with an entity.
 #[derive(Component)]
 
@@ -28,7 +28,7 @@ pub(crate) struct LinkedFootstepsSprinting {
 pub(crate) struct LinkedFootstepsWalking {
     pub _entity: Entity,
 }
-
+*/
 /// Humanoid character animation state.
 
 pub enum CharacterAnimationState {

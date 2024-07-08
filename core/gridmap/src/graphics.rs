@@ -14,7 +14,6 @@ use bevy::prelude::Res;
 use bevy::prelude::ResMut;
 use bevy::prelude::Resource;
 use bevy::transform::components::Transform;
-use resources::grid::CellFace;
 use resources::grid::TargetCell;
 use resources::math::Vec3Int;
 
@@ -31,11 +30,6 @@ pub struct GraphicsGridLink {
 #[derive(Default, Resource)]
 pub(crate) struct CellGraphicsBuffer {
     pub buffer: HashMap<LayerTargetCell, AddTile>,
-}
-#[derive(Clone, Eq, PartialEq, Hash)]
-pub(crate) struct BufferId {
-    pub id: Vec3Int,
-    pub face: CellFace,
 }
 
 pub(crate) fn set_cell_graphics(

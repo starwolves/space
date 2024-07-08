@@ -5,7 +5,6 @@ use airlocks::plugin::AirLocksPlugin;
 use asana::plugin::AsanaPlugin;
 use ball::plugin::BallPlugin;
 use basic_console_commands::plugin::BasicConsoleCommandsPlugin;
-use bevy::app::AppLabel;
 use bevy::app::FixedUpdate;
 use bevy::app::Main;
 use bevy::app::MainScheduleOrder;
@@ -128,9 +127,6 @@ fn live() {
 
 /// Version of this crate as defined in this Cargo.toml.
 const APP_VERSION: &'static str = env!("CARGO_PKG_VERSION");
-
-#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, AppLabel)]
-struct CorrectionLabel;
 
 /// Start client with correction app, or server.
 pub(crate) fn init_app(correction: Option<CorrectionMessengers>) {
