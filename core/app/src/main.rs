@@ -9,12 +9,10 @@ use bevy::app::FixedUpdate;
 use bevy::app::Main;
 use bevy::app::MainScheduleOrder;
 use bevy::app::ScheduleRunnerPlugin;
-use bevy::app::SubApp;
 use bevy::app::Update as BevyUpdate;
 use bevy::diagnostic::DiagnosticsPlugin;
 use bevy::ecs::reflect::AppTypeRegistry;
 use bevy::ecs::schedule::IntoSystemSetConfigs;
-use bevy::ecs::schedule::ScheduleLabel;
 use bevy::ecs::world::World;
 use bevy::log::info;
 use bevy::log::warn;
@@ -163,7 +161,7 @@ pub(crate) fn init_app(correction: Option<CorrectionMessengers>) {
 
         setup_plugins(&mut correction_sub_app);
 
-        let mut sub_app = SubApp::new();
+        let sub_app = correction_sub_app.main_mut();
         sub_app.set_extract(|main_world, sub_app| {
             *sub_app.resource_mut::<StartCorrectingMessage>() =
                 main_world.resource::<StartCorrectingMessage>().clone();
@@ -173,13 +171,13 @@ pub(crate) fn init_app(correction: Option<CorrectionMessengers>) {
         // Run sub app once to initiate its world with Startup Schedule.
         sub_app.update();
 
-        app.insert_non_send_resource(CorrectionApp { app: sub_app });
+        app.insert_non_send_resource(CorrectionApp {
+            app: correction_sub_app,
+        });
     }
 
     app.run();
 }
-#[derive(ScheduleLabel, Clone, Debug, PartialEq, Eq, Hash)]
-pub struct Dummy;
 fn setup_plugins(mut app: &mut App) {
     let binding = current_dir().unwrap();
     let mut test_path = binding.as_path();

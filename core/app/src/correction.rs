@@ -6,7 +6,7 @@ use std::{
 };
 
 use bevy::{
-    app::{PostStartup, Startup, SubApp},
+    app::{PostStartup, Startup},
     ecs::{entity::Entity, schedule::SystemSet, system::Commands},
     log::{error, warn},
 };
@@ -334,7 +334,7 @@ pub enum CorrectionAppMessage {
 }
 
 pub struct CorrectionApp {
-    pub app: SubApp,
+    pub app: App,
 }
 
 pub(crate) fn start_correction(
@@ -469,9 +469,9 @@ pub(crate) fn message_correction_server(world: &mut World) {
     } else {
         let mut correction = world.remove_non_send_resource::<CorrectionApp>().unwrap();
 
-        correction.app.extract(world);
+        correction.app.main_mut().extract(world);
         correction.app.update();
-        correction.app.extract(world);
+        correction.app.main_mut().extract(world);
         world.insert_non_send_resource(correction);
     }
 
