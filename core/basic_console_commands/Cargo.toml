@@ -12,12 +12,12 @@ edition = "2021"
 
 
 [dependencies.bevy]
-version = "0.13.1"
+version = "0.14.1"
 
 default-features = false
 
 [dependencies]
-bevy_renet = { version = "0.0.11", git = "https://github.com/starwolfy/renet.git"}
+bevy_renet = { version = "0.0.12", git = "https://github.com/starwolfy/renet.git"}
 
 console_commands = { path = "../console_commands"}
 gridmap = { path = "../gridmap"}

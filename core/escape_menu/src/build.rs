@@ -78,7 +78,7 @@ pub(crate) fn build_escape_menu(mut commands: Commands, fonts: Res<Fonts>) {
                         flex_direction: FlexDirection::Column,
                         ..Default::default()
                     },
-                    background_color: Color::rgba(0.6, 0.73, 1., 0.6).into(),
+                    background_color: Color::srgba(0.6, 0.73, 1., 0.6).into(),
                     ..Default::default()
                 })
                 .with_children(|parent| {
@@ -93,7 +93,7 @@ pub(crate) fn build_escape_menu(mut commands: Commands, fonts: Res<Fonts>) {
                                 flex_wrap: FlexWrap::Wrap,
                                 ..Default::default()
                             },
-                            background_color: Color::DARK_GRAY.into(),
+                            background_color: bevy::color::palettes::css::DARK_GRAY.into(),
                             ..Default::default()
                         })
                         .with_children(|parent| {
@@ -761,7 +761,7 @@ pub(crate) fn build_graphics_section(
                                     TextStyle {
                                         font: font.clone(),
                                         font_size: ESC_MENU_FONT_SIZE,
-                                        color: Color::ORANGE_RED.into(),
+                                        color: bevy::color::palettes::css::ORANGE_RED.into(),
                                     },
                                 ))
                                 .insert((SyncCorrectionRestartLabel, Visibility::Hidden));

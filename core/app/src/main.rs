@@ -163,14 +163,15 @@ pub(crate) fn init_app(correction: Option<CorrectionMessengers>) {
 
         setup_plugins(&mut correction_sub_app);
 
-        let mut sub_app = SubApp::new(correction_sub_app, |main_world, sub_app| {
-            *sub_app.world.resource_mut::<StartCorrectingMessage>() =
+        let mut sub_app = SubApp::new();
+        sub_app.set_extract(|main_world, sub_app| {
+            *sub_app.resource_mut::<StartCorrectingMessage>() =
                 main_world.resource::<StartCorrectingMessage>().clone();
             *main_world.resource_mut::<CorrectionResults>() =
-                sub_app.world.resource::<CorrectionResults>().clone();
+                sub_app.resource::<CorrectionResults>().clone();
         });
         // Run sub app once to initiate its world with Startup Schedule.
-        sub_app.run();
+        sub_app.update();
 
         app.insert_non_send_resource(CorrectionApp { app: sub_app });
     }
@@ -186,7 +187,7 @@ fn setup_plugins(mut app: &mut App) {
     test_path = binding.as_path();
 
     let num_threads = 2;
-    let syncronous_correction = app.world.resource::<SynchronousCorrection>().0;
+    let syncronous_correction = app.world().resource::<SynchronousCorrection>().0;
 
     let task_pool = TaskPoolPlugin {
         task_pool_options: TaskPoolOptions::with_num_threads(num_threads),

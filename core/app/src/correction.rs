@@ -75,6 +75,7 @@ impl Plugin for CorrectionPlugin {
             )
             .add_systems(PostStartup, start_synchronous_correction_server);
         }
+        info!("INITTING {} StartCorrectingMessage =================================================================", is_correction_mode(app));
         app.init_resource::<StartCorrectingMessage>();
     }
 }
@@ -469,7 +470,7 @@ pub(crate) fn message_correction_server(world: &mut World) {
         let mut correction = world.remove_non_send_resource::<CorrectionApp>().unwrap();
 
         correction.app.extract(world);
-        correction.app.run();
+        correction.app.update();
         correction.app.extract(world);
         world.insert_non_send_resource(correction);
     }

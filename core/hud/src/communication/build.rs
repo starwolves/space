@@ -143,7 +143,7 @@ pub(crate) fn build_communication_ui(
 
                             ..Default::default()
                         },
-                        background_color: Color::rgba(0.0, 0.0, 1.0, 0.05).into(),
+                        background_color: Color::srgba(0.0, 0.0, 1.0, 0.05).into(),
                         ..Default::default()
                     })
                     .insert(ChatMessagesBGNode)
@@ -179,7 +179,7 @@ pub(crate) fn build_communication_ui(
                             overflow: Overflow::clip(),
                             ..Default::default()
                         },
-                        background_color: Color::rgba(0.25, 0.25, 0.25, 0.4).into(),
+                        background_color: Color::srgba(0.25, 0.25, 0.25, 0.4).into(),
 
                         ..Default::default()
                     })
@@ -235,9 +235,9 @@ pub(crate) fn build_communication_ui(
                             placeholder_active: true,
                             character_filter_option: Some(CharacterFilter::Chat),
                             placeholder_text_option: Some(text.to_owned()),
-                            bg_color: Color::rgba(0.26, 0.3, 0.49, 0.5),
-                            bg_color_focused: Color::rgba(0.46, 0.5, 0.79, 0.5),
-                            bg_color_hover: Color::rgba(0.26, 0.3, 0.79, 0.5),
+                            bg_color: Color::srgba(0.26, 0.3, 0.49, 0.5),
+                            bg_color_focused: Color::srgba(0.46, 0.5, 0.79, 0.5),
+                            bg_color_hover: Color::srgba(0.26, 0.3, 0.79, 0.5),
                             ..Default::default()
                         },
                         Interaction::default(),
@@ -267,7 +267,8 @@ pub(crate) fn build_communication_ui(
                             parent
                                 .spawn((
                                     ButtonBundle {
-                                        background_color: Color::DARK_GRAY.into(),
+                                        background_color: bevy::color::palettes::css::DARK_GRAY
+                                            .into(),
                                         style: Style {
                                             width: Val::Percent(100.),
                                             height: Val::Percent(100.),

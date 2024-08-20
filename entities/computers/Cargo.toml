@@ -13,13 +13,13 @@ edition = "2021"
 
 
 [dependencies.bevy]
-version = "0.13.1"
+version = "0.14.1"
 
 default-features = false
 
 
 [dependencies]
-bevy_xpbd_3d = { version = "0.4.2" , features = ["enhanced-determinism"]}
+bevy_xpbd_3d = { version = "0.5.0" , features = ["enhanced-determinism"]}
 
 entity = { path = "../../core/entity" }
 text_api = { path = "../../core/text_api" }

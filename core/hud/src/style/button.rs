@@ -1,5 +1,6 @@
 use bevy::{
-    prelude::{Button, Changed, Color, Component, Query, With},
+    color::Srgba,
+    prelude::{Button, Changed, Component, Query, With},
     ui::{BackgroundColor, Interaction},
 };
 
@@ -19,7 +20,11 @@ pub(crate) fn button_style_events(
         match interaction {
             Interaction::Pressed => {
                 let mut midnight = ACTIONS_HUD_BG_COLOR;
-                midnight.set_a(1.);
+                midnight = bevy::prelude::Color::Srgba(Srgba {
+                    alpha: 1.0,
+                    ..Srgba::from(midnight)
+                });
+
                 *bg_color = midnight.into();
             }
             Interaction::Hovered => {
@@ -27,12 +32,20 @@ pub(crate) fn button_style_events(
                 *bg_color = gray.into();
             }
             Interaction::None => {
-                let mut gray = Color::GRAY;
+                let mut gray = bevy::color::palettes::css::GRAY;
                 if style.selected {
-                    gray = INVENTORY_HUD_BG_COLOR;
-                    gray.set_a(1.);
+                    gray = INVENTORY_HUD_BG_COLOR.into();
+                    gray = bevy::prelude::Color::Srgba(Srgba {
+                        alpha: 1.0,
+                        ..Srgba::from(gray)
+                    })
+                    .into();
                 }
-                gray.set_a(1.);
+                gray = bevy::prelude::Color::Srgba(Srgba {
+                    alpha: 1.0,
+                    ..Srgba::from(gray)
+                })
+                .into();
                 *bg_color = gray.into();
             }
         }
@@ -42,10 +55,14 @@ pub(crate) fn changed_focus(
     mut query: Query<(&mut BackgroundColor, &ButtonSelectionStyle), Changed<ButtonSelectionStyle>>,
 ) {
     for (mut bg, style) in query.iter_mut() {
-        let mut gray = Color::GRAY;
+        let mut gray = bevy::color::palettes::css::GRAY;
         if style.selected {
-            gray = ACTIONS_HUD_BG_COLOR;
-            gray.set_a(1.);
+            gray = ACTIONS_HUD_BG_COLOR.into();
+            gray = bevy::prelude::Color::Srgba(Srgba {
+                alpha: 1.0,
+                ..Srgba::from(gray)
+            })
+            .into()
         }
         *bg = gray.into();
     }

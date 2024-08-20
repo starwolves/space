@@ -1,10 +1,9 @@
 use bevy::{
     asset::Handle,
+    color::Color,
     ecs::system::Resource,
     math::Vec3,
-    pbr::AlphaMode,
-    prelude::{AssetServer, Assets, Res, ResMut, StandardMaterial, Transform},
-    render::color::Color,
+    prelude::{AlphaMode, AssetServer, Assets, Res, ResMut, StandardMaterial, Transform},
 };
 use bevy_xpbd_3d::prelude::Collider;
 use entity::examine::RichName;
@@ -46,7 +45,7 @@ pub(crate) fn init_ceiling_light_bar_material(
         ior: 1.52,
         diffuse_transmission: 1.,
         emissive_texture: Some(emissive),
-        emissive: Color::rgb(100000., 100000., 100000.),
+        emissive: Color::srgb(100000., 100000., 100000.).into(),
         ..Default::default()
     });
     res.ceiling = material_handle;

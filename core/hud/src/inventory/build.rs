@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use bevy::color::Srgba;
 use bevy::log::warn;
 use bevy::{
     prelude::{
@@ -20,7 +21,7 @@ use crate::{
 
 use super::slots::InventorySlotsNode;
 
-pub const INVENTORY_SLOTS_BG_COLOR: Color = Color::rgba(0.25, 0.25, 0.25, 0.9);
+pub const INVENTORY_SLOTS_BG_COLOR: Color = Color::srgba(0.25, 0.25, 0.25, 0.9);
 
 pub(crate) fn create_inventory_hud(
     mut commands: Commands,
@@ -29,8 +30,11 @@ pub(crate) fn create_inventory_hud(
 ) {
     let arizone_font = fonts.handles.get(ARIZONE_FONT).unwrap();
 
-    let mut inventory_hud_color = Color::MIDNIGHT_BLUE;
-    inventory_hud_color.set_a(0.9);
+    let mut inventory_hud_color = bevy::color::palettes::css::MIDNIGHT_BLUE;
+    inventory_hud_color = Srgba {
+        alpha: 1.0,
+        ..Srgba::from(inventory_hud_color)
+    };
 
     let entity_id = commands.spawn(InventoryHudRootNode).id();
     commands

@@ -1,3 +1,4 @@
+use bevy::color::Srgba;
 use bevy::log::warn;
 use bevy::{
     prelude::{
@@ -102,8 +103,12 @@ pub(crate) fn update_inventory_hud_slot(
                             ));
                         });
                     // The inventory grid space.
-                    let mut gray = Color::GRAY;
-                    gray.set_a(0.7);
+                    let mut gray = bevy::color::palettes::css::GRAY;
+                    gray = bevy::prelude::Color::Srgba(Srgba {
+                        alpha: 0.7,
+                        ..Srgba::from(gray)
+                    })
+                    .into();
                     let slot_entity = parent
                         .spawn(NodeBundle {
                             style: Style {

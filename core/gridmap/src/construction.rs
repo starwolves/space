@@ -2,7 +2,8 @@ use std::{collections::HashMap, f32::consts::PI};
 
 use bevy::ecs::system::Local;
 use bevy::log::warn;
-use bevy::math::primitives::Direction3d;
+use bevy::math::Dir3;
+use bevy::prelude::TransformBundle;
 use bevy::transform::components::GlobalTransform;
 use bevy::{
     gltf::GltfMesh,
@@ -12,7 +13,6 @@ use bevy::{
         EventWriter, Handle, KeyCode, MouseButton, PbrBundle, Quat, Query, Res, ResMut, Resource,
         StandardMaterial, SystemSet, Transform, Vec3, Visibility, With,
     },
-    transform::TransformBundle,
 };
 
 use bevy_xpbd_3d::prelude::{
@@ -56,8 +56,8 @@ pub fn insert_plane_resource(
         return;
     }
     let m = materials.add(StandardMaterial {
-        base_color: Color::rgba(0., 255., 255., 0.5),
-        emissive: Color::WHITE,
+        base_color: Color::srgba(0., 255., 255., 0.5),
+        emissive: Color::WHITE.into(),
         alpha_mode: AlphaMode::Blend,
         unlit: true,
         ..Default::default()
@@ -1041,7 +1041,7 @@ pub(crate) fn select_cell_in_front_camera(
 
     let intersection_position;
     let dir3d;
-    match Direction3d::new(ray_dir) {
+    match Dir3::new(ray_dir) {
         Ok(dir) => {
             dir3d = dir;
         }

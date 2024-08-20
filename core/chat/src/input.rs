@@ -62,7 +62,7 @@ pub(crate) fn broadcast_global_chat_message(
             text: sender_name.to_string() + ": ",
             font: sourcecode_regular,
             font_size: COMMUNICATION_FONT_SIZE,
-            color: Color::BLUE,
+            color: bevy::prelude::Color::Srgba(bevy::color::palettes::css::BLUE),
         };
 
         let message_section = NetTextSection {

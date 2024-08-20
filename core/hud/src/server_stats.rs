@@ -29,7 +29,7 @@ pub(crate) fn build_server_stats(state: Res<HudState>, mut commands: Commands, f
                         height: Val::Percent(21.),
                         ..Default::default()
                     },
-                    background_color: Color::rgba(0., 0., 1., 0.2).into(),
+                    background_color: Color::srgba(0., 0., 1., 0.2).into(),
                     ..Default::default()
                 })
                 .with_children(|parent| {

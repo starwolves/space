@@ -8,8 +8,7 @@ use crate::{
 use bevy::{
     ecs::system::Resource,
     log::info,
-    prelude::{Commands, Entity, EventReader, Res, ResMut, Transform},
-    transform::TransformBundle,
+    prelude::{Commands, Entity, EventReader, Res, ResMut, Transform, TransformBundle},
 };
 use bevy_xpbd_3d::{
     components::{

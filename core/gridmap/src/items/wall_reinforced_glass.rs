@@ -1,7 +1,4 @@
-use bevy::{
-    pbr::AlphaMode,
-    prelude::{AssetServer, Assets, Res, ResMut, StandardMaterial, Transform},
-};
+use bevy::prelude::{AlphaMode, AssetServer, Assets, Res, ResMut, StandardMaterial, Transform};
 use bevy_xpbd_3d::prelude::Collider;
 use entity::examine::RichName;
 use resources::modes::{is_server, AppMode};

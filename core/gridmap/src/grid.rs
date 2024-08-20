@@ -11,7 +11,6 @@ use bevy::{
         Commands, Component, Entity, Event, EventWriter, Handle, Mat3, Quat, Query, Res, Resource,
         StandardMaterial, SystemSet, Transform, Vec3, Without,
     },
-    transform::TransformBundle,
 };
 
 use bevy_renet::renet::ClientId;
@@ -872,7 +871,7 @@ pub struct AddGroup {
     pub default_map_spawn: bool,
 }
 
-use bevy::prelude::{EventReader, ResMut};
+use bevy::prelude::{EventReader, ResMut, TransformBundle};
 use entity::health::{HealthContainer, HealthFlag, StructureHealth};
 
 use crate::{

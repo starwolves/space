@@ -23,8 +23,8 @@ use crate::{
 
 use super::build::{InventoryHudState, OpenHud};
 
-pub const INVENTORY_HUD_BG_COLOR: Color = Color::rgba(0.1, 0.1, 0.44, 0.9);
-pub const ACTIONS_HUD_BG_COLOR: Color = Color::rgba(0.25, 0.25, 0.25, 1.);
+pub const INVENTORY_HUD_BG_COLOR: Color = Color::srgba(0.1, 0.1, 0.44, 0.9);
+pub const ACTIONS_HUD_BG_COLOR: Color = Color::srgba(0.25, 0.25, 0.25, 1.);
 
 pub(crate) fn slot_item_actions(
     mut net: EventReader<IncomingReliableServerMessage<ActionsServerMessage>>,

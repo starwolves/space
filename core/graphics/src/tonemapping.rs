@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use bevy::{
     core_pipeline::tonemapping::Tonemapping,
     prelude::{ButtonInput, KeyCode, Query, Res, Resource},
-    render::view::ColorGrading,
+    render::view::{ColorGrading, ColorGradingGlobal},
 };
 
 #[derive(Resource)]
@@ -13,21 +13,37 @@ pub struct PerMethodSettings {
 
 impl PerMethodSettings {
     fn basic_scene_recommendation(method: Tonemapping) -> ColorGrading {
+        let mut r = ColorGrading::default();
         match method {
-            Tonemapping::Reinhard | Tonemapping::ReinhardLuminance => ColorGrading {
-                exposure: 0.5,
-                ..Default::default()
-            },
-            Tonemapping::AcesFitted => ColorGrading {
-                exposure: 0.35,
-                ..Default::default()
-            },
-            Tonemapping::AgX => ColorGrading {
-                exposure: -0.2,
-                gamma: 1.0,
-                pre_saturation: 1.1,
-                post_saturation: 1.1,
-            },
+            Tonemapping::Reinhard | Tonemapping::ReinhardLuminance => {
+                r.global = ColorGradingGlobal {
+                    exposure: 0.5,
+                    ..Default::default()
+                };
+
+                r
+            }
+            Tonemapping::AcesFitted => {
+                r.global = ColorGradingGlobal {
+                    exposure: 0.35,
+                    ..Default::default()
+                };
+
+                r
+            }
+            Tonemapping::AgX => {
+                for section in r.all_sections_mut() {
+                    section.gamma = 1.0;
+                    // `pre_saturation` has been renamed to `saturation`.
+                    section.saturation = 1.1;
+                }
+                r.global = ColorGradingGlobal {
+                    exposure: 0.5,
+                    ..Default::default()
+                };
+
+                r
+            }
             _ => ColorGrading::default(),
         }
     }
@@ -83,10 +99,11 @@ pub fn toggle_tonemapping_method(
                 *method = Tonemapping::BlenderFilmic;
             }
 
-            *color_grading = *per_method_settings
+            *color_grading = per_method_settings
                 .settings
                 .get::<Tonemapping>(&method)
-                .unwrap();
+                .unwrap()
+                .clone();
         }
     }
 }

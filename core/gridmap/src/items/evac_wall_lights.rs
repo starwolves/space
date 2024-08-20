@@ -1,6 +1,6 @@
 use bevy::{
+    color::Color,
     prelude::{AssetServer, Assets, Res, ResMut, StandardMaterial, Transform},
-    render::color::Color,
 };
 use bevy_xpbd_3d::prelude::Collider;
 use entity::examine::RichName;
@@ -29,7 +29,7 @@ pub(crate) fn init_evac_wall_lights_material(
         metallic_roughness_texture: Some(metallic_roughness_texture_handle),
         perceptual_roughness: 0.9,
         emissive_texture: Some(emissive_texture_handle),
-        emissive: Color::rgb(50000., 50000., 50000.),
+        emissive: Color::srgb(50000., 50000., 50000.).into(),
         metallic: 0.97,
         ..Default::default()
     });

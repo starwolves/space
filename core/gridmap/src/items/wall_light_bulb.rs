@@ -1,8 +1,7 @@
 use bevy::{
+    color::Color,
     math::Vec3,
-    pbr::AlphaMode,
-    prelude::{AssetServer, Assets, Res, ResMut, StandardMaterial, Transform},
-    render::color::Color,
+    prelude::{AlphaMode, AssetServer, Assets, Res, ResMut, StandardMaterial, Transform},
 };
 use bevy_xpbd_3d::prelude::Collider;
 use entity::examine::RichName;
@@ -33,7 +32,7 @@ pub(crate) fn init_wall_light_bulb_material(
         metallic: 0.97,
         alpha_mode: AlphaMode::Blend,
         emissive_texture: Some(emissive),
-        emissive: Color::rgb(100000., 100000., 100000.),
+        emissive: Color::srgb(100000., 100000., 100000.).into(),
         ..Default::default()
     });
     res.wall = material_handle;

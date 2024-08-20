@@ -54,7 +54,7 @@ pub(crate) fn hlist_created(
                             ..Default::default()
                         },
 
-                        background_color: Color::rgb(0.15, 0.15, 0.15).into(),
+                        background_color: Color::srgb(0.15, 0.15, 0.15).into(),
                         ..Default::default()
                     })
                     .insert(SFButton::default())

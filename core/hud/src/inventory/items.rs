@@ -1,4 +1,5 @@
 use actions::net::{ActionsClientMessage, TabData};
+use bevy::color::Srgba;
 use bevy::log::info;
 use bevy::log::warn;
 use bevy::{
@@ -37,7 +38,7 @@ pub(crate) fn requeue_hud_add_item_to_slot(
 
 pub const ITEM_SPACE_BG_ALPHA: f32 = 0.7;
 pub const ITEM_SPACE_BG_COLOR: Color =
-    Color::rgba(60. / 255., 0., 226. / 255., ITEM_SPACE_BG_ALPHA);
+    Color::srgba(60. / 255., 0., 226. / 255., ITEM_SPACE_BG_ALPHA);
 pub const ACTIVE_ITEM_SPACE_BG_COLOR: Color = Color::WHITE;
 
 #[derive(Component)]
@@ -154,7 +155,10 @@ pub fn update_inventory_hud_add_item_to_slot<
                 })
                 .with_children(|parent| {
                     let mut empty_color = Color::BLACK;
-                    empty_color.set_a(0.);
+                    empty_color = bevy::prelude::Color::Srgba(Srgba {
+                        alpha: 0.,
+                        ..Srgba::from(empty_color)
+                    });
                     parent
                         .spawn(ImageBundle {
                             style: Style {
@@ -252,11 +256,17 @@ pub(crate) fn slot_item_button_events(
                 }
                 Interaction::Hovered => {
                     state.option = Some(slot_item_hud.entity);
-                    background_color.0.set_a(1.);
+                    background_color.0 = bevy::prelude::Color::Srgba(Srgba {
+                        alpha: 1.0,
+                        ..Srgba::from(background_color.0)
+                    });
                 }
                 Interaction::None => {
                     state.option = None;
-                    background_color.0.set_a(ITEM_SPACE_BG_ALPHA);
+                    background_color.0 = bevy::prelude::Color::Srgba(Srgba {
+                        alpha: ITEM_SPACE_BG_ALPHA,
+                        ..Srgba::from(background_color.0)
+                    });
                 }
             },
             Err(_) => {

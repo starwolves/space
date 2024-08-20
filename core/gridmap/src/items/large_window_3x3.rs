@@ -1,7 +1,8 @@
 use bevy::{
     asset::{AssetServer, Assets, Handle},
     ecs::system::{Res, ResMut, Resource},
-    pbr::{AlphaMode, StandardMaterial},
+    pbr::StandardMaterial,
+    prelude::AlphaMode,
     transform::components::Transform,
 };
 use bevy_xpbd_3d::plugins::collision::Collider;

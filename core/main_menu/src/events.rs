@@ -24,10 +24,10 @@ use crate::build::SpaceFrontiersHeader;
 use crate::build::STARWOLVES_TEXT_COLOR;
 use bevy::text::Text;
 
-pub const SPACE_FRONTIERS_HEADER_TEXT_COLOR: Color = Color::rgb(0.46 * 1.6, 0.5 * 1.6, 0.69 * 1.6);
+pub const SPACE_FRONTIERS_HEADER_TEXT_COLOR: Color = Color::srgb(0.46 * 1.6, 0.5 * 1.6, 0.69 * 1.6);
 
 pub const SPACE_FRONTIERS_HEADER_TEXT_COLOR_HOVERED: Color =
-    Color::rgb(0.46 * 1.9, 0.5 * 1.9, 0.69 * 1.9);
+    Color::srgb(0.46 * 1.9, 0.5 * 1.9, 0.69 * 1.9);
 
 pub(crate) fn space_frontiers_link(
     mut interaction_query: Query<
@@ -50,7 +50,7 @@ pub(crate) fn space_frontiers_link(
 
         match *interaction {
             Interaction::Pressed => {
-                starwolves_text.style.color = Color::BLUE.into();
+                starwolves_text.style.color = bevy::color::palettes::css::BLUE.into();
                 match open::that("http://github.com/starwolves/space") {
                     Ok(_) => {}
                     Err(_rr) => {
@@ -89,7 +89,7 @@ pub(crate) fn starwolves_link(
 
         match *interaction {
             Interaction::Pressed => {
-                starwolves_text.style.color = Color::BLUE.into();
+                starwolves_text.style.color = bevy::color::palettes::css::BLUE.into();
                 match open::that("http://starwolves.io") {
                     Ok(_) => {}
                     Err(_rr) => {
@@ -98,7 +98,7 @@ pub(crate) fn starwolves_link(
                 }
             }
             Interaction::Hovered => {
-                starwolves_text.style.color = Color::PINK.into();
+                starwolves_text.style.color = bevy::color::palettes::css::PINK.into();
             }
             Interaction::None => {
                 starwolves_text.style.color = STARWOLVES_TEXT_COLOR.into();
@@ -177,7 +177,7 @@ pub(crate) fn button_presses(
         match *interaction {
             Interaction::Pressed => {
                 info!("Exiting app.");
-                exit.send(AppExit);
+                exit.send(AppExit::Success);
             }
             _ => (),
         }

@@ -70,7 +70,7 @@ pub(crate) fn init_generic_meshes(
     res.vents_access = assets.load("gridmap/vents_access/vents_access.glb#Mesh0");
 
     let mat = materials.add(StandardMaterial {
-        base_color: Color::rgba(0., 1., 0., 0.5),
+        base_color: Color::srgba(0., 1., 0., 0.5),
         perceptual_roughness: 0.9,
         metallic: 0.97,
         alpha_mode: AlphaMode::Blend,

@@ -6,9 +6,9 @@ use bevy::{
 };
 
 pub const INPUT_TEXT_BG_PRESSED: Color = INPUT_TEXT_BG;
-pub const INPUT_TEXT_BG: Color = Color::rgb(0.26, 0.3, 0.49);
-pub const INPUT_TEXT_BG_HOVER: Color = Color::rgb(0.26, 0.3, 0.79);
-pub const INPUT_TEXT_BG_FOCUSED: Color = Color::rgb(0.46, 0.5, 0.79);
+pub const INPUT_TEXT_BG: Color = Color::srgb(0.26, 0.3, 0.49);
+pub const INPUT_TEXT_BG_HOVER: Color = Color::srgb(0.26, 0.3, 0.79);
+pub const INPUT_TEXT_BG_FOCUSED: Color = Color::srgb(0.46, 0.5, 0.79);
 
 /// The component for text input UI nodes.
 
@@ -324,7 +324,7 @@ pub(crate) fn input_characters(
     keys2: Res<KeyBinds>,
 
     time: Res<Time>,
-    clipboard: Res<EguiClipboard>,
+    mut clipboard: ResMut<EguiClipboard>,
     mut pasting: Local<bool>,
 ) {
     if !*backspace_timer_not_first {

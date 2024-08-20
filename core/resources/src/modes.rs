@@ -32,9 +32,9 @@ pub fn is_server() -> bool {
 }
 
 pub fn is_server_mode(app: &mut App) -> bool {
-    is_server() || app.world.resource::<AppMode>().is_correction_server()
+    is_server() || app.world().resource::<AppMode>().is_correction_server()
 }
 
 pub fn is_correction_mode(app: &mut App) -> bool {
-    app.world.resource::<AppMode>().is_correction_server()
+    app.world().resource::<AppMode>().is_correction_server()
 }

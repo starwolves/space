@@ -1,6 +1,6 @@
 use bevy::{
+    color::Color,
     prelude::{AssetServer, Assets, Res, ResMut, StandardMaterial, Transform},
-    render::color::Color,
 };
 use bevy_xpbd_3d::prelude::Collider;
 use entity::examine::RichName;
@@ -30,7 +30,7 @@ pub(crate) fn init_light_strip_horizontal_material(
         perceptual_roughness: 0.9,
         metallic: 0.97,
         emissive_texture: Some(emissive_texture_handle),
-        emissive: Color::rgb(10000., 10000., 10000.),
+        emissive: Color::srgb(10000., 10000., 10000.).into(),
         ..Default::default()
     });
     res.horizontal_light_strip_handle = material_handle;

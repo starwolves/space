@@ -199,7 +199,7 @@ pub(crate) fn exit_button_pressed(
         match interaction {
             Interaction::Pressed => {
                 info!("Exiting app.");
-                exit.send(AppExit);
+                exit.send(AppExit::Success);
             }
             Interaction::Hovered => {}
             Interaction::None => {}

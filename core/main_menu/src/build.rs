@@ -32,13 +32,14 @@ pub(crate) fn startup_show_menu(mut enable_events: EventWriter<EnableMainMenu>) 
     enable_events.send(EnableMainMenu { enable: true });
 }
 
-pub const SIDEBAR_COLOR: Color = Color::rgb(0.15, 0.15, 0.15);
+pub const SIDEBAR_COLOR: Color = Color::srgb(0.15, 0.15, 0.15);
 
-pub const TEXT_COLOR: Color = Color::rgb(0.9, 0.9, 0.9);
-pub const STARWOLVES_TEXT_COLOR: Color = Color::VIOLET;
-pub const TEXT_INPUT_COLOR: Color = Color::rgb(0.8, 0.8, 0.8);
+pub const TEXT_COLOR: Color = Color::srgb(0.9, 0.9, 0.9);
+pub const STARWOLVES_TEXT_COLOR: Color =
+    bevy::prelude::Color::Srgba(bevy::color::palettes::css::VIOLET);
+pub const TEXT_INPUT_COLOR: Color = Color::srgb(0.8, 0.8, 0.8);
 
-pub const MAIN_BG_COLOR: Color = Color::DARK_GRAY;
+pub const MAIN_BG_COLOR: Color = bevy::prelude::Color::Srgba(bevy::color::palettes::css::DARK_GRAY);
 
 #[derive(Component)]
 
@@ -751,7 +752,8 @@ pub(crate) fn show_play_menu(
                                                     })
                                                     .insert((
                                                         SFButton {
-                                                            pressed_color: Color::BLUE,
+                                                            pressed_color:
+                                                                bevy::prelude::Color::Srgba(bevy::color::palettes::css::BLUE),
                                                             default_color_option: Some(
                                                                 HOVERED_BUTTON,
                                                             ),

@@ -4,7 +4,7 @@ use bevy::window::{PrimaryWindow, Window};
 use crate::text_input::INPUT_TEXT_BG;
 
 pub const HOVERED_BUTTON: Color = INPUT_TEXT_BG;
-pub const PRESSED_BUTTON: Color = Color::rgb(0.49, 0.73, 0.91);
+pub const PRESSED_BUTTON: Color = Color::srgb(0.49, 0.73, 0.91);
 
 /// Component for button visuals.
 
@@ -23,7 +23,7 @@ impl Default for SFButton {
         Self {
             hovered_color: HOVERED_BUTTON,
             pressed_color: PRESSED_BUTTON,
-            default_parent_color: Color::rgb(0.15, 0.15, 0.15),
+            default_parent_color: Color::srgb(0.15, 0.15, 0.15),
             default_color_option: None,
             color_parent: true,
             frozen: false,
