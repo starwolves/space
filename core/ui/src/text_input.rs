@@ -1,3 +1,4 @@
+use bevy::input::keyboard::{Key, KeyboardInput};
 use bevy::prelude::{Color, Component, Entity, Event, MouseButton, SystemSet};
 use bevy::window::{PrimaryWindow, Window};
 use bevy::{
@@ -127,10 +128,10 @@ pub fn ui_events(
 }
 use bevy::log::warn;
 use bevy::prelude::Children;
+use bevy::prelude::EventReader;
 use bevy::prelude::Res;
 use bevy::prelude::{ButtonInput, KeyCode};
 use bevy::text::Text;
-use bevy::{prelude::EventReader, window::ReceivedCharacter};
 
 /// Event to unfocus the currently focused text input.
 #[derive(Default, Event)]
@@ -317,7 +318,7 @@ pub(crate) fn input_characters(
     mut backspace_timer: Local<Timer>,
     mut backspace_timer_not_first: Local<bool>,
     mut backspace_init_timer: Local<Timer>,
-    mut char_evr: EventReader<ReceivedCharacter>,
+    mut char_evr: EventReader<KeyboardInput>,
     mut text_input_node_query: Query<(&mut TextInputNode, &Children)>,
     mut text_query: Query<&mut Text>,
     keys: Res<ButtonInput<KeyCode>>,
@@ -429,49 +430,91 @@ pub(crate) fn input_characters(
                             }
                         } else {
                             for ev in char_evr.read() {
-                                for char in ev.char.chars() {
-                                    if input_node.placeholder_active {
-                                        input_node.placeholder_active = false;
-                                        text.value = "".to_string();
-                                    }
+                                if !ev.state.is_pressed() {
+                                    continue;
+                                }
 
-                                    let mut valid_char = false;
+                                // Note that some keys such as `Space` and `Tab` won't be detected as a character.
+                                // Instead, check for them as separate enum variants.
+                                match &ev.logical_key {
+                                    Key::Character(smol) => {
+                                        for char in smol.chars() {
+                                            if input_node.placeholder_active {
+                                                input_node.placeholder_active = false;
+                                                text.value = "".to_string();
+                                            }
 
-                                    match &input_node.character_filter_option {
-                                        Some(char_filter) => match char_filter {
-                                            CharacterFilter::AccountName => {
-                                                if char.is_ascii_alphanumeric() {
+                                            let mut valid_char = false;
+
+                                            match &input_node.character_filter_option {
+                                                Some(char_filter) => match char_filter {
+                                                    CharacterFilter::AccountName => {
+                                                        if char.is_ascii_alphanumeric() {
+                                                            valid_char = true;
+                                                        }
+                                                    }
+                                                    CharacterFilter::ServerAddress => {
+                                                        if char.is_ascii_alphanumeric()
+                                                            || char.is_ascii_graphic()
+                                                        {
+                                                            valid_char = true;
+                                                        }
+                                                    }
+                                                    CharacterFilter::Chat => {
+                                                        if (char.is_whitespace() && char != '\t')
+                                                            || char.is_ascii_alphanumeric()
+                                                            || char.is_ascii_graphic()
+                                                        {
+                                                            valid_char = true;
+                                                        }
+                                                    }
+                                                    CharacterFilter::Integer => {
+                                                        if char.is_numeric() {
+                                                            valid_char = true;
+                                                        }
+                                                    }
+                                                },
+                                                None => {
                                                     valid_char = true;
                                                 }
                                             }
-                                            CharacterFilter::ServerAddress => {
-                                                if char.is_ascii_alphanumeric()
-                                                    || char.is_ascii_graphic()
-                                                {
-                                                    valid_char = true;
-                                                }
+                                            if valid_char {
+                                                input_node.input.push(char);
                                             }
-                                            CharacterFilter::Chat => {
-                                                if (char.is_whitespace() && char != '\t')
-                                                    || char.is_ascii_alphanumeric()
-                                                    || char.is_ascii_graphic()
-                                                {
-                                                    valid_char = true;
-                                                }
-                                            }
-                                            CharacterFilter::Integer => {
-                                                if char.is_numeric() {
-                                                    valid_char = true;
-                                                }
-                                            }
-                                        },
-                                        None => {
-                                            valid_char = true;
                                         }
                                     }
-                                    if valid_char {
-                                        input_node.input.push(char);
+                                    Key::Space => {
+                                        if input_node.placeholder_active {
+                                            input_node.placeholder_active = false;
+                                            text.value = "".to_string();
+                                        }
+
+                                        let valid_char;
+
+                                        match &input_node.character_filter_option {
+                                            Some(char_filter) => match char_filter {
+                                                CharacterFilter::AccountName => {
+                                                    valid_char = false;
+                                                }
+                                                CharacterFilter::ServerAddress => {
+                                                    valid_char = false;
+                                                }
+                                                CharacterFilter::Chat => {
+                                                    valid_char = true;
+                                                }
+                                                CharacterFilter::Integer => {
+                                                    valid_char = false;
+                                                }
+                                            },
+                                            None => {
+                                                valid_char = true;
+                                            }
+                                        }
+                                        if valid_char {
+                                            input_node.input.push(' ');
+                                        }
                                     }
+                                    _ => {}
                                 }
                             }
                             input_node.input = input_node.input.to_string();
