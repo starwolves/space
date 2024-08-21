@@ -6,9 +6,11 @@ use std::{
 
 use bevy::{
     core_pipeline::fxaa::{Fxaa, Sensitivity},
+    log::info,
     pbr::{
         light_consts::lux::DIRECT_SUNLIGHT, CascadeShadowConfig, CascadeShadowConfigBuilder,
-        DirectionalLightShadowMap, PointLightShadowMap,
+        DirectionalLightShadowMap, PointLightShadowMap, ScreenSpaceReflectionsBundle,
+        ScreenSpaceReflectionsSettings, ShadowFilteringMethod,
     },
     prelude::{
         Commands, DetectChanges, DirectionalLight, DirectionalLightBundle, Event, EventReader,
@@ -104,24 +106,49 @@ pub struct PerformanceSettings {
     pub shadows: Shadows,
     pub shadows_resolution: ShadowsResolution,
     pub shadows_cascading: ShadowsCascading,
+    pub shadow_filter: ShadowFilter,
     pub synchronous_correction: bool,
     pub ambient_lighting: bool,
     pub ssao: SSAO,
+    pub ssr: SSR,
 }
 #[derive(Default, Clone, Serialize, Deserialize, FromPrimitive, Debug)]
 pub enum ShadowsResolution {
+    Low = 0,
+    #[default]
+    Medium = 1,
+    High = 2,
+}
+#[derive(Default, Clone, Serialize, Deserialize, FromPrimitive, Debug)]
+pub enum ShadowsCascading {
+    Low = 0,
+    #[default]
+    Medium = 1,
+    High = 2,
+}
+#[derive(Default, Clone, Serialize, Deserialize, FromPrimitive, Debug)]
+pub enum ShadowFilter {
+    Hardware2x2 = 0,
+    #[default]
+    Gaussian = 1,
+    //Temporal = 3,
+}
+impl ShadowFilter {
+    pub fn to_shadow_filter(&self) -> ShadowFilteringMethod {
+        match self {
+            ShadowFilter::Hardware2x2 => ShadowFilteringMethod::Hardware2x2,
+            ShadowFilter::Gaussian => ShadowFilteringMethod::Gaussian,
+        }
+    }
+}
+#[derive(Default, Clone, Serialize, Deserialize, FromPrimitive, Debug)]
+pub enum SSR {
+    Off = 0,
     Low = 1,
     #[default]
     Medium = 2,
     High = 3,
     Ultra = 4,
-}
-#[derive(Default, Clone, Serialize, Deserialize, FromPrimitive, Debug)]
-pub enum ShadowsCascading {
-    Low = 1,
-    #[default]
-    Medium = 2,
-    High = 3,
 }
 #[derive(Default, Clone, Serialize, Deserialize, FromPrimitive, Debug)]
 pub enum SSAO {
@@ -221,10 +248,12 @@ impl Default for PerformanceSettings {
             rcas: true,
             synchronous_correction: false,
             shadows: Shadows::default(),
+            shadow_filter: ShadowFilter::default(),
             ambient_lighting: false,
             ssao: SSAO::default(),
             shadows_resolution: ShadowsResolution::default(),
             shadows_cascading: ShadowsCascading::default(),
+            ssr: SSR::default(),
         }
     }
 }
@@ -350,6 +379,39 @@ pub struct SetShadowsCascading {
 pub struct SetSSAO {
     pub mode: SSAO,
 }
+#[derive(Event)]
+pub struct SetSSR {
+    pub mode: SSR,
+}
+impl SSR {
+    pub fn to_quality(&self) -> ScreenSpaceReflectionsSettings {
+        match self {
+            SSR::Off => ScreenSpaceReflectionsSettings::default(),
+            SSR::Low => ScreenSpaceReflectionsSettings {
+                linear_steps: 8,
+                ..Default::default()
+            },
+            SSR::Medium => ScreenSpaceReflectionsSettings {
+                linear_steps: 16,
+                ..Default::default()
+            },
+            SSR::High => ScreenSpaceReflectionsSettings {
+                linear_steps: 32,
+                linear_march_exponent: 4.0,
+                ..Default::default()
+            },
+            SSR::Ultra => ScreenSpaceReflectionsSettings {
+                linear_steps: 64,
+                linear_march_exponent: 8.0,
+                ..Default::default()
+            },
+        }
+    }
+}
+#[derive(Event)]
+pub struct SetShadowFilter {
+    pub mode: ShadowFilter,
+}
 
 #[derive(Event)]
 pub struct SetSyncCorrection {
@@ -409,6 +471,71 @@ pub fn set_ambient_lighting(
         }
     }
 }
+
+pub fn set_ssr(
+    mut events: EventReader<SetSSR>,
+    mut commands: Commands,
+    mut settings: ResMut<PerformanceSettings>,
+    mut query: Query<(Entity, &mut ScreenSpaceReflectionsSettings)>,
+    camera_query: Query<Entity, With<Camera3d>>,
+) {
+    for event in events.read() {
+        settings.ssr = event.mode.clone();
+        let quality_level = event.mode.to_quality();
+        let mut turn_off = false;
+
+        match event.mode {
+            SSR::Off => {
+                turn_off = true;
+            }
+            _ => (),
+        }
+        match query.get_single_mut() {
+            Ok((entity, mut settings)) => {
+                if turn_off {
+                    commands
+                        .entity(entity)
+                        .remove::<ScreenSpaceReflectionsSettings>();
+                } else {
+                    *settings = quality_level;
+                }
+            }
+            Err(_) => {
+                let camera_entity = camera_query.single();
+                commands
+                    .entity(camera_entity)
+                    .insert(ScreenSpaceReflectionsBundle {
+                        settings: quality_level,
+                        ..Default::default()
+                    });
+            }
+        }
+    }
+}
+
+pub fn set_shadow_filter(
+    mut events: EventReader<SetShadowFilter>,
+    mut commands: Commands,
+    mut settings: ResMut<PerformanceSettings>,
+    mut query: Query<(Entity, &mut ShadowFilteringMethod)>,
+    camera_query: Query<Entity, With<Camera3d>>,
+) {
+    for event in events.read() {
+        settings.shadow_filter = event.mode.clone();
+        let quality_level = event.mode.to_shadow_filter();
+
+        match query.get_single_mut() {
+            Ok((_entity, mut settings)) => {
+                *settings = quality_level;
+            }
+            Err(_) => {
+                let camera_entity = camera_query.single();
+                commands.entity(camera_entity).insert(quality_level);
+            }
+        }
+    }
+}
+
 pub fn set_ssao(
     mut events: EventReader<SetSSAO>,
     mut commands: Commands,
@@ -465,10 +592,6 @@ pub fn set_shadows_resolution(
             ShadowsResolution::High => {
                 directional.size = 1024 * 4;
                 point.size = 512 * 4;
-            }
-            ShadowsResolution::Ultra => {
-                directional.size = 1024 * 8;
-                point.size = 512 * 8;
             }
         }
         settings.shadows_resolution = event.mode.clone();
@@ -614,7 +737,9 @@ pub(crate) fn settings_to_ron(settings: Res<PerformanceSettings>) {
         let path = Path::new("data").join("settings").join("settings.ron");
         let settings_ron = ron::ser::to_string_pretty(&*settings, PrettyConfig::default()).unwrap();
         match fs::write(path, settings_ron) {
-            Ok(_) => {}
+            Ok(_) => {
+                info!("Updated settings.ron");
+            }
             Err(rr) => {
                 warn!("Failed to write settings.ron: {:?}", rr);
             }

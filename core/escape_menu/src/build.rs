@@ -529,6 +529,10 @@ pub struct ShadowsResolutionHList;
 #[derive(Component)]
 pub struct ShadowsCascadingHList;
 #[derive(Component)]
+pub struct ShadowFilterHList;
+#[derive(Component)]
+pub struct SSRFilterHList;
+#[derive(Component)]
 pub struct SSAOHList;
 #[derive(Component)]
 pub struct SyncCorrectionRestartLabel;
@@ -971,7 +975,6 @@ pub(crate) fn build_graphics_section(
                                         "Low".to_string(),
                                         "Medium".to_string(),
                                         "High".to_string(),
-                                        "Ultra".to_string(),
                                     ],
                                     ..Default::default()
                                 })
@@ -1010,6 +1013,75 @@ pub(crate) fn build_graphics_section(
                                     ..Default::default()
                                 })
                                 .insert(ShadowsCascadingHList);
+                        });
+                    parent
+                        .spawn(NodeBundle {
+                            style: Style {
+                                ..Default::default()
+                            },
+                            ..Default::default()
+                        })
+                        .with_children(|parent| {
+                            parent.spawn(TextBundle::from_section(
+                                "Shadow Filter: ",
+                                TextStyle {
+                                    font: font.clone(),
+                                    font_size: ESC_MENU_FONT_SIZE,
+                                    color: ESC_MENU_FONT_COLOR.into(),
+                                },
+                            ));
+                            parent
+                                .spawn(NodeBundle {
+                                    style: Style {
+                                        ..Default::default()
+                                    },
+                                    ..Default::default()
+                                })
+                                .insert(HList {
+                                    selected: Some(settings.shadow_filter.clone() as u8),
+                                    selections: vec![
+                                        "Performance".to_string(),
+                                        "Quality".to_string(),
+                                    ],
+                                    ..Default::default()
+                                })
+                                .insert(ShadowFilterHList);
+                        });
+                    parent
+                        .spawn(NodeBundle {
+                            style: Style {
+                                ..Default::default()
+                            },
+                            ..Default::default()
+                        })
+                        .with_children(|parent| {
+                            parent.spawn(TextBundle::from_section(
+                                "SSR: ",
+                                TextStyle {
+                                    font: font.clone(),
+                                    font_size: ESC_MENU_FONT_SIZE,
+                                    color: ESC_MENU_FONT_COLOR.into(),
+                                },
+                            ));
+                            parent
+                                .spawn(NodeBundle {
+                                    style: Style {
+                                        ..Default::default()
+                                    },
+                                    ..Default::default()
+                                })
+                                .insert(HList {
+                                    selected: Some(settings.ssr.clone() as u8),
+                                    selections: vec![
+                                        "Off".to_string(),
+                                        "Low".to_string(),
+                                        "Medium".to_string(),
+                                        "High".to_string(),
+                                        "Ultra".to_string(),
+                                    ],
+                                    ..Default::default()
+                                })
+                                .insert(SSRFilterHList);
                         });
                     parent
                         .spawn(NodeBundle {

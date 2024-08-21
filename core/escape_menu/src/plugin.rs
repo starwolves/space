@@ -7,14 +7,14 @@ use ui::fonts::init_fonts;
 use crate::{
     build::{build_controls_section, build_escape_menu, build_graphics_section},
     events::{
-        apply_ambient_lighting, apply_fxaa, apply_msaa, apply_rcas,
+        apply_ambient_lighting, apply_fxaa, apply_msaa, apply_rcas, apply_shadow_filter_setting,
         apply_shadows_cascading_setting, apply_shadows_resolution_setting, apply_shadows_setting,
-        apply_ssao_setting, apply_syncronous_correction_setting, apply_vsync, apply_window_mode,
-        appply_resolution, controls_section_button_pressed, esc_button_menu, exit_button_pressed,
-        general_section_button_pressed, graphics_section_button_pressed, register_input,
-        toggle_controls_menu_section, toggle_escape_menu, toggle_general_menu_section,
-        toggle_graphics_menu_section, ToggleControlsSection, ToggleEscapeMenu,
-        ToggleGeneralSection, ToggleGraphicsSection,
+        apply_ssao_setting, apply_ssr_setting, apply_syncronous_correction_setting, apply_vsync,
+        apply_window_mode, appply_resolution, controls_section_button_pressed, esc_button_menu,
+        exit_button_pressed, general_section_button_pressed, graphics_section_button_pressed,
+        register_input, toggle_controls_menu_section, toggle_escape_menu,
+        toggle_general_menu_section, toggle_graphics_menu_section, ToggleControlsSection,
+        ToggleEscapeMenu, ToggleGeneralSection, ToggleGraphicsSection,
     },
 };
 
@@ -73,6 +73,8 @@ impl Plugin for EscapeMenuPlugin {
                         apply_fxaa,
                         apply_shadows_setting,
                         apply_shadows_resolution_setting,
+                        apply_ssr_setting,
+                        apply_shadow_filter_setting,
                         apply_shadows_cascading_setting,
                         apply_ssao_setting,
                         apply_ambient_lighting,

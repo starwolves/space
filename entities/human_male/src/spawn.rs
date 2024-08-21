@@ -5,6 +5,7 @@ use bevy::log::info;
 use bevy::log::warn;
 use bevy::pbr::ScreenSpaceAmbientOcclusionBundle;
 use bevy::pbr::ScreenSpaceAmbientOcclusionSettings;
+use bevy::pbr::ScreenSpaceReflectionsBundle;
 use bevy::render::camera::Exposure;
 use bevy::{
     core_pipeline::{fxaa::Fxaa, tonemapping::Tonemapping, Skybox},
@@ -36,6 +37,7 @@ use entity::{
         NoData, PawnId, SpawnEntity,
     },
 };
+use graphics::settings::SSR;
 use graphics::{settings::PerformanceSettings, skybox::SkyboxHandle};
 use humanoid::humanoid::{Humanoid, HUMAN_MALE_ENTITY_NAME};
 use inventory::server::{
@@ -258,47 +260,53 @@ pub fn attach_human_male_camera(
                 .entity(spawn_event.spawn_data.entity.unwrap())
                 .with_children(|parent| {
                     let controller = FpsCameraController::default();
-                    let id = parent
-                        .spawn((
-                            Camera3dBundle {
-                                transform: Transform::from_translation(
-                                    default_look_transform().eye,
-                                ),
-                                camera: Camera {
-                                    msaa_writeback: settings.msaa.is_enabled(),
-                                    ..Default::default()
-                                },
-                                tonemapping: Tonemapping::ReinhardLuminance,
-                                exposure: Exposure { ev100: 18. },
+                    let mut builder = parent.spawn(());
+                    let id = builder.id();
 
+                    builder.insert((
+                        Camera3dBundle {
+                            transform: Transform::from_translation(default_look_transform().eye),
+                            camera: Camera {
+                                msaa_writeback: settings.msaa.is_enabled(),
                                 ..Default::default()
                             },
-                            LookTransformBundle {
-                                transform: default_look_transform(),
-                                smoother: Smoother::new(controller.smoothing_weight),
+                            tonemapping: Tonemapping::ReinhardLuminance,
+                            exposure: Exposure { ev100: 18. },
+
+                            ..Default::default()
+                        },
+                        LookTransformBundle {
+                            transform: default_look_transform(),
+                            smoother: Smoother::new(controller.smoothing_weight),
+                        },
+                        controller,
+                        Skybox {
+                            image: handle.h.clone_weak(),
+                            brightness: 400000.,
+                        },
+                        Fxaa {
+                            enabled: settings.fxaa.is_some(),
+                            ..Default::default()
+                        },
+                        VisibilityBundle::default(),
+                        ContrastAdaptiveSharpeningSettings {
+                            enabled: settings.rcas,
+                            ..Default::default()
+                        },
+                        ScreenSpaceAmbientOcclusionBundle {
+                            settings: ScreenSpaceAmbientOcclusionSettings {
+                                quality_level: settings.ssao.to_quality(),
                             },
-                            controller,
-                            Skybox {
-                                image: handle.h.clone_weak(),
-                                brightness: 400000.,
-                            },
-                            Fxaa {
-                                enabled: settings.fxaa.is_some(),
-                                ..Default::default()
-                            },
-                            VisibilityBundle::default(),
-                            ContrastAdaptiveSharpeningSettings {
-                                enabled: settings.rcas,
-                                ..Default::default()
-                            },
-                            ScreenSpaceAmbientOcclusionBundle {
-                                settings: ScreenSpaceAmbientOcclusionSettings {
-                                    quality_level: settings.ssao.to_quality(),
-                                },
-                                ..Default::default()
-                            },
-                        ))
-                        .id();
+                            ..Default::default()
+                        },
+                        settings.shadow_filter.to_shadow_filter(),
+                    ));
+                    if !matches!(settings.ssr, SSR::Off) {
+                        builder.insert(ScreenSpaceReflectionsBundle {
+                            settings: settings.ssr.to_quality(),
+                            ..Default::default()
+                        });
+                    }
                     state.option = Some(id);
                 });
             pending.0 = true;

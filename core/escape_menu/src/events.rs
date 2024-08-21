@@ -13,6 +13,8 @@ use bevy::{
 use graphics::settings::SetAmbientLighting;
 use graphics::settings::SetRCAS;
 use graphics::settings::SetSSAO;
+use graphics::settings::SetSSR;
+use graphics::settings::SetShadowFilter;
 use graphics::settings::SetShadows;
 use graphics::settings::SetShadowsCascading;
 use graphics::settings::SetShadowsResolution;
@@ -31,6 +33,8 @@ use crate::build::AmbientLightingHList;
 use crate::build::AmbientLightingRestartLabel;
 use crate::build::RCASHList;
 use crate::build::SSAOHList;
+use crate::build::SSRFilterHList;
+use crate::build::ShadowFilterHList;
 use crate::build::ShadowsCascadingHList;
 use crate::build::ShadowsHList;
 use crate::build::ShadowsResolutionHList;
@@ -549,6 +553,105 @@ pub(crate) fn apply_shadows_resolution_setting(
                         }
 
                         events.send(SetShadowsResolution { mode });
+                    }
+                    Err(_) => {
+                        warn!("Couildnt find apply window hlist.");
+                    }
+                }
+            }
+            _ => (),
+        }
+    }
+}
+
+pub(crate) fn apply_ssr_setting(
+    interaction_query: Query<
+        (Entity, &Interaction, &Parent),
+        (Changed<Interaction>, With<SFButton>),
+    >,
+    parent_query: Query<&SSRFilterHList>,
+    mut events: EventWriter<SetSSR>,
+    hlist_query: Query<&HList>,
+) {
+    for (entity, interaction, parent) in interaction_query.iter() {
+        match interaction {
+            Interaction::Pressed => {
+                match parent_query.get(**parent) {
+                    Ok(_) => {}
+                    Err(_) => {
+                        continue;
+                    }
+                }
+
+                match hlist_query.get(**parent) {
+                    Ok(hlist) => {
+                        let id = hlist
+                            .selections_entities
+                            .iter()
+                            .position(|&r| r == entity)
+                            .unwrap() as u8;
+
+                        let mode;
+
+                        match FromPrimitive::from_u8(id) {
+                            Some(t) => {
+                                mode = t;
+                            }
+                            None => {
+                                warn!("Couldnt convert window mode enum.");
+                                continue;
+                            }
+                        }
+                        events.send(SetSSR { mode });
+                    }
+                    Err(_) => {
+                        warn!("Couildnt find apply window hlist.");
+                    }
+                }
+            }
+            _ => (),
+        }
+    }
+}
+
+pub(crate) fn apply_shadow_filter_setting(
+    interaction_query: Query<
+        (Entity, &Interaction, &Parent),
+        (Changed<Interaction>, With<SFButton>),
+    >,
+    parent_query: Query<&ShadowFilterHList>,
+    mut events: EventWriter<SetShadowFilter>,
+    hlist_query: Query<&HList>,
+) {
+    for (entity, interaction, parent) in interaction_query.iter() {
+        match interaction {
+            Interaction::Pressed => {
+                match parent_query.get(**parent) {
+                    Ok(_) => {}
+                    Err(_) => {
+                        continue;
+                    }
+                }
+                match hlist_query.get(**parent) {
+                    Ok(hlist) => {
+                        let id = hlist
+                            .selections_entities
+                            .iter()
+                            .position(|&r| r == entity)
+                            .unwrap() as u8;
+
+                        let mode;
+
+                        match FromPrimitive::from_u8(id) {
+                            Some(t) => {
+                                mode = t;
+                            }
+                            None => {
+                                warn!("Couldnt convert window mode enum.");
+                                continue;
+                            }
+                        }
+                        events.send(SetShadowFilter { mode });
                     }
                     Err(_) => {
                         warn!("Couildnt find apply window hlist.");
