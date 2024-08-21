@@ -122,6 +122,7 @@ fn main() {
 fn live() {
     info!("Live.");
 }
+use bevy::ecs::schedule::ScheduleLabel;
 
 /// Version of this crate as defined in this Cargo.toml.
 const APP_VERSION: &'static str = env!("CARGO_PKG_VERSION");
@@ -168,6 +169,9 @@ pub(crate) fn init_app(correction: Option<CorrectionMessengers>) {
             *main_world.resource_mut::<CorrectionResults>() =
                 sub_app.resource::<CorrectionResults>().clone();
         });
+
+        sub_app.update_schedule = Some(Main.intern());
+
         // Run sub app once to initiate its world with Startup Schedule.
         sub_app.update();
 
@@ -178,6 +182,7 @@ pub(crate) fn init_app(correction: Option<CorrectionMessengers>) {
 
     app.run();
 }
+
 fn setup_plugins(mut app: &mut App) {
     let binding = current_dir().unwrap();
     let mut test_path = binding.as_path();
@@ -220,15 +225,16 @@ fn setup_plugins(mut app: &mut App) {
             if !syncronous_correction {
                 app.add_plugins(ScheduleRunnerPlugin::run_once());
             }
+        } else {
+            app.add_plugins(RenderPlugin {
+                render_creation: RenderCreation::Automatic(wgpu_settings),
+                ..Default::default()
+            });
         }
         app.add_plugins(WindowPlugin::default())
             .add_plugins(TimePlugin::default())
             .add_plugins(TransformPlugin::default())
             .add_plugins(HierarchyPlugin::default())
-            .add_plugins(RenderPlugin {
-                render_creation: RenderCreation::Automatic(wgpu_settings),
-                ..Default::default()
-            })
             .add_plugins(task_pool);
     } else {
         app.add_plugins(

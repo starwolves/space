@@ -75,7 +75,6 @@ impl Plugin for CorrectionPlugin {
             )
             .add_systems(PostStartup, start_synchronous_correction_server);
         }
-        info!("INITTING {} StartCorrectingMessage =================================================================", is_correction_mode(app));
         app.init_resource::<StartCorrectingMessage>();
     }
 }
@@ -154,6 +153,7 @@ pub(crate) fn finish_correction(
 pub(crate) fn server_start_correcting(world: &mut World) {
     let synchronous_mode = world.resource::<SynchronousCorrection>().0;
     let start_data;
+
     if !synchronous_mode {
         let mut first = false;
         (|| {
@@ -303,7 +303,6 @@ pub(crate) fn server_start_correcting(world: &mut World) {
         let mut entity_type_cache = world.resource_mut::<EntityTypeCache>();
         *entity_type_cache = start_data.entity_type_cache;
     })();
-
     for _ in start_data.start.start_tick - 1..start_data.start.last_tick + 1 {
         step_game_schedules(world);
     }
@@ -468,10 +467,11 @@ pub(crate) fn message_correction_server(world: &mut World) {
         }
     } else {
         let mut correction = world.remove_non_send_resource::<CorrectionApp>().unwrap();
+        let m = correction.app.main_mut();
+        m.extract(world);
+        m.update();
+        m.extract(world);
 
-        correction.app.main_mut().extract(world);
-        correction.app.update();
-        correction.app.main_mut().extract(world);
         world.insert_non_send_resource(correction);
     }
 
