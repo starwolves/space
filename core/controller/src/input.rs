@@ -141,8 +141,8 @@ pub struct LastPeerLookTransform {
 
 pub fn default_look_transform() -> LookTransform {
     LookTransform::new(
-        Vec3::new(0., 1.8 - R, 0.),
-        Vec3::new(0., 1.8 - R, -2.),
+        Vec3::new(0., 1.6 - R, 0.),
+        Vec3::new(0., 1.6 - R, -2.),
         Vec3::Y,
     )
 }
