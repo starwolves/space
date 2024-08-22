@@ -70,7 +70,7 @@ pub(crate) fn init_small_window_3x3(
         mesh_option,
         cell_type: CellType::Wall,
         material_option,
-        collider: Collider::cuboid(1., 1., 0.2),
+        collider: Collider::cuboid(3., 3., 0.2),
         ..Default::default()
     });
 }
