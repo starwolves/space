@@ -4,7 +4,7 @@ use bevy::{
 };
 use bevy_renet::renet::ClientId;
 use networking::client::IncomingReliableServerMessage;
-use resources::player::SoftPlayer;
+use resources::{pawn::HUMANOID_HEIGHT, player::SoftPlayer};
 use ui::cursor::GrabCursor;
 
 /// Component with boarding data.
@@ -75,7 +75,7 @@ pub fn done_boarding(
 
         //let mut assigned_spawn_transform = spawn_points.list[spawn_points.i].transform;
         let mut assigned_spawn_transform = Transform::IDENTITY;
-        assigned_spawn_transform.translation.y = 1.8 - 0.5 - 0.5 + 0.2;
+        assigned_spawn_transform.translation.y = HUMANOID_HEIGHT - 0.5 - 0.5 + 0.2;
         assigned_spawn_transform.translation.x += 3.;
         assigned_spawn_transform.translation.z += 7.;
 

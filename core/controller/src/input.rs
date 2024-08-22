@@ -39,7 +39,7 @@ use resources::{
         MOVE_FORWARD_BIND, MOVE_LEFT_BIND, MOVE_RIGHT_BIND,
     },
     modes::is_server,
-    pawn::ClientPawn,
+    pawn::{ClientPawn, HUMANOID_HEIGHT},
     physics::{PriorityPhysicsCache, PriorityUpdate},
 };
 use typename::TypeName;
@@ -141,12 +141,13 @@ pub struct LastPeerLookTransform {
 
 pub fn default_look_transform() -> LookTransform {
     LookTransform::new(
-        Vec3::new(0., 1.6 - R, 0.),
-        Vec3::new(0., 1.6 - R, -2.),
+        Vec3::new(0., HUMANOID_HEIGHT - R - 0.1, 0.),
+        Vec3::new(0., HUMANOID_HEIGHT - R - 0.1, -2.),
         Vec3::Y,
     )
 }
-pub const R: f32 = 0.5;
+
+pub const R: f32 = 0.35;
 
 pub(crate) fn cache_peer_sync_look_transform(
     mut events: EventReader<PeerSyncLookTransform>,

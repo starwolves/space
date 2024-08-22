@@ -3,7 +3,7 @@ use bevy::{
     prelude::{Component, Entity, Event, EventReader, EventWriter, Query, With},
 };
 use inventory::server::combat::{MeleeCombat, ProjectileCombat};
-use resources::math::Vec3Int;
+use resources::{math::Vec3Int, pawn::HUMANOID_HEIGHT};
 
 use crate::attack::{Attack, CombatType};
 
@@ -14,7 +14,7 @@ pub struct MeleeBlank {
 }
 
 /// Attack physics query height.
-pub const ATTACK_HEIGHT: f32 = 1.6;
+pub const ATTACK_HEIGHT: f32 = HUMANOID_HEIGHT;
 
 /// The physics query attack result.
 #[derive(Debug)]

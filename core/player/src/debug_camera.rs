@@ -9,6 +9,7 @@ use cameras::controllers::fps::{ActiveCamera, FpsCameraBundle, FpsCameraControll
 use graphics::{settings::PerformanceSettings, skybox::SkyboxHandle};
 
 use bevy::prelude::Local;
+use resources::pawn::HUMANOID_HEIGHT;
 
 #[derive(Event)]
 pub struct ActivateDebugCamera;
@@ -41,8 +42,8 @@ pub(crate) fn spawn_debug_camera(
             })
             .insert(FpsCameraBundle::new(
                 FpsCameraController::default(),
-                Vec3::new(0., 1.8, 0.),
-                Vec3::new(0., 1.8, -2.),
+                Vec3::new(0., HUMANOID_HEIGHT, 0.),
+                Vec3::new(0., HUMANOID_HEIGHT, -2.),
                 Vec3::Y,
             ))
             // .insert(AtmosphereCamera::default())

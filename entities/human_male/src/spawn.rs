@@ -187,7 +187,7 @@ impl RigidBodyBuilder<NoData> for HumanMaleType {
         ext_f.persistent = false;
 
         RigidBodyBundle {
-            collider: Collider::capsule(1.8 - R - R, R),
+            collider: Collider::capsule(HUMANOID_HEIGHT - R - R, R),
             collider_transform: Transform::from_translation(Vec3::new(0., 1., 0.)),
             collider_friction: friction,
             rigidbody_dynamic: true,
@@ -210,6 +210,7 @@ impl PawnBuilder for HumanMaleType {
 
 use controller::controller::ControllerInput;
 use resources::pawn::ClientPawn;
+use resources::pawn::HUMANOID_HEIGHT;
 #[derive(Resource, Default)]
 pub struct AddSlotBuffer {
     pub buffer: Vec<AddSlot>,
