@@ -30,6 +30,7 @@ use bevy_xpbd_3d::{
 use cameras::{LookTransform, LookTransformCache};
 use controller::controller::{ControllerCache, ControllerInput};
 use entity::entity_types::EntityTypeCache;
+use gridmap::grid::{AddedUpdate, Gridmap, LayerTargetCell};
 use networking::{client::PostUpdateSendMessage, stamp::TickRateStamp};
 use physics::{
     cache::{Cache, PhysicsCache},
@@ -303,6 +304,11 @@ pub(crate) fn server_start_correcting(world: &mut World) {
         let mut entity_type_cache = world.resource_mut::<EntityTypeCache>();
         *entity_type_cache = start_data.entity_type_cache;
     })();
+
+    (|| {
+        let mut gridmap = world.resource_mut::<Gridmap>();
+        gridmap.updates = start_data.gridmap_updates;
+    })();
     for _ in start_data.start.start_tick - 1..start_data.start.last_tick + 1 {
         step_game_schedules(world);
     }
@@ -318,6 +324,8 @@ pub(crate) fn init_correction_server(mut first: Local<bool>, mut fixed: ResMut<T
     fixed.set_timestep_seconds(IDLE_LOOP_TIME);
 }
 
+/// The data that gets sent between the main and correction app. This data should be minized to only include deltas.
+/// Because cloning this message to the correction app can start taking milliseconds in big scenes.
 #[derive(Resource, Default, Clone)]
 pub struct StartCorrectingMessage {
     pub start: StartCorrection,
@@ -327,6 +335,7 @@ pub struct StartCorrectingMessage {
     pub priority_physics_cache: PriorityPhysicsCache,
     pub entity_type_cache: EntityTypeCache,
     pub correcting: bool,
+    pub gridmap_updates: BTreeMap<u32, HashMap<LayerTargetCell, AddedUpdate>>,
 }
 pub enum CorrectionAppMessage {
     Results(CorrectionResults),
@@ -350,6 +359,7 @@ pub(crate) fn start_correction(
     mut start_message: ResMut<StartCorrectingMessage>,
     mut ongoing: ResMut<SynchronousCorrectionOnGoing>,
     synchronous_correction: Res<SynchronousCorrection>,
+    gridmap: Res<Gridmap>,
 ) {
     if synchronous_correction.0 {
         ongoing.step();
@@ -406,6 +416,7 @@ pub(crate) fn start_correction(
         priority_physics_cache: priority.clone(),
         entity_type_cache: entity_type_cache.clone(),
         correcting: true,
+        gridmap_updates: gridmap.updates.clone(),
     };
     enabled.0 = true;
     if synchronous_correction.0 {

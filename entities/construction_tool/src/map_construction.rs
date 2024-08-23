@@ -9,6 +9,7 @@ use gridmap::{
 };
 use inventory::server::inventory::Inventory;
 use networking::server::{HandleToEntity, IncomingReliableClientMessage};
+use networking::stamp::TickRateStamp;
 
 use crate::construction_tool::ConstructionTool;
 
@@ -57,6 +58,7 @@ pub(crate) fn mouse_click_input(
     mut remove_events: EventWriter<RemoveTile>,
     mut commands: Commands,
     gridmap: Res<Gridmap>,
+    stamp: Res<TickRateStamp>,
 ) {
     for message in net.read() {
         let client_entity;
@@ -133,6 +135,7 @@ pub(crate) fn mouse_click_input(
                                 entity: commands.spawn(()).id(),
                                 default_map_spawn: false,
                                 is_detail: is_detail,
+                                stamp: stamp.tick,
                             });
                         }
                     }
@@ -157,6 +160,7 @@ pub(crate) fn mouse_click_input(
                                 entity: commands.spawn(()).id(),
                                 default_map_spawn: false,
                                 is_detail: is_detail,
+                                stamp: stamp.tick,
                             });
                         }
                     }
@@ -164,7 +168,10 @@ pub(crate) fn mouse_click_input(
             }
             GridmapClientMessage::DeconstructCells(deconstruct) => {
                 for cell in deconstruct.cells.iter() {
-                    remove_events.send(RemoveTile { cell: cell.clone() });
+                    remove_events.send(RemoveTile {
+                        cell: cell.clone(),
+                        stamp: stamp.tick,
+                    });
                 }
             }
             _ => (),

@@ -1,3 +1,4 @@
+use std::collections::BTreeMap;
 use std::fs::File;
 use std::io::Write;
 use std::path::Path;
@@ -314,7 +315,7 @@ pub struct LayerTargetCell {
 pub struct Gridmap {
     pub main_grid: Vec<Option<GridmapChunk>>,
     pub details_grid: Vec<Option<GridmapChunk>>,
-    pub updates: HashMap<LayerTargetCell, AddedUpdate>,
+    pub updates: BTreeMap<u32, HashMap<LayerTargetCell, AddedUpdate>>,
     pub ordered_names: Vec<CellTypeName>,
     pub group_id_map: HashMap<GroupTypeName, GroupTypeId>,
     pub id_group_map: HashMap<GroupTypeId, GroupTypeName>,
@@ -336,7 +337,7 @@ impl Default for Gridmap {
         Self {
             main_grid: vec![EMPTY_CHUNK; GRID_CHUNK_AMOUNT],
             details_grid: vec![EMPTY_CHUNK; GRID_CHUNK_AMOUNT],
-            updates: HashMap::default(),
+            updates: BTreeMap::default(),
             ordered_names: vec![],
             tile_properties: HashMap::default(),
             map_length_limit: MapLimits::default(),
@@ -807,6 +808,7 @@ pub enum AdjacentTileDirection {
 #[derive(Event)]
 pub struct RemoveTile {
     pub cell: LayerTargetCell,
+    pub stamp: u32,
 }
 
 /// A pending cell update like a cell construction.
@@ -849,6 +851,7 @@ pub struct AddTile {
     pub entity: Entity,
     pub default_map_spawn: bool,
     pub is_detail: bool,
+    pub stamp: u32,
 }
 
 #[derive(Clone, Debug)]
@@ -869,6 +872,7 @@ pub struct AddGroup {
     pub orientation: u8,
     pub face: CellFace,
     pub default_map_spawn: bool,
+    pub stamp: u32,
 }
 
 use bevy::prelude::{EventReader, ResMut, TransformBundle};
@@ -1036,7 +1040,17 @@ pub(crate) fn add_tile_net(
                 });
                 received.push(connected_player.handle);
             }
-            gridmap.updates.insert(
+            let tick_data;
+            match gridmap.updates.get_mut(&event.stamp) {
+                Some(u) => {
+                    tick_data = u;
+                }
+                None => {
+                    gridmap.updates.insert(event.stamp, HashMap::new());
+                    tick_data = gridmap.updates.get_mut(&event.stamp).unwrap();
+                }
+            }
+            tick_data.insert(
                 LayerTargetCell {
                     target: target.clone(),
                     is_detail: event.is_detail,
@@ -1060,23 +1074,24 @@ pub(crate) fn add_tile_net(
         if !connected_player.connected {
             return;
         }
-
-        for (_target_cell, update) in gridmap.updates.iter_mut() {
-            match &update.cell {
-                GridmapUpdate::Added(add) => {
-                    if !update.players_received.contains(&connected_player.handle) {
-                        update.players_received.push(connected_player.handle);
-                        net.send(OutgoingReliableServerMessage {
-                            handle: connected_player.handle,
-                            message: GridmapServerMessage::AddCell(NewCell {
-                                cell: add.cell.clone(),
-                                orientation: add.orientation,
-                                tile_type: add.tile_type,
-                            }),
-                        });
+        for (_, subs) in gridmap.updates.iter_mut() {
+            for (_target_cell, update) in subs.iter_mut() {
+                match &update.cell {
+                    GridmapUpdate::Added(add) => {
+                        if !update.players_received.contains(&connected_player.handle) {
+                            update.players_received.push(connected_player.handle);
+                            net.send(OutgoingReliableServerMessage {
+                                handle: connected_player.handle,
+                                message: GridmapServerMessage::AddCell(NewCell {
+                                    cell: add.cell.clone(),
+                                    orientation: add.orientation,
+                                    tile_type: add.tile_type,
+                                }),
+                            });
+                        }
                     }
+                    _ => (),
                 }
-                _ => (),
             }
         }
     }
@@ -1101,8 +1116,18 @@ pub(crate) fn remove_tile_net(
             });
             received.push(connected_player.handle);
         }
+        let subs;
+        match gridmap.updates.get_mut(&event.stamp) {
+            Some(u) => {
+                subs = u;
+            }
+            None => {
+                gridmap.updates.insert(event.stamp, HashMap::new());
+                subs = gridmap.updates.get_mut(&event.stamp).unwrap();
+            }
+        }
 
-        gridmap.updates.insert(
+        subs.insert(
             event.cell.clone(),
             AddedUpdate {
                 cell: GridmapUpdate::Removed,
@@ -1115,19 +1140,20 @@ pub(crate) fn remove_tile_net(
         if !connected_player.connected {
             return;
         }
-
-        for (target_cell, update) in gridmap.updates.iter_mut() {
-            match update.cell {
-                GridmapUpdate::Removed => {
-                    if !update.players_received.contains(&connected_player.handle) {
-                        update.players_received.push(connected_player.handle);
-                        net.send(OutgoingReliableServerMessage {
-                            handle: connected_player.handle,
-                            message: GridmapServerMessage::RemoveCell(target_cell.clone()),
-                        });
+        for (_, subs) in gridmap.updates.iter_mut() {
+            for (target_cell, update) in subs.iter_mut() {
+                match update.cell {
+                    GridmapUpdate::Removed => {
+                        if !update.players_received.contains(&connected_player.handle) {
+                            update.players_received.push(connected_player.handle);
+                            net.send(OutgoingReliableServerMessage {
+                                handle: connected_player.handle,
+                                message: GridmapServerMessage::RemoveCell(target_cell.clone()),
+                            });
+                        }
                     }
+                    _ => (),
                 }
-                _ => (),
             }
         }
     }
@@ -1150,6 +1176,7 @@ pub(crate) fn add_cell_client(
                     entity: commands.spawn(()).id(),
                     is_detail: new.cell.is_detail,
                     default_map_spawn: false,
+                    stamp: message.stamp,
                 });
             }
             _ => (),
@@ -1164,7 +1191,10 @@ pub(crate) fn remove_cell_client(
     for message in net.read() {
         match &message.message {
             GridmapServerMessage::RemoveCell(new) => {
-                event.send(RemoveTile { cell: new.clone() });
+                event.send(RemoveTile {
+                    cell: new.clone(),
+                    stamp: message.stamp,
+                });
             }
             _ => {}
         }
@@ -1490,6 +1520,7 @@ pub(crate) fn spawn_group(
                         entity: commands.spawn(()).id(),
                         default_map_spawn: add_group_event.default_map_spawn,
                         is_detail: is_detail,
+                        stamp: add_group_event.stamp,
                     });
                     i += 1;
                 }

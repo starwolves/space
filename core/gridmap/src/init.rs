@@ -114,6 +114,7 @@ pub(crate) fn load_ron_gridmap(
                     entity: commands.spawn(()).id(),
                     default_map_spawn: true,
                     is_detail: cell_data.is_detail,
+                    stamp: 0,
                 });
             }
             ItemExport::Group(item) => {
@@ -137,6 +138,7 @@ pub(crate) fn load_ron_gridmap(
                     entity: commands.spawn(()).id(),
                     default_map_spawn: true,
                     is_detail: cell_data.is_detail,
+                    stamp: 0,
                 });
             }
         }
