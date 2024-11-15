@@ -34,6 +34,7 @@ use resources::{
 use serde::{Deserialize, Serialize};
 
 /// Gridmap maximum limits as cube dimensions in chunks.
+#[derive(Clone, Debug)]
 pub struct MapLimits {
     /// Full length of the cube as chunks.
     pub length: i16,
@@ -311,7 +312,7 @@ pub struct LayerTargetCell {
 }
 
 /// Stores the main gridmap layer data, huge map data resource. In favor of having each ordinary tile having its own entity with its own sets of components.
-#[derive(Resource)]
+#[derive(Resource, Clone)]
 pub struct Gridmap {
     pub main_grid: Vec<Option<GridmapChunk>>,
     pub details_grid: Vec<Option<GridmapChunk>>,

@@ -252,6 +252,7 @@ impl Plugin for GridmapPlugin {
                     ),
                 );
         }
+
         app.init_resource::<GenericMaterials>()
             .init_resource::<HalfCeilingMaterial>()
             .init_resource::<LargeWindowMaterials>()
