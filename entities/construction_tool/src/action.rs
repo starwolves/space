@@ -1,6 +1,7 @@
 use actions::core::{Action, ActionData, ActionRequests, BuildingActions};
 use bevy::log::warn;
 use bevy::prelude::{EventReader, EventWriter, Query, Res, ResMut, With};
+use gridmap::grid::LayerTargetCell;
 use gridmap::{
     grid::{CellIds, CellTypeName, Gridmap, GroupTypeName},
     net::GridmapServerMessage,
@@ -142,7 +143,8 @@ pub fn send_constructable_items(
 
 pub fn construct_action_prequisite_check(
     mut building_action_data: ResMut<BuildingActions>,
-    gridmap_main: Res<Gridmap>,
+    gridmap: Res<Gridmap>,
+    tools: Query<&ConstructionTool>,
 ) {
     for building in building_action_data.list.iter_mut() {
         for action in building.actions.iter_mut() {
@@ -154,11 +156,52 @@ pub fn construct_action_prequisite_check(
                         cell_id = c;
                     }
                     None => {
+                        action.do_not_approve();
+                        continue;
+                    }
+                }
+                let is_detail;
+                match building.action_taker_item {
+                    Some(item_entity) => match tools.get(item_entity) {
+                        Ok(t) => match &t.construction_option {
+                            Some(cellids) => match cellids {
+                                CellIds::CellType(cell_type_id) => {
+                                    match gridmap.tile_properties.get(cell_type_id) {
+                                        Some(properties) => {
+                                            is_detail = properties.is_detail;
+                                        }
+                                        None => {
+                                            warn!("Couldnt find tileproperties");
+                                            action.do_not_approve();
+                                            continue;
+                                        }
+                                    }
+                                }
+                                CellIds::GroupType(_) => {
+                                    action.do_not_approve();
+                                    continue;
+                                }
+                            },
+                            None => {
+                                action.do_not_approve();
+                                continue;
+                            }
+                        },
+                        Err(_) => {
+                            action.do_not_approve();
+                            continue;
+                        }
+                    },
+                    None => {
+                        action.do_not_approve();
                         continue;
                     }
                 }
 
-                let cell_option = gridmap_main.get_cell(cell_id);
+                let cell_option = gridmap.get_cell(LayerTargetCell {
+                    target: cell_id,
+                    is_detail,
+                });
 
                 match building.target_cell_option.is_some() && cell_option.is_none() {
                     true => {
@@ -191,9 +234,17 @@ pub(crate) fn deconstruct_action_prequisite_check(
                     }
                 }
 
-                let cell_option = gridmap_main.get_cell(cell_id);
-
-                match building.target_cell_option.is_some() && cell_option.is_some() {
+                let cell_option = gridmap_main.get_cell(LayerTargetCell {
+                    target: cell_id.clone(),
+                    is_detail: false,
+                });
+                let cell_option_detail = gridmap_main.get_cell(LayerTargetCell {
+                    target: cell_id,
+                    is_detail: true,
+                });
+                match building.target_cell_option.is_some()
+                    && (cell_option.is_some() || cell_option_detail.is_some())
+                {
                     true => {
                         action.approve();
                     }

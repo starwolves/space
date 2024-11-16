@@ -1,17 +1,5 @@
 use std::time::Duration;
 
-use bevy::{
-    prelude::{resource_exists, App, IntoSystemConfigs, Plugin, Startup},
-    time::common_conditions::on_timer,
-};
-use entity::despawn::DespawnEntitySet;
-use networking::messaging::{register_reliable_message, MessageSender, MessagingSet};
-use player::{connections::process_response, plugin::ConfigurationLabel};
-use resources::{
-    modes::{is_correction_mode, is_server_mode},
-    ordering::{ActionsSet, BuildingSet, PreUpdate, StartupSet, Update},
-};
-
 use crate::{
     connections::configure,
     construction::{
@@ -29,9 +17,9 @@ use crate::{
     fov::ProjectileFOV,
     graphics::{set_cell_graphics, CellGraphicsBuffer},
     grid::{
-        add_cell_client, add_tile, add_tile_collision, add_tile_net, export_debug_map,
-        remove_cell_client, remove_tile, remove_tile_net, spawn_group, AddGroup, AddTile,
-        EditTileSet, Gridmap, RemoveTile,
+        add_cell_client, add_tile, add_tile_client_updates, add_tile_collision, add_tile_net,
+        export_debug_map, remove_cell_client, remove_tile, remove_tile_client_updates,
+        remove_tile_net, spawn_group, AddGroup, AddTile, EditTileSet, Gridmap, RemoveTile,
     },
     init::{
         init_tile_groups, init_tile_properties, load_ron_gridmap, InitTileGroups,
@@ -106,6 +94,19 @@ use crate::{
         wall_reinforced_glass::{init_wall_reinforced_glass, init_wall_reinforced_glass_material},
     },
     net::{GridmapClientMessage, GridmapServerMessage},
+    sync::correction_gridmap_sync,
+};
+use bevy::prelude::IntoSystemSetConfigs;
+use bevy::{
+    prelude::{resource_exists, App, IntoSystemConfigs, Plugin, Startup},
+    time::common_conditions::on_timer,
+};
+use entity::despawn::DespawnEntitySet;
+use networking::messaging::{register_reliable_message, MessageSender, MessagingSet};
+use player::{connections::process_response, plugin::ConfigurationLabel};
+use resources::{
+    modes::{is_correction_mode, is_server_mode},
+    ordering::{ActionsSet, BuildingSet, PreUpdate, StartupSet, Update},
 };
 
 use super::{
@@ -192,6 +193,8 @@ impl Plugin for GridmapPlugin {
                         (client_mouse_click_input
                             .after(update_ghost_cell)
                             .run_if(resource_exists::<GridmapConstructionState>),),
+                        remove_tile_client_updates.after(EditTileSet::Remove),
+                        add_tile_client_updates.after(EditTileSet::Add),
                     ),
                 )
                 .add_event::<SetYPlanePosition>()
@@ -253,6 +256,10 @@ impl Plugin for GridmapPlugin {
                 );
         }
 
+        if is_server_mode(app) && is_correction_mode(app) {
+            app.add_systems(Update, correction_gridmap_sync.before(EditTileSet::Remove));
+        }
+
         app.init_resource::<GenericMaterials>()
             .init_resource::<HalfCeilingMaterial>()
             .init_resource::<LargeWindowMaterials>()
@@ -269,6 +276,7 @@ impl Plugin for GridmapPlugin {
             .init_resource::<BridgeWallMaterial>()
             .init_resource::<BridgeHalfDiagonalCeilingMaterial>()
             .init_resource::<LightMaterials>()
+            .configure_sets(Update, (EditTileSet::Remove, EditTileSet::Add).chain())
             .add_systems(
                 Startup,
                 load_ron_gridmap

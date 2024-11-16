@@ -14,13 +14,13 @@ use text_api::core::{
     FURTHER_ITALIC_FONT, HEALTHY_COLOR, UNHEALTHY_COLOR,
 };
 
-use crate::grid::{CellItem, CellTypeId, Gridmap};
+use crate::grid::{CellItem, CellTypeId, Gridmap, LayerTargetCell};
 
 /// Manage examining the gridmap.
 
 pub(crate) fn examine_map(
     mut examine_map_events: ResMut<GridmapExamineMessages>,
-    gridmap_main: Res<Gridmap>,
+    gridmap: Res<Gridmap>,
     senser_entities: Query<&Senser>,
 ) {
     for examine_event in examine_map_events.messages.iter_mut() {
@@ -45,12 +45,15 @@ pub(crate) fn examine_map(
         if !examiner_senser_component.fov.is_in_fov(coords.0, coords.1) {
             examine_text = get_empty_cell_message();
         } else {
-            match gridmap_main.get_cell(TargetCell {
-                id: examine_event.gridmap_cell_id,
-                face: examine_event.face.clone(),
+            match gridmap.get_cell(LayerTargetCell {
+                target: TargetCell {
+                    id: examine_event.gridmap_cell_id,
+                    face: examine_event.face.clone(),
+                },
+                is_detail: false,
             }) {
                 Some(ship_cell) => {
-                    examine_text = examine_ship_cell(&ship_cell, &gridmap_main);
+                    examine_text = examine_ship_cell(&ship_cell, &gridmap);
                 }
                 None => {
                     examine_text = get_space_message();
@@ -69,7 +72,7 @@ pub(crate) fn examine_map(
 pub(crate) fn set_action_header_name(
     mut building_action_data: ResMut<BuildingActions>,
     examinables: Query<&Examinable>,
-    gridmap_main: Res<Gridmap>,
+    gridmap: Res<Gridmap>,
     mut action_data_requests: ResMut<ListActionDataRequests>,
 ) {
     for building in building_action_data.list.iter_mut() {
@@ -94,11 +97,14 @@ pub(crate) fn set_action_header_name(
                 }
             },
             None => {
-                let gridmap = building.target_cell_option.clone().unwrap();
+                let t = building.target_cell_option.clone().unwrap();
 
                 let item_id;
 
-                match gridmap_main.get_cell(gridmap) {
+                match gridmap.get_cell(LayerTargetCell {
+                    target: t,
+                    is_detail: false,
+                }) {
                     Some(data) => {
                         item_id = data.tile_type;
                     }
@@ -109,7 +115,7 @@ pub(crate) fn set_action_header_name(
                 }
 
                 action_data_request.set_id(
-                    gridmap_main
+                    gridmap
                         .tile_properties
                         .get(&item_id)
                         .unwrap()
@@ -144,9 +150,12 @@ pub(crate) fn examine_map_health(
 
         let gridmap_result;
 
-        gridmap_result = gridmap_main.get_cell(TargetCell {
-            id: examine_event.gridmap_cell_id,
-            face: examine_event.face.clone(),
+        gridmap_result = gridmap_main.get_cell(LayerTargetCell {
+            target: TargetCell {
+                id: examine_event.gridmap_cell_id,
+                face: examine_event.face.clone(),
+            },
+            is_detail: false,
         });
 
         let ship_cell_option;

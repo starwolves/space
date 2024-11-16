@@ -667,12 +667,18 @@ impl Gridmap {
             id: adjusted_id,
         }
     }
-    pub fn get_cell(&self, cell: TargetCell) -> Option<CellItem> {
-        let strict = self.get_strict_cell(cell);
-
+    pub fn get_cell(&self, cell: LayerTargetCell) -> Option<CellItem> {
+        let strict = self.get_strict_cell(cell.target);
         let indexes = self.get_indexes(strict.id);
 
-        match self.main_grid.get(indexes.chunk) {
+        let grid;
+        if cell.is_detail {
+            grid = &self.details_grid;
+        } else {
+            grid = &self.main_grid;
+        }
+
+        match grid.get(indexes.chunk) {
             Some(chunk_option) => match chunk_option {
                 Some(chunk) => match chunk.cells.get(indexes.cell) {
                     Some(cell_data_option) => match cell_data_option {
@@ -771,6 +777,98 @@ impl Gridmap {
             }
         }
     }
+    pub fn batch_updates(
+        &self,
+        gridmap_tick: u32,
+        start_tick: u32,
+        addtile: &mut EventWriter<AddTile>,
+        removetile: &mut EventWriter<RemoveTile>,
+        commands: &mut Commands,
+    ) {
+        if gridmap_tick + 1 > start_tick {
+            warn!("Batch updates: Gridmap tick is greater than start_tick.");
+        }
+        // We have to compare all add and remove changes to check for skippable changes.
+        let mut recorded_updates: HashMap<LayerTargetCell, BTreeMap<u32, AddedUpdate>> =
+            HashMap::new();
+        for i in gridmap_tick + 1..start_tick + 1 {
+            match self.updates.get(&i) {
+                Some(updates) => {
+                    for (id, au) in updates.iter() {
+                        match recorded_updates.get_mut(id) {
+                            Some(record) => {
+                                record.insert(i, au.clone());
+                            }
+                            None => {
+                                let mut new_changes = BTreeMap::new();
+                                new_changes.insert(i, au.clone());
+                                recorded_updates.insert(id.clone(), new_changes);
+                            }
+                        }
+                    }
+                }
+                None => {}
+            }
+        }
+        let mut added_or_removed: HashMap<LayerTargetCell, (u32, AddedUpdate)> = HashMap::new();
+        for (id, changes) in recorded_updates.iter() {
+            for (tick, cell) in changes.iter() {
+                added_or_removed.insert(id.clone(), (*tick, cell.clone()));
+            }
+        }
+        // added_or_removed contains the new states of the changed gridmap ids.
+        // Now figure out what needs to be changed from the correction gridmap to achieve these results, so write custom RemoveTile or omit some.
+        for (id, (tick, cell)) in added_or_removed.iter() {
+            match &cell.cell {
+                GridmapUpdate::Added(new_cell) => {
+                    // Check if this id is not currently occupied in gridmap.
+                    // If so fire a RemoveTile event before we fire the AddTile event.
+                    // But now we run into ordering issues of remove/addtile events.
+
+                    match self.get_cell(LayerTargetCell {
+                        target: id.target.clone(),
+                        is_detail: id.is_detail,
+                    }) {
+                        Some(_) => {
+                            removetile.send(RemoveTile {
+                                cell: id.clone(),
+                                stamp: *tick,
+                            });
+                        }
+                        None => {}
+                    }
+
+                    addtile.send(AddTile {
+                        id: id.target.id,
+                        tile_type: new_cell.tile_type,
+                        orientation: new_cell.orientation,
+                        face: id.target.face.clone(),
+                        group_instance_id_option: None,
+                        entity: commands.spawn(()).id(),
+                        default_map_spawn: false,
+                        is_detail: id.is_detail,
+                        stamp: *tick,
+                    });
+                }
+                GridmapUpdate::Removed => {
+                    // Check if this id is currently occupied in gridmap otherwise no need to send this.
+
+                    match self.get_cell(LayerTargetCell {
+                        target: id.target.clone(),
+                        is_detail: id.is_detail,
+                    }) {
+                        Some(_) => {
+                            removetile.send(RemoveTile {
+                                cell: id.clone(),
+                                stamp: *tick,
+                            });
+                        }
+                        None => {}
+                    }
+                }
+            }
+        }
+    }
 }
 
 /// For entities that are also registered in the gridmap. (entity tiles)
@@ -805,7 +903,7 @@ pub enum AdjacentTileDirection {
     Right,
 }
 
-/// Remove gridmap cell event.
+/// Remove gridmap cell.
 #[derive(Event)]
 pub struct RemoveTile {
     pub cell: LayerTargetCell,
@@ -839,7 +937,7 @@ pub enum EditTileSet {
     Remove,
 }
 
-/// Event to add a gridmap tile.
+/// Add a gridmap tile.
 #[derive(Event, Clone)]
 pub struct AddTile {
     pub id: Vec3Int,
@@ -1256,9 +1354,76 @@ pub(crate) fn add_tile_collision(
     }
 }
 
+pub(crate) fn remove_tile_client_updates(
+    mut events: EventReader<RemoveTile>,
+    mut gridmap: ResMut<Gridmap>,
+) {
+    for remove_event in events.read() {
+        let target = LayerTargetCell {
+            target: TargetCell {
+                id: remove_event.cell.target.id,
+                face: remove_event.cell.target.face.clone(),
+            },
+            is_detail: remove_event.cell.is_detail,
+        };
+        let mut_ref;
+        match gridmap.updates.get_mut(&remove_event.stamp) {
+            Some(r) => {
+                mut_ref = r;
+            }
+            None => {
+                gridmap.updates.insert(remove_event.stamp, HashMap::new());
+                mut_ref = gridmap.updates.get_mut(&remove_event.stamp).unwrap();
+            }
+        }
+        mut_ref.insert(
+            target.clone(),
+            AddedUpdate {
+                cell: GridmapUpdate::Removed,
+                players_received: vec![],
+            },
+        );
+    }
+}
+pub(crate) fn add_tile_client_updates(
+    mut events: EventReader<AddTile>,
+    mut gridmap: ResMut<Gridmap>,
+) {
+    for add_tile_event in events.read() {
+        let target = LayerTargetCell {
+            target: TargetCell {
+                id: add_tile_event.id,
+                face: add_tile_event.face.clone(),
+            },
+            is_detail: add_tile_event.is_detail,
+        };
+        let mut_ref;
+        match gridmap.updates.get_mut(&add_tile_event.stamp) {
+            Some(r) => {
+                mut_ref = r;
+            }
+            None => {
+                gridmap.updates.insert(add_tile_event.stamp, HashMap::new());
+                mut_ref = gridmap.updates.get_mut(&add_tile_event.stamp).unwrap();
+            }
+        }
+        mut_ref.insert(
+            target.clone(),
+            AddedUpdate {
+                cell: GridmapUpdate::Added(NewCell {
+                    cell: target,
+                    orientation: add_tile_event.orientation,
+                    tile_type: add_tile_event.tile_type,
+                }),
+                players_received: vec![],
+            },
+        );
+    }
+}
+
 pub(crate) fn add_tile(
     mut events: EventReader<AddTile>,
-    mut gridmap_main: ResMut<Gridmap>,
+    mut gridmap: ResMut<Gridmap>,
     mut commands: Commands,
 ) {
     for add_tile_event in events.read() {
@@ -1268,17 +1433,18 @@ pub(crate) fn add_tile(
                 id: add_tile_event.id,
             },
         ));
-        let strict = gridmap_main.get_strict_cell(TargetCell {
+
+        let strict = gridmap.get_strict_cell(TargetCell {
             id: add_tile_event.id,
             face: add_tile_event.face.clone(),
         });
 
-        let indexes = gridmap_main.get_indexes(strict.id);
+        let indexes = gridmap.get_indexes(strict.id);
         let grid;
         if !add_tile_event.is_detail {
-            grid = &mut gridmap_main.main_grid;
+            grid = &mut gridmap.main_grid;
         } else {
-            grid = &mut gridmap_main.details_grid;
+            grid = &mut gridmap.details_grid;
         }
         match grid.get_mut(indexes.chunk) {
             Some(chunk_option) => {
