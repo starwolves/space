@@ -8,7 +8,7 @@ use bevy_xpbd_3d::components::{CollisionLayers, Friction, LockedAxes, Sleeping};
 use bevy_xpbd_3d::plugins::collision::Collider;
 use bevy_xpbd_3d::prelude::{
     AngularDamping, AngularVelocity, ExternalAngularImpulse, ExternalForce, ExternalImpulse,
-    ExternalTorque, LinearDamping, LinearVelocity, RigidBody,
+    ExternalTorque, GravityScale, LinearDamping, LinearVelocity, RigidBody,
 };
 use entity::entity_data::EntityData;
 use entity::entity_types::BoxedEntityType;
@@ -78,6 +78,7 @@ pub struct Cache {
     pub collider_friction: Friction,
     pub entity_type: BoxedEntityType,
     pub spawn_frame: bool,
+    pub gravity_scale: GravityScale,
 }
 
 /// Apply the data of newly spawn in entities just to cache their physics properties so the correction server registers them for the first time.
@@ -147,6 +148,7 @@ pub(crate) fn cache_data_prev_tick(
                 &CollisionLayers,
             ),
             &Friction,
+            &GravityScale,
         ),
         With<SFRigidBody>,
     >,
@@ -155,7 +157,7 @@ pub(crate) fn cache_data_prev_tick(
     rigidbodies: Res<RigidBodies>,
     types: Query<&EntityData>,
 ) {
-    for (t0, collider_friction) in query.iter() {
+    for (t0, collider_friction, gravity_scale) in query.iter() {
         let mut adjusted_stamp = stamp.tick;
         if adjusted_stamp > 0 {
             adjusted_stamp -= 1;
@@ -226,6 +228,7 @@ pub(crate) fn cache_data_prev_tick(
             collider_friction: *collider_friction,
             entity_type,
             spawn_frame: false,
+            gravity_scale: gravity_scale.clone(),
         };
 
         match cache.cache.get_mut(&adjusted_stamp) {
@@ -271,6 +274,7 @@ pub(crate) fn cache_data_new_spawns(
                 &CollisionLayers,
             ),
             &Friction,
+            &GravityScale,
         ),
         With<SFRigidBody>,
     >,
@@ -279,7 +283,7 @@ pub(crate) fn cache_data_new_spawns(
     rigidbodies: Res<RigidBodies>,
     types: Query<&EntityData>,
 ) {
-    for (t0, collider_friction) in query.iter() {
+    for (t0, collider_friction, gravity_scale) in query.iter() {
         let adjusted_stamp = stamp.tick;
 
         let (
@@ -347,6 +351,7 @@ pub(crate) fn cache_data_new_spawns(
             collider_friction: *collider_friction,
             entity_type,
             spawn_frame: false,
+            gravity_scale: gravity_scale.clone(),
         };
 
         match cache.cache.get_mut(&adjusted_stamp) {
@@ -391,6 +396,7 @@ pub(crate) fn _cache_data(
                 &CollisionLayers,
             ),
             &Friction,
+            &GravityScale,
         ),
         With<SFRigidBody>,
     >,
@@ -399,7 +405,7 @@ pub(crate) fn _cache_data(
     rigidbodies: Res<RigidBodies>,
     types: Query<&EntityData>,
 ) {
-    for (t0, collider_friction) in query.iter() {
+    for (t0, collider_friction, gravity_scale) in query.iter() {
         let adjusted_stamp = stamp.tick - 1;
 
         let (
@@ -467,6 +473,7 @@ pub(crate) fn _cache_data(
             collider_friction: *collider_friction,
             entity_type,
             spawn_frame: false,
+            gravity_scale: gravity_scale.clone(),
         };
 
         match cache.cache.get_mut(&adjusted_stamp) {

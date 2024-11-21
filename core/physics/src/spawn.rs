@@ -16,8 +16,8 @@ use bevy_xpbd_3d::{
         LinearDamping,
     },
     prelude::{
-        Collider, CollisionLayers, ExternalForce, Friction, LinearVelocity, LockedAxes, RigidBody,
-        Sleeping,
+        Collider, CollisionLayers, ExternalForce, Friction, GravityScale, LinearVelocity,
+        LockedAxes, RigidBody, Sleeping,
     },
 };
 use entity::spawn::EntityBuildData;
@@ -31,6 +31,7 @@ pub struct RigidBodyBundle {
     pub collision_events: bool,
     pub external_force: ExternalForce,
     pub mesh_offset: Transform,
+    pub gravity_scale: f32,
 }
 
 impl Default for RigidBodyBundle {
@@ -44,6 +45,7 @@ impl Default for RigidBodyBundle {
             locked_axes: LockedAxes::new(),
             external_force: ExternalForce::default(),
             mesh_offset: Transform::default(),
+            gravity_scale: 1.0,
         }
     }
 }
@@ -67,6 +69,7 @@ pub struct RigidBodyBuildData {
     pub external_torque: ExternalTorque,
     pub external_angular_impulse: ExternalAngularImpulse,
     pub external_impulse: ExternalImpulse,
+    pub gravity_scale: GravityScale,
 }
 
 impl Default for RigidBodyBuildData {
@@ -91,6 +94,7 @@ impl Default for RigidBodyBuildData {
             external_torque: ExternalTorque::default(),
             external_angular_impulse: ExternalAngularImpulse::default(),
             external_impulse: ExternalImpulse::default(),
+            gravity_scale: GravityScale::default(),
         }
     }
 }
@@ -146,6 +150,7 @@ pub fn rigidbody_builder(
         rigidbody_spawn_data.angular_velocity,
         rigidbody_spawn_data.external_torque,
         rigidbody_spawn_data.external_angular_impulse,
+        rigidbody_spawn_data.gravity_scale,
     ));
     builder.insert((rigidbody_spawn_data.external_impulse,));
 

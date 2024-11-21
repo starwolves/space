@@ -26,6 +26,7 @@ use bevy_xpbd_3d::{
         RigidBody, Sleeping,
     },
     plugins::collision::Collider,
+    prelude::GravityScale,
 };
 use cameras::{LookTransform, LookTransformCache};
 use controller::controller::{ControllerCache, ControllerInput};
@@ -524,6 +525,7 @@ pub(crate) fn store_tick_data(
                 &CollisionLayers,
             ),
             &Friction,
+            &GravityScale,
         ),
         With<SFRigidBody>,
     >,
@@ -540,7 +542,7 @@ pub(crate) fn store_tick_data(
     }
     storage.0.cache.insert(stamp.tick, HashMap::new());
 
-    for (t0, collider_friction) in query.iter() {
+    for (t0, collider_friction, gravity_scale) in query.iter() {
         let (
             rb_entity,
             transform,
@@ -620,6 +622,7 @@ pub(crate) fn store_tick_data(
                 collider_friction: *collider_friction,
                 entity_type: entity_type,
                 spawn_frame: false,
+                gravity_scale: gravity_scale.clone(),
             },
         );
     }

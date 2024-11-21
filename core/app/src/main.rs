@@ -109,6 +109,7 @@ use sfx::plugin::SfxPlugin;
 use sounds::plugin::SoundsPlugin;
 use std::env::current_dir;
 use token::plugin::TokenPlugin;
+use transport_shuttle::plugin::TransportShuttlePlugin;
 use ui::plugin::UiPlugin;
 
 pub mod correction;
@@ -303,6 +304,7 @@ fn setup_plugins(mut app: &mut App) {
             .add_plugins(PawnPlugin)
             .add_plugins(PlayerPlugin)
             .add_plugins(ConstructionToolAdminPlugin)
+            .add_plugins(TransportShuttlePlugin)
             .add_plugins(AirLocksPlugin)
             .add_plugins(CounterWindowsPlugin)
             .add_plugins(InventoryPlugin)

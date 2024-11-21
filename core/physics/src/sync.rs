@@ -502,6 +502,7 @@ pub(crate) fn sync_correction_world_entities(
                 external_torque: ncache.external_torque,
                 external_angular_impulse: ncache.external_angular_impulse,
                 external_impulse: ncache.external_impulse,
+                gravity_scale: ncache.gravity_scale,
             },
             entity,
             false,

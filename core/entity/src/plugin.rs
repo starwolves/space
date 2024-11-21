@@ -81,14 +81,17 @@ impl Plugin for EntityPlugin {
                 .init_resource::<PawnId>()
                 .add_systems(
                     Startup,
-                    (
-                        finalize_register_entity_types.after(EntityTypeLabel::Register),
-                        load_ron_entities
-                            .after(StartupSet::BuildGridmap)
-                            .in_set(StartupSet::InitEntities)
-                            .in_set(BuildingSet::RawTriggerBuild),
-                    ),
+                    (finalize_register_entity_types.after(EntityTypeLabel::Register),),
                 );
+            if is_server_mode(app) {
+                app.add_systems(
+                    Startup,
+                    (load_ron_entities
+                        .after(StartupSet::BuildGridmap)
+                        .in_set(StartupSet::InitEntities)
+                        .in_set(BuildingSet::RawTriggerBuild),),
+                );
+            }
         }
 
         app.add_event::<DespawnEntity>()
